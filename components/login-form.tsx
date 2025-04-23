@@ -1,0 +1,125 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { useToast } from "@/hooks/use-toast"
+
+// Definisanje šeme za validaciju forme
+const formSchema = z.object({
+  firstName: z.string().min(2, {
+    message: "Ime mora imati najmanje 2 karaktera",
+  }),
+  lastName: z.string().min(2, {
+    message: "Prezime mora imati najmanje 2 karaktera",
+  }),
+  email: z.string().email({
+    message: "Unesite validnu email adresu",
+  }),
+})
+
+export function LoginForm() {
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+  const { toast } = useToast()
+
+  // Inicijalizacija forme sa react-hook-form i zod validacijom
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+    },
+  })
+
+  // Funkcija koja se poziva prilikom slanja forme
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      setIsLoading(true)
+
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Došlo je do greške")
+      }
+
+      // Preusmeravanje na stranicu za verifikaciju
+      router.push("/verify")
+    } catch (error) {
+      console.error("Login error:", error)
+      toast({
+        variant: "destructive",
+        title: "Greška",
+        description: error instanceof Error ? error.message : "Došlo je do greške prilikom prijave",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="firstName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Ime</FormLabel>
+              <FormControl>
+                <Input placeholder="Unesite vaše ime" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="lastName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Prezime</FormLabel>
+              <FormControl>
+                <Input placeholder="Unesite vaše prezime" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="vasa.adresa@email.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "Slanje..." : "Prijavi se"}
+        </Button>
+      </form>
+    </Form>
+  )
+}

@@ -1,0 +1,31 @@
+/*
+📌 Projekat: SaaS aplikacija za prikupljanje slika gostiju sa svadbe
+
+🎯 Cilj:
+Napraviti aplikaciju u kojoj gosti mogu da se prijave pomoću imena, prezimena i email adrese, dobiju verifikacioni kod putem emaila, i nakon potvrde koda dobiju pristup svom dashboardu. Na dashboardu mogu uploadovati do 10 slika i ostaviti poruku ili čestitku. Mladenci (admini) kasnije pregledaju slike po gostima.
+
+🧠 Pravila za pisanje koda:
+- Piši isključivo kod koji se odnosi na ovu funkcionalnost — ništa van teme (nema registracije sa lozinkom, socijalnih mreža, itd.)
+- Kod mora biti čitljiv, jasan i optimalan.
+- Komentariši kompleksnije delove koda, ali ne zatrpavaj trivijalne linije.
+- Održavaj konzistentan stil kroz ceo projekat (TypeScript + Next.js 14 App Router + Tailwind).
+- Ne dodaj biblioteke koje nisu neophodne.
+- Brši sav nepotreban kod koji nije u vezi sa glavnom funkcijom sistema.
+- Kad god naiđeš na grešku — automatski je ispravi i optimizuj najbolje što možeš.
+
+🔧 Tehnologije:
+- Frontend: Next.js 14 (App Router), Tailwind CSS, TypeScript
+- Backend: Next.js API routes
+- Baza: PostgreSQL (preko Prisma ORM)
+- Email: Nodemailer (ili simulacija ako nije u produkciji)
+- Upload slika: (planirano kasnije, ne dodavati dok nije zatraženo)
+
+🧱 Korisnici:
+- Gost: prijavljuje se putem email koda, dobija pristup dashboardu
+- Admin (mladenci): pregledaju sve pristigle slike i poruke (kasnije)
+
+🧪 Testiranje:
+- Svaka funkcionalnost mora se moći lokalno testirati (dev mode)
+- Prikazuj sve relevantne greške u konzoli, ali bez rušenja aplikacije
+
+*/
