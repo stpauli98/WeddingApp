@@ -11,7 +11,7 @@ export function middleware(request: NextRequest) {
   // Dobijanje putanje
   const path = request.nextUrl.pathname
 
-  // Preskakanje middleware-a za API rute
+  // Preskakanje middleware-a za API ruteee
   if (path.startsWith("/api/")) {
     return NextResponse.next()
   }
