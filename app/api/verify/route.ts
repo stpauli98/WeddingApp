@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
+import { prisma } from '@/lib/prisma'
 
 export async function POST(request: Request) {
   try {
@@ -10,30 +11,41 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Verifikacioni kod je obavezan" }, { status: 400 })
     }
 
-    // Dobijanje podataka korisnika iz cookie-a
-    const userDataCookie = (await cookies()).get("userData")
+    // Pronalaženje korisnika u bazi podataka prema kodu
+    const guest = await prisma.guest.findFirst({
+      where: { 
+        code,
+        verified: false
+      }
+    })
 
-    if (!userDataCookie || !userDataCookie.value) {
-      return NextResponse.json({ error: "Sesija je istekla, molimo prijavite se ponovo" }, { status: 401 })
+    if (!guest) {
+      return NextResponse.json({ error: "Korisnik nije pronađen" }, { status: 404 })
     }
 
-    let userData
-    try {
-      userData = JSON.parse(userDataCookie.value)
-    } catch (e) {
-      console.error("Error parsing userData cookie:", e)
-      return NextResponse.json({ error: "Nevažeća sesija, molimo prijavite se ponovo" }, { status: 401 })
+    // Provjera da li je kod istekao
+    if (guest.code_expires_at && new Date() > guest.code_expires_at) {
+      return NextResponse.json({ error: "Verifikacioni kod je istekao, molimo zatražite novi" }, { status: 400 })
     }
 
-    // Provera verifikacionog koda
-    if (userData.verificationCode !== code) {
+    // Provjera verifikacionog koda
+    if (guest.code !== code) {
       return NextResponse.json({ error: "Neispravan verifikacioni kod" }, { status: 400 })
     }
 
-    // Postavljanje auth cookie-a
-    (await cookies()).set({
+    // Ažuriranje statusa verifikacije u bazi
+    await prisma.$transaction(async (tx) => {
+      await tx.guest.update({
+        where: { id: guest.id },
+        data: { verified: true, code: null, code_expires_at: null }
+      })
+    })
+
+    // Postavljanje auth cookie-a sa ID-em gosta
+    const cookieStore = await cookies()
+    cookieStore.set({
       name: "auth",
-      value: "true",
+      value: guest.id,
       maxAge: 60 * 60 * 24, // 24 sata
       path: "/",
       httpOnly: true,

@@ -6,22 +6,22 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export default async function VerifyPage() {
-  // Provera da li korisnik ima userData cookie
+  // Provjera da li je korisnik već autentificiran
   const cookieStore = await cookies();
-  const userDataCookie = cookieStore.get("userData");
+  const authCookie = cookieStore.get("auth");
 
-  // Ako nema userData cookie, prikaži poruku o grešci
-  if (!userDataCookie) {
+  // Ako je korisnik već autentificiran, preusmjeri ga na dashboard
+  if (authCookie) {
     return (
       <div className="container max-w-md mx-auto px-4 py-8 text-center">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">Sesija je istekla</h1>
+          <h1 className="text-3xl font-bold">Već ste prijavljeni</h1>
           <p className="text-muted-foreground mt-4">
-            Vaša sesija je istekla ili niste prošli kroz proces prijave. Molimo vas da se ponovo prijavite.
+            Već ste uspješno verificirali svoj račun.
           </p>
         </div>
-        <Link href="/">
-          <Button>Povratak na prijavu</Button>
+        <Link href="/dashboard">
+          <Button>Idi na dashboard</Button>
         </Link>
       </div>
     )

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
-import { cookies } from "next/headers"
 import { Resend } from 'resend';
 import { EmailTemplate } from '@/components/email-template';
+import { prisma } from '@/lib/prisma';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -29,28 +29,40 @@ export async function POST(request: Request) {
 
     // Generisanje verifikacionog koda (6 cifara)
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
+    
+    // Postavljanje vremena isteka koda (30 minuta)
+    const codeExpiresAt = new Date(Date.now() + 30 * 60 * 1000)
+
+    // Provjera da li korisnik već postoji u bazi
+    const existingGuest = await prisma.guest.findUnique({
+      where: { email }
+    })
+
+    if (existingGuest) {
+      // Ažuriranje postojećeg korisnika sa novim kodom
+      await prisma.guest.update({
+        where: { email },
+        data: {
+          code: verificationCode,
+          code_expires_at: codeExpiresAt,
+          verified: false
+        }
+      })
+    } else {
+      // Kreiranje novog korisnika
+      await prisma.guest.create({
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          code: verificationCode,
+          code_expires_at: codeExpiresAt
+        }
+      })
+    }
 
     // Slanje verifikacionog email-a
     await sendVerificationEmail(email, verificationCode, firstName)
-
-    // Čuvanje podataka u cookie (u pravoj aplikaciji, ovo bi bilo u bazi)
-    const userData = {
-      firstName,
-      lastName,
-      email,
-      verificationCode,
-    }
-
-    // Postavljanje cookie-a sa podacima korisnika
-    const cookieStore = await cookies();
-    cookieStore.set({
-      name: "userData",
-      value: JSON.stringify(userData),
-      maxAge: 60 * 30, // 30 minuta
-      path: "/",
-      httpOnly: true,
-      sameSite: "lax",
-    });
 
     return NextResponse.json({ success: true })
   } catch (error) {

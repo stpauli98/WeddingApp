@@ -2,16 +2,11 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 // Funkcija koja se izvršava za svaki zahtev
-export function middleware(request: NextRequest) {
-
-  // Provera da li je korisnik vec autentifikovan
-  const isDashboard = request.nextUrl.pathname.startsWith('/dashboard');
-  const guest = request.cookies.get('guest')?.value;
-
+export async function middleware(request: NextRequest) {
   // Dobijanje putanje
   const path = request.nextUrl.pathname
 
-  // Preskakanje middleware-a za API ruteee
+  // Preskakanje middleware-a za API rute
   if (path.startsWith("/api/")) {
     return NextResponse.next()
   }
@@ -20,20 +15,12 @@ export function middleware(request: NextRequest) {
   const isProtectedRoute = path === "/dashboard" || path === "/success"
 
   // Dobijanje auth cookie-a
-  const isAuthenticated = request.cookies.has("auth")
-
-  // Dobijanje userData cookie-a
-  const hasUserData = request.cookies.has("userData")
+  const authCookie = request.cookies.get("auth")
+  const isAuthenticated = !!authCookie?.value
 
   // Ako je putanja zaštićena i korisnik nije autentifikovan, preusmeravanje na početnu stranicu
   if (isProtectedRoute && !isAuthenticated) {
     console.log("Middleware: Korisnik nije autentifikovan za zaštićenu rutu:", path)
-    return NextResponse.redirect(new URL("/", request.url))
-  }
-
-  // Ako korisnik pokušava da pristupi stranici za verifikaciju bez prethodnog logina
-  if (path === "/verify" && !hasUserData) {
-    console.log("Middleware: Korisnik nema userData za verifikaciju")
     return NextResponse.redirect(new URL("/", request.url))
   }
 
