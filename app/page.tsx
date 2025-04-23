@@ -1,15 +1,17 @@
 import { LoginForm } from "@/components/login-form"
 
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+
 export default function Home() {
   return (
-    <div className="container max-w-md mx-auto px-4 py-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold">Dobrodošli</h1>
-        <p className="text-muted-foreground mt-2">
-          Molimo vas da se prijavite kako biste pristupili svadbenoj aplikaciji
-        </p>
+    <main className="min-h-screen flex flex-col items-center justify-center bg-background">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold mb-8">Dobrodošli</h1>
+        <Link href="/login">
+          <Button className="text-lg px-8 py-4">Prijava</Button>
+        </Link>
       </div>
-      <LoginForm />
-    </div>
+    </main>
   )
 }

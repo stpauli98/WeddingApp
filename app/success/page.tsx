@@ -3,6 +3,8 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
 
+import LogoutButton from "./LogoutButton"
+
 export default async function SuccessPage() {
   // Provera da li je korisnik prijavljen
   const cookieStore = await cookies()
@@ -22,15 +24,7 @@ export default async function SuccessPage() {
       </div>
 
       <div className="flex flex-col gap-4">
-        <Link href="/dashboard">
-          <Button className="w-full">Povratak na početnu</Button>
-        </Link>
-
-        <Link href="/dashboard">
-          <Button variant="outline" className="w-full">
-            Pošalji još slika
-          </Button>
-        </Link>
+        <LogoutButton />
       </div>
     </div>
   )
