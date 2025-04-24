@@ -52,7 +52,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadRes
         // Konvertuj bilo koji format u JPG koristeći sharp
         let jpgBuffer: Buffer;
         try {
-          jpgBuffer = await sharp(buffer).jpeg({ quality: 85 }).toBuffer();
+          jpgBuffer = await sharp(buffer).rotate().jpeg({ quality: 85 }).toBuffer();
         } catch (err: any) {
           return NextResponse.json({ error: `Greška pri konverziji slike ${image.name} u JPG: ${err?.message || "Nepoznata greška"}` }, { status: 400 });
         }
