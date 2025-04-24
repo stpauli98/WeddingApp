@@ -1,36 +1,30 @@
 import { WeddingInfo } from "@/components/wedding-info"
 import { UploadForm } from "@/components/upload-form"
 import { redirect } from "next/navigation"
-import { cookies } from "next/headers"
 import { prisma } from "@/lib/prisma"
 import LogoutButton from "@/app/success/LogoutButton"
+import { ImageGallery } from "@/components/image-gallery"
+import { getGuestById } from "@/lib/auth"
 
 export default async function DashboardPage({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  // Provera da li je korisnik prijavljen
-  const cookieStore = await cookies()
-  const authCookie = cookieStore.get("auth")
+  // Dobavljanje guestId iz URL parametara
+  const guestIdParam = searchParams?.guestId
+  const guestId = typeof guestIdParam === 'string' ? guestIdParam : ""
   
-  // Provera iz baze podataka
-  if (!authCookie?.value) {
-    console.log("[DASHBOARD] Nema auth cookie-a")
+  if (!guestId) {
+    console.log("[DASHBOARD] Nedostaje guestId u URL parametrima")
     redirect("/")
   }
   
   // Proveri da li gost postoji i da li je verifikovan
-  const guest = await prisma.guest.findUnique({
-    where: { id: authCookie.value },
-    include: {
-      images: true,
-      message: true
-    }
-  })
+  const guest = await getGuestById(guestId)
   
-  if (!guest || !guest.verified) {
-    console.log(`[DASHBOARD] Gost nije pronađen ili nije verifikovan: ${authCookie.value}`)
+  if (!guest) {
+    console.log(`[DASHBOARD] Gost nije pronađen ili nije verifikovan: ${guestId}`)
     redirect("/")
   }
   
@@ -52,12 +46,13 @@ export default async function DashboardPage({
             <p className="text-muted-foreground mb-4">
               Uploadovano {guest.images?.length || 0} od 10 dozvoljenih slika
             </p>
-            <UploadForm />
+            <UploadForm guestId={guestId} />
           </>
         )}
         
       </div>
-      <LogoutButton label="Povratak na početnu" />
+      <ImageGallery images={guest.images || []} />
+      <LogoutButton label="Odjavi se" />
     </div>
   )
 }

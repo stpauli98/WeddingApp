@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { Resend } from 'resend';
 import { EmailTemplate } from '@/components/email-template';
 import { prisma } from '@/lib/prisma';
+import { getGuestByEmail } from '@/lib/auth';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -28,24 +29,15 @@ export async function POST(request: Request) {
     }
 
     // Provjera da li korisnik već postoji u bazi i da li je već verifikovan
-    const existingGuest = await prisma.guest.findUnique({
-      where: { email }
-    })
+    const existingGuest = await getGuestByEmail(email)
 
     // Ako korisnik postoji i već je verifikovan, direktno ga prijavljujemo
-    if (existingGuest && existingGuest.verified) {
-      // Postavljanje auth cookie-a sa ID-em gosta
-      const response = NextResponse.json({ success: true, verified: true })
-      response.cookies.set({
-        name: "auth",
-        value: existingGuest.id,
-        maxAge: 60 * 60 * 24, // 24 sata
-        path: "/",
-        httpOnly: true,
-        sameSite: "lax",
+    if (existingGuest) {
+      return NextResponse.json({ 
+        success: true, 
+        verified: true, 
+        guestId: existingGuest.id 
       })
-      
-      return response
     }
     
     // Generisanje verifikacionog koda (6 cifara)
@@ -86,7 +78,7 @@ export async function POST(request: Request) {
     // Slanje verifikacionog email-a
     await sendVerificationEmail(email, verificationCode, firstName)
 
-    return NextResponse.json({ success: true, verified: false })
+    return NextResponse.json({ success: true, verified: false, email })
   } catch (error) {
     console.error("Login error:", error)
     return NextResponse.json({ error: "Došlo je do greške prilikom prijave" }, { status: 500 })

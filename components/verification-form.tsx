@@ -38,12 +38,22 @@ export function VerificationForm() {
       setIsLoading(true)
       setError(null)
 
+      // Dobavljanje email-a iz localStorage-a
+      const email = localStorage.getItem('pendingEmail')
+      
+      if (!email) {
+        throw new Error("Sesija je istekla. Molimo vas da se ponovo prijavite.")
+      }
+
       const response = await fetch("/api/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          code: values.code,
+          email: email
+        }),
       })
 
       const data = await response.json()
@@ -52,8 +62,11 @@ export function VerificationForm() {
         throw new Error(data.error || "Došlo je do greške")
       }
 
-      // Preusmeravanje na dashboard
-      router.push("/dashboard")
+      // Ukloni privremeni email
+      localStorage.removeItem('pendingEmail')
+
+      // Preusmeravanje na dashboard sa gostovim ID-em kao parametrom
+      window.location.href = `/dashboard?guestId=${data.guestId}`
     } catch (error) {
       console.error("Verification error:", error)
       const errorMessage = error instanceof Error ? error.message : "Došlo je do greške prilikom verifikacije"

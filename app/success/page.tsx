@@ -1,29 +1,36 @@
 import { redirect } from "next/navigation"
-import { cookies } from "next/headers"
 import { UserGallery } from "@/components/user-gallery"
 import { GuestMessage } from "@/components/guest-message"
 import { prisma } from "@/lib/prisma"
+import { getGuestById } from "@/lib/auth"
 
 import LogoutButton from "./LogoutButton"
 
-export default async function SuccessPage() {
-  // Provera da li je korisnik prijavljen
-  const cookieStore = await cookies()
-  const isAuthenticated = cookieStore.get("auth")
-
-  if (!isAuthenticated) {
+export default async function SuccessPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
+  // Dobavljanje guestId iz URL parametara
+  const guestIdParam = searchParams?.guestId
+  const guestId = typeof guestIdParam === 'string' ? guestIdParam : ""
+  
+  if (!guestId) {
+    console.log("[SUCCESS] Nedostaje guestId u URL parametrima")
+    redirect("/")
+  }
+  
+  // Dohvatanje gosta sa slikama
+  const guest = await getGuestById(guestId)
+  
+  if (!guest) {
+    console.log(`[SUCCESS] Gost nije pronađen ili nije verifikovan: ${guestId}`)
     redirect("/")
   }
 
-  // Dohvatanje gosta sa slikama
-  const guest = await prisma.guest.findUnique({
-    where: { id: isAuthenticated.value },
-    include: { images: true }
-  })
-
   // Posebno dohvatanje poruke za gosta
   const message = await prisma.message.findUnique({
-    where: { guestId: isAuthenticated.value }
+    where: { guestId: guestId }
   })
 
   // Dohvatanje imena brudova iz baze

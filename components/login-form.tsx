@@ -59,14 +59,16 @@ export function LoginForm() {
 
       // Provjera da li je korisnik već verifikovan
       if (data.verified) {
-        // Ako je već verifikovan, preusmeri direktno na dashboard
         toast({
           title: "Uspješna prijava",
           description: "Već ste verifikovani, preusmjeravamo vas na dashboard.",
         })
-        router.push("/dashboard")
+        
+        // Direktno preusmeri na dashboard sa guestId parametrom
+        window.location.href = `/dashboard?guestId=${data.guestId}`
       } else {
-        // Ako nije verifikovan, preusmeri na stranicu za verifikaciju
+        // Ako nije verifikovan, sačuvaj email za verifikaciju i preusmeri na stranicu za verifikaciju
+        localStorage.setItem('pendingEmail', data.email)
         router.push("/verify")
       }
     } catch (error) {

@@ -28,6 +28,8 @@ model Guest {
   verified    Boolean  @default(false)
   code        String?  // Verifikacioni kod
   codeExpires DateTime?
+  sessionToken String?  // Token za autentifikaciju
+  sessionExpires DateTime? // Vreme isteka sesije
   createdAt   DateTime @default(now())
   images      Image[]
   message     Message?

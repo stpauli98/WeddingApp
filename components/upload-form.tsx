@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -15,7 +15,11 @@ const formSchema = z.object({
   images: z.array(z.instanceof(File)).max(10, { message: "Možete poslati najviše 10 slika" }).optional(),
 })
 
-export function UploadForm() {
+interface UploadFormProps {
+  guestId: string;
+}
+
+export function UploadForm({ guestId }: UploadFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
@@ -32,25 +36,37 @@ export function UploadForm() {
         for (const image of values.images) formData.append("images", image)
       }
 
-      // Uvek šaljemo stvarni zahtev na backend
+      // Provera da li imamo guestId
+      if (!guestId) {
+        throw new Error("Niste prijavljeni ili nedostaje ID gosta")
+      }
+      
+      // Uvek šaljemo stvarni zahtev na backend sa guestId parametrom
       console.log("[UPLOAD-FORM] Šaljem podatke na /api/upload:", {
         message: values.message?.length || 0,
-        images: values.images?.length || 0
+        images: values.images?.length || 0,
+        guestId
       })
 
-      const response = await fetch("/api/upload", {
+      const response = await fetch(`/api/upload?guestId=${guestId}`, {
         method: "POST",
         body: formData,
       })
 
       const data = await response.json()
+      console.log("[UPLOAD-FORM] Odgovor od servera:", data)
 
       if (!response.ok) {
         throw new Error(data.error || "Došlo je do greške")
       }
 
-      // Preusmeravanje na stranicu za uspeh
-      router.push("/success")
+      // Preusmeravanje na stranicu za uspeh sa guestId parametrom
+      console.log(`[UPLOAD-FORM] Preusmeravam na: /success?guestId=${guestId}`)
+      
+      // Koristimo setTimeout da osiguramo da se preusmeravanje desi nakon što se sve ostalo izvrši
+      setTimeout(() => {
+        window.location.href = `/success?guestId=${guestId}`
+      }, 100)
     } catch (error) {
       alert(error instanceof Error ? error.message : "Došlo je do greške prilikom slanja")
     } finally {

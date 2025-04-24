@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server"
-import { cookies } from "next/headers"
 import { prisma } from '@/lib/prisma'
 import { generateUniqueId } from '@/lib/utils'
+import { getGuestById } from '@/lib/auth'
 
 export async function POST(request: Request) {
   try {
-    // Proveri autentifikaciju (cookie auth -> guestId)
-    const cookieStore = await cookies();
-    const authCookie = cookieStore.get("auth");
-    if (!authCookie || !authCookie.value) {
-      console.log("[UPLOAD] Nema auth cookie-a");
+    // Pročitaj URL parametre za guestId
+    const url = new URL(request.url);
+    const guestId = url.searchParams.get('guestId');
+    
+    if (!guestId) {
+      console.log("[UPLOAD] Nedostaje guestId parametar");
       return NextResponse.json({ error: "Niste prijavljeni" }, { status: 401 });
     }
-    const guestId = authCookie.value;
 
     // Pročitaj formu
     const formData = await request.formData();
@@ -33,11 +33,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Možete poslati najviše 10 slika" }, { status: 400 });
     }
 
-    // Pronađi gosta
-    const guest = await prisma.guest.findUnique({ where: { id: guestId }, include: { images: true } });
+    // Pronađi gosta i proveri da li je verifikovan
+    const guest = await getGuestById(guestId);
     if (!guest) {
-      console.log(`[UPLOAD] Gost nije pronađen za ID: ${guestId}`);
-      return NextResponse.json({ error: "Gost nije pronađen" }, { status: 404 });
+      console.log(`[UPLOAD] Gost nije pronađen ili nije verifikovan za ID: ${guestId}`);
+      return NextResponse.json({ error: "Gost nije pronađen ili nije verifikovan" }, { status: 404 });
     }
 
     // Validacija ukupnog broja slika
