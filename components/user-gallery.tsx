@@ -12,9 +12,10 @@ interface Image {
 
 interface UserGalleryProps {
   initialImages: Image[]
+  guestId: string
 }
 
-export function UserGallery({ initialImages }: UserGalleryProps) {
+export function UserGallery({ initialImages, guestId }: UserGalleryProps) {
   const [images, setImages] = useState<Image[]>(initialImages)
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
   const router = useRouter()
@@ -27,7 +28,7 @@ export function UserGallery({ initialImages }: UserGalleryProps) {
     try {
       setIsDeleting(imageId)
       
-      const response = await fetch(`/api/images/delete?id=${imageId}`, {
+      const response = await fetch(`/api/images/delete?id=${imageId}&guestId=${guestId}`, {
         method: "DELETE",
       })
 

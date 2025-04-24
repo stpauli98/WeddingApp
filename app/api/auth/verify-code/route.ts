@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
     data: { verified: true, code: null, codeExpires: null },
   });
 
-  const response = NextResponse.json({ ok: true });
-  response.cookies.set('guest', email, { httpOnly: true, path: '/', maxAge: 60 * 60 * 24 });
-  return response;
+  return NextResponse.json({ 
+    ok: true,
+    guestId: guest.id
+  });
 }
