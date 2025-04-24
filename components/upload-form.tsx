@@ -29,7 +29,7 @@ export function UploadForm({ guestId }: UploadFormProps) {
   })
 
   // Funkcija za resize slike pomoću canvas-a
-  async function resizeImage(file: File, maxWidth = 2048): Promise<File> {
+  async function resizeImage(file: File, maxWidth = 1280): Promise<File> {
     return new Promise((resolve, reject) => {
       const img = new window.Image();
       const reader = new FileReader();
@@ -51,12 +51,30 @@ export function UploadForm({ guestId }: UploadFormProps) {
         const ctx = canvas.getContext('2d');
         if (!ctx) return reject("Canvas not supported");
         ctx.drawImage(img, 0, 0, width, height);
+
+        // Prvo pokušaj toBlob
         canvas.toBlob(
           (blob) => {
-            if (!blob) return reject("Greška pri konverziji slike");
-            // Kreiramo novi File objekat sa .jpg ekstenzijom
-            const newFile = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
-            resolve(newFile);
+            if (blob) {
+              const newFile = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+              resolve(newFile);
+            } else {
+              // Fallback na toDataURL ako toBlob ne uspe
+              try {
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                // Pretvori base64 u Blob ručno
+                const arr = dataUrl.split(','), mime = arr[0].match(/:(.*?);/)![1];
+                const bstr = atob(arr[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while(n--) u8arr[n] = bstr.charCodeAt(n);
+                const fallbackBlob = new Blob([u8arr], { type: mime });
+                const newFile = new File([fallbackBlob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: mime });
+                resolve(newFile);
+              } catch (e) {
+                reject('Neuspešan fallback za canvas.toDataURL');
+              }
+            }
           },
           'image/jpeg',
           0.92
