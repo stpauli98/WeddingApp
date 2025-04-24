@@ -73,10 +73,23 @@ export function UploadForm({ guestId }: UploadFormProps) {
       const formData = new FormData();
       if (values.message) formData.append("message", values.message);
       if (values.images && values.images.length > 0) {
-        // Resize sve slike pre slanja
-        const resizedImages = await Promise.all(
-          values.images.map((img) => resizeImage(img))
-        );
+        // Sekvencijalni resize slika zbog memory limita na mobilnim browserima
+        const resizedImages: File[] = [];
+        for (let i = 0; i < values.images.length; i++) {
+          const img = values.images[i];
+          try {
+            const resized = await resizeImage(img);
+            console.log(`[Resize] ${i+1}/${values.images.length}:`, resized, resized instanceof File, resized?.name, resized?.type);
+            if (!(resized instanceof File)) {
+              alert("Došlo je do greške pri obradi slike. Pokušajte ponovo ili koristite drugi browser.");
+              throw new Error("Resize nije vratio File objekat");
+            }
+            resizedImages.push(resized);
+          } catch (e) {
+            alert("Neka slika nije mogla biti obrađena. Probajte ponovo ili smanjite broj slika.");
+            throw e;
+          }
+        }
         for (const image of resizedImages) formData.append("images", image);
       }
 
