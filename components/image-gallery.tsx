@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card"
 interface Image {
   id: string
   imageUrl: string
+  storagePath?: string
 }
 
 interface ImageGalleryProps {

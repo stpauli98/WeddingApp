@@ -36,11 +36,12 @@ model Guest {
 }
 
 model Image {
-  id        String   @id @default(uuid())
-  guest     Guest    @relation(fields: [guestId], references: [id])
-  guestId   String
-  imageUrl  String
-  createdAt DateTime @default(now())
+  id          String   @id @default(uuid())
+  guest       Guest    @relation(fields: [guestId], references: [id])
+  guestId     String
+  imageUrl    String
+  storagePath String?  // Putanja u Supabase Storage
+  createdAt   DateTime @default(now())
 }
 
 model Message {

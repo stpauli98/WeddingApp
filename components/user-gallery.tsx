@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 interface Image {
   id: string
   imageUrl: string
+  storagePath?: string
 }
 
 interface UserGalleryProps {
