@@ -1,22 +1,21 @@
 import { redirect } from "next/navigation"
 import { UserGallery } from "@/components/user-gallery"
-import { GuestMessage } from "@/components/guest-message"
-import { prisma } from "@/lib/prisma"
+import {GuestMessage} from "@/components/guest-message"
 import { getGuestById } from "@/lib/auth"
-
-import LogoutButton from "./LogoutButton"
+import { prisma } from "@/lib/prisma"
 
 export default async function SuccessPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: { [key: string]: string | string[] | undefined } | Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  // Ako je searchParams Promise, await-uj ga
+  const params = await searchParams;
   // Dobavljanje guestId iz URL parametara
-  const guestIdParam = searchParams?.guestId
-  const guestId = typeof guestIdParam === 'string' ? guestIdParam : ""
+  const guestIdParam = params?.guestId;
+  const guestId = typeof guestIdParam === 'string' ? guestIdParam : "";
   
   if (!guestId) {
-    console.log("[SUCCESS] Nedostaje guestId u URL parametrima")
     redirect("/")
   }
   
@@ -24,7 +23,6 @@ export default async function SuccessPage({
   const guest = await getGuestById(guestId)
   
   if (!guest) {
-    console.log(`[SUCCESS] Gost nije pronađen ili nije verifikovan: ${guestId}`)
     redirect("/")
   }
 
@@ -52,10 +50,11 @@ export default async function SuccessPage({
       <div className="flex flex-col gap-4">
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Vaše uploadovane slike</h2>
-        <UserGallery initialImages={guest?.images || []} />
-        <GuestMessage message={message} />
+        <UserGallery initialImages={guest?.images || []} guestId={guestId} />
+        <div className="mt-8">  
+          <GuestMessage message={message} />
+        </div>
       </div>
-        <LogoutButton label="Odjavi se"/>
       </div>
     </div>
   )

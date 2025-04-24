@@ -9,8 +9,8 @@ interface LogoutButtonProps {
 }
 
 export default function LogoutButton({ label }: LogoutButtonProps) {
-  const router = useRouter()
   const [pending, startTransition] = useTransition()
+  const router = useRouter()
 
   async function handleLogout() {
     await fetch("/api/logout", { method: "POST" })

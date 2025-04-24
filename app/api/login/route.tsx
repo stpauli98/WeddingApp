@@ -80,7 +80,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, verified: false, email })
   } catch (error) {
-    console.error("Login error:", error)
     return NextResponse.json({ error: "Došlo je do greške prilikom prijave" }, { status: 500 })
   }
 }

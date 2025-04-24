@@ -22,7 +22,6 @@ export async function DELETE(request: Request) {
     const imageId = searchParams.get('id');
     
     if (!guestId) {
-      console.log("[DELETE-IMAGE] Nedostaje guestId u parametrima");
       return NextResponse.json({ error: "Niste prijavljeni" }, { status: 401 });
     }
 
@@ -45,16 +44,9 @@ export async function DELETE(request: Request) {
 
     // Ako slika ima storagePath, obriši je iz Supabase Storage-a
     if (image.storagePath) {
-      const { error } = await supabase.storage
+      await supabase.storage
         .from(BUCKET_NAME)
         .remove([image.storagePath]);
-      
-      if (error) {
-        console.error(`[DELETE-IMAGE] Greška pri brisanju iz Supabase: ${JSON.stringify(error)}`);
-        // Nastavljamo sa brisanjem iz baze čak i ako je brisanje iz Storage-a neuspešno
-      } else {
-        console.log(`[DELETE-IMAGE] Slika uspešno obrisana iz Supabase Storage: ${image.storagePath}`);
-      }
     }
     
     // Obriši sliku iz baze
@@ -64,7 +56,6 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("[DELETE-IMAGE ERROR]", error);
     return NextResponse.json({ error: "Došlo je do greške prilikom brisanja slike" }, { status: 500 });
   }
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -80,6 +80,32 @@ export function UploadForm({ guestId }: UploadFormProps) {
         <label className="block font-medium mb-1">Slike (max 10)</label>
         <ImageUpload value={form.watch("images") || []} onChange={val => form.setValue("images", val)} maxFiles={10} />
         <p className="text-sm text-gray-500 mt-1">Možete poslati najviše 10 slika.</p>
+        {/* Preview sekcija */}
+        <div className="flex flex-wrap gap-4 mt-4">
+          {(form.watch("images") || []).map((file: File, idx: number) => {
+            const url = URL.createObjectURL(file);
+            return (
+              <div key={idx} className="relative group border rounded p-1">
+                <img
+                  src={url}
+                  alt={`preview-${idx}`}
+                  className="w-24 h-24 object-cover rounded"
+                />
+                <button
+                  type="button"
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-80 hover:opacity-100"
+                  onClick={() => {
+                    const imgs = form.watch("images") || [];
+                    form.setValue("images", imgs.filter((_: File, i: number) => i !== idx));
+                  }}
+                  aria-label="Ukloni sliku"
+                >
+                  ×
+                </button>
+              </div>
+            );
+          })}
+        </div>
       </div>
       <div>
         <label className="block font-medium mb-1">Poruka (opciono)</label>
@@ -90,8 +116,8 @@ export function UploadForm({ guestId }: UploadFormProps) {
         />
         <p className="text-sm text-gray-500 mt-1">Maksimalno 500 karaktera</p>
       </div>
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Slanje..." : "Pošalji"}
+      <Button type="submit" className="w-full" disabled={isLoading || (form.watch("images")?.length ?? 0) === 0}>
+        {isLoading ? "Slanje..." : "Potvrdi upload"}
       </Button>
     </form>
   )

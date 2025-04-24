@@ -27,8 +27,6 @@ export async function POST(req: NextRequest) {
     console.error('GRESKA PRI UPISU U BAZU:', e);
   }
 
-  console.log('Posaljemo kod na email:', email);
-
   await sendVerificationEmail(email, code);
 
   return NextResponse.json({ ok: true });
