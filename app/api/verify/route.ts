@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     // Provjera da li je kod istekao
-    if (guest.code_expires_at && new Date() > guest.code_expires_at) {
+    if (guest.codeExpires && new Date() > guest.codeExpires) {
       return NextResponse.json({ error: "Verifikacioni kod je istekao, molimo zatražite novi" }, { status: 400 })
     }
 
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     await prisma.$transaction(async (tx) => {
       await tx.guest.update({
         where: { id: guest.id },
-        data: { verified: true, code: null, code_expires_at: null }
+        data: { verified: true, code: null, codeExpires: null }
       })
     })
 

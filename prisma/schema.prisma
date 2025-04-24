@@ -1,3 +1,4 @@
+// Baza: PostgreSQL
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,13 +8,43 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Event {
+  id          String   @id @default(uuid())
+  coupleName  String
+  location    String
+  date        DateTime
+  slug        String   @unique
+  createdAt   DateTime @default(now())
+  guests      Guest[]
+}
+
 model Guest {
-  id             String   @id @default(uuid())
-  first_name     String
-  last_name      String
-  email          String   @unique
-  code           String?
-  code_expires_at DateTime?
-  verified       Boolean  @default(false)
-  created_at     DateTime @default(now())
+  id          String   @id @default(uuid())
+  event       Event    @relation(fields: [eventId], references: [id])
+  eventId     String
+  firstName   String
+  lastName    String
+  email       String   @unique
+  verified    Boolean  @default(false)
+  code        String?  // Verifikacioni kod
+  codeExpires DateTime?
+  createdAt   DateTime @default(now())
+  images      Image[]
+  message     Message?
+}
+
+model Image {
+  id        String   @id @default(uuid())
+  guest     Guest    @relation(fields: [guestId], references: [id])
+  guestId   String
+  imageUrl  String
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  guest     Guest    @relation(fields: [guestId], references: [id])
+  guestId   String   @unique
+  text      String
+  createdAt DateTime @default(now())
 }

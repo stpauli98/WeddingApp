@@ -1,4 +1,5 @@
-import { prisma } from "@/lib/prisma"
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CalendarIcon, MapPinIcon, HeartIcon } from "lucide-react"
 
@@ -25,16 +26,17 @@ function formatDate(dateInput: Date | string | null | undefined): string {
   return `${day}. ${month} ${year}. u ${hours}:${minutes}h`
 }
 
-export async function WeddingInfo() {
-  // Dohvatanje podataka (ovo radi samo na serveru)
-  const event = await prisma.event.findFirst({
-    select: { coupleName: true, location: true, date: true },
-  });
+interface WeddingInfoClientProps {
+  coupleName: string | null
+  location: string | null
+  date: Date | string | null
+}
 
+export function WeddingInfoClient({ coupleName, location, date }: WeddingInfoClientProps) {
   return (
     <Card className="mb-8">
       <CardHeader>
-        <CardTitle className="text-center">{event?.coupleName}</CardTitle>
+        <CardTitle className="text-center">{coupleName}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-start gap-3">
@@ -42,7 +44,7 @@ export async function WeddingInfo() {
           <div>
             <h3 className="font-medium">Datum i vreme</h3>
             <p className="text-sm text-muted-foreground">
-              {formatDate(event?.date)}
+              {formatDate(date)}
             </p>
           </div>
         </div>
@@ -51,7 +53,7 @@ export async function WeddingInfo() {
           <MapPinIcon className="h-5 w-5 text-muted-foreground mt-0.5" />
           <div>
             <h3 className="font-medium">Lokacija</h3>
-            <p className="text-sm text-muted-foreground">{event?.location}</p>
+            <p className="text-sm text-muted-foreground">{location}</p>
           </div>
         </div>
 
@@ -60,7 +62,7 @@ export async function WeddingInfo() {
           <div>
             <h3 className="font-medium">Fun fact</h3>
             <p className="text-sm text-muted-foreground">
-              {event?.coupleName} su se upoznali na koncertu pre tačno 5 godina!
+              Marija i Nikola su se upoznali na koncertu pre tačno 5 godina!
             </p>
           </div>
         </div>

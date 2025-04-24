@@ -9,15 +9,15 @@ export async function POST(req: NextRequest) {
   if (
     !guest ||
     guest.code !== code ||
-    !guest.code_expires_at ||
-    guest.code_expires_at < new Date()
+    !guest.codeExpires ||
+    guest.codeExpires < new Date()
   ) {
     return NextResponse.json({ error: 'Neispravan ili istekao kod.' }, { status: 400 });
   }
 
   await prisma.guest.update({
     where: { email },
-    data: { verified: true, code: null, code_expires_at: null },
+    data: { verified: true, code: null, codeExpires: null },
   });
 
   const response = NextResponse.json({ ok: true });

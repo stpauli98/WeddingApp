@@ -4,7 +4,11 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { useTransition } from "react"
 
-export default function LogoutButton() {
+interface LogoutButtonProps {
+  label: string
+}
+
+export default function LogoutButton({ label }: LogoutButtonProps) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
 
@@ -14,8 +18,8 @@ export default function LogoutButton() {
   }
 
   return (
-    <Button className="w-full" onClick={() => startTransition(handleLogout)} disabled={pending}>
-      {pending ? "Odjavljivanje..." : "Povratak na početnu"}
+    <Button className="w-full" onClick={() => startTransition(handleLogout)} disabled={pending} >
+      {pending ? "Odjavljivanje..." : label}
     </Button>
   )
 }

@@ -57,8 +57,18 @@ export function LoginForm() {
         throw new Error(data.error || "Došlo je do greške")
       }
 
-      // Preusmeravanje na stranicu za verifikaciju
-      router.push("/verify")
+      // Provjera da li je korisnik već verifikovan
+      if (data.verified) {
+        // Ako je već verifikovan, preusmeri direktno na dashboard
+        toast({
+          title: "Uspješna prijava",
+          description: "Već ste verifikovani, preusmjeravamo vas na dashboard.",
+        })
+        router.push("/dashboard")
+      } else {
+        // Ako nije verifikovan, preusmeri na stranicu za verifikaciju
+        router.push("/verify")
+      }
     } catch (error) {
       console.error("Login error:", error)
       toast({

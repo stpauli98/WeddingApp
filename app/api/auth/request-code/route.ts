@@ -4,18 +4,23 @@ import { prisma } from '@/lib/prisma';
 import { sendVerificationEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
-  const { first_name, last_name, email } = await req.json();
+  const { firstName, lastName, email } = await req.json();
   const code = Math.floor(100000 + Math.random() * 900000).toString();
-  const code_expires_at = new Date(Date.now() + 5 * 60 * 1000); // 5 min
+  const codeExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 min
 
-  console.log('Upisujem gosta:', { first_name, last_name, email, code, code_expires_at });
+  console.log('Upisujem gosta:', { firstName, lastName, email, code, codeExpires });
 
+  // Pronađi prvi event u bazi (privremeno rešenje)
+  const event = await prisma.event.findFirst();
+  if (!event) {
+    return NextResponse.json({ error: "Nijedan događaj ne postoji u bazi" }, { status: 500 });
+  }
   // Upsert korisnika
   try {
     await prisma.guest.upsert({
       where: { email },
-      update: { first_name, last_name, code, code_expires_at, verified: false },
-      create: { first_name, last_name, email, code, code_expires_at },
+      update: { firstName, lastName, code, codeExpires, verified: false },
+      create: { eventId: event.id, firstName, lastName, email, code, codeExpires },
     });
     console.log('Upis u bazu OK');
   } catch (e) {
