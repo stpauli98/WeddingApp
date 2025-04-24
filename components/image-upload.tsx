@@ -59,12 +59,33 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10 }: ImageUpload
   // Funkcija koja se poziva kada se dodaju nove slike
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      const filteredFiles: File[] = [];
+      for (const file of acceptedFiles) {
+        if (
+          file.type === "image/heic" || file.type === "image/heif" ||
+          file.name.endsWith(".heic") || file.name.endsWith(".HEIC") ||
+          file.name.endsWith(".heif") || file.name.endsWith(".HEIF")
+        ) {
+          alert("HEIC/HEIF slike nisu podržane. Molimo vas da konvertujete sliku u JPG ili PNG format.");
+          continue;
+        }
+        if (!allowedTypes.includes(file.type)) {
+          alert(`Nepodržan format slike: ${file.type || file.name}`);
+          continue;
+        }
+        if (file.size > maxSize) {
+          alert(`Slika ${file.name} je veća od 5MB. Molimo vas da smanjite rezoluciju ili veličinu slike.`);
+          continue;
+        }
+        filteredFiles.push(file);
+      }
       // Ograničenje broja fajlova
-      const newFiles = [...value, ...acceptedFiles].slice(0, maxFiles)
-      onChange(newFiles)
-
+      const newFiles = [...value, ...filteredFiles].slice(0, maxFiles);
+      onChange(newFiles);
       // Kreiranje URL-ova za pregled slika
-      createPreviews(newFiles)
+      createPreviews(newFiles);
     },
     [value, onChange, maxFiles, createPreviews],
   )

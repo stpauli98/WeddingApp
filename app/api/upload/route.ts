@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from '@/lib/prisma';
 import { supabase } from '@/lib/supabase';
 import { getGuestById } from '@/lib/auth';
+import sharp from 'sharp';
 
 const BUCKET_NAME = 'wedding-images';
 
@@ -34,19 +35,36 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadRes
 
     // --- Upload slika u Supabase bucket i upis u bazu ---
     const uploadedImages: any[] = [];
+    // Maksimalna veličina slike
+    const maxSize = 5 * 1024 * 1024; // 5MB
     for (const image of images) {
       try {
-        const fileExt = image.name.split('.').pop();
-        const fileName = `${guestId}_${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+        // Dozvoli samo fajlove koji su slike
+        if (!image.type.startsWith('image/')) {
+          return NextResponse.json({ error: `Fajl ${image.name} nije slika.` }, { status: 400 });
+        }
+        if (image.size > maxSize) {
+          return NextResponse.json({ error: `Slika ${image.name} je veća od 5MB. Molimo vas da smanjite rezoluciju ili veličinu slike.` }, { status: 400 });
+        }
+        const fileName = `${guestId}_${Date.now()}_${Math.random().toString(36).substring(2)}.jpg`;
         const filePath = `${guestId}/${fileName}`;
-        const buffer = await image.arrayBuffer();
+        const buffer = Buffer.from(await image.arrayBuffer());
+        // Konvertuj bilo koji format u JPG koristeći sharp
+        let jpgBuffer: Buffer;
+        try {
+          jpgBuffer = await sharp(buffer).jpeg({ quality: 85 }).toBuffer();
+        } catch (err: any) {
+          return NextResponse.json({ error: `Greška pri konverziji slike ${image.name} u JPG: ${err?.message || "Nepoznata greška"}` }, { status: 400 });
+        }
         const { error } = await supabase.storage
           .from(BUCKET_NAME)
-          .upload(filePath, buffer, {
-            contentType: image.type || 'image/jpeg',
+          .upload(filePath, jpgBuffer, {
+            contentType: 'image/jpeg',
             upsert: false
           });
-        if (error) continue;
+        if (error) {
+          return NextResponse.json({ error: `Greška pri uploadu slike ${image.name}: ${error.message || error}` }, { status: 500 });
+        }
         const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
         const imageUrl = data.publicUrl;
         // Upis slike i njenog URL-a u bazu
@@ -54,7 +72,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadRes
           data: { guestId, imageUrl, storagePath: filePath } as any,
         });
         uploadedImages.push(uploadedImage);
-      } catch {}
+      } catch (err: any) {
+        return NextResponse.json({ error: `Greška pri uploadu slike: ${err?.message || "Nepoznata greška"}` }, { status: 500 });
+      }
     }
 
     // --- Upis/izmena poruke gosta u bazu (nikad u bucket) ---
