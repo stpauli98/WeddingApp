@@ -8,7 +8,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendVerificationEmail = async (email: string, code: string, firstName: string) => {
   const { error } = await resend.emails.send({
-    from: 'Wedding App <no-reply@resend.dev>',
+    from: 'mojasvadbaa.com',
     to: [email],
     subject: 'Vaš verifikacioni kod',
     react: <EmailTemplate firstName={firstName} code={code} />,
