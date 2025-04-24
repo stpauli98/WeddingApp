@@ -28,50 +28,91 @@ export function UploadForm({ guestId }: UploadFormProps) {
     defaultValues: { message: "", images: [] },
   })
 
+  // Funkcija za resize slike pomoću canvas-a
+  async function resizeImage(file: File, maxWidth = 2048): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const img = new window.Image();
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        img.src = e.target?.result as string;
+      };
+
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return reject("Canvas not supported");
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return reject("Greška pri konverziji slike");
+            // Kreiramo novi File objekat sa .jpg ekstenzijom
+            const newFile = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+            resolve(newFile);
+          },
+          'image/jpeg',
+          0.92
+        );
+      };
+      reader.onerror = (e) => reject(e);
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      setIsLoading(true)
-      const formData = new FormData()
-      if (values.message) formData.append("message", values.message)
+      setIsLoading(true);
+      const formData = new FormData();
+      if (values.message) formData.append("message", values.message);
       if (values.images && values.images.length > 0) {
-        for (const image of values.images) formData.append("images", image)
+        // Resize sve slike pre slanja
+        const resizedImages = await Promise.all(
+          values.images.map((img) => resizeImage(img))
+        );
+        for (const image of resizedImages) formData.append("images", image);
       }
 
       // Provera da li imamo guestId
       if (!guestId) {
-        throw new Error("Niste prijavljeni ili nedostaje ID gosta")
+        throw new Error("Niste prijavljeni ili nedostaje ID gosta");
       }
-      
+
       // Uvek šaljemo stvarni zahtev na backend sa guestId parametrom
       console.log("[UPLOAD-FORM] Šaljem podatke na /api/upload:", {
         message: values.message?.length || 0,
         images: values.images?.length || 0,
         guestId
-      })
+      });
 
       const response = await fetch(`/api/upload?guestId=${guestId}`, {
         method: "POST",
         body: formData,
-      })
+      });
 
-      const data = await response.json()
-      console.log("[UPLOAD-FORM] Odgovor od servera:", data)
+      const data = await response.json();
+      console.log("[UPLOAD-FORM] Odgovor od servera:", data);
 
       if (!response.ok) {
-        throw new Error(data.error || "Došlo je do greške")
+        throw new Error(data.error || "Došlo je do greške");
       }
 
       // Preusmeravanje na stranicu za uspeh sa guestId parametrom
-      console.log(`[UPLOAD-FORM] Preusmeravam na: /success?guestId=${guestId}`)
-      
-      // Koristimo setTimeout da osiguramo da se preusmeravanje desi nakon što se sve ostalo izvrši
+      console.log(`[UPLOAD-FORM] Preusmeravam na: /success?guestId=${guestId}`);
       setTimeout(() => {
-        window.location.href = `/success?guestId=${guestId}`
-      }, 100)
+        window.location.href = `/success?guestId=${guestId}`;
+      }, 100);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Došlo je do greške prilikom slanja")
+      alert(error instanceof Error ? error.message : "Došlo je do greške prilikom slanja");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
