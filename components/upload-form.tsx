@@ -21,6 +21,7 @@ interface UploadFormProps {
 
 export function UploadForm({ guestId }: UploadFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [modalImageIdx, setModalImageIdx] = useState<number | null>(null)
   const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -75,37 +76,23 @@ export function UploadForm({ guestId }: UploadFormProps) {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 bg-white p-6 rounded shadow">
-      <div>
+    <div className="relative">
+      {/* Loading overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 bg-white bg-opacity-80 z-20 flex flex-col items-center justify-center rounded">
+          <svg className="animate-spin h-8 w-8 text-blue-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          </svg>
+          <span className="text-blue-600 font-semibold">Slika se šalje...</span>
+        </div>
+      )}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 bg-white p-6 rounded shadow">
+        <div>
         <label className="block font-medium mb-1">Slike (max 10)</label>
         <ImageUpload value={form.watch("images") || []} onChange={val => form.setValue("images", val)} maxFiles={10} />
-        <p className="text-sm text-gray-500 mt-1">Možete poslati najviše 10 slika.</p>
-        {/* Preview sekcija */}
-        <div className="flex flex-wrap gap-4 mt-4">
-          {(form.watch("images") || []).map((file: File, idx: number) => {
-            const url = URL.createObjectURL(file);
-            return (
-              <div key={idx} className="relative group border rounded p-1">
-                <img
-                  src={url}
-                  alt={`preview-${idx}`}
-                  className="w-24 h-24 object-cover rounded"
-                />
-                <button
-                  type="button"
-                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-80 hover:opacity-100"
-                  onClick={() => {
-                    const imgs = form.watch("images") || [];
-                    form.setValue("images", imgs.filter((_: File, i: number) => i !== idx));
-                  }}
-                  aria-label="Ukloni sliku"
-                >
-                  ×
-                </button>
-              </div>
-            );
-          })}
-        </div>
+        {/* Grid prikaz slika sa klikom za modal i brisanjem */}
+       
       </div>
       <div>
         <label className="block font-medium mb-1">Poruka (opciono)</label>
@@ -120,6 +107,7 @@ export function UploadForm({ guestId }: UploadFormProps) {
         {isLoading ? "Slanje..." : "Potvrdi upload"}
       </Button>
     </form>
+    </div>
   )
 }
 
