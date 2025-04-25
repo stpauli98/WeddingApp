@@ -5,39 +5,34 @@ import { getGuestById } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import LogoutButton from "./LogoutButton"
 
-export default async function SuccessPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined } | Promise<{ [key: string]: string | string[] | undefined }>
-}) {
-  // Ako je searchParams Promise, await-uj ga
-  const params = await searchParams;
-  // Dobavljanje guestId iz URL parametara
-  const guestIdParam = params?.guestId;
-  const guestId = typeof guestIdParam === 'string' ? guestIdParam : "";
-  
+import { cookies } from "next/headers";
+
+export default async function SuccessPage() {
+  // Dohvati guestId iz session cookie-ja
+  const cookieStore = await cookies();
+  const guestId = cookieStore.get("guest_session")?.value || "";
+
   if (!guestId) {
-    redirect("/")
+    redirect("/");
   }
-  
+
   // Dohvatanje gosta sa slikama
-  const guest = await getGuestById(guestId)
-  
+  const guest = await getGuestById(guestId);
+
   if (!guest) {
-    redirect("/")
+    redirect("/");
   }
 
   // Posebno dohvatanje poruke za gosta
   const message = await prisma.message.findUnique({
     where: { guestId: guestId }
-  })
+  });
 
   // Dohvatanje imena brudova iz baze
   const event = await prisma.event.findFirst({
     where: { id: guest?.eventId },
     select: { coupleName: true }
   });
-
 
   return (
     <div className="container max-w-md mx-auto px-4 py-8 text-center">
@@ -49,23 +44,23 @@ export default async function SuccessPage({
       </div>
 
       <div className="flex flex-col gap-4">
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Vaše uploadovane slike</h2>
-        <UserGallery
-          initialImages={(guest?.images || []).map(img => ({
-            ...img,
-            storagePath: img.storagePath === null ? undefined : img.storagePath,
-          }))}
-          guestId={guestId}
-        />
-        <div className="mt-8">  
-          <GuestMessage message={message} />
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Vaše uploadovane slike</h2>
+          <UserGallery
+            initialImages={(guest?.images || []).map(img => ({
+              ...img,
+              storagePath: img.storagePath === null ? undefined : img.storagePath,
+            }))}
+            guestId={guestId}
+          />
+          <div className="mt-8">  
+            <GuestMessage message={message} />
+          </div>
+          <div className="mt-8">
+            <LogoutButton label="Odjavi se"/>
+          </div>
         </div>
-        <div className="mt-8">
-          <LogoutButton label="Odjavi se"/>
-        </div>
-      </div>
       </div>
     </div>
-  )
+  );
 }

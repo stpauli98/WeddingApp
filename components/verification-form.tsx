@@ -65,8 +65,8 @@ export function VerificationForm() {
       // Ukloni privremeni email
       localStorage.removeItem('pendingEmail')
 
-      // Preusmeravanje na dashboard sa gostovim ID-em kao parametrom
-      window.location.href = `/dashboard?guestId=${data.guestId}`
+      // Preusmeravanje na dashboard, guestId se više ne koristi u URL-u
+      window.location.href = "/dashboard"
     } catch (error) {
       console.error("Verification error:", error)
       const errorMessage = error instanceof Error ? error.message : "Došlo je do greške prilikom verifikacije"

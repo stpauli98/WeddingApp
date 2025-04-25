@@ -32,12 +32,20 @@ export async function POST(request: Request) {
     const existingGuest = await getGuestByEmail(email)
 
     // Ako korisnik postoji i već je verifikovan, direktno ga prijavljujemo
-    if (existingGuest) {
-      return NextResponse.json({ 
+    if (existingGuest && existingGuest.verified) {
+      const response = NextResponse.json({ 
         success: true, 
         verified: true, 
         guestId: existingGuest.id 
-      })
+      });
+      response.cookies.set("guest_session", existingGuest.id, {
+        httpOnly: true,
+        path: "/",
+        maxAge: 60 * 60 * 24, // 24h
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+      });
+      return response;
     }
     
     // Generisanje verifikacionog koda (6 cifara)

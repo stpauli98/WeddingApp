@@ -133,11 +133,9 @@ export function UploadForm({ guestId }: UploadFormProps) {
       if (!response.ok) {
         throw new Error(data.error || "Došlo je do greške");
       }
-
-      // Preusmeravanje na stranicu za uspeh sa guestId parametrom
-      console.log(`[UPLOAD-FORM] Preusmeravam na: /success?guestId=${guestId}`);
+      
       setTimeout(() => {
-        window.location.href = `/success?guestId=${guestId}`;
+        window.location.href = "/success";
       }, 100);
     } catch (error) {
       alert(error instanceof Error ? error.message : "Došlo je do greške prilikom slanja");

@@ -2,24 +2,23 @@
 
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import { useTransition } from "react"
 
 interface LogoutButtonProps {
   label: string
 }
 
 export default function LogoutButton({ label }: LogoutButtonProps) {
-  const [pending, startTransition] = useTransition()
-  const router = useRouter()
+  const router = useRouter();
 
-  async function handleLogout() {
-    await fetch("/api/logout", { method: "POST" })
-    router.push("/")
-  }
+  const handleLogout = () => {
+   //brisem session cookie i vrati na pocetnu stranu
+   fetch("/api/logout", { method: "POST" })
+   router.replace("/")
+  };
 
   return (
-    <Button className="w-full" onClick={() => startTransition(handleLogout)} disabled={pending} >
-      {pending ? "Odjavljivanje..." : label}
+    <Button className="w-full" onClick={handleLogout}>
+      {label}
     </Button>
-  )
+  );
 }

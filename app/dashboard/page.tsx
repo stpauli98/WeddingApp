@@ -6,30 +6,24 @@ import LogoutButton from "@/app/success/LogoutButton"
 import { ImageGallery } from "@/components/image-gallery"
 import { getGuestById } from "@/lib/auth"
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined } | Promise<{ [key: string]: string | string[] | undefined }>
-}) {
-  // Ako je searchParams Promise, await-uj ga
-  const params = await searchParams;
-  // Dobavljanje guestId iz URL parametara
-  const guestIdParam = params?.guestId;
-  const guestId = typeof guestIdParam === 'string' ? guestIdParam : "";
-  
+import { cookies } from "next/headers";
+
+export default async function DashboardPage() {
+  // Dohvati guestId iz session cookie-ja
+  const cookieStore = await cookies();
+  const guestId = cookieStore.get("guest_session")?.value || "";
+
   if (!guestId) {
-
-    redirect("/")
+    redirect("/");
   }
-  
+
   // Proveri da li gost postoji i da li je verifikovan
-  const guest = await getGuestById(guestId)
-  
-  if (!guest) {
+  const guest = await getGuestById(guestId);
 
-    redirect("/")
+  if (!guest) {
+    redirect("/");
   }
-  
+
   return (
     <div className="container max-w-md mx-auto px-4 py-8">
       <WeddingInfo />

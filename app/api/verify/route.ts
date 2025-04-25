@@ -22,12 +22,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Neispravan kod ili je istekao" }, { status: 400 })
     }
 
-    return NextResponse.json({ 
-      success: true,
-      guestId: guest.id
-    })
+    // Postavi session cookie i vrati odgovor
+    const response = NextResponse.json({ success: true });
+    response.cookies.set("guest_session", guest.id, {
+      httpOnly: true,
+      path: "/",
+      maxAge: 60 * 60 * 24, // 24 sata
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+    return response;
   } catch (error) {
     console.error("Verification error:", error)
-    return NextResponse.json({ error: "Došlo je do greške prilikom verifikacije" }, { status: 500 })
-  }
+        return NextResponse.json({ error: "Došlo je do greške prilikom verifikacije" }, { status: 500 })
+      }
 }

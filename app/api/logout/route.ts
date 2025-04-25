@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server"
 
 export async function POST() {
-  // Logout bez cookie-a - samo vraćamo uspešan odgovor
-  // Klijent je odgovoran za čišćenje lokalnog stanja
-  return NextResponse.json({ success: true })
+  // Brišemo session cookie
+  const response = NextResponse.json({ success: true });
+  response.cookies.set("guest_session", "", {
+    httpOnly: true,
+    path: "/",
+    maxAge: 0,
+  });
+  return response;
 }

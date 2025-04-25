@@ -4,11 +4,14 @@ import { VerificationForm } from "@/components/verification-form"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-export default async function VerifyPage({ searchParams }: { searchParams: { guestId?: string } }) {
-  // Provjera da li je korisnik već autentificiran preko URL parametra
-  const guestId = searchParams.guestId;
+import { cookies } from "next/headers";
 
-  // Ako je korisnik već autentificiran, prikaži poruku i link na dashboard
+export default async function VerifyPage() {
+  // Proveri da li je korisnik već autentifikovan preko session cookie-ja
+  const cookieStore = await cookies();
+  const guestId = cookieStore.get("guest_session")?.value || "";
+
+  // Ako je korisnik već autentifikovan, prikaži poruku i link na dashboard
   if (guestId) {
     return (
       <div className="container max-w-md mx-auto px-4 py-8 text-center">
@@ -18,7 +21,7 @@ export default async function VerifyPage({ searchParams }: { searchParams: { gue
             Već ste uspješno verificirali svoj račun.
           </p>
         </div>
-        <Link href={`/dashboard?guestId=${guestId}`}>
+        <Link href="/dashboard">
           <Button>Idi na dashboard</Button>
         </Link>
       </div>

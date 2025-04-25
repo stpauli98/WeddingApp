@@ -64,8 +64,8 @@ export function LoginForm() {
           description: "Već ste verifikovani, preusmjeravamo vas na dashboard.",
         })
         
-        // Direktno preusmeri na dashboard sa guestId parametrom
-        window.location.href = `/dashboard?guestId=${data.guestId}`
+        // Direktno preusmeri na dashboard, guestId se više ne koristi u URL-u
+        window.location.href = "/dashboard"
       } else {
         // Ako nije verifikovan, sačuvaj email za verifikaciju i preusmeri na stranicu za verifikaciju
         localStorage.setItem('pendingEmail', data.email)
