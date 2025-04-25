@@ -3,6 +3,7 @@ import { UserGallery } from "@/components/user-gallery"
 import {GuestMessage} from "@/components/guest-message"
 import { getGuestById } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import LogoutButton from "./LogoutButton"
 
 export default async function SuccessPage({
   searchParams,
@@ -50,9 +51,18 @@ export default async function SuccessPage({
       <div className="flex flex-col gap-4">
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Vaše uploadovane slike</h2>
-        <UserGallery initialImages={guest?.images || []} guestId={guestId} />
+        <UserGallery
+          initialImages={(guest?.images || []).map(img => ({
+            ...img,
+            storagePath: img.storagePath === null ? undefined : img.storagePath,
+          }))}
+          guestId={guestId}
+        />
         <div className="mt-8">  
           <GuestMessage message={message} />
+        </div>
+        <div className="mt-8">
+          <LogoutButton label="Odjavi se"/>
         </div>
       </div>
       </div>

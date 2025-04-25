@@ -58,6 +58,15 @@ export function UserGallery({ initialImages, guestId }: UserGalleryProps) {
       <p className="text-sm text-muted-foreground mt-2">
         Uploadovano {images.length} od 10 dozvoljenih slika
       </p>
+      {images.length < 10 && (
+        <Button
+          className="mt-4 w-full font-semibold"
+          variant="outline"
+          onClick={() => { router.push(`/dashboard?guestId=${guestId}`) }}
+        >
+          + Dodaj preostale slike
+        </Button>
+      )}
     </div>
   )
 }
