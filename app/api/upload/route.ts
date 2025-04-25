@@ -34,7 +34,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadRes
 
     // --- Upload slika na Cloudinary i upis u bazu ---
     const uploadedImages: any[] = [];
-    // Maksimalna veličina slike (Cloudinary free plan: 10MB po slici, možeš povećati po potrebi)
+    // Maksimalna veličina slike (Cloudinary free plan: 10MB po slici, možeš povećati poo potrebi)
     const maxSize = 10 * 1024 * 1024; // 10MB
     for (const image of images) {
       try {
