@@ -10,7 +10,8 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Svadbena Aplikacija",
   description: "Aplikacija za goste na svadbi",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
 }
 
 export default function RootLayout({
@@ -19,11 +20,28 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="sr" className="light" style={{ colorScheme: "light" }}>
+    <html lang="sr" dir="ltr" className="light" style={{ colorScheme: "light" }}>
+      <head>
+        {/* Preload Google Inter font */}
+        <link
+          rel="preload"
+          href="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK1w6w5p2w3p2.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        {/* Favicon (dodaćeš public/favicon.ico po želji) */}
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body className={inter.className}>
+        {/* Skip to main content link for a11y */}
+        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-white px-4 py-2 rounded z-50">Preskoči na glavni sadržaj</a>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <main className="min-h-screen bg-background">{children}</main>
-          <Toaster />
+          <main id="main-content" className="min-h-screen bg-background" role="main" tabIndex={-1}>{children}</main>
+          {/* Toaster koristi aria-live za pristupačnost */}
+          <div aria-live="polite" aria-atomic="true">
+            <Toaster />
+          </div>
         </ThemeProvider>
       </body>
     </html>

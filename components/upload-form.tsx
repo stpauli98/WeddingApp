@@ -148,7 +148,11 @@ export function UploadForm({ guestId }: UploadFormProps) {
     <div className="relative">
       {/* Loading overlay */}
       {isLoading && (
-        <div className="absolute inset-0 bg-white bg-opacity-80 z-20 flex flex-col items-center justify-center rounded">
+        <div
+          className="absolute inset-0 bg-white bg-opacity-80 z-20 flex flex-col items-center justify-center rounded"
+          aria-live="assertive"
+          aria-label="Slanje u toku"
+        >
           <svg className="animate-spin h-8 w-8 text-blue-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
@@ -156,10 +160,24 @@ export function UploadForm({ guestId }: UploadFormProps) {
           <span className="text-blue-600 font-semibold">Slika se šalje...</span>
         </div>
       )}
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 bg-white p-6 rounded shadow">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-6 bg-white p-6 rounded shadow"
+        aria-busy={isLoading}
+        aria-describedby="upload-instructions"
+      >
         <div>
-        <label className="block font-medium mb-1">Slike (max 10)</label>
-        <ImageUpload value={form.watch("images") || []} onChange={val => form.setValue("images", val)} maxFiles={10} />
+        <label className="block font-medium mb-1" htmlFor="images-upload">Slike (max 10)</label>
+        <span id="upload-instructions" className="sr-only">Prvo izaberite slike, zatim kliknite na dugme Potvrdi upload. Sve akcije su dostupne tastaturom. Status slanja će biti automatski najavljen.</span>
+        <ImageUpload
+          value={form.watch("images") || []}
+          onChange={val => form.setValue("images", val)}
+          maxFiles={10}
+          inputProps={{
+            id: "images-upload",
+            'aria-label': "Izaberite slike za upload (maksimalno 10)",
+          }}
+        />
         {/* Grid prikaz slika sa klikom za modal i brisanjem */}
        
       </div>
@@ -172,7 +190,12 @@ export function UploadForm({ guestId }: UploadFormProps) {
         />
         <p className="text-sm text-gray-500 mt-1">Maksimalno 500 karaktera</p>
       </div>
-      <Button type="submit" className="w-full" disabled={isLoading || (form.watch("images")?.length ?? 0) === 0}>
+      <Button
+        type="submit"
+        className="w-full"
+        aria-label="Pošalji slike i poruku mladencima"
+        disabled={isLoading || (form.watch("images")?.length ?? 0) === 0}
+      >
         {isLoading ? "Slanje..." : "Potvrdi upload"}
       </Button>
     </form>

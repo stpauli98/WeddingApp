@@ -6,6 +6,27 @@ import { Button } from "@/components/ui/button"
 
 import { cookies } from "next/headers";
 
+export const metadata = {
+  title: "Verifikacija gosta | Svadbeni Album",
+  description: "Verifikujte svoj nalog i pošaljite slike mladencima.",
+  openGraph: {
+    title: "Verifikacija gosta | Svadbeni Album",
+    description: "Verifikujte svoj nalog i pošaljite slike mladencima.",
+    images: ["/seo-cover.png"],
+    type: "website",
+    url: "https://mojasvadbaa.com/verify",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Verifikacija gosta | Svadbeni Album",
+    description: "Verifikujte svoj nalog i pošaljite slike mladencima.",
+    images: ["/seo-cover.png"],
+  },
+  alternates: {
+    canonical: "https://mojasvadbaa.com/verify",
+  },
+};
+
 export default async function VerifyPage() {
   // Proveri da li je korisnik već autentifikovan preko session cookie-ja
   const cookieStore = await cookies();

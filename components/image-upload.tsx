@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
 interface ImageUploadProps {
-  value: File[]
-  onChange: (files: File[]) => void
-  maxFiles?: number
+  value: File[];
+  onChange: (files: File[]) => void;
+  maxFiles?: number;
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
 }
 
-export function ImageUpload({ value = [], onChange, maxFiles = 10 }: ImageUploadProps) {
+export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps }: ImageUploadProps) {
   const [previews, setPreviews] = useState<string[]>([])
 
   // Funkcija za kreiranje pregleda slika
@@ -122,7 +123,7 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10 }: ImageUpload
         className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition-colors
           ${isDragActive ? "border-primary bg-primary/10" : "border-muted-foreground/20 hover:border-primary/50"}`}
       >
-        <input {...getInputProps()} />
+        <input {...getInputProps()} {...inputProps} />
         <Upload className="mx-auto h-10 w-10 text-muted-foreground" />
         <p className="mt-2 text-sm text-muted-foreground">
           {isDragActive
