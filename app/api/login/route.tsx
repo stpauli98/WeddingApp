@@ -5,11 +5,35 @@ import nodemailer from 'nodemailer';
 
 // Funkcija za generisanje HTML emaila
 const getEmailHtml = (firstName: string, code: string) => `
-  <div style="font-family:sans-serif;max-width:400px;">
-    <h2>Zdravo, ${firstName}!</h2>
-    <p>Vaš verifikacioni kod je:</p>
-    <div style="font-size:2rem;font-weight:bold;margin:16px 0;">${code}</div>
-    <p>Unesite ovaj kod u aplikaciju da biste nastavili.</p>
+  <div style="background:#f9fafb;padding:32px 0;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="font-family:'Segoe UI',Arial,sans-serif;max-width:420px;margin:auto;background:#fff;border-radius:12px;box-shadow:0 4px 16px #0001;">
+      <tr>
+        <td style="padding:32px 32px 16px 32px;text-align:center;">
+          <img src="https://pmbljucihvdxmkskivnc.supabase.co/storage/v1/object/public/wedding-images/favicon.ico" alt="Moja Svadba" width="48" height="48" style="margin-bottom:12px;" />
+          <h1 style="margin:0 0 8px 0;font-size:1.7rem;color:#8b5cf6;">Dobrodošli, ${firstName}!</h1>
+          <p style="margin:0 0 16px 0;color:#374151;font-size:1.05rem;">Hvala što koristite aplikaciju <b>Moja Svadba</b>!<br>Vaš verifikacioni kod:</p>
+          <div style="display:inline-block;padding:16px 32px;font-size:2.2rem;font-weight:700;letter-spacing:6px;background:#f3f4f6;color:#8b5cf6;border-radius:8px;border:2px dashed #d1d5db;margin-bottom:20px;">
+            ${code}
+          </div>
+          <p style="margin:24px 0 0 0;color:#6b7280;font-size:0.98rem;">
+            Unesite ovaj kod u aplikaciju da biste potvrdili svoju email adresu.<br>
+            Kod važi 30 minuta.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:0 32px 24px 32px;text-align:center;">
+          <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0 16px 0;" />
+          <span style="color:#a1a1aa;font-size:0.9rem;">Ako niste vi pokrenuli ovaj zahtev, slobodno ignorišite ovu poruku.</span><br />
+          <span style="color:#ef4444;font-size:0.95rem;font-weight:500;display:block;margin-top:12px;">Ne odgovarajte na ovu poruku. Ova email adresa nije praćena.</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:0 0 16px 0;text-align:center;">
+          <span style="color:#d1d5db;font-size:0.85rem;">&copy; ${new Date().getFullYear()} Moja Svadba</span>
+        </td>
+      </tr>
+    </table>
   </div>
 `;
 
@@ -26,7 +50,7 @@ const sendVerificationEmail = async (email: string, code: string, firstName: str
 
   try {
     await transporter.sendMail({
-      from: process.env.ADMIN_EMAIL,
+      from: `Moja Svadba - Do Not Reply <${process.env.ADMIN_EMAIL}>`,
       to: email,
       subject: 'Vaš verifikacioni kod',
       html: getEmailHtml(firstName, code),
