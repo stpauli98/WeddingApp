@@ -50,9 +50,12 @@ export default async function DashboardPage({
         )}
         
       </div>
-      <ImageGallery images={guest.images || []} />
+      <ImageGallery images={(guest.images || []).map(img => ({
+        ...img,
+        storagePath: img.storagePath === null ? undefined : img.storagePath,
+      }))} />
       <div className="mt-8">
-        <LogoutButton label="Odjavi se i zaustavi upload" />
+        <LogoutButton label="Odjavi se i završi upload" />
       </div>
     </div>
   )
