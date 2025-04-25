@@ -41,58 +41,73 @@ export function ImageGallery({ images, readOnly = false }: ImageGalleryProps) {
   return (
     <>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        {images.map((image) => (
-          <Card key={image.id} className="relative aspect-square overflow-hidden group bg-white border border-[#E2C275] shadow-lg rounded-xl transition-transform duration-200 hover:shadow-xl hover:scale-105">
-            <div 
-              className="w-full h-full cursor-pointer"
-              onClick={() => openFullView(image.imageUrl)}
-            >
-              <CldImage
-                src={image.imageUrl}
-                width={400}
-                height={400}
-                crop="fill"
-                alt="Slika gosta"
-                className="w-full h-full object-cover p-2 rounded-lg"
-                style={{ background: 'none' }}
-              />
-            </div>
-          </Card>
-        ))}
+        {images.map((image) => {
+  
+  return (
+    <Card key={image.id} className="relative aspect-square overflow-hidden group bg-white border border-[#E2C275] shadow-lg rounded-xl transition-transform duration-200 hover:shadow-xl hover:scale-105">
+      <div 
+        className="w-full h-full cursor-pointer"
+        onClick={() => openFullView(image.imageUrl)}
+      >
+        {image.imageUrl && typeof image.imageUrl === 'string' && image.imageUrl.startsWith('http') ? (
+          <CldImage
+            src={image.imageUrl}
+            width={400}
+            height={400}
+            crop="fill"
+            alt="Slika gosta"
+            className="w-full h-full object-cover p-2 rounded-lg"
+            style={{ background: 'none' }}
+          />
+        ) : (
+          <div className="flex items-center justify-center w-full h-full bg-red-100 text-red-500 text-center text-sm p-4">
+            Greška: Slika nije dostupna ili nije validan Cloudinary URL
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+})}
       </div>
 
       {/* Modal za prikaz slike u punoj veličini */}
       {selectedImage && (
-        <div 
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+  <div 
+    className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+    onClick={closeFullView}
+  >
+    <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
+      <div
+        className="mx-auto bg-white/90 border-4 border-[#E2C275] rounded-2xl shadow-2xl p-1 flex items-center justify-center relative"
+        style={{ maxWidth: '96vw', maxHeight: '90vh' }}
+      >
+        {selectedImage && typeof selectedImage === 'string' && selectedImage.startsWith('http') ? (
+          <CldImage
+            src={selectedImage}
+            width={1200}
+            height={900}
+            crop="fit"
+            alt="Slika gosta"
+            className="w-full h-full object-contain transition-transform duration-200"
+            style={{ width: '80vw', height: '80vh', background: 'none' }}
+          />
+        ) : (
+          <div className="flex items-center justify-center w-full h-full bg-red-100 text-red-500 text-center text-sm p-4">
+            Greška: Slika nije dostupna ili nije validan Cloudinary URL
+          </div>
+        )}
+        <Button
+          variant="destructive"
+          size="icon"
+          className="absolute top-2 right-2 z-10"
           onClick={closeFullView}
         >
-          <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
-  <div
-    className="mx-auto bg-white/90 border-4 border-[#E2C275] rounded-2xl shadow-2xl p-1 flex items-center justify-center relative"
-    style={{ maxWidth: '96vw', maxHeight: '90vh' }}
-  >
-    <CldImage
-      src={selectedImage}
-      width={1200}
-      height={900}
-      crop="fit"
-      alt="Slika gosta"
-      className="w-full h-full object-contain transition-transform duration-200"
-      style={{ width: '80vw', height: '80vh', background: 'none' }}
-    />
-    <Button
-      variant="destructive"
-      size="icon"
-      className="absolute top-2 right-2 z-10"
-      onClick={closeFullView}
-    >
-      <X className="h-4 w-4" />
-    </Button>
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
   </div>
-</div>
-        </div>
-      )}
+)}
     </>
   )
 }
