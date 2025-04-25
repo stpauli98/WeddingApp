@@ -3,6 +3,21 @@ import Link from "next/link";
 export const metadata = {
   title: "O aplikaciji – Svadbeni Album",
   description: "Saznajte kako funkcioniše aplikacija za prikupljanje slika sa svadbe i kako možete tražiti pristup kao mladenci.",
+  openGraph: {
+    title: "O aplikaciji – Svadbeni Album",
+    description: "Saznajte kako funkcioniše aplikacija za prikupljanje slika sa svadbe i kako možete tražiti pristup kao mladenci.",
+    url: "https://mojasvadbaa.com/about",
+    siteName: "Svadbeni Album",
+    images: [
+      {
+        url: "https://mojasvadbaa.com/slika.png",
+        width: 1200,
+        height: 630,
+        alt: "Svadbeni Album - O aplikaciji",
+      },
+    ],
+    type: "website",
+  },
 };
 
 export default function AboutPage() {
