@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { ImageUpload } from "@/components/image-upload"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 
 // Validacija: max 10 slika, max 500 karaktera poruka
 const formSchema = z.object({
@@ -146,11 +147,11 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
   }
 
   return (
-    <div className="relative">
+    <Card className="relative max-w-xl mx-auto my-8">
       {/* Loading overlay */}
       {isLoading && (
         <div
-          className="absolute inset-0 bg-white bg-opacity-80 z-20 flex flex-col items-center justify-center rounded"
+          className="absolute inset-0 bg-white bg-opacity-80 z-20 flex flex-col items-center justify-center rounded-xl"
           aria-live="assertive"
           aria-label="Slanje u toku"
         >
@@ -161,46 +162,51 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
           <span className="text-blue-600 font-semibold">Slika se šalje...</span>
         </div>
       )}
+      <CardHeader>
+        <CardTitle>Dodaj slike</CardTitle>
+        <CardDescription>Maksimalno 10 slika i poruka mladencima</CardDescription>
+      </CardHeader>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 bg-white p-6 rounded shadow"
         aria-busy={isLoading}
         aria-describedby="upload-instructions"
       >
-        <div>
-        <label className="block font-medium mb-1" htmlFor="images-upload">Slike (max 10)</label>
-        <span id="upload-instructions" className="sr-only">Prvo izaberite slike, zatim kliknite na dugme Potvrdi upload. Sve akcije su dostupne tastaturom. Status slanja će biti automatski najavljen.</span>
-        <ImageUpload
-          value={form.watch("images") || []}
-          onChange={val => form.setValue("images", val)}
-          maxFiles={10}
-          inputProps={{
-            id: "images-upload",
-            'aria-label': "Izaberite slike za upload (maksimalno 10)",
-          }}
-        />
-        {/* Grid prikaz slika sa klikom za modal i brisanjem */}
-       
-      </div>
-      <div>
-        <label className="block font-medium mb-1">Poruka (opciono)</label>
-        <Textarea
-          placeholder="Napišite poruku ili čestitku mladencima..."
-          rows={4}
-          {...form.register("message")}
-        />
-        <p className="text-sm text-gray-500 mt-1">Maksimalno 500 karaktera</p>
-      </div>
-      <Button
-        type="submit"
-        className="w-full"
-        aria-label="Pošalji slike i poruku mladencima"
-        disabled={isLoading || (form.watch("images")?.length ?? 0) === 0}
-      >
-        {isLoading ? "Slanje..." : "Potvrdi upload"}
-      </Button>
-    </form>
-    </div>
+        <CardContent className="space-y-6">
+          <div>
+            <label className="block font-medium mb-1" htmlFor="images-upload">Slike (max 10)</label>
+            <span id="upload-instructions" className="sr-only">Prvo izaberite slike, zatim kliknite na dugme Potvrdi upload. Sve akcije su dostupne tastaturom. Status slanja će biti automatski najavljen.</span>
+            <ImageUpload
+              value={form.watch("images") || []}
+              onChange={val => form.setValue("images", val)}
+              maxFiles={10}
+              inputProps={{
+                id: "images-upload",
+                'aria-label': "Izaberite slike za upload (maksimalno 10)",
+              }}
+            />
+          </div>
+          <div>
+            <label className="block font-medium mb-1">Poruka (opciono)</label>
+            <Textarea
+              placeholder="Napišite poruku ili čestitku mladencima..."
+              rows={4}
+              {...form.register("message")}
+            />
+            <p className="text-sm text-gray-500 mt-1">Maksimalno 500 karaktera</p>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button
+            type="submit"
+            className="w-full"
+            aria-label="Pošalji slike i poruku mladencima"
+            disabled={isLoading || (form.watch("images")?.length ?? 0) === 0}
+          >
+            {isLoading ? "Slanje..." : "Potvrdi upload"}
+          </Button>
+        </CardFooter>
+      </form>
+    </Card>
   )
 }
 

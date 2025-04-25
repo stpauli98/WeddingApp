@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 
 // Definisanje šeme za validaciju forme
 const formSchema = z.object({
@@ -83,45 +84,50 @@ export function VerificationForm() {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Verifikacioni kod</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Unesite 6-cifreni kod"
-                  {...field}
-                  maxLength={6}
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {error && (
-          <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm">
-            {error}
-            {error.includes("Sesija je istekla") && (
-              <div className="mt-2">
-                <Link href="/" className="underline font-medium">
-                  Vratite se na prijavu
-                </Link>
+    <Card className="bg-white border-2 border-[#E2C275] rounded-xl shadow px-6 py-8">
+      <CardHeader>
+        <CardTitle className="text-center text-[#E2C275] text-2xl font-serif font-bold mb-2">Verifikacija</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Verifikacioni kod</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Unesite 6-cifreni kod"
+                      {...field}
+                      maxLength={6}
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {error && (
+              <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm">
+                {error}
+                {error.includes("Sesija je istekla") && (
+                  <div className="mt-2">
+                    <Link href="/" className="underline font-medium">
+                      Vratite se na prijavu
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
-          </div>
-        )}
-
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Verifikacija..." : "Verifikuj"}
-        </Button>
-      </form>
-    </Form>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Verifikacija..." : "Verifikuj"}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   )
 }

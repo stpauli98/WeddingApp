@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation"
 import { UserGallery } from "@/components/user-gallery"
-import {GuestMessage} from "@/components/guest-message"
+import { GuestMessage } from "@/components/guest-message"
+import LogoutButton from "@/app/success/LogoutButton"
 import { getGuestById } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import LogoutButton from "./LogoutButton"
-
+import { SuccessThankYouCard } from "@/components/success-thank-you-card"
+import { UploadLimitReachedCelebration } from "@/components/upload-limit-reached-celebration"
 import { cookies } from "next/headers";
 
 export default async function SuccessPage() {
@@ -36,16 +37,10 @@ export default async function SuccessPage() {
 
   return (
     <div className="container max-w-md mx-auto px-4 py-8 text-center">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Hvala!</h1>
-        <p className="text-muted-foreground mt-4">
-          Vaše slike i poruka su uspešno poslate. {event?.coupleName} će biti oduševljeni vašim iznenadjenjem!
-        </p>
-      </div>
+      <SuccessThankYouCard coupleName={event?.coupleName} />
 
       <div className="flex flex-col gap-4">
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Vaše uploadovane slike</h2>
+        <div className="bg-white border border-gray-200 rounded-xl shadow px-4 py-6 mb-8">
           <UserGallery
             initialImages={(guest?.images || []).map(img => ({
               ...img,
@@ -53,12 +48,17 @@ export default async function SuccessPage() {
             }))}
             guestId={guestId}
           />
-          <div className="mt-8">  
+          <div className="mt-8">
             <GuestMessage message={message} />
           </div>
-          <div className="mt-8">
-            <LogoutButton label="Odjavi se"/>
+        </div>
+        {guest.images && guest.images.length === 10 && (
+          <div className="mb-2">
+            <UploadLimitReachedCelebration />
           </div>
+        )}
+        <div className="mt-8">
+          <LogoutButton label="Odjavi se"/>
         </div>
       </div>
     </div>

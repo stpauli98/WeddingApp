@@ -41,13 +41,13 @@ export function ImageGallery({ images, readOnly = false }: ImageGalleryProps) {
     <>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {images.map((image) => (
-          <Card key={image.id} className="relative aspect-square overflow-hidden group">
+          <Card key={image.id} className="relative aspect-square overflow-hidden group bg-white border border-[#E2C275] shadow-lg rounded-xl transition-transform duration-200 hover:shadow-xl hover:scale-105">
             <div 
               className="w-full h-full cursor-pointer"
               onClick={() => openFullView(image.imageUrl)}
             >
               <div 
-                className="w-full h-full bg-cover bg-center" 
+                className="w-full h-full bg-cover bg-center p-2 rounded-lg" 
                 style={{ backgroundImage: `url(${image.imageUrl})` }}
               />
             </div>
@@ -61,20 +61,25 @@ export function ImageGallery({ images, readOnly = false }: ImageGalleryProps) {
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
           onClick={closeFullView}
         >
-          <div className="relative max-w-4xl max-h-[90vh] w-full h-full">
-            <div 
-              className="w-full h-full bg-contain bg-center bg-no-repeat" 
-              style={{ backgroundImage: `url(${selectedImage})` }}
-            />
-            <Button
-              variant="destructive"
-              size="icon"
-              className="absolute top-2 right-2"
-              onClick={closeFullView}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
+  <div
+    className="mx-auto bg-white/90 border-4 border-[#E2C275] rounded-2xl shadow-2xl p-1 flex items-center justify-center relative"
+    style={{ maxWidth: '96vw', maxHeight: '90vh' }}
+  >
+    <div
+      className="w-full h-full bg-contain bg-center bg-no-repeat transition-transform duration-200"
+      style={{ backgroundImage: `url(${selectedImage})`, width: '80vw', height: '80vh' }}
+    />
+    <Button
+      variant="destructive"
+      size="icon"
+      className="absolute top-2 right-2 z-10"
+      onClick={closeFullView}
+    >
+      <X className="h-4 w-4" />
+    </Button>
+  </div>
+</div>
         </div>
       )}
     </>

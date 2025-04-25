@@ -51,10 +51,6 @@ export default async function VerifyPage() {
 
   return (
     <div className="container max-w-md mx-auto px-4 py-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold">Verifikacija</h1>
-        <p className="text-muted-foreground mt-2">Unesite verifikacioni kod koji smo poslali na vašu email adresu</p>
-      </div>
       <VerificationForm />
     </div>
   )

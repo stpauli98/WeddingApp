@@ -22,14 +22,7 @@ export default function RootLayout({
   return (
     <html lang="sr" dir="ltr" className="light" style={{ colorScheme: "light" }}>
       <head>
-        {/* Preload Google Inter font */}
-        <link
-          rel="preload"
-          href="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK1w6w5p2w3p2.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
+        {/* Inter font se učitava preko next/font/google, nije potreban preload */}
         {/* Favicon (dodaćeš public/favicon.ico po želji) */}
         <link rel="icon" href="/favicon.ico" />
       </head>
