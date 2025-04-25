@@ -39,7 +39,7 @@ export default async function DashboardPage() {
             <p className="text-muted-foreground mb-4">
               Uploadovano {guest.images?.length || 0} od 10 dozvoljenih slika
             </p>
-            <UploadForm guestId={guestId} />
+            <UploadForm guestId={guestId} message={guest.message?.text ?? ""} />
           </>
         )}
         

@@ -17,14 +17,15 @@ const formSchema = z.object({
 
 interface UploadFormProps {
   guestId: string;
+  message?: string;
 }
 
-export function UploadForm({ guestId }: UploadFormProps) {
+export function UploadForm({ guestId, message }: UploadFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { message: "", images: [] },
+    defaultValues: { message: message ?? "", images: [] },
   })
 
   // Funkcija za resize slike pomoću canvas-a
