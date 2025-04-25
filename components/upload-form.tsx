@@ -21,7 +21,6 @@ interface UploadFormProps {
 
 export function UploadForm({ guestId }: UploadFormProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [modalImageIdx, setModalImageIdx] = useState<number | null>(null)
   const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
