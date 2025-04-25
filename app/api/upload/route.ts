@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from '@/lib/prisma';
-import { supabase } from '@/lib/supabase';
 import { getGuestById } from '@/lib/auth';
 import sharp from 'sharp';
-
-const BUCKET_NAME = 'wedding-images';
+import cloudinary from '@/lib/cloudinary';
+import type { UploadApiResponse, UploadApiErrorResponse } from "cloudinary";
 
 type UploadResult = { success: boolean; images: number } | { error: string };
 
@@ -33,44 +32,41 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadRes
     if ((guest.images?.length || 0) + images.length > 10)
       return NextResponse.json({ error: "Ukupno možete imati najviše 10 slika" }, { status: 400 });
 
-    // --- Upload slika u Supabase bucket i upis u bazu ---
+    // --- Upload slika na Cloudinary i upis u bazu ---
     const uploadedImages: any[] = [];
-    // Maksimalna veličina slike
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // Maksimalna veličina slike (Cloudinary free plan: 10MB po slici, možeš povećati po potrebi)
+    const maxSize = 10 * 1024 * 1024; // 10MB
     for (const image of images) {
       try {
-        // Dozvoli samo fajlove koji su slike
         if (!image.type.startsWith('image/')) {
           return NextResponse.json({ error: `Fajl ${image.name} nije slika.` }, { status: 400 });
         }
         if (image.size > maxSize) {
-          return NextResponse.json({ error: `Slika ${image.name} je veća od 5MB. Molimo vas da smanjite rezoluciju ili veličinu slike.` }, { status: 400 });
+          return NextResponse.json({ error: `Slika ${image.name} je veća od 10MB. Molimo vas da smanjite rezoluciju ili veličinu slike.` }, { status: 400 });
         }
-        const fileName = `${guestId}_${Date.now()}_${Math.random().toString(36).substring(2)}.jpg`;
-        const filePath = `${guestId}/${fileName}`;
+        // Konvertuj u JPG radi optimizacije
         const buffer = Buffer.from(await image.arrayBuffer());
-        // Konvertuj bilo koji format u JPG koristeći sharp
         let jpgBuffer: Buffer;
         try {
-          //znaci ovde negdje je belaj
           jpgBuffer = await sharp(buffer).jpeg({ quality: 85 }).toBuffer();
         } catch (err: any) {
           return NextResponse.json({ error: `Greška pri konverziji slike ${image.name} u JPG: ${err?.message || "Nepoznata greška"}` }, { status: 400 });
         }
-        const { error } = await supabase.storage
-          .from(BUCKET_NAME)
-          .upload(filePath, jpgBuffer, {
-            contentType: 'image/jpeg',
-            upsert: false
-          });
-        if (error) {
-          return NextResponse.json({ error: `Greška pri uploadu slike ${image.name}: ${error.message || error}` }, { status: 500 });
-        }
-        const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
-        const imageUrl = data.publicUrl;
+        // Upload na Cloudinary (koristi upload_stream zbog velikih fajlova)
+        const uploadPromise = new Promise<{ url: string }>((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: 'wedding-app', resource_type: 'image' },
+            (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
+              if (error || !result) return reject(error || new Error('Upload failed'));
+              resolve({ url: result.secure_url });
+            }
+          );
+          stream.end(jpgBuffer);
+        });
+        const { url: imageUrl } = await uploadPromise;
         // Upis slike i njenog URL-a u bazu
         const uploadedImage = await prisma.image.create({
-          data: { guestId, imageUrl, storagePath: filePath } as any,
+          data: { guestId, imageUrl },
         });
         uploadedImages.push(uploadedImage);
       } catch (err: any) {

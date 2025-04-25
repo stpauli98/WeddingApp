@@ -4,6 +4,7 @@ import { useState } from "react"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { CldImage } from "next-cloudinary"
 
 interface Image {
   id: string
@@ -46,9 +47,14 @@ export function ImageGallery({ images, readOnly = false }: ImageGalleryProps) {
               className="w-full h-full cursor-pointer"
               onClick={() => openFullView(image.imageUrl)}
             >
-              <div 
-                className="w-full h-full bg-cover bg-center p-2 rounded-lg" 
-                style={{ backgroundImage: `url(${image.imageUrl})` }}
+              <CldImage
+                src={image.imageUrl}
+                width={400}
+                height={400}
+                crop="fill"
+                alt="Slika gosta"
+                className="w-full h-full object-cover p-2 rounded-lg"
+                style={{ background: 'none' }}
               />
             </div>
           </Card>
@@ -66,9 +72,14 @@ export function ImageGallery({ images, readOnly = false }: ImageGalleryProps) {
     className="mx-auto bg-white/90 border-4 border-[#E2C275] rounded-2xl shadow-2xl p-1 flex items-center justify-center relative"
     style={{ maxWidth: '96vw', maxHeight: '90vh' }}
   >
-    <div
-      className="w-full h-full bg-contain bg-center bg-no-repeat transition-transform duration-200"
-      style={{ backgroundImage: `url(${selectedImage})`, width: '80vw', height: '80vh' }}
+    <CldImage
+      src={selectedImage}
+      width={1200}
+      height={900}
+      crop="fit"
+      alt="Slika gosta"
+      className="w-full h-full object-contain transition-transform duration-200"
+      style={{ width: '80vw', height: '80vh', background: 'none' }}
     />
     <Button
       variant="destructive"
