@@ -27,6 +27,7 @@ export default function AboutPage() {
           <li>Jednostavan pristup bez komplikovanih registracija.</li>
           <li>Mladenci mogu lako preuzeti sve slike i sačuvati uspomene.</li>
         </ul>
+        <h4>Verifikacioni kod koji vas se bude slao na E-Mail tokom logovanja/verifikacije moze završiti u Spam-u/Junk-u. Tako da provjerite i taj folder.</h4>
         <div className="flex justify-center mt-8">
           <Link href="/login" className="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-primary/90 transition">Prijava za goste</Link>
         </div>
