@@ -48,9 +48,11 @@ export default async function DashboardPage() {
         ...img,
         storagePath: img.storagePath === null ? undefined : img.storagePath,
       }))} />
-      <div className="mt-8">
-        <LogoutButton label="Odjavi se i završi upload" />
-      </div>
+      {guest.images && guest.images.length === 10 && (
+        <div className="mt-8">
+          <LogoutButton label="Odjavi se i završi upload" />
+        </div>
+      )}
     </div>
   )
 }
