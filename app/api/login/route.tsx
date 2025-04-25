@@ -1,22 +1,40 @@
 import { NextResponse } from "next/server"
-import { Resend } from 'resend';
-import { EmailTemplate } from '@/components/email-template';
 import { prisma } from '@/lib/prisma';
 import { getGuestByEmail } from '@/lib/auth';
+import nodemailer from 'nodemailer';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Funkcija za generisanje HTML emaila
+const getEmailHtml = (firstName: string, code: string) => `
+  <div style="font-family:sans-serif;max-width:400px;">
+    <h2>Zdravo, ${firstName}!</h2>
+    <p>Vaš verifikacioni kod je:</p>
+    <div style="font-size:2rem;font-weight:bold;margin:16px 0;">${code}</div>
+    <p>Unesite ovaj kod u aplikaciju da biste nastavili.</p>
+  </div>
+`;
 
 const sendVerificationEmail = async (email: string, code: string, firstName: string) => {
-  const { error } = await resend.emails.send({
-    from: 'no-reply@mojasvadbaa.com',
-    to: [email],
-    subject: 'Vaš verifikacioni kod',
-    react: <EmailTemplate firstName={firstName} code={code} />,
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.ADMIN_EMAIL,
+      pass: process.env.ADMIN_EMAIL_PASSWORD,
+    },
   });
-  if (error) {
+
+  try {
+    await transporter.sendMail({
+      from: process.env.ADMIN_EMAIL,
+      to: email,
+      subject: 'Vaš verifikacioni kod',
+      html: getEmailHtml(firstName, code),
+    });
+    return true;
+  } catch (error: any) {
     throw new Error('Greška pri slanju email-a: ' + error.message);
   }
-  return true;
 }
 
 export async function POST(request: Request) {
