@@ -4,7 +4,7 @@ import { useState } from "react"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { CldImage } from "next-cloudinary"
+import ImageWithSpinner from "@/components/ImageWithSpinner"
 
 interface Image {
   id: string
@@ -49,19 +49,19 @@ export function ImageGallery({ images, readOnly = false }: ImageGalleryProps) {
         className="w-full h-full cursor-pointer"
         onClick={() => openFullView(image.imageUrl)}
       >
-        {image.imageUrl && typeof image.imageUrl === 'string' && image.imageUrl.startsWith('http') ? (
-          <CldImage
+        {image.imageUrl && typeof image.imageUrl === 'string' ? (
+          <ImageWithSpinner
             src={image.imageUrl}
             width={400}
             height={400}
             crop="fill"
             alt="Slika gosta"
-            className="w-full h-full object-cover p-2 rounded-lg"
-            style={{ background: 'none' }}
+            className="p-2"
+            rounded={true}
           />
         ) : (
           <div className="flex items-center justify-center w-full h-full bg-red-100 text-red-500 text-center text-sm p-4">
-            Greška: Slika nije dostupna ili nije validan Cloudinary URL
+            Greška: Slika nije dostupna ili nije validan URL
           </div>
         )}
       </div>
@@ -81,19 +81,20 @@ export function ImageGallery({ images, readOnly = false }: ImageGalleryProps) {
         className="mx-auto bg-white/90 border-4 border-[#E2C275] rounded-2xl shadow-2xl p-1 flex items-center justify-center relative"
         style={{ maxWidth: '96vw', maxHeight: '90vh' }}
       >
-        {selectedImage && typeof selectedImage === 'string' && selectedImage.startsWith('http') ? (
-          <CldImage
+        {selectedImage && typeof selectedImage === 'string' ? (
+          <ImageWithSpinner
             src={selectedImage}
             width={1200}
             height={900}
             crop="fit"
             alt="Slika gosta"
             className="w-full h-full object-contain transition-transform duration-200"
-            style={{ width: '80vw', height: '80vh', background: 'none' }}
+            style={{ width: '80vw', height: '80vh' }}
+            rounded={true}
           />
         ) : (
           <div className="flex items-center justify-center w-full h-full bg-red-100 text-red-500 text-center text-sm p-4">
-            Greška: Slika nije dostupna ili nije validan Cloudinary URL
+            Greška: Slika nije dostupna ili nije validan URL
           </div>
         )}
         <Button

@@ -8,6 +8,25 @@ import { SuccessThankYouCard } from "@/components/success-thank-you-card"
 import { UploadLimitReachedCelebration } from "@/components/upload-limit-reached-celebration"
 import { cookies } from "next/headers";
 
+function getSlikaPadez(n: number) {
+  switch (n) {
+    case 1:
+      return "sliku"
+    case 2:
+    case 3:
+    case 4:
+      return "slike"
+    default:
+      return "slika"
+  }
+}
+
+interface Image {
+  id: string
+  imageUrl: string
+  storagePath?: string | null
+}
+
 export default async function SuccessPage() {
   // Dohvati guestId iz session cookie-ja
   const cookieStore = await cookies();
@@ -42,12 +61,18 @@ export default async function SuccessPage() {
       <div className="flex flex-col gap-4">
         <div className="bg-white border border-gray-200 rounded-xl shadow px-4 py-6 mb-8">
           <UserGallery
-            initialImages={(guest?.images || []).map(img => ({
+            initialImages={(guest?.images || []).map((img: Image) => ({
               ...img,
               storagePath: img.storagePath === null ? undefined : img.storagePath,
             }))}
             guestId={guestId}
           />
+          {/* Prikaz koliko još slika može da se doda */}
+          {guest.images && guest.images.length < 10 && (
+            <div className="mt-2 text-sm text-muted-foreground">
+              Možete dodati još <span className="font-semibold">{10 - guest.images.length}</span> {getSlikaPadez(10 - guest.images.length)}.
+            </div>
+          )}
           <div className="mt-8">
             <GuestMessage message={message} />
           </div>
