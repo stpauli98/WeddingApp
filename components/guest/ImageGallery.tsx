@@ -4,7 +4,7 @@ import { useState } from "react"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import ImageWithSpinner from "@/components/ImageWithSpinner"
+import ImageWithSpinner from "@/components/shared/ImageWithSpinner"
 
 interface Image {
   id: string

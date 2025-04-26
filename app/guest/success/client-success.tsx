@@ -1,10 +1,10 @@
 "use client"
 import { useEffect, useState } from "react"
-import { SuccessThankYouCard } from "@/components/success-thank-you-card"
-import { UserGallery } from "@/components/user-gallery"
-import { GuestMessage } from "@/components/guest-message"
-import { UploadLimitReachedCelebration } from "@/components/upload-limit-reached-celebration"
-import LogoutButton from "@/app/success/LogoutButton"
+import { SuccessThankYouCard } from "@/components/guest/SuccessThankYouCard"
+import { UserGallery } from "@/components/guest/UserGallery"
+import { GuestMessage } from "@/components/guest/GuestMessage"
+import { UploadLimitReachedCelebration } from "@/components/guest/UploadLimitReachedCelebration"
+import LogoutButton from "@/components/guest/LogoutButton"
 
 const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScxs3Oxov-W9KYX8nQqk01EZ3tCsRU6ylh6BcoBF5XVncgrRQ/viewform?usp=dialog" // zameni sa tvojim pravim linkom
 

@@ -1,11 +1,11 @@
 import { WeddingInfo } from "@/components/wedding-info"
-import { UploadForm } from "@/components/upload-form"
+import { UploadForm } from "@/components/guest/Upload-Form"
 import { redirect } from "next/navigation"
-import LogoutButton from "@/app/success/LogoutButton"
-import { ImageGallery } from "@/components/image-gallery"
+import LogoutButton from "@/components/guest/LogoutButton"
+import { ImageGallery } from "@/components/guest/ImageGallery"
 import { getGuestById } from "@/lib/auth"
-import { ImageSlotBar } from "@/components/image-slot-bar"
-import { UploadLimitReachedCelebration } from "@/components/upload-limit-reached-celebration"
+import { ImageSlotBar } from "@/components/guest/ImageSlotBar"
+import { UploadLimitReachedCelebration } from "@/components/guest/UploadLimitReachedCelebration"
 import { cookies } from "next/headers";
 
 // Lokalni tip Image ako nije globalno dostupan

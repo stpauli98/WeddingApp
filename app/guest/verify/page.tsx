@@ -1,6 +1,6 @@
 
 
-import { VerificationForm } from "@/components/verification-form"
+import { VerificationForm } from "@/components/guest/VerificationForm"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 

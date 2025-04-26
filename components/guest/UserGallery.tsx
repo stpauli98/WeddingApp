@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ImageGallery } from "@/components/image-gallery"
+import { ImageGallery } from "@/components/guest/ImageGallery"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 
