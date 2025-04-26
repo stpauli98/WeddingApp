@@ -1,3 +1,12 @@
+// Ograničenje veličine za upload (povećano od 10MB koji je moj trenutni max zbog Cloudinary free plana)
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '100mb',
+    },
+  },
+};
+
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from '@/lib/prisma';
 import { getGuestById } from '@/lib/auth';
