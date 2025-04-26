@@ -32,14 +32,14 @@ export default async function SuccessPage() {
   const guestId = cookieStore.get("guest_session")?.value || "";
 
   if (!guestId) {
-    redirect("/");
+    redirect("/guest/login");
   }
 
   // Dohvatanje gosta sa slikama
   const guest = await getGuestById(guestId);
 
   if (!guest) {
-    redirect("/");
+    redirect("/guest/login");
   }
 
   // Posebno dohvatanje poruke za gosta

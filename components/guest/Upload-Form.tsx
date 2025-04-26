@@ -117,27 +117,19 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
         throw new Error("Niste prijavljeni ili nedostaje ID gosta");
       }
 
-      // Uvek šaljemo stvarni zahtev na backend sa guestId parametrom
-      console.log("[UPLOAD-FORM] Šaljem podatke na /api/upload:", {
-        message: values.message?.length || 0,
-        images: values.images?.length || 0,
-        guestId
-      });
-
-      const response = await fetch(`/api/upload?guestId=${guestId}`, {
+      const response = await fetch(`/api/guest/upload?guestId=${guestId}`, {
         method: "POST",
         body: formData,
       });
 
       const data = await response.json();
-      console.log("[UPLOAD-FORM] Odgovor od servera:", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Došlo je do greške");
       }
       
       setTimeout(() => {
-        window.location.href = "/success";
+        window.location.href = "/guest/success";
       }, 100);
     } catch (error) {
       alert(error instanceof Error ? error.message : "Došlo je do greške prilikom slanja");

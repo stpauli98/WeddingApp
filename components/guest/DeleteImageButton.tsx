@@ -21,7 +21,7 @@ export function DeleteImageButton({ imageId, onSuccess }: DeleteImageButtonProps
     try {
       setIsDeleting(true)
       
-      const response = await fetch(`/api/images/delete?id=${imageId}`, {
+      const response = await fetch(`/api/guest/images/delete?id=${imageId}`, {
         method: "DELETE",
       })
 

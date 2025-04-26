@@ -49,7 +49,7 @@ export default function AboutPage() {
         </ol>
 
         <div className="flex justify-center mt-8">
-          <Link href="/login" className="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-primary/90 transition">
+          <Link href="/guest/login" className="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-primary/90 transition">
             Testirajte aplikaciju
           </Link>
         </div>

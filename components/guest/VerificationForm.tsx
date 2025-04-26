@@ -82,7 +82,7 @@ export function VerificationForm() {
         throw new Error("Sesija je istekla. Molimo vas da se ponovo prijavite.")
       }
 
-      const response = await fetch("/api/verify", {
+      const response = await fetch("/api/guest/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -104,7 +104,7 @@ export function VerificationForm() {
       localStorage.removeItem('codeExpires')
 
       // Preusmeravanje na dashboard, guestId se više ne koristi u URL-u
-      window.location.href = "/dashboard"
+      window.location.href = "/guest/dashboard"
     } catch (error) {
       console.error("Verification error:", error)
       const errorMessage = error instanceof Error ? error.message : "Došlo je do greške prilikom verifikacije"

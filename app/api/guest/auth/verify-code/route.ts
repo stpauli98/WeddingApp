@@ -1,4 +1,4 @@
-// app/api/auth/verify-code/route.ts
+// app/api/guest/auth/verify-code/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 

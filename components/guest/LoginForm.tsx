@@ -44,7 +44,7 @@ export function LoginForm() {
     try {
       setIsLoading(true)
 
-      const response = await fetch("/api/login", {
+      const response = await fetch("/api/guest/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,7 +66,7 @@ export function LoginForm() {
         })
         
         // Direktno preusmeri na dashboard, guestId se više ne koristi u URL-u
-        window.location.href = "/dashboard"
+        window.location.href = "/guest/dashboard"
       } else {
         // Ako nije verifikovan, sačuvaj email i vreme isteka koda za verifikaciju i preusmeri na stranicu za verifikaciju
         localStorage.setItem('pendingEmail', data.email)
@@ -77,7 +77,7 @@ export function LoginForm() {
           title: "Verifikacija potrebna",
           description: "Niste završili verifikaciju. Novi kod je poslat na vaš email.",
         });
-        router.push("/verify")
+        router.push("/guest/verify")
       }
     } catch (error) {
       console.error("Login error:", error)

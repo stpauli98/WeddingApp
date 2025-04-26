@@ -12,7 +12,7 @@ export default function LogoutButton({ label }: LogoutButtonProps) {
 
   const handleLogout = () => {
    //brisem session cookie i vrati na pocetnu stranu
-   fetch("/api/logout", { method: "POST" })
+   fetch("/api/guest/logout", { method: "POST" })
    router.replace("/")
   };
 

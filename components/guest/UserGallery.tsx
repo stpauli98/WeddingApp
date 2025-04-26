@@ -29,7 +29,7 @@ export function UserGallery({ initialImages, guestId }: UserGalleryProps) {
     try {
       setIsDeleting(imageId)
       
-      const response = await fetch(`/api/images/delete?id=${imageId}&guestId=${guestId}`, {
+      const response = await fetch(`/api/guest/images/delete?id=${imageId}&guestId=${guestId}`, {
         method: "DELETE",
       })
 
@@ -58,7 +58,7 @@ export function UserGallery({ initialImages, guestId }: UserGalleryProps) {
       {images.length < 10 && (
         <Button
           variant="outline"
-          onClick={() => router.push("/dashboard")}
+          onClick={() => router.push("/guest/dashboard")}
           className="mt-4"
         >
           Dodaj još slika

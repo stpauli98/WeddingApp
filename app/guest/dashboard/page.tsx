@@ -22,14 +22,14 @@ export default async function DashboardPage() {
   const guestId = cookieStore.get("guest_session")?.value || "";
 
   if (!guestId) {
-    redirect("/");
+    redirect("/guest/login");
   }
 
   // Proveri da li gost postoji i da li je verifikovan
   const guest = await getGuestById(guestId);
 
   if (!guest) {
-    redirect("/");
+    redirect("/guest/login");
   }
 
   return (

@@ -7,7 +7,7 @@ export function RootWelcome() {
       <div className="text-center">
         <h1 className="text-4xl font-bold mb-8">Dobrodošli</h1>
         <p className="mb-8 text-lg text-muted-foreground">Aplikacija za goste na svadbi. Prijavite se za nastavak.</p>
-        <Link href="/login">
+        <Link href="/guest/login">
           <Button className="text-lg px-8 py-4">Uloguj se</Button>
         </Link>
       </div>
