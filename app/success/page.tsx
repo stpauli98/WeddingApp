@@ -1,14 +1,8 @@
 
-"use client"
-import React from "react"
 import { redirect } from "next/navigation"
-import { UserGallery } from "@/components/user-gallery"
-import { GuestMessage } from "@/components/guest-message"
-import LogoutButton from "@/app/success/LogoutButton"
 import { getGuestById } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { SuccessThankYouCard } from "@/components/success-thank-you-card"
-import { UploadLimitReachedCelebration } from "@/components/upload-limit-reached-celebration"
+import ClientSuccess from "./client-success"
 import { cookies } from "next/headers";
 import { useEffect, useState } from "react"
 
@@ -31,7 +25,6 @@ interface Image {
   storagePath?: string | null
 }
 
-const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScxs3Oxov-W9KYX8nQqk01EZ3tCsRU6ylh6BcoBF5XVncgrRQ/viewform?usp=dialog" // zameni sa tvojim pravim linkom
 
 export default async function SuccessPage() {
   // Dohvati guestId iz session cookie-ja
@@ -60,64 +53,5 @@ export default async function SuccessPage() {
     select: { coupleName: true }
   });
 
-  // Odbrojavanje i redirect na Google Forms
-  const [countdown, setCountdown] = React.useState(5);
-  const GOOGLE_FORM_URL = "https://forms.gle/your-google-form-id"; // zameni sa pravim linkom
-  React.useEffect(() => {
-    if (countdown <= 0) {
-      window.location.href = GOOGLE_FORM_URL;
-      return;
-    }
-    const timer = setTimeout(() => setCountdown(c => c - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [countdown]);
-
-  return (
-    <div className="container max-w-md mx-auto px-4 py-8 text-center">
-      <SuccessThankYouCard coupleName={event?.coupleName} />
-      <div className="flex flex-col gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl shadow px-4 py-6 mb-8">
-          <UserGallery
-            initialImages={(guest?.images || []).map((img: Image) => ({
-              ...img,
-              storagePath: img.storagePath === null ? undefined : img.storagePath,
-            }))}
-            guestId={guestId}
-          />
-          {/* Prikaz koliko još slika može da se doda */}
-          {guest.images && guest.images.length < 10 && (
-            <div className="mt-2 text-sm text-muted-foreground">
-              Možete dodati još <span className="font-semibold">{10 - guest.images.length}</span> {getSlikaPadez(10 - guest.images.length)}.
-            </div>
-          )}
-          <div className="mt-8">
-            <GuestMessage message={message} />
-          </div>
-        </div>
-        {guest.images && guest.images.length === 10 && (
-          <div className="mb-2">
-            <UploadLimitReachedCelebration />
-          </div>
-        )}
-        <div className="my-8">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-4 text-blue-900">
-            <p className="mb-2 font-semibold">Hvala na doprinosu!</p>
-            <p className="mb-2">Za par sekundi bićete prebačeni na kratak formular za povratnu informaciju.</p>
-            <p className="mb-4 text-sm">Preusmeravanje za: <span className="font-mono font-bold">{countdown}</span> sekundi...</p>
-            <a
-              href={GOOGLE_FORM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
-            >
-              Otvori formular odmah
-            </a>
-          </div>
-        </div>
-        <div className="mt-8">
-          <LogoutButton label="Odjavi se"/>
-        </div>
-      </div>
-    </div>
-  );
+  return <ClientSuccess guest={guest} coupleName={event?.coupleName} message={message} />;
 }

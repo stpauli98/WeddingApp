@@ -6,7 +6,7 @@ import { GuestMessage } from "@/components/guest-message"
 import { UploadLimitReachedCelebration } from "@/components/upload-limit-reached-celebration"
 import LogoutButton from "@/app/success/LogoutButton"
 
-const GOOGLE_FORM_URL = "https://forms.gle/your-google-form-id" // zameni sa tvojim pravim linkom
+const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScxs3Oxov-W9KYX8nQqk01EZ3tCsRU6ylh6BcoBF5XVncgrRQ/viewform?usp=dialog" // zameni sa tvojim pravim linkom
 
 interface Image {
   id: string
