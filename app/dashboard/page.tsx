@@ -1,14 +1,20 @@
 import { WeddingInfo } from "@/components/wedding-info"
 import { UploadForm } from "@/components/upload-form"
 import { redirect } from "next/navigation"
-import { prisma } from "@/lib/prisma"
 import LogoutButton from "@/app/success/LogoutButton"
 import { ImageGallery } from "@/components/image-gallery"
 import { getGuestById } from "@/lib/auth"
 import { ImageSlotBar } from "@/components/image-slot-bar"
 import { UploadLimitReachedCelebration } from "@/components/upload-limit-reached-celebration"
-
 import { cookies } from "next/headers";
+
+// Lokalni tip Image ako nije globalno dostupan
+// Tip za slike koji je kompatibilan sa ImageGallery komponentom
+interface DashboardImage {
+  id: string;
+  imageUrl: string;
+  storagePath?: string;
+}
 
 export default async function DashboardPage() {
   // Dohvati guestId iz session cookie-ja
@@ -40,8 +46,9 @@ export default async function DashboardPage() {
           </>
         )}
       </div>
-      <ImageGallery images={(guest.images || []).map(img => ({
-        ...img,
+      <ImageGallery images={(guest.images || []).map((img: { id: string; imageUrl: string; storagePath?: string | null }) => ({
+        id: img.id,
+        imageUrl: img.imageUrl,
         storagePath: img.storagePath === null ? undefined : img.storagePath,
       }))} />
      {/* {guest.images && guest.images.length === 10 && (
