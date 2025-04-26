@@ -72,7 +72,6 @@ export async function POST(request: Request) {
 
     // Provjera da li korisnik već postoji u bazi i da li je već verifikovan
     const existingGuest = await getGuestByEmail(email)
-
     // Ako korisnik postoji i već je verifikovan, direktno ga prijavljujemo
     if (existingGuest && existingGuest.verified) {
       const response = NextResponse.json({ 
@@ -93,8 +92,8 @@ export async function POST(request: Request) {
     // Generisanje verifikacionog koda (6 cifara)
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
     
-    // Postavljanje vremena isteka koda (30 minuta)
-    const codeExpiresAt = new Date(Date.now() + 30 * 60 * 1000)
+    // Postavljanje vremena isteka koda (5 minuta)
+    const codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000)
 
     if (existingGuest) {
       // Ažuriranje postojećeg korisnika sa novim kodom
@@ -112,9 +111,17 @@ export async function POST(request: Request) {
       if (!event) {
         return NextResponse.json({ error: "Nijedan događaj ne postoji u bazi" }, { status: 500 });
       }
-      // Kreiranje novog korisnika
-      await prisma.guest.create({
-        data: {
+
+      await prisma.guest.upsert({
+        where: { email },
+        update: {
+          code: verificationCode,
+          codeExpires: codeExpiresAt,
+          verified: false,
+          firstName,
+          lastName
+        },
+        create: {
           eventId: event.id,
           firstName,
           lastName,
@@ -122,14 +129,16 @@ export async function POST(request: Request) {
           code: verificationCode,
           codeExpires: codeExpiresAt
         }
-      })
+      });
     }
 
     // Slanje verifikacionog email-a
     await sendVerificationEmail(email, verificationCode, firstName)
 
-    return NextResponse.json({ success: true, verified: false, email })
+    return NextResponse.json({ success: true, verified: false, email, codeExpires: codeExpiresAt.toISOString() })
   } catch (error) {
-    return NextResponse.json({ error: "Došlo je do greške prilikom prijave" }, { status: 500 })
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : "Došlo je do greške prilikom prijave" 
+    }, { status: 500 });
   }
 }

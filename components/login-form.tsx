@@ -68,8 +68,15 @@ export function LoginForm() {
         // Direktno preusmeri na dashboard, guestId se više ne koristi u URL-u
         window.location.href = "/dashboard"
       } else {
-        // Ako nije verifikovan, sačuvaj email za verifikaciju i preusmeri na stranicu za verifikaciju
+        // Ako nije verifikovan, sačuvaj email i vreme isteka koda za verifikaciju i preusmeri na stranicu za verifikaciju
         localStorage.setItem('pendingEmail', data.email)
+        if (data.codeExpires) {
+          localStorage.setItem('codeExpires', data.codeExpires)
+        }
+        toast({
+          title: "Verifikacija potrebna",
+          description: "Niste završili verifikaciju. Novi kod je poslat na vaš email.",
+        });
         router.push("/verify")
       }
     } catch (error) {

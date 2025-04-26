@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -18,6 +18,42 @@ const formSchema = z.object({
     message: "Verifikacioni kod mora imati 6 cifara",
   }),
 })
+
+// Komponenta za prikaz odbrojavanja do isteka verifikacionog koda
+function CountdownTimer() {
+  const [remaining, setRemaining] = useState<number | null>(null);
+
+  useEffect(() => {
+    const expiresStr = localStorage.getItem("codeExpires");
+    if (!expiresStr) return;
+    const expires = new Date(expiresStr).getTime();
+    const update = () => {
+      const now = Date.now();
+      const diff = Math.max(0, Math.floor((expires - now) / 1000));
+      setRemaining(diff);
+      if (diff <= 0) {
+        // Očisti localStorage kad istekne kod
+        localStorage.removeItem('pendingEmail');
+        localStorage.removeItem('codeExpires');
+      }
+    };
+    update();
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (remaining === null) return null;
+  if (remaining <= 0) return (
+    <div className="mb-2 text-xs text-destructive text-center font-semibold">Verifikacioni kod je istekao.</div>
+  );
+  const min = Math.floor(remaining / 60);
+  const sec = remaining % 60;
+  return (
+    <div className="mb-2 text-xs text-muted-foreground text-center">
+      Kod ističe za <span className="font-semibold">{min}:{sec.toString().padStart(2, "0")}</span>
+    </div>
+  );
+}
 
 export function VerificationForm() {
   const [isLoading, setIsLoading] = useState(false)
@@ -63,8 +99,9 @@ export function VerificationForm() {
         throw new Error(data.error || "Došlo je do greške")
       }
 
-      // Ukloni privremeni email
+      // Ukloni privremeni email i codeExpires
       localStorage.removeItem('pendingEmail')
+      localStorage.removeItem('codeExpires')
 
       // Preusmeravanje na dashboard, guestId se više ne koristi u URL-u
       window.location.href = "/dashboard"
@@ -127,7 +164,8 @@ export function VerificationForm() {
             </Button>
           </form>
         </Form>
-        <div className="mt-4 text-xs text-muted-foreground text-center">
+        <CountdownTimer />
+        <div className="mt-2 text-xs text-muted-foreground text-center">
           Ako niste dobili verifikacioni kod, proverite i <span className="font-semibold">Spam</span> ili <span className="font-semibold">Junk</span> folder u vašem emailu.
         </div>
       </CardContent>
