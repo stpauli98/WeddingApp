@@ -50,7 +50,7 @@ export default function AboutPage() {
 
         <div className="flex justify-center mt-8">
           <Link href="/login" className="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-primary/90 transition">
-            Pošalji svoje slike
+            Testirajte aplikaciju
           </Link>
         </div>
 
