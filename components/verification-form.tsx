@@ -127,6 +127,9 @@ export function VerificationForm() {
             </Button>
           </form>
         </Form>
+        <div className="mt-4 text-xs text-muted-foreground text-center">
+          Ako niste dobili verifikacioni kod, proverite i <span className="font-semibold">Spam</span> ili <span className="font-semibold">Junk</span> folder u vašem emailu.
+        </div>
       </CardContent>
     </Card>
   )
