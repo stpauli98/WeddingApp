@@ -13,7 +13,26 @@ interface ImageUploadProps {
   inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
 }
 
-export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps }: ImageUploadProps) {
+const DEFAULT_MAX_SIZE_MB = 10;
+const DEFAULT_ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
+function validateImage(file: File, allowedTypes: string[], maxSize: number): string | null {
+  if (
+    file.type === "image/heic" || file.type === "image/heif" ||
+    file.name.toLowerCase().endsWith(".heic") || file.name.toLowerCase().endsWith(".heif")
+  ) {
+    return "HEIC/HEIF slike nisu podržane. Molimo vas da konvertujete sliku u JPG ili PNG format.";
+  }
+  if (!allowedTypes.includes(file.type)) {
+    return `Nepodržan format slike: ${file.type || file.name}`;
+  }
+  if (file.size > maxSize) {
+    return `Slika ${file.name} je veća od ${maxSize / 1024 / 1024}MB. Molimo vas da smanjite rezoluciju ili veličinu slike.`;
+  }
+  return null;
+}
+
+export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, allowedTypes = DEFAULT_ALLOWED_TYPES, maxSizeMB = DEFAULT_MAX_SIZE_MB }: ImageUploadProps & { allowedTypes?: string[], maxSizeMB?: number }) {
   const [previews, setPreviews] = useState<string[]>([])
 
   // Funkcija za kreiranje pregleda slika
@@ -60,35 +79,27 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps }:
   // Funkcija koja se poziva kada se dodaju nove slike
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const types = allowedTypes || DEFAULT_ALLOWED_TYPES;
+      const maxSize = (maxSizeMB || DEFAULT_MAX_SIZE_MB) * 1024 * 1024;
+      const errors: string[] = [];
       const filteredFiles: File[] = [];
       for (const file of acceptedFiles) {
-        if (
-          file.type === "image/heic" || file.type === "image/heif" ||
-          file.name.endsWith(".heic") || file.name.endsWith(".HEIC") ||
-          file.name.endsWith(".heif") || file.name.endsWith(".HEIF")
-        ) {
-          alert("HEIC/HEIF slike nisu podržane. Molimo vas da konvertujete sliku u JPG ili PNG format.");
-          continue;
-        }
-        if (!allowedTypes.includes(file.type)) {
-          alert(`Nepodržan format slike: ${file.type || file.name}`);
-          continue;
-        }
-        if (file.size > maxSize) {
-          alert(`Slika ${file.name} je veća od 5MB. Molimo vas da smanjite rezoluciju ili veličinu slike.`);
+        const error = validateImage(file, types, maxSize);
+        if (error) {
+          errors.push(error);
           continue;
         }
         filteredFiles.push(file);
       }
+      if (errors.length > 0) {
+        alert(errors.join('\n'));
+      }
       // Ograničenje broja fajlova
       const newFiles = [...value, ...filteredFiles].slice(0, maxFiles);
       onChange(newFiles);
-      // Kreiranje URL-ova za pregled slika
       createPreviews(newFiles);
     },
-    [value, onChange, maxFiles, createPreviews],
+    [value, onChange, maxFiles, createPreviews, allowedTypes, maxSizeMB],
   )
 
   // Funkcija za uklanjanje slike
