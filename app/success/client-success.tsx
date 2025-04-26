@@ -1,16 +1,30 @@
-
 "use client"
-import React from "react"
-import { redirect } from "next/navigation"
+import { useEffect, useState } from "react"
+import { SuccessThankYouCard } from "@/components/success-thank-you-card"
 import { UserGallery } from "@/components/user-gallery"
 import { GuestMessage } from "@/components/guest-message"
-import LogoutButton from "@/app/success/LogoutButton"
-import { getGuestById } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-import { SuccessThankYouCard } from "@/components/success-thank-you-card"
 import { UploadLimitReachedCelebration } from "@/components/upload-limit-reached-celebration"
-import { cookies } from "next/headers";
-import { useEffect, useState } from "react"
+import LogoutButton from "@/app/success/LogoutButton"
+
+const GOOGLE_FORM_URL = "https://forms.gle/your-google-form-id" // zameni sa tvojim pravim linkom
+
+interface Image {
+  id: string
+  imageUrl: string
+  storagePath?: string | null
+}
+
+interface Guest {
+  id: string
+  images: Image[]
+  eventId: string
+}
+
+interface Props {
+  guest: Guest
+  coupleName?: string
+  message?: { text: string }
+}
 
 function getSlikaPadez(n: number) {
   switch (n) {
@@ -25,45 +39,9 @@ function getSlikaPadez(n: number) {
   }
 }
 
-interface Image {
-  id: string
-  imageUrl: string
-  storagePath?: string | null
-}
-
-const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScxs3Oxov-W9KYX8nQqk01EZ3tCsRU6ylh6BcoBF5XVncgrRQ/viewform?usp=dialog" // zameni sa tvojim pravim linkom
-
-export default async function SuccessPage() {
-  // Dohvati guestId iz session cookie-ja
-  const cookieStore = await cookies();
-  const guestId = cookieStore.get("guest_session")?.value || "";
-
-  if (!guestId) {
-    redirect("/");
-  }
-
-  // Dohvatanje gosta sa slikama
-  const guest = await getGuestById(guestId);
-
-  if (!guest) {
-    redirect("/");
-  }
-
-  // Posebno dohvatanje poruke za gosta
-  const message = await prisma.message.findUnique({
-    where: { guestId: guestId }
-  });
-
-  // Dohvatanje imena brudova iz baze
-  const event = await prisma.event.findFirst({
-    where: { id: guest?.eventId },
-    select: { coupleName: true }
-  });
-
-  // Odbrojavanje i redirect na Google Forms
-  const [countdown, setCountdown] = React.useState(5);
-  const GOOGLE_FORM_URL = "https://forms.gle/your-google-form-id"; // zameni sa pravim linkom
-  React.useEffect(() => {
+export default function ClientSuccess({ guest, coupleName, message }: Props) {
+  const [countdown, setCountdown] = useState(5);
+  useEffect(() => {
     if (countdown <= 0) {
       window.location.href = GOOGLE_FORM_URL;
       return;
@@ -74,7 +52,7 @@ export default async function SuccessPage() {
 
   return (
     <div className="container max-w-md mx-auto px-4 py-8 text-center">
-      <SuccessThankYouCard coupleName={event?.coupleName} />
+      <SuccessThankYouCard coupleName={coupleName} />
       <div className="flex flex-col gap-4">
         <div className="bg-white border border-gray-200 rounded-xl shadow px-4 py-6 mb-8">
           <UserGallery
@@ -82,9 +60,8 @@ export default async function SuccessPage() {
               ...img,
               storagePath: img.storagePath === null ? undefined : img.storagePath,
             }))}
-            guestId={guestId}
+            guestId={guest.id}
           />
-          {/* Prikaz koliko još slika može da se doda */}
           {guest.images && guest.images.length < 10 && (
             <div className="mt-2 text-sm text-muted-foreground">
               Možete dodati još <span className="font-semibold">{10 - guest.images.length}</span> {getSlikaPadez(10 - guest.images.length)}.
