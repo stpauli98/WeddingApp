@@ -8,6 +8,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Admin {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  passwordHash String
+  createdAt   DateTime @default(now())
+  events      Event[]
+  sessions    AdminSession[]
+}
+
 model Event {
   id          String   @id @default(uuid())
   coupleName  String
@@ -16,6 +25,8 @@ model Event {
   slug        String   @unique
   createdAt   DateTime @default(now())
   guests      Guest[]
+  admin       Admin?   @relation(fields: [adminId], references: [id])
+  adminId     String?  // Nullable dok ne povežeš sve evente sa adminima
 }
 
 model Guest {
@@ -50,4 +61,13 @@ model Message {
   guestId   String   @unique
   text      String
   createdAt DateTime @default(now())
+}
+
+model AdminSession {
+  id           String   @id @default(uuid())
+  admin        Admin    @relation(fields: [adminId], references: [id])
+  adminId      String
+  sessionToken String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
 }
