@@ -1,7 +1,7 @@
 import { WeddingInfo } from "@/components/wedding-info"
 import { UploadForm } from "@/components/guest/Upload-Form"
 import { redirect } from "next/navigation"
-import LogoutButton from "@/components/guest/LogoutButton"
+import LogoutButton from "@/components/shared/LogoutButton"
 import { ImageGallery } from "@/components/guest/ImageGallery"
 import { getGuestById } from "@/lib/auth"
 import { ImageSlotBar } from "@/components/guest/ImageSlotBar"

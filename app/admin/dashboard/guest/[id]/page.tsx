@@ -1,27 +1,76 @@
-export const dynamic = "force-dynamic";
-export const dynamicParams = true;
+"use client";
 
-import { prisma } from '@/lib/prisma'
-import Image from 'next/image'
-import Link from 'next/link'
+import { use, useEffect, useState } from "react";
+import { getGuestFromCache, setGuestInCache } from "@/lib/guestCache";
+import { useRouter } from "next/navigation";
+import { AdminImageGallery } from "../../../../../components/admin/AdminImageGallery";
+import { formatDate } from "@/lib/formatDate";
+import { GuestMessage } from "@/components/guest/GuestMessage";
+import type { GuestDetail } from "@/components/ui/types";
 
-export default async function GuestDetailPage(props: any) {
-  const { params } = await Promise.resolve(props);
-  if (!params?.id || typeof params.id !== "string") {
-    return <div className="container mx-auto p-8">Neispravan ID gosta.</div>;
+export default function GuestDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const router = useRouter();
+  const [guest, setGuest] = useState<GuestDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Funkcija za fetch podataka (koristi se i za refresh)
+  const fetchGuest = (force = false) => {
+    // Ako nije force refresh, proveri keš
+    if (!force) {
+      const cached = getGuestFromCache(id);
+      if (cached) {
+        setGuest(cached);
+        setLoading(false);
+        return;
+      }
+    }
+    setLoading(true);
+    setError(null);
+    fetch(`/api/admin/guest/${id}`)
+      .then(async res => {
+        if (!res.ok) {
+          const data = await res.json();
+          setError(data.error || "Nepoznata greška.");
+          setGuest(null);
+          setLoading(false);
+          return;
+        }
+        const data = await res.json();
+        setGuest(data);
+        setGuestInCache(id, data); // upiši u keš
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Greška pri komunikaciji sa serverom.");
+        setGuest(null);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchGuest();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  if (loading) {
+    return <div className="container mx-auto p-8">Učitavanje...</div>;
   }
-  const guest = await prisma.guest.findUnique({
-    where: { id: params.id },
-    include: { images: true, message: true, event: true },
-  });
 
-  if (!guest) {
+  if (error || !guest) {
     return (
       <div className="container mx-auto p-8">
-        <h1 className="text-2xl font-bold mb-4">Gost nije pronađen</h1>
-        <Link href="/admin/dashboard" className="text-blue-600 underline">Nazad na dashboard</Link>
+        <h1 className="text-2xl font-bold mb-4">{error === "NOT_FOUND" ? "Gost nije pronađen" : error || "Greška"}</h1>
+        <button
+          type="button"
+          onClick={() => router.replace("/admin/dashboard")}
+          className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+        >
+          Nazad na dashboard
+        </button>
       </div>
-    )
+    );
   }
 
   return (
@@ -29,28 +78,33 @@ export default async function GuestDetailPage(props: any) {
       <h1 className="text-2xl font-bold mb-4">Detalji gosta: {guest.firstName} {guest.lastName}</h1>
       <div className="mb-4 text-gray-600 text-sm">
         Email: {guest.email} <br />
-        Prijavljen: {new Date(guest.createdAt).toLocaleString('sr-RS', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+        Prijavljen: {formatDate(guest.createdAt)}
       </div>
       <div className="mb-6">
-        <span className="font-semibold">Poruka:</span><br />
-        <span className="italic">{guest.message?.text || 'Nema poruke.'}</span>
+        <GuestMessage message={guest.message?.text ? { text: guest.message.text } : undefined} />
       </div>
       <div>
         <span className="font-semibold">Slike gosta ({guest.images.length}):</span>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-          {guest.images.length > 0
-            ? guest.images.map(img => (
-                <div key={img.id} className="relative aspect-square w-full h-40 border rounded overflow-hidden">
-                  <Image src={img.imageUrl} alt="Slika gosta" fill className="object-cover" />
-                </div>
-              ))
-            : <span className="text-gray-400 italic">Nema slika.</span>
-          }
+        <div className="mt-2">
+          <AdminImageGallery images={guest.images} />
         </div>
       </div>
-      <div className="mt-8">
-        <Link href="/admin/dashboard" className="text-blue-600 underline">Nazad na dashboard</Link>
+      <div className="mt-8 flex flex-col sm:flex-row gap-4">
+        <button
+          onClick={() => fetchGuest(true)}
+          className="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition disabled:opacity-60"
+          disabled={loading}
+        >
+          {loading ? "Osvežavanje..." : "Osveži podatke"}
+        </button>
+        <button
+          type="button"
+          onClick={() => router.replace("/admin/dashboard")}
+          className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+        >
+          Nazad na dashboard
+        </button>
       </div>
     </div>
-  )
+  );
 }

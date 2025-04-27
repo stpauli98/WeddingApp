@@ -7,7 +7,7 @@ interface LogoutButtonProps {
   label: string
 }
 
-export default function LogoutButton({ label }: LogoutButtonProps) {
+export function LogoutButton() {
   const router = useRouter();
 
   const handleLogout = () => {
@@ -18,7 +18,7 @@ export default function LogoutButton({ label }: LogoutButtonProps) {
 
   return (
     <Button className="w-full" onClick={handleLogout}>
-      {label}
+      Odjavi se
     </Button>
   );
-}
+} 

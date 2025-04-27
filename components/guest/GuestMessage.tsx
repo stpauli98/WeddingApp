@@ -8,7 +8,7 @@ interface Message {
 
 interface GuestMessageProps {
   message?: {
-    text: string
+    text?: string
   } | null
 }
 
