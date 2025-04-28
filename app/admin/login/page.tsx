@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +13,15 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    fetch("/api/admin/login")
+      .then(res => res.json())
+      .then(data => setCsrfToken(data.csrfToken))
+      .catch(() => setCsrfToken(null));
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -22,7 +30,10 @@ export default function AdminLoginPage() {
     try {
       const res = await fetch("/api/admin/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": csrfToken || ""
+        },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
@@ -96,7 +107,7 @@ export default function AdminLoginPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button className="w-full" type="submit" disabled={loading}>
+            <Button className="w-full" type="submit" disabled={loading || !csrfToken}>
               {loading ? "Prijava..." : "Prijavi se"}
             </Button>
             <div className="text-center text-sm">

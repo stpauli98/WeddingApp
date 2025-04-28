@@ -1,32 +1,32 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ImageIcon, MessageSquare, User } from "lucide-react"
 import { prisma } from '@/lib/prisma'
-import AdminLogoutButton from "@/components/admin/AdminLogoutButton"
-import AdminGalleryAllImages from "@/components/admin/AdminGalleryAllImages"
-import AdminAllMessages from "@/components/admin/AdminAllMessages"
-import AdminDownloadAll from "@/components/admin/AdminDownloadAll"
-import AdminDownloadTab from "@/components/admin/AdminDownloadTab"
-import AdminHelpContact from "@/components/admin/AdminHelpContact"
-import AdminDashboardTabs from "@/components/admin/AdminDashboardTabs"
-
-// Server komponenta za prikaz gostiju iz baze
-import { redirect } from "next/navigation"
+import { cookies } from 'next/headers';
+import { redirect } from "next/navigation";
 
 export default async function AdminDashboardPage() {
-  // Pronađi poslednji event i redirectuj na njegov dashboard (ili prikaži poruku)
-  const lastEvent = await prisma.event.findFirst({ orderBy: { createdAt: 'desc' } });
-  if (lastEvent) {
-    redirect(`/admin/dashboard/${lastEvent.id}`);
+  // 1. Dohvati session token iz cookie-ja
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get('admin_session')?.value;
+  if (!sessionToken) {
+    redirect('/admin/login');
   }
-  // Ako nema eventova, prikaži info adminu
-  return (
-    <div className="container mx-auto p-8 text-center">
-      <h1 className="text-2xl font-bold mb-4">Nema kreiranih događaja</h1>
-      <p>Napravite novi event da biste videli dashboard.</p>
-    </div>
-  );
+
+  // 2. Pronađi admina preko session tokena
+  const adminSession = await prisma.adminSession.findUnique({
+    where: { sessionToken },
+    include: { admin: true },
+  });
+  if (!adminSession || !adminSession.admin) {
+    redirect('/admin/login');
+  }
+
+  // 3. Pronađi event koji pripada ovom adminu
+  const event = await prisma.event.findFirst({ where: { adminId: adminSession.admin.id } });
+  if (event) {
+    redirect(`/admin/dashboard/${event.id}`);
+  }
+
+  // 4. Ako nema eventa, preusmeri na kreiranje eventa
+  redirect('/admin/event');
 }

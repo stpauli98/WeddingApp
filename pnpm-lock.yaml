@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@edge-csrf/core':
+        specifier: 2.5.3-cloudflare-rc1
+        version: 2.5.3-cloudflare-rc1
       '@hookform/resolvers':
         specifier: ^3.9.1
         version: 3.10.0(react-hook-form@7.56.1(react@18.3.1))
@@ -256,6 +259,9 @@ packages:
 
   '@cloudinary/url-gen@1.15.0':
     resolution: {integrity: sha512-bjU67eZxLUgoRy/Plli4TQio7q6P31OYqnEgXxeN9TKXrzr6h0DeEdIUhKI9gy3HkEBWXWWJIPh7j7gkOJPnyA==}
+
+  '@edge-csrf/core@2.5.3-cloudflare-rc1':
+    resolution: {integrity: sha512-cH7/dvHa6V5ZhmBHBGk1Y36sfutJ9gxUQ70dUrWiLLYgk12dn0KC68p2l7X7I+e8BWLN+UJFWp+NUi2Gut+/vw==}
 
   '@emnapi/runtime@1.4.3':
     resolution: {integrity: sha512-pBPWdu6MLKROBX05wSNKcNb++m5Er+KQ9QkB+WVM+pW2Kx9hoSrVTnu3BdkI5eBLZoKu/J6mW/B6i6bJB2ytXQ==}
@@ -2571,6 +2577,8 @@ snapshots:
   '@cloudinary/url-gen@1.15.0':
     dependencies:
       '@cloudinary/transformation-builder-sdk': 1.16.1
+
+  '@edge-csrf/core@2.5.3-cloudflare-rc1': {}
 
   '@emnapi/runtime@1.4.3':
     dependencies:

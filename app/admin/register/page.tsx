@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
 export default function AdminRegisterPage() {
@@ -17,7 +17,15 @@ export default function AdminRegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    fetch("/api/admin/register")
+      .then(res => res.json())
+      .then(data => setCsrfToken(data.csrfToken))
+      .catch(() => setCsrfToken(null));
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,15 +42,23 @@ export default function AdminRegisterPage() {
     try {
       const res = await fetch("/api/admin/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": csrfToken || ""
+        },
         body: JSON.stringify({ email, password, firstName, lastName }),
       });
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
       if (!res.ok) {
         setError(data.error || "Greška pri registraciji.");
-      } else {
-        router.push("/admin/event");
+        return;
       }
+      router.push("/admin/event");
     } catch (err) {
       setError("Došlo je do greške na mreži.");
     } finally {
@@ -131,7 +147,7 @@ export default function AdminRegisterPage() {
             {error && <div className="text-red-500 text-sm pt-2">{error}</div>}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button className="w-full" type="submit" disabled={loading}>{loading ? "Registering..." : "Register"}</Button>
+            <Button className="w-full" type="submit" disabled={loading || !csrfToken}>{loading ? "Registering..." : "Register"}</Button>
             <div className="text-center text-sm">
               Already have an account?{" "}
               <Link href="/admin/login" className="font-medium text-primary hover:underline">

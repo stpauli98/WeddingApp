@@ -1,10 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { generateCsrfToken, validateCsrfToken } from '@/lib/csrf';
 
 const prisma = new PrismaClient();
 
+export async function GET() {
+  // Generiši i pošalji CSRF token
+  const { token, cookie } = await generateCsrfToken();
+  const response = NextResponse.json({ csrfToken: token });
+  response.headers.set('set-cookie', cookie);
+  return response;
+}
+
 export async function POST(req: NextRequest) {
+  // Provera CSRF tokena
+  const csrfToken = req.headers.get('x-csrf-token') || req.cookies.get('csrf_token')?.value || '';
+  const validCsrf = await validateCsrfToken(csrfToken);
+  if (!validCsrf) {
+    return NextResponse.json({ error: 'Nevažeći CSRF token.' }, { status: 403 });
+  }
   try {
     const { email, password } = await req.json();
     if (!email || !password) {
