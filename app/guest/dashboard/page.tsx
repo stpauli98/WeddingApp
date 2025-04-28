@@ -17,16 +17,6 @@ interface DashboardImage {
   storagePath?: string;
 }
 
-import { redirect } from "next/navigation"
-import { cookies } from "next/headers";
-import { getGuestById } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-import { WeddingInfo } from "@/components/guest/WeddingInfo"
-import { UploadForm } from "@/components/guest/Upload-Form"
-import { LogoutButton } from "@/components/shared/LogoutButton"
-import { ImageGallery } from "@/components/guest/ImageGallery"
-import { ImageSlotBar } from "@/components/guest/ImageSlotBar"
-import { UploadLimitReachedCelebration } from "@/components/guest/UploadLimitReachedCelebration"
 
 export default async function DashboardPage({ searchParams }: { searchParams?: { event?: string } }) {
   // Dohvati guestId iz session cookie-ja
