@@ -8,9 +8,6 @@ export function GuestLoginClient() {
 
   return (
     <div className="container max-w-md mx-auto px-4 py-8">
-      <div style={{ background: "#fffae6", color: "#b45309", padding: 8, borderRadius: 8, marginBottom: 16 }}>
-        <b>DEBUG:</b> eventSlug = {String(eventSlug)}
-      </div>
       {!eventSlug ? (
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-red-600">Nedozvoljen pristup</h1>
