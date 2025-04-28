@@ -13,7 +13,8 @@ model Admin {
   email       String   @unique
   passwordHash String
   createdAt   DateTime @default(now())
-  events      Event[]
+  event       Event?   @relation("AdminEvent")
+  eventId     String?  @unique
   sessions    AdminSession[]
 }
 
@@ -23,10 +24,11 @@ model Event {
   location    String
   date        DateTime
   slug        String   @unique
+  guestMessage String?
   createdAt   DateTime @default(now())
   guests      Guest[]
-  admin       Admin?   @relation(fields: [adminId], references: [id])
-  adminId     String?  // Nullable dok ne povežeš sve evente sa adminima
+  admin       Admin?   @relation("AdminEvent", fields: [adminId], references: [id])
+  adminId     String?  @unique // Svaki event ima samo jednog admina
 }
 
 model Guest {

@@ -14,47 +14,19 @@ import AdminHelpContact from "@/components/admin/AdminHelpContact"
 import AdminDashboardTabs from "@/components/admin/AdminDashboardTabs"
 
 // Server komponenta za prikaz gostiju iz baze
+import { redirect } from "next/navigation"
+
 export default async function AdminDashboardPage() {
-  // Pronađi sve goste, sa slikama i porukama
-  const guests = await prisma.guest.findMany({
-    include: {
-      images: true,
-      message: true,
-      event: true,
-    },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  const event = await prisma.event.findFirst(
-    {
-      select: {
-        coupleName: true,
-      },
-    }
-  );
-
+  // Pronađi poslednji event i redirectuj na njegov dashboard (ili prikaži poruku)
+  const lastEvent = await prisma.event.findFirst({ orderBy: { createdAt: 'desc' } });
+  if (lastEvent) {
+    redirect(`/admin/dashboard/${lastEvent.id}`);
+  }
+  // Ako nema eventova, prikaži info adminu
   return (
-    <div className="container mx-auto p-6 relative">
-      {/* Logout dugme gore desno */}
-      <div className="sticky flex justify-end top-[46px] right-0 z-50">
-        <AdminLogoutButton />
-      </div>
-      <div className="mb-8 text-center">
-        <div className="flex flex-col items-center gap-2">
-          <span className="inline-block text-3xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-400 via-yellow-600 to-yellow-400 bg-clip-text text-transparent underline underline-offset-8 decoration-[5px] decoration-yellow-400 drop-shadow-md animate-pulse">
-            {event?.coupleName}
-          </span>
-          <span className="block text-lg font-medium text-gray-700 mt-2">
-            uživajte u vašim sličicama
-          </span>
-          <span className="block w-24 h-1 rounded-full bg-gradient-to-r from-yellow-400 via-yellow-600 to-yellow-400 opacity-70 mt-2 mb-2"></span>
-          <span className="block text-2xl">💍</span>
-        </div>
-      </div>
-
-
-
-      <AdminDashboardTabs guests={guests} event={event} />
+    <div className="container mx-auto p-8 text-center">
+      <h1 className="text-2xl font-bold mb-4">Nema kreiranih događaja</h1>
+      <p>Napravite novi event da biste videli dashboard.</p>
     </div>
-  )
+  );
 }

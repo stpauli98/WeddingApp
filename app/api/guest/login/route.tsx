@@ -63,15 +63,24 @@ const sendVerificationEmail = async (email: string, code: string, firstName: str
 
 export async function POST(request: Request) {
   try {
-    const { firstName, lastName, email } = await request.json()
+    const { firstName, lastName, email, eventSlug } = await request.json()
 
     // Validacija podataka
     if (!firstName || !lastName || !email) {
       return NextResponse.json({ error: "Sva polja su obavezna" }, { status: 400 })
     }
 
+    // Provera eventSlug i pronalazak eventa
+    if (!eventSlug || typeof eventSlug !== 'string') {
+      return NextResponse.json({ error: "Nedostaje event identifikator u linku. Kontaktirajte mladence ili proverite link!" }, { status: 400 });
+    }
+    const event = await prisma.event.findUnique({ where: { slug: eventSlug } });
+    if (!event) {
+      return NextResponse.json({ error: "Ne postoji događaj za dati link. Kontaktirajte mladence ili proverite link!" }, { status: 404 });
+    }
+
     // Provjera da li korisnik već postoji u bazi i da li je već verifikovan
-    const existingGuest = await getGuestByEmail(email)
+    const existingGuest = await getGuestByEmail(email, event.id)
     // Ako korisnik postoji i već je verifikovan, direktno ga prijavljujemo
     if (existingGuest && existingGuest.verified) {
       const response = NextResponse.json({ 
@@ -106,12 +115,6 @@ export async function POST(request: Request) {
         }
       })
     } else {
-      // Pronađi prvi event u bazi (privremeno rešenje)
-      const event = await prisma.event.findFirst();
-      if (!event) {
-        return NextResponse.json({ error: "Nijedan događaj ne postoji u bazi" }, { status: 500 });
-      }
-
       await prisma.guest.upsert({
         where: { email },
         update: {

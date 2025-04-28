@@ -50,7 +50,15 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
 
   if (!images.length) {
     return (
-      <div className="text-center text-gray-400 italic py-12">Nema uploadovanih slika.</div>
+      <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mb-4 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <rect x="3" y="5" width="18" height="14" rx="3" stroke="currentColor" strokeWidth="1.5" fill="none" />
+          <circle cx="8.5" cy="10.5" r="1.5" fill="currentColor" />
+          <path d="M21 19l-5.5-6.5a2 2 0 0 0-3 0L3 19" stroke="currentColor" strokeWidth="1.5" fill="none" />
+        </svg>
+        <div className="italic mb-2">Nema uploadovanih slika.</div>
+        <div className="text-sm text-gray-400">Kada gosti pošalju slike, ovde će se pojaviti galerija za ovaj event.</div>
+      </div>
     );
   }
   return (

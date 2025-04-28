@@ -12,6 +12,8 @@ Napraviti aplikaciju u kojoj gosti mogu da se prijave pomoću imena, prezimena i
 - Ne dodaj biblioteke koje nisu neophodne.
 - Brši sav nepotreban kod koji nije u vezi sa glavnom funkcijom sistema.
 - Kad god naiđeš na grešku — automatski je ispravi i optimizuj najbolje što možeš.
+- Privatnost i sigurnost nam je na prvome mjestu.
+- Niposto ne smije da dodje do mjesanja informacija ili curanja slika. 
 
 🔧 Tehnologije:
 - Frontend: Next.js 14 (App Router), Tailwind CSS, TypeScript

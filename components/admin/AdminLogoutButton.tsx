@@ -8,9 +8,23 @@ export default function AdminLogoutButton() {
 
   const handleLogout = async () => {
     setLoading(true);
-    await fetch("/api/admin/logout", { method: "POST", credentials: "include" });
-    setLoading(false);
-    router.push("/admin/login");
+    try {
+      const response = await fetch("/api/admin/logout", { method: "POST", credentials: "include" });
+      if (!response.ok) {
+        // Loguj status i tekst greške za debug
+        const text = await response.text();
+        console.error("Logout API error:", response.status, text);
+        alert("Greška pri odjavi. Pokušajte ponovo.");
+        setLoading(false);
+        return;
+      }
+      router.push("/admin/login");
+    } catch (error) {
+      console.error("Logout fetch error:", error);
+      alert("Neuspela odjava (network greška).");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

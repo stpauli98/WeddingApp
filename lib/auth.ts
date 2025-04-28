@@ -5,14 +5,15 @@ import { prisma } from './prisma';
  * @param email Email adresa gosta
  * @returns Vraća gosta ako je autentifikovan, null ako nije
  */
-export async function getGuestByEmail(email: string) {
+export async function getGuestByEmail(email: string, eventId?: string) {
   if (!email) return null;
 
   try {
-    const guest = await prisma.guest.findUnique({
-      where: { 
+    const guest = await prisma.guest.findFirst({
+      where: {
         email,
-        verified: true
+        verified: true,
+        ...(eventId ? { eventId } : {})
       },
       include: {
         images: true,
@@ -32,14 +33,15 @@ export async function getGuestByEmail(email: string) {
  * @param id ID gosta
  * @returns Vraća gosta ako je autentifikovan, null ako nije
  */
-export async function getGuestById(id: string) {
+export async function getGuestById(id: string, eventId?: string) {
   if (!id) return null;
 
   try {
-    const guest = await prisma.guest.findUnique({
-      where: { 
+    const guest = await prisma.guest.findFirst({
+      where: {
         id,
-        verified: true
+        verified: true,
+        ...(eventId ? { eventId } : {})
       },
       include: {
         images: true,

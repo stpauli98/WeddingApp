@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -30,6 +31,9 @@ export function LoginForm() {
   const { toast } = useToast()
 
   // Inicijalizacija forme sa react-hook-form i zod validacijom
+  const searchParams = useSearchParams();
+  const eventSlug = searchParams.get('event');
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -41,6 +45,14 @@ export function LoginForm() {
 
   // Funkcija koja se poziva prilikom slanja forme
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!eventSlug) {
+      toast({
+        variant: "destructive",
+        title: "Greška",
+        description: "Nedostaje event identifikator u linku. Kontaktirajte mladence ili proverite link!",
+      });
+      return;
+    }
     try {
       setIsLoading(true)
 
@@ -49,7 +61,7 @@ export function LoginForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({ ...values, eventSlug }),
       })
 
       const data = await response.json()

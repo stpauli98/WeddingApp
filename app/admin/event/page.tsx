@@ -20,22 +20,23 @@ import { toast } from "@/components/ui/use-toast"
 // Define the form schema with Zod
 const formSchema = z.object({
   coupleName: z.string().min(2, {
-    message: "Couple name must be at least 2 characters.",
+    message: "Ime paru mora imati najmanje 2 karaktera.",
   }),
   location: z.string().min(2, {
-    message: "Location must be at least 2 characters.",
+    message: "Lokacija mora imati najmanje 2 karaktera.",
   }),
   date: z.date({
-    required_error: "Event date is required.",
+    required_error: "Datum svadebe je obavezan.",
   }),
   slug: z
     .string()
     .min(2, {
-      message: "Slug must be at least 2 characters.",
+      message: "Slug mora imati najmanje 2 karaktera.",
     })
     .regex(/^[a-z0-9-]+$/, {
-      message: "Slug can only contain lowercase letters, numbers, and hyphens.",
+      message: "Slug može sadržati samo mala slova, brojeve i crtica.",
     }),
+  guestMessage: z.string().max(500, { message: "Poruka za goste može imati najviše 500 karaktera." }).optional(),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -53,6 +54,7 @@ export default function CreateEventPage() {
       location: "",
       date: undefined as unknown as Date,
       slug: "",
+      guestMessage: "",
     },
   });
 
@@ -77,7 +79,7 @@ export default function CreateEventPage() {
   }
 
   // Tip za payload ka API-ju
-  type EventApiPayload = Omit<FormSchemaType, "date"> & { date: string };
+  type EventApiPayload = Omit<FormSchemaType, "date"> & { date: string; guestMessage?: string };
 
   // Poziv backend API-ja za kreiranje eventa
   async function createEvent(data: EventApiPayload) {
@@ -99,6 +101,7 @@ export default function CreateEventPage() {
       const formattedData: EventApiPayload = {
         ...data,
         date: data.date.toISOString(),
+        guestMessage: data.guestMessage,
       };
 
       // Pozovi API za kreiranje eventa
@@ -106,10 +109,14 @@ export default function CreateEventPage() {
 
       if (result.success) {
         toast({
-          title: "Event Created",
-          description: "Your event has been successfully created.",
+          title: "Događaj kreiran",
+          description: "Događaj je uspešno kreiran.",
         });
-        router.push("/admin/dashboard");
+        if (result.event && result.event.id) {
+          router.push(`/admin/dashboard/${result.event.id}`);
+        } else {
+          router.push("/admin/dashboard"); // fallback
+        }
       } else if (result.error) {
         toast({
           title: "Greška",
@@ -118,10 +125,10 @@ export default function CreateEventPage() {
         });
       }
     } catch (error) {
-      console.error("Error creating event:", error);
+      console.error("Greška prilikom kreiranja događaja:", error);
       toast({
-        title: "Error",
-        description: "There was an error creating your event. Please try again.",
+        title: "Greška",
+        description: "Greška prilikom kreiranja događaja. Pokušajte ponovo.",
         variant: "destructive",
       });
     } finally {
@@ -131,19 +138,10 @@ export default function CreateEventPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="mb-6">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/admin/dashboard">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
-          </Link>
-        </Button>
-      </div>
-
       <Card className="max-w-xl mx-auto">
         <CardHeader>
-          <CardTitle>Create Event</CardTitle>
-          <CardDescription>Set up your wedding event details below.</CardDescription>
+          <CardTitle>Unesite detalje događaja</CardTitle>
+          <CardDescription>Unesite detalje događaja koje ćete koristiti za kreiranje vaše sličica.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -153,11 +151,11 @@ export default function CreateEventPage() {
                 name="coupleName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Couple Name</FormLabel>
+                    <FormLabel>Ime i prezime paru</FormLabel>
                     <FormControl>
                       <Input placeholder="John & Jane Doe" {...field} onChange={handleCoupleNameChange} />
                     </FormControl>
-                    <FormDescription>Enter the names of the couple for this event.</FormDescription>
+                    <FormDescription>Unesite imena paru za ovaj događaj.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -168,11 +166,11 @@ export default function CreateEventPage() {
                 name="location"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Event Location</FormLabel>
+                    <FormLabel>Lokacija</FormLabel>
                     <FormControl>
-                      <Input placeholder="Grand Hotel, New York" {...field} />
+                      <Input placeholder="Lokan, naziv grada" {...field} />
                     </FormControl>
-                    <FormDescription>Where will the event take place?</FormDescription>
+                    <FormDescription>Gdje će se svadba održavati?</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -183,7 +181,7 @@ export default function CreateEventPage() {
                 name="date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Event Date</FormLabel>
+                    <FormLabel>Datum svadebe</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -191,7 +189,7 @@ export default function CreateEventPage() {
                             variant={"outline"}
                             className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
                           >
-                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                            {field.value ? format(field.value, "PPP") : <span>Odaberite datum</span>}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -206,7 +204,7 @@ export default function CreateEventPage() {
                         />
                       </PopoverContent>
                     </Popover>
-                    <FormDescription>Select the date when the event will take place.</FormDescription>
+                    <FormDescription>Datum svadbe</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -217,7 +215,7 @@ export default function CreateEventPage() {
                 name="slug"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Event URL</FormLabel>
+                    <FormLabel>URL koji ce te djeliti sa gostima</FormLabel>
                     <FormControl>
                       <div className="flex items-center">
                         <span className="rounded-l-md bg-muted px-3 py-2 text-sm text-muted-foreground">
@@ -227,8 +225,28 @@ export default function CreateEventPage() {
                       </div>
                     </FormControl>
                     <FormDescription>
-                      This will be the URL for your event page. Only use lowercase letters, numbers, and hyphens.
+                      ime-mladozenje-ime-mlade (jedna od mogucnosti)
                     </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="guestMessage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Poruka za goste (fun fact, dobrodošlica...)</FormLabel>
+                    <FormControl>
+                      <textarea
+                        className="w-full min-h-[80px] rounded border px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+                        maxLength={500}
+                        placeholder="Npr: Dobrodošli na našu svadbu! Očekuje vas puno iznenađenja..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>Ova poruka će biti prikazana gostima na njihovom dashboardu.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -241,7 +259,7 @@ export default function CreateEventPage() {
           </Form>
         </CardContent>
         <CardFooter className="flex justify-between text-sm text-muted-foreground">
-          <p>All fields are required</p>
+          <p>Sva polja su obavezna</p>
         </CardFooter>
       </Card>
     </div>

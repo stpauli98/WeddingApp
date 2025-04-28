@@ -28,7 +28,7 @@ function formatDate(dateInput: Date | string | null | undefined): string {
 export async function WeddingInfo() {
   // Dohvatanje podataka (ovo radi samo na serveru)
   const event = await prisma.event.findFirst({
-    select: { coupleName: true, location: true, date: true },
+    select: { coupleName: true, location: true, date: true, guestMessage: true },
   });
 
   return (
@@ -55,15 +55,17 @@ export async function WeddingInfo() {
           </div>
         </div>
 
-        <div className="flex items-start gap-3">
-          <HeartIcon className="h-5 w-5 text-muted-foreground mt-0.5" />
-          <div>
-            <h3 className="font-medium">Fun fact</h3>
-            <p className="text-sm text-muted-foreground">
-              {event?.coupleName} su se upoznali na koncertu pre tačno 5 godina!
-            </p>
-          </div>
-        </div>
+        {event?.guestMessage && (
+  <div className="flex items-start gap-3">
+    <HeartIcon className="h-5 w-5 text-muted-foreground mt-0.5" />
+    <div>
+      <h3 className="font-medium">Poruka za goste</h3>
+      <p className="text-sm text-muted-foreground whitespace-pre-line">
+        {event.guestMessage}
+      </p>
+    </div>
+  </div>
+)}
       </CardContent>
     </Card>
   )

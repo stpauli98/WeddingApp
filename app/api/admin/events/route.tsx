@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { coupleName, location, date, slug } = body;
+    const { coupleName, location, date, slug, guestMessage } = body;
 
     if (!coupleName || !location || !date || !slug) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -39,6 +39,7 @@ export async function POST(request: Request) {
         location,
         date: new Date(date),
         slug,
+        guestMessage: guestMessage || null,
         admin: { connect: { id: adminId } },
       },
     });
