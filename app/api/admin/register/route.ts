@@ -21,9 +21,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Nevažeći CSRF token.' }, { status: 403 });
   }
   try {
-    const { email, password } = await req.json();
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email i lozinka su obavezni.' }, { status: 400 });
+    const body = await req.json();
+    const { email, password, firstName, lastName } = body;
+    // Validacija polja
+    function isValidEmail(email: string) {
+      return /^\S+@\S+\.\S+$/.test(email);
+    }
+    if (!email || !password || !firstName || !lastName) {
+      return NextResponse.json({ error: 'Sva polja su obavezna.' }, { status: 400 });
+    }
+    if (!isValidEmail(email) || email.length > 100) {
+      return NextResponse.json({ error: 'Neispravan format email adrese ili predugačak email.' }, { status: 400 });
+    }
+    if (firstName.length < 2 || firstName.length > 32) {
+      return NextResponse.json({ error: 'Ime mora imati između 2 i 32 znaka.' }, { status: 400 });
+    }
+    if (lastName.length < 2 || lastName.length > 32) {
+      return NextResponse.json({ error: 'Prezime mora imati između 2 i 32 znaka.' }, { status: 400 });
+    }
+    if (password.length < 6 || password.length > 64) {
+      return NextResponse.json({ error: 'Lozinka mora imati između 6 i 64 znaka.' }, { status: 400 });
     }
     // Proveri da li admin već postoji
     const existing = await prisma.admin.findUnique({ where: { email } });
@@ -35,6 +52,8 @@ export async function POST(req: NextRequest) {
       data: {
         email,
         passwordHash,
+        firstName,
+        lastName,
       },
     });
 

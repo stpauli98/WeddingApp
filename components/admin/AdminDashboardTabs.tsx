@@ -20,6 +20,10 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
   const [copied, setCopied] = useState(false);
   const qrRef = useRef<HTMLDivElement>(null);
 
+  // QR COLOR STATE
+  const defaultQrColor = "#e3a008";
+  const [qrColor, setQrColor] = useState<string>(defaultQrColor);
+
   // Pravi URL za goste
   const guestUrl = event?.slug ? `https://www.mojasvadbaa.com/guest/login?event=${event.slug}` : '';
 
@@ -48,44 +52,75 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
   useEffect(() => {
     const stored = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
     if (stored && TAB_KEYS.includes(stored)) setActiveTab(stored);
-  }, []);
+    // QR color load
+    if (event?.slug && typeof window !== "undefined") {
+      const color = localStorage.getItem(`qrColor-${event.slug}`);
+      if (color) setQrColor(color);
+    }
+  }, [event?.slug]);
 
   useEffect(() => {
     if (typeof window !== "undefined") localStorage.setItem(STORAGE_KEY, activeTab);
   }, [activeTab]);
 
+  // Sačuvaj QR boju kad se promeni
+  useEffect(() => {
+    if (event?.slug && typeof window !== "undefined") {
+      localStorage.setItem(`qrColor-${event.slug}`, qrColor);
+    }
+  }, [qrColor, event?.slug]);
+
   return (
     <>
       {/* QR i link sekcija za goste */}
       {event?.slug && (
-        <div className="flex flex-col md:flex-row items-center justify-center gap-6 p-6 mb-8 bg-yellow-50 rounded-lg shadow border">
-          <div ref={qrRef} className="flex flex-col items-center">
-            <QRCodeCanvas value={guestUrl} size={120} bgColor="#fffbe7" fgColor="#e3a008" includeMargin={true} />
-            <button
-              onClick={handleDownload}
-              className="mt-2 flex items-center gap-2 px-3 py-1 rounded bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-semibold transition"
-              title="Preuzmi QR kod"
-            >
-              <Download className="w-4 h-4" /> Preuzmi QR
-            </button>
-            <span className="mt-2 text-xs text-gray-500 text-center max-w-[150px]">QR kod vodi na: <br/><span className="break-all">{guestUrl}</span></span>
-          </div>
-          <div className="flex flex-col items-center md:items-start gap-2">
-            <span className="font-semibold text-gray-700 text-sm">Link za goste:</span>
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-1 rounded bg-white border text-xs font-mono select-all break-all max-w-[220px] md:max-w-xs truncate" title={guestUrl}>{guestUrl}</span>
-              <button
-                onClick={handleCopy}
-                className={`flex items-center gap-1 px-2 py-1 rounded ${copied ? 'bg-green-500 text-white' : 'bg-yellow-500 hover:bg-yellow-600 text-white'} text-xs font-semibold transition`}
-                title="Kopiraj link"
-              >
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />} {copied ? 'Kopirano!' : 'Kopiraj'}
-              </button>
-            </div>
-            <span className="text-xs text-gray-500">QR kod i link vode goste na stranicu za upload slika za ovaj događaj.</span>
-          </div>
+  <section className="w-full max-w-2xl mx-auto mb-8">
+    <div className="flex flex-col md:flex-row items-center justify-center gap-8 p-6 bg-gradient-to-br from-yellow-50 via-white/70 to-yellow-100 rounded-2xl shadow-lg border border-yellow-200">
+      {/* QR Vizuelni blok */}
+      <div ref={qrRef} className="flex flex-col items-center justify-center bg-white/90 rounded-xl shadow-md p-4 border border-yellow-100">
+        <QRCodeCanvas value={guestUrl} size={148} bgColor="#fffbe7" fgColor={qrColor} includeMargin={true} className="rounded-xl" />
+        <label className="flex items-center gap-2 mt-2 mb-1 text-xs text-gray-700 cursor-pointer" htmlFor="qrColorPicker">
+          Izaberi boju QR koda:
+          <input
+            id="qrColorPicker"
+            type="color"
+            value={qrColor}
+            onChange={e => setQrColor(e.target.value)}
+            className="w-6 h-6 border rounded cursor-pointer"
+            aria-label="Izbor boje QR koda"
+          />
+        </label>
+        <button
+          onClick={handleDownload}
+          className="mt-2 flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold shadow transition"
+          title="Preuzmi QR kod"
+        >
+          <Download className="w-5 h-5" /> Preuzmi QR kod
+        </button>
+        <span className="mt-2 text-xs text-gray-500 text-center max-w-[180px]">Skenirajte QR kod za direktan pristup stranici za goste.</span>
+      </div>
+      {/* Link + Akcije */}
+      <div className="flex flex-col items-center md:items-start gap-3 w-full max-w-xs">
+        <span className="font-bold text-gray-700 text-base mb-1">Link za goste</span>
+        <div className="flex items-center gap-2 w-full">
+          <span className="px-3 py-2 rounded-lg bg-white border border-yellow-200 text-xs font-mono select-all break-all max-w-[220px] md:max-w-xs truncate shadow-sm" title={guestUrl}>{guestUrl}</span>
+          <button
+            onClick={handleCopy}
+            className={`flex items-center gap-1 px-3 py-2 rounded-lg ${copied ? 'bg-green-500 text-white' : 'bg-yellow-500 hover:bg-yellow-600 text-white'} text-xs font-semibold shadow transition`}
+            title="Kopiraj link"
+          >
+            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />} {copied ? 'Kopirano!' : 'Kopiraj'}
+          </button>
         </div>
-      )}
+        <span className="text-xs text-gray-500 mt-1">Podelite ovaj link sa gostima ili ga pošaljite putem pozivnice.</span>
+        <div className="mt-3 w-full bg-yellow-100/60 rounded-md p-3 text-xs text-yellow-900 flex items-center gap-2 shadow-inner">
+          <svg className="w-5 h-5 text-yellow-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 8v.01" /></svg>
+          <span>Gosti mogu koristiti QR kod ili link za brz pristup stranici za upload slika i ostavljanje poruka. Preporučujemo da QR kod odštampate i postavite na vidljivo mesto tokom proslave.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
       <TabsList
         className="overflow-x-auto whitespace-nowrap scrollbar-hide flex gap-1 md:gap-2 px-1 sticky top-0 bg-white/90 z-20"

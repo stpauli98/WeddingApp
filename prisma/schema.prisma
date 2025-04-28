@@ -12,6 +12,8 @@ model Admin {
   id          String   @id @default(uuid())
   email       String   @unique
   passwordHash String
+  firstName   String
+  lastName    String
   createdAt   DateTime @default(now())
   event       Event?   @relation("AdminEvent")
   eventId     String?  @unique
