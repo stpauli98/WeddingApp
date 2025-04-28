@@ -18,7 +18,50 @@ export default function AdminRegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
+  const [passwordStrength, setPasswordStrength] = useState<string>("");
+  const [passwordsMatch, setPasswordsMatch] = useState<boolean | null>(null);
   const router = useRouter();
+
+  // Funkcija za proveru jačine lozinke
+  function getPasswordStrength(pw: string): string {
+    if (!pw) return "";
+    if (pw.length < 6) return "Slaba (min 6 znakova)";
+    let score = 0;
+    if (/[a-z]/.test(pw)) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^a-zA-Z0-9]/.test(pw)) score++;
+    if (pw.length >= 12) score++;
+    if (score <= 2) return "Slaba";
+    if (score === 3) return "Srednja";
+    if (score >= 4) return "Jaka";
+    return "";
+  }
+
+  // Procenat i boja za progress bar
+  function getStrengthBarInfo(strength: string): { percent: number; color: string } {
+    switch (strength) {
+      case "Jaka":
+        return { percent: 100, color: "bg-green-500" };
+      case "Srednja":
+        return { percent: 66, color: "bg-yellow-500" };
+      case "Slaba":
+      case "Slaba (min 6 znakova)":
+        return { percent: 33, color: "bg-red-500" };
+      default:
+        return { percent: 0, color: "bg-gray-300" };
+    }
+  }
+
+  // Real-time feedback
+  useEffect(() => {
+    setPasswordStrength(getPasswordStrength(password));
+    if (!confirmPassword) {
+      setPasswordsMatch(null);
+    } else {
+      setPasswordsMatch(password === confirmPassword);
+    }
+  }, [password, confirmPassword]);
 
   useEffect(() => {
     fetch("/api/admin/register")
@@ -115,6 +158,24 @@ export default function AdminRegisterPage() {
                   )}
                 </button>
               </div>
+              {/* Progress bar jačine lozinke */}
+              {password && (
+                <div className="w-full pt-2">
+                  <div className="w-full h-2 rounded bg-gray-200">
+                    <div
+                      className={`h-2 rounded transition-all duration-300 ${getStrengthBarInfo(passwordStrength).color}`}
+                      style={{ width: `${getStrengthBarInfo(passwordStrength).percent}%` }}
+                    />
+                  </div>
+                  <div className={
+                    passwordStrength === "Jaka" ? "text-green-600 text-xs pt-1" :
+                    passwordStrength === "Srednja" ? "text-yellow-600 text-xs pt-1" :
+                    "text-red-600 text-xs pt-1"
+                  }>
+                    Jačina lozinke: {passwordStrength}
+                  </div>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
@@ -143,6 +204,14 @@ export default function AdminRegisterPage() {
                   )}
                 </button>
               </div>
+              {/* Indikator poklapanja lozinki */}
+              {passwordsMatch !== null && (
+                <div className={
+                  passwordsMatch ? "text-green-600 text-xs pt-1" : "text-red-600 text-xs pt-1"
+                }>
+                  {passwordsMatch ? "Lozinke se poklapaju" : "Lozinke se ne poklapaju"}
+                </div>
+              )}
             </div>
             {error && <div className="text-red-500 text-sm pt-2">{error}</div>}
           </CardContent>
