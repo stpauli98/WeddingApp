@@ -14,6 +14,10 @@ Napraviti aplikaciju u kojoj gosti mogu da se prijave pomoću imena, prezimena i
 - Kad god naiđeš na grešku — automatski je ispravi i optimizuj najbolje što možeš.
 - Privatnost i sigurnost nam je na prvome mjestu.
 - Niposto ne smije da dodje do mjesanja informacija ili curanja slika. 
+- UX i UI moraju biti moderni i savremeni, lijepi i prakticni. 
+- Sve komponente moraju biti pravilno implementirane i testirane.
+- Korisnik mora biti zadovoljan i sve mu mora biti jasno i pojasnjeno kroz poruke na UI.
+
 
 🔧 Tehnologije:
 - Frontend: Next.js 14 (App Router), Tailwind CSS, TypeScript

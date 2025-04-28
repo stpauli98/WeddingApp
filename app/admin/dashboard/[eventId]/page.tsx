@@ -7,17 +7,30 @@ interface Props {
   params: { eventId: string }
 }
 
-export default async function AdminDashboardEventPage({ params }: Props) {
-  const { eventId } = await params;
+import { cookies } from "next/headers";
 
-  // Dohvati event po ID-u
+export default async function AdminDashboardEventPage({ params }: Props) {
+  const { eventId } = params;
+
+  // 1. Provera autentifikacije admina
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get('admin_session')?.value;
+  if (!sessionToken) return notFound();
+
+  const adminSession = await prisma.adminSession.findUnique({
+    where: { sessionToken },
+    include: { admin: true },
+  });
+  if (!adminSession || !adminSession.admin) return notFound();
+
+  // 2. Dohvati event i proveri vlasništvo
   const event = await prisma.event.findUnique({
     where: { id: eventId },
-    select: { id: true, coupleName: true, slug: true }
+    select: { id: true, coupleName: true, slug: true, adminId: true }
   });
-  if (!event) return notFound();
+  if (!event || event.adminId !== adminSession.admin.id) return notFound();
 
-  // Dohvati goste SAMO za ovaj event
+  // 3. Dohvati goste SAMO za ovaj event
   const guests = await prisma.guest.findMany({
     where: { eventId },
     include: {
