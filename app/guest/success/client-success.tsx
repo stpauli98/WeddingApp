@@ -6,7 +6,7 @@ import { GuestMessage } from "@/components/guest/GuestMessage"
 import { UploadLimitReachedCelebration } from "@/components/guest/UploadLimitReachedCelebration"
 import { LogoutButton } from "@/components/shared/LogoutButton"
 
-const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScxs3Oxov-W9KYX8nQqk01EZ3tCsRU6ylh6BcoBF5XVncgrRQ/viewform?usp=dialog" // zameni sa tvojim pravim linkom
+const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScxs3Oxov-W9KYX8nQqk01EZ3tCsRU6ylh6BcoBF5XVncgrRQ/viewform?usp=dialog"
 
 interface Image {
   id: string

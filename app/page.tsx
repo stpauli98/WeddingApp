@@ -1,8 +1,3 @@
-import { LoginForm } from "@/components/guest/LoginForm"
-
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-
 export const metadata = {
   title: "Svadbeni Album – Pošaljite slike mladencima",
   description: "Aplikacija za goste – uploadujte slike i čestitke mladencima.",
@@ -11,7 +6,7 @@ export const metadata = {
     description: "Aplikacija za goste – uploadujte slike i čestitke mladencima.",
     images: ["/seo-cover.png"],
     type: "website",
-    url: "https://mojasvadbaa.com/guest/login",
+    url: "https://mojasvadbaa.com/admin/register",
   },
   twitter: {
     card: "summary_large_image",
@@ -20,13 +15,21 @@ export const metadata = {
     images: ["/seo-cover.png"],
   },
   alternates: {
-    canonical: "https://mojasvadbaa.com/guest/login",
+    canonical: "https://mojasvadbaa.com/admin/register",
   },
 };
 
-import { redirect } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  redirect("/about");
-  return null;
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <Link href="/admin/register">
+        <Button className="px-8 py-4 text-lg font-semibold rounded shadow bg-blue-600 hover:bg-blue-700 text-white">
+          Registruj admin nalog
+        </Button>
+      </Link>
+    </div>
+  );
 }
