@@ -4,7 +4,7 @@ import { SuccessThankYouCard } from "@/components/guest/SuccessThankYouCard"
 import { UserGallery } from "@/components/guest/UserGallery"
 import { GuestMessage } from "@/components/guest/GuestMessage"
 import { UploadLimitReachedCelebration } from "@/components/guest/UploadLimitReachedCelebration"
-import LogoutButton from "@/components/shared/LogoutButton"
+import { LogoutButton } from "@/components/shared/LogoutButton"
 
 const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScxs3Oxov-W9KYX8nQqk01EZ3tCsRU6ylh6BcoBF5XVncgrRQ/viewform?usp=dialog" // zameni sa tvojim pravim linkom
 
@@ -92,7 +92,7 @@ export default function ClientSuccess({ guest, coupleName, message }: Props) {
           </div>
         </div>
         <div className="mt-8">
-          <LogoutButton label="Odjavi se"/>
+          <LogoutButton />
         </div>
       </div>
     </div>
