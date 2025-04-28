@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { generateCsrfToken, validateCsrfToken } from '@/lib/csrf';
