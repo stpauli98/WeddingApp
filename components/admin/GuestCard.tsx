@@ -18,12 +18,12 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest }) => {
       {guest.images && guest.images.length > 0 ? (
         <img
           src={guest.images[0].imageUrl}
-          alt={guest.firstName + ' ' + guest.lastName}
+          alt={`Slika gosta: ${guest.firstName} ${guest.lastName}`}
           className="w-full h-40 object-cover rounded-t-xl border-b"
           style={{ minHeight: '160px', background: '#f7fafc' }}
         />
       ) : (
-        <div className="w-full h-40 flex items-center justify-center rounded-t-xl border-b bg-gray-100 text-4xl text-yellow-400 font-bold select-none" style={{ minHeight: '160px' }}>
+        <div className="w-full h-40 flex items-center justify-center rounded-t-xl border-b bg-gray-100 text-4xl text-yellow-400 font-bold select-none" style={{ minHeight: '160px' }} role="img" aria-label="Gost bez slike">
           {guest.firstName?.[0] || ''}{guest.lastName?.[0] || ''}
         </div>
       )}

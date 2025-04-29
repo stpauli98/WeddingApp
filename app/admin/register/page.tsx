@@ -98,6 +98,15 @@ export default function AdminRegisterPage() {
         data = {};
       }
       if (!res.ok) {
+        // Ako je CSRF token nevažeći, automatski povuci novi token
+        if (res.status === 403 && data.error && data.error.toLowerCase().includes('csrf')) {
+          fetch("/api/admin/register")
+            .then(res => res.json())
+            .then(data => setCsrfToken(data.csrfToken))
+            .catch(() => setCsrfToken(null));
+          setError("Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.");
+          return;
+        }
         setError(data.error || "Greška pri registraciji.");
         return;
       }

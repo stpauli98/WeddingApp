@@ -40,7 +40,17 @@ export default function AdminLoginPage() {
       if (res.ok && data.success) {
         router.push("/admin/dashboard");
       } else {
-        setError(data.error || "Greška prilikom logovanja.");
+        // Ako je CSRF token nevažeći, automatski povuci novi token
+        if (res.status === 403 && data.error && data.error.toLowerCase().includes('csrf')) {
+          // Povuci novi CSRF token
+          fetch("/api/admin/login")
+            .then(res => res.json())
+            .then(data => setCsrfToken(data.csrfToken))
+            .catch(() => setCsrfToken(null));
+          setError("Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.");
+        } else {
+          setError(data.error || "Greška prilikom logovanja.");
+        }
       }
     } catch (err) {
       setError("Greška na mreži ili serveru.");

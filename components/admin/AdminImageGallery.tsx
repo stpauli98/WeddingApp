@@ -91,8 +91,9 @@ export function AdminImageGallery({ images, selectable = true, selectedIds, onSe
                 onClick={e => { e.stopPropagation(); toggleSelect(img.id); }}
                 title={selected.has(img.id) ? 'Deselect' : 'Select'}
                 type="button"
+                aria-label={selected.has(img.id) ? 'Deselektuj sliku' : 'Selektuj sliku'}
               >
-                {selected.has(img.id) ? <CheckSquare className="text-blue-600 w-5 h-5" /> : <Square className="w-5 h-5 text-gray-400" />}
+                {selected.has(img.id) ? <CheckSquare className="text-blue-600 w-5 h-5" aria-label="Selektovano" role="img" /> : <Square className="w-5 h-5 text-gray-400" aria-label="Nije selektovano" role="img" />}
               </button>
               {!selectable && (
                 <button
@@ -100,15 +101,19 @@ export function AdminImageGallery({ images, selectable = true, selectedIds, onSe
                   onClick={e => { e.stopPropagation(); downloadImage(validUrl); }}
                   title="Preuzmi sliku"
                   type="button"
+                  aria-label="Preuzmi sliku"
                 >
-                  <Download className="w-5 h-5 text-gray-700" />
+                  <Download className="w-5 h-5 text-gray-700" aria-label="Preuzmi sliku" role="img" />
                 </button>
               )}
-              <div
-                className="w-full h-full cursor-pointer"
+              {/* Prikaz slike sa alt opisom */}
+              <img
+                src={validUrl}
+                alt={'Slika gosta'}
+                className="w-full h-full object-cover cursor-pointer"
                 onClick={() => setFullView(validUrl)}
-                style={{ backgroundImage: `url('${validUrl}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
                 title="Klikni za prikaz u punoj veličini"
+                draggable={false}
               />
             </div>
           );

@@ -103,15 +103,16 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
               (window as any)._touchStartY = undefined;
             }}
           >
-            <button onClick={closeModal} className="absolute top-4 right-4 text-white text-3xl hover:text-yellow-400 transition z-10" title="Zatvori">&times;</button>
-            <button onClick={prevImage} className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 text-white text-4xl hover:text-yellow-400 transition z-10" title="Prethodna slika">&#8592;</button>
+            <button onClick={closeModal} className="absolute top-4 right-4 text-white text-3xl hover:text-yellow-400 transition z-10" title="Zatvori" aria-label="Zatvori prikaz slike">&times;</button>
+            <button onClick={prevImage} className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 text-white text-4xl hover:text-yellow-400 transition z-10" title="Prethodna slika" aria-label="Prethodna slika">&#8592;</button>
             <img
               src={sortedImages[currentIdx].imageUrl}
-              alt={sortedImages[currentIdx].guestName || "Slika gosta"}
+              alt={`Slika gosta${sortedImages[currentIdx].guestName ? ': ' + sortedImages[currentIdx].guestName : ''}`}
               className="max-h-[80vh] max-w-[90vw] rounded shadow-lg border-4 border-white"
               style={{ background: "#eee" }}
             />
             <button
+              aria-label="Preuzmi ovu sliku"
               onClick={async () => {
                 const img = sortedImages[currentIdx];
                 let blob: Blob;
@@ -149,7 +150,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
               </svg>
             </button>
-            <button onClick={nextImage} className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 text-white text-4xl hover:text-yellow-400 transition z-10" title="Sledeća slika">&#8594;</button>
+            <button onClick={nextImage} className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 text-white text-4xl hover:text-yellow-400 transition z-10" title="Sledeća slika" aria-label="Sledeća slika">&#8594;</button>
             <div className="mt-4 text-white text-base bg-black/60 px-4 py-2 rounded">
               {sortedImages[currentIdx].guestName || "Nepoznat gost"}
             </div>
