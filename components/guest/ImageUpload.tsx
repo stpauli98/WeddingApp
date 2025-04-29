@@ -5,6 +5,7 @@ import { useDropzone } from "react-dropzone"
 import { X, Upload, ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { removeExif } from "@/utils/removeExif"
 
 interface ImageUploadProps {
   value: File[];
@@ -76,31 +77,36 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const processFiles = async (acceptedFiles: File[]) => {
+    const types = allowedTypes || DEFAULT_ALLOWED_TYPES;
+    const maxSize = (maxSizeMB || DEFAULT_MAX_SIZE_MB) * 1024 * 1024;
+    const errors: string[] = [];
+    const filteredFiles: File[] = [];
+    for (const file of acceptedFiles) {
+      const error = validateImage(file, types, maxSize);
+      if (error) {
+        errors.push(error);
+        continue;
+      }
+      // Ukloni EXIF podatke pre dodavanja
+      const cleanFile = await removeExif(file);
+      filteredFiles.push(cleanFile);
+    }
+    if (errors.length > 0) {
+      alert(errors.join('\n'));
+    }
+    const newFiles = [...value, ...filteredFiles].slice(0, maxFiles);
+    onChange(newFiles);
+    createPreviews(newFiles);
+  };
+
   // Funkcija koja se poziva kada se dodaju nove slike
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      const types = allowedTypes || DEFAULT_ALLOWED_TYPES;
-      const maxSize = (maxSizeMB || DEFAULT_MAX_SIZE_MB) * 1024 * 1024;
-      const errors: string[] = [];
-      const filteredFiles: File[] = [];
-      for (const file of acceptedFiles) {
-        const error = validateImage(file, types, maxSize);
-        if (error) {
-          errors.push(error);
-          continue;
-        }
-        filteredFiles.push(file);
-      }
-      if (errors.length > 0) {
-        alert(errors.join('\n'));
-      }
-      // Ograničenje broja fajlova
-      const newFiles = [...value, ...filteredFiles].slice(0, maxFiles);
-      onChange(newFiles);
-      createPreviews(newFiles);
+    async (acceptedFiles: File[]) => {
+      await processFiles(acceptedFiles);
     },
-    [value, onChange, maxFiles, createPreviews, allowedTypes, maxSizeMB],
-  )
+    [value, onChange, maxFiles, createPreviews, allowedTypes, maxSizeMB]
+  );
 
   // Funkcija za uklanjanje slike
   const removeImage = (index: number) => {
@@ -134,7 +140,7 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
         className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition-colors
           ${isDragActive ? "border-primary bg-primary/10" : "border-muted-foreground/20 hover:border-primary/50"}`}
       >
-        <input {...getInputProps()} {...inputProps} />
+        <input {...getInputProps()} data-testid="file-input" {...inputProps} />
         <Upload className="mx-auto h-10 w-10 text-muted-foreground" />
         <p className="mt-2 text-sm text-muted-foreground">
           {isDragActive
