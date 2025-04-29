@@ -25,6 +25,7 @@ Napraviti aplikaciju u kojoj gosti mogu da se prijave pomoću imena, prezimena i
 - Baza: PostgreSQL (preko Prisma ORM)
 - Email: Nodemailer (ili simulacija ako nije u produkciji)
 - Upload slika: (planirano kasnije, ne dodavati dok nije zatraženo)
+- Paket manager: pnpm
 
 🧱 Korisnici:
 - Gost: prijavljuje se putem email koda, dobija pristup dashboardu
