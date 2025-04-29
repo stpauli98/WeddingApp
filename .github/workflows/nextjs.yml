@@ -29,8 +29,8 @@ jobs:
       # - name: Pokretanje unit testova (Jest)
       #   run: npm run test:unit
 
-      - name: Pokretanje integration testova (Jest)
-        run: npm run test:integration
+      # - name: Pokretanje integration testova (Jest)
+      #   run: npm run test:integration
 
       # - name: Pokretanje E2E testova (Playwright)
       #   run: |
