@@ -43,6 +43,7 @@ type FormSchemaType = z.infer<typeof formSchema>;
 
 
 export default function CreateEventPage() {
+  const [slugError, setSlugError] = useState<string | null>(null);
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -62,10 +63,16 @@ export default function CreateEventPage() {
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
-      .replace(/[^\w\s-]/g, "") // Remove special characters
+      .normalize("NFD").replace(/\p{Diacritic}/gu, "") // remove accents
+      .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
       .replace(/\s+/g, "-") // Replace spaces with hyphens
       .replace(/-+/g, "-") // Replace multiple hyphens with a single hyphen
+      .replace(/^-+|-+$/g, "") // Remove leading/trailing hyphens
+      .slice(0, 50); // Limit length
   }
+
+  // State to track if user manually changed slug
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
   // Handle couple name change to auto-generate slug
   const handleCoupleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,8 +80,9 @@ export default function CreateEventPage() {
     form.setValue("coupleName", value)
 
     // Only auto-generate slug if it hasn't been manually edited
-    if (!form.getValues("slug") || form.getValues("slug") === generateSlug(form.getValues("coupleName"))) {
-      form.setValue("slug", generateSlug(value))
+    if (!slugManuallyEdited) {
+      const suggestion = generateSlug(value);
+      form.setValue("slug", suggestion)
     }
   }
 
@@ -96,6 +104,7 @@ export default function CreateEventPage() {
   const onSubmit = async (data: FormSchemaType) => {
     try {
       setIsSubmitting(true)
+      setSlugError(null);
 
       // Formatiraj date kao string za API
       const formattedData: EventApiPayload = {
@@ -118,11 +127,15 @@ export default function CreateEventPage() {
           router.push("/admin/dashboard"); // fallback
         }
       } else if (result.error) {
-        toast({
-          title: "Greška",
-          description: result.error,
-          variant: "destructive",
-        });
+        if (result.error.toLowerCase().includes('url (slug) koji ste odabrali već postoji')) {
+          setSlugError("URL (slug) koji ste odabrali već postoji. Molimo izaberite drugi.");
+        } else {
+          toast({
+            title: "Greška",
+            description: result.error,
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error("Greška prilikom kreiranja događaja:", error);
@@ -151,11 +164,15 @@ export default function CreateEventPage() {
                 name="coupleName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Ime i prezime paru</FormLabel>
+                    <FormLabel>Ime para (npr. Marko i Ana)</FormLabel>
                     <FormControl>
-                      <Input placeholder="John & Jane Doe" {...field} onChange={handleCoupleNameChange} />
+                      <Input placeholder="Ime mladoženje i mlade" {...field} onChange={e => {
+                        handleCoupleNameChange(e);
+                        field.onChange(e);
+                        setSlugManuallyEdited(false);
+                      }} />
                     </FormControl>
-                    <FormDescription>Unesite imena paru za ovaj događaj.</FormDescription>
+                    <FormDescription>Unesite puno ime oba partnera.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -213,23 +230,47 @@ export default function CreateEventPage() {
               <FormField
                 control={form.control}
                 name="slug"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>URL koji ce te djeliti sa gostima</FormLabel>
-                    <FormControl>
-                      <div className="flex items-center">
-                        <span className="rounded-l-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-                          yoursite.com/
-                        </span>
-                        <Input className="rounded-l-none" placeholder="john-and-jane-wedding" {...field} />
-                      </div>
-                    </FormControl>
-                    <FormDescription>
-                      ime-mladozenje-ime-mlade (jedna od mogucnosti)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const currentCoupleName = form.getValues("coupleName");
+                  const slugSuggestion = generateSlug(currentCoupleName);
+                  const slugValue = field.value;
+                  // Valid slug: min 3, max 50, samo [a-z0-9-], ne pocinje/zavrsava crticom, nema duplih crtica
+                  const slugValid = /^[a-z0-9]+(-[a-z0-9]+)*$/.test(slugValue) && slugValue.length >= 3;
+                  return (
+                    <FormItem>
+                      <FormLabel>URL koji ćete dijeliti sa gostima</FormLabel>
+                      <FormControl>
+                        <div className="flex items-center">
+                          <span className="rounded-l-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+                            yoursite.com/
+                          </span>
+                          <Input
+                            className="rounded-l-none"
+                            placeholder="marko-i-ana-svadba"
+                            {...field}
+                            value={slugValue}
+                            onChange={e => {
+                              field.onChange(e);
+                              setSlugManuallyEdited(true);
+                              setSlugError(null); // resetuj grešku na izmenu
+                            }}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormDescription>
+                        ime-mladozenje-ime-mlade (jedna od mogućnosti)
+                        <br />
+                        <span className={`text-xs ${slugValid ? 'text-green-600' : 'text-red-600'}`}>Predlog: <b>{slugSuggestion}</b></span>
+                      </FormDescription>
+                      {!slugValid && (
+                        <div className="text-xs text-red-600 mt-1">
+                          Slug mora imati najmanje 3 karaktera, može sadržati samo mala slova, brojeve i crtice (ne na početku/kraju, ne duple crtice).
+                        </div>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
 
               <FormField
@@ -252,8 +293,11 @@ export default function CreateEventPage() {
                 )}
               />
 
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Creating Event..." : "Create Event"}
+              {slugError && (
+                <div className="text-sm text-red-600 mb-2 text-center">{slugError}</div>
+              )}
+              <Button type="submit" className="w-full" disabled={isSubmitting || !form.getValues('slug') || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(form.getValues('slug')) || form.getValues('slug').length < 3 || !!slugError}>
+                {isSubmitting ? "Kreiram dogadja..." : "Kreiraj dogadjaj"}
               </Button>
             </form>
           </Form>

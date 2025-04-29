@@ -32,7 +32,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Već ste kreirali događaj." }, { status: 409 });
     }
 
-    // 3. Kreiraj event sa adminId
+    // 3. Proveri da li slug već postoji
+    const existingSlug = await prisma.event.findUnique({ where: { slug } });
+    if (existingSlug) {
+      return NextResponse.json({ error: "URL (slug) koji ste odabrali već postoji. Molimo izaberite drugi." }, { status: 409 });
+    }
+
+    // 4. Kreiraj event sa adminId
     const event = await prisma.event.create({
       data: {
         coupleName,
