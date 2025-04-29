@@ -1,8 +1,5 @@
 'use client'
 
-import React from "react";
-import Link from "next/link";
-
 export default function GlobalError({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-background">
@@ -18,12 +15,12 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
         >
           Pokušaj ponovo
         </button>
-        <Link
+        <a
           href="/"
           className="inline-block px-6 py-3 bg-secondary text-primary rounded hover:bg-secondary/80 transition"
         >
           Povratak na početnu
-        </Link>
+        </a>
       </div>
     </main>
   );

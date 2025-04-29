@@ -1,6 +1,3 @@
-import React from "react";
-import Link from "next/link";
-
 export default function NotFound() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-background">
@@ -10,12 +7,12 @@ export default function NotFound() {
         <p className="mb-8 text-muted-foreground">
           Izgleda da stranica koju tražite ne postoji ili je uklonjena.
         </p>
-        <Link
+        <a
           href="/"
           className="inline-block px-6 py-3 bg-primary text-white rounded hover:bg-primary/90 transition"
         >
           Povratak na početnu
-        </Link>
+        </a>
       </div>
     </main>
   );

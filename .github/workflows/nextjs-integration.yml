@@ -1,0 +1,43 @@
+name: Next.js Integration Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    env:
+      TEST_API_URL: http://localhost:3000
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # Dodaj druge potrebne env varijable ovde
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Prisma generate & migrate
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy || echo "No migrations to apply"
+
+      - name: Build app
+        run: npm run build
+
+      - name: Start Next.js server
+        run: npm run start &
+
+      - name: Wait for server to be ready
+        run: npx wait-on http://localhost:3000
+
+      - name: Run integration tests
+        run: npm run test:integration

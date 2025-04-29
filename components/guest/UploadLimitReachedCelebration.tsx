@@ -16,7 +16,7 @@ export function UploadLimitReachedCelebration() {
     if (typeof window !== "undefined") {
       setCanvasWidth(window.innerWidth);
     }
-  }, [canvasHeight, canvasWidth]);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -72,7 +72,7 @@ export function UploadLimitReachedCelebration() {
     }
     animate();
     return () => cancelAnimationFrame(animationFrameId);
-  }, [canvasHeight, canvasWidth]);
+  }, []);
 
   return (
     <div className="relative flex flex-col items-center justify-center py-6">
