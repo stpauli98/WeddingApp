@@ -1,5 +1,3 @@
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers';
 import { redirect } from "next/navigation";
