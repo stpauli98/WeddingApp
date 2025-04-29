@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react";
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -13,12 +13,55 @@ interface Image {
 }
 
 interface ImageGalleryProps {
-  images: Image[]
-  readOnly?: boolean
+  images: Image[];
+  guestId?: string; // Dodaj guestId za DELETE
+  readOnly?: boolean;
 }
 
-export function ImageGallery({ images, readOnly = false }: ImageGalleryProps) {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+
+export function ImageGallery({ images: initialImages, guestId, readOnly = false }: ImageGalleryProps) {
+  const [images, setImages] = useState<Image[]>(initialImages);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+
+  // Funkcija za brisanje slike
+  const handleDelete = async (imageId: string) => {
+    if (!guestId) return;
+    setDeletingId(imageId);
+    setError(null);
+    try {
+      // Uvek refetch CSRF token pre DELETE
+      const csrfRes = await fetch("/api/guest/images/delete");
+      const { csrfToken } = await csrfRes.json();
+      if (!csrfToken) {
+        setError("Nije moguće dobiti CSRF token. Osvežite stranicu i pokušajte ponovo.");
+        setDeletingId(null);
+        return;
+      }
+      const res = await fetch(`/api/guest/images/delete?id=${imageId}&guestId=${guestId}`, {
+        method: "DELETE",
+        headers: {
+          "x-csrf-token": csrfToken,
+        },
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setError(data.error || "Greška pri brisanju slike.");
+      } else {
+        setImages((imgs) => imgs.filter(img => img.id !== imageId));
+        if (selectedImage && images.find(img => img.id === imageId)?.imageUrl === selectedImage) {
+          setSelectedImage(null);
+        }
+      }
+    } catch (e) {
+      setError("Greška pri komunikaciji sa serverom.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
 
   // Funkcija za otvaranje slike u punom prikazu
   const openFullView = (imageUrl: string) => {
@@ -45,6 +88,23 @@ export function ImageGallery({ images, readOnly = false }: ImageGalleryProps) {
   
   return (
     <Card key={image.id} className="relative aspect-square overflow-hidden group bg-white border border-[#E2C275] shadow-lg rounded-xl transition-transform duration-200 hover:shadow-xl hover:scale-105">
+      {/* Dugme za brisanje slike */}
+      {!readOnly && (
+        <Button
+          variant="destructive"
+          size="icon"
+          className="absolute top-2 right-2 z-10 opacity-80 hover:opacity-100"
+          onClick={e => { e.stopPropagation(); handleDelete(image.id); }}
+          disabled={deletingId === image.id}
+          aria-label="Obriši sliku"
+        >
+          {deletingId === image.id ? (
+            <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
+          ) : (
+            <X className="h-4 w-4" />
+          )}
+        </Button>
+      )}
       <div 
         className="w-full h-full cursor-pointer"
         onClick={() => openFullView(image.imageUrl)}
