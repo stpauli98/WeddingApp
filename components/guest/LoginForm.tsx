@@ -39,8 +39,12 @@ export function LoginForm() {
   useEffect(() => {
     fetch("/api/guest/login")
       .then(res => res.json())
-      .then(data => setCsrfToken(data.csrfToken))
-      .catch(() => setCsrfToken(null));
+      .then(data => {
+        setCsrfToken(data.csrfToken);
+      })
+      .catch(() => {
+        setCsrfToken(null);
+      });
   }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
