@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -26,6 +26,7 @@ const formSchema = z.object({
 })
 
 export function LoginForm() {
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
@@ -33,6 +34,14 @@ export function LoginForm() {
   // Inicijalizacija forme sa react-hook-form i zod validacijom
   const searchParams = useSearchParams();
   const eventSlug = searchParams.get('event');
+
+  // Povuci CSRF token na mount
+  useEffect(() => {
+    fetch("/api/guest/login")
+      .then(res => res.json())
+      .then(data => setCsrfToken(data.csrfToken))
+      .catch(() => setCsrfToken(null));
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,6 +69,7 @@ export function LoginForm() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-csrf-token": csrfToken || ""
         },
         body: JSON.stringify({ ...values, eventSlug }),
       })
@@ -67,6 +77,14 @@ export function LoginForm() {
       const data = await response.json()
 
       if (!response.ok) {
+        // Ako je CSRF token nevažeći, automatski povuci novi token
+        if (response.status === 403 && data.error && data.error.toLowerCase().includes('csrf')) {
+          fetch("/api/guest/login")
+            .then(res => res.json())
+            .then(data => setCsrfToken(data.csrfToken))
+            .catch(() => setCsrfToken(null));
+          throw new Error("Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.");
+        }
         throw new Error(data.error || "Došlo je do greške")
       }
 
@@ -150,7 +168,7 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || !csrfToken}>
               {isLoading ? "Slanje..." : "Prijavi se"}
             </Button>
           </form>
