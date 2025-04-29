@@ -21,7 +21,7 @@ jobs:
       - name: Instalacija pnpm
         run: npm install -g pnpm
       - name: Instalacija dependencija
-        run: pnpm ci
+        run: pnpm install
       - name: Build projekta
         run: pnpm run build
 
