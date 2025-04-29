@@ -1,0 +1,41 @@
+# Github Actions CI/CD za Next.js aplikaciju
+# Pokreće se na svaki push i pull request na main granu
+name: Next.js CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout koda
+        uses: actions/checkout@v4
+      - name: Instalacija Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Instalacija dependencija
+        run: npm ci
+      - name: Build projekta
+        run: npm run build
+
+      - name: Lint provera (ESLint)
+        run: npm run lint
+
+      - name: Pokretanje unit testova (Jest)
+        run: npm run test:unit
+
+      - name: Pokretanje integration testova (Jest)
+        run: npm run test:integration
+
+      - name: Pokretanje E2E testova (Playwright)
+        run: |
+          npx playwright install --with-deps
+          npm run test:e2e
+
+      - name: Security audit (npm audit)
+        run: npm run audit
