@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { Loader2 } from "lucide-react"
 import { CldImage } from "next-cloudinary"
+import Image from "next/image";
 
 type CropType = "fill" | "crop" | "fit" | "auto" | "scale" | "fill_pad" | "imagga_crop" | "imagga_scale" | "lfill" | "limit" | "lpad" | "mfit" | "mpad" | "pad" | "thumb"
 
@@ -55,7 +56,7 @@ export default function ImageWithSpinner({
           onError={() => { setError(true); setLoading(false) }}
         />
       ) : (
-        <img
+        <Image
           src={src}
           width={width}
           height={height}

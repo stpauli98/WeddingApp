@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useCallback, useEffect } from "react";
+import Image from "next/image";
 
 interface ImageData {
   id: string;
@@ -105,7 +106,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
           >
             <button onClick={closeModal} className="absolute top-4 right-4 text-white text-3xl hover:text-yellow-400 transition z-10" title="Zatvori" aria-label="Zatvori prikaz slike">&times;</button>
             <button onClick={prevImage} className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 text-white text-4xl hover:text-yellow-400 transition z-10" title="Prethodna slika" aria-label="Prethodna slika">&#8592;</button>
-            <img
+            <Image
               src={sortedImages[currentIdx].imageUrl}
               alt={`Slika gosta${sortedImages[currentIdx].guestName ? ': ' + sortedImages[currentIdx].guestName : ''}`}
               className="max-h-[80vh] max-w-[90vw] rounded shadow-lg border-4 border-white"

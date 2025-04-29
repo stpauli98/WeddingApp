@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Download, CheckSquare, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { GuestDetail } from "@/components/ui/types";
+import Image from "next/image";
 
 interface AdminImageGalleryProps {
   images: GuestDetail["images"];
@@ -51,7 +52,7 @@ export function AdminImageGallery({ images, selectable = true, selectedIds, onSe
   if (images.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-6 gap-2">
-        <img
+        <Image
           src="/no-image-uploaded.png"
           alt="Nema slike"
           className="w-32 h-32 object-contain opacity-80 mb-2"
@@ -107,7 +108,7 @@ export function AdminImageGallery({ images, selectable = true, selectedIds, onSe
                 </button>
               )}
               {/* Prikaz slike sa alt opisom */}
-              <img
+              <Image
                 src={validUrl}
                 alt={'Slika gosta'}
                 className="w-full h-full object-cover cursor-pointer"
@@ -125,7 +126,7 @@ export function AdminImageGallery({ images, selectable = true, selectedIds, onSe
           onClick={() => setFullView(null)}
         >
           <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
-            <img
+            <Image
               src={fullView && fullView.trim() !== "" ? fullView : "/no-image-uploaded.png"}
               alt="Slika gosta"
               className="object-contain w-full h-full rounded-2xl bg-white p-2 shadow-2xl"

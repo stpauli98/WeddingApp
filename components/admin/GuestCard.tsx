@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 
 interface GuestCardProps {
   guest: {
@@ -16,7 +17,7 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest }) => {
     <div className="relative bg-white rounded-xl shadow border flex flex-col min-h-[240px]">
       {/* Prva slika gosta ili placeholder */}
       {guest.images && guest.images.length > 0 ? (
-        <img
+        <Image
           src={guest.images[0].imageUrl}
           alt={`Slika gosta: ${guest.firstName} ${guest.lastName}`}
           className="w-full h-40 object-cover rounded-t-xl border-b"
