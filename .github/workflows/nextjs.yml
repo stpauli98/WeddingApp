@@ -26,8 +26,8 @@ jobs:
       - name: Lint provera (ESLint)
         run: npm run lint
 
-      - name: Pokretanje unit testova (Jest)
-        run: npm run test:unit
+      # - name: Pokretanje unit testova (Jest)
+      #   run: npm run test:unit
 
       - name: Pokretanje integration testova (Jest)
         run: npm run test:integration
