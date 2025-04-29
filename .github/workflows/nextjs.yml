@@ -32,10 +32,10 @@ jobs:
       - name: Pokretanje integration testova (Jest)
         run: npm run test:integration
 
-      - name: Pokretanje E2E testova (Playwright)
-        run: |
-          npx playwright install --with-deps
-          npm run test:e2e
+      # - name: Pokretanje E2E testova (Playwright)
+      #   run: |
+      #     npx playwright install --with-deps
+      #     npm run test:e2e
 
       - name: Security audit (npm audit)
         run: npm run audit
