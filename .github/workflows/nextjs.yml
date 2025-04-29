@@ -18,6 +18,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+      - name: Instalacija pnpm
+        run: npm install -g pnpm
       - name: Instalacija dependencija
         run: pnpm ci
       - name: Build projekta
@@ -27,15 +29,15 @@ jobs:
         run: pnpm run lint
 
       # - name: Pokretanje unit testova (Jest)
-      #   run: npm run test:unit
+      #   run: pnpm run test:unit
 
       # - name: Pokretanje integration testova (Jest)
-      #   run: npm run test:integration
+      #   run: pnpm run test:integration
 
       # - name: Pokretanje E2E testova (Playwright)
       #   run: |
-      #     npx playwright install --with-deps
-      #     npm run test:e2e
+      #     pnpm exec playwright install --with-deps
+      #     pnpm run test:e2e
 
       - name: Security audit (npm audit)
         run: pnpm run audit
