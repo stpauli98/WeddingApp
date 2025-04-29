@@ -28,7 +28,7 @@ const AdminHelpContact: React.FC = () => {
           </h4>
           <div className="text-sm text-gray-700">
             <p>Naš tim za podršku je tu za vas svaki dan od 9 do 18h.</p>
-            <p className="mt-1">Email: <a href="mailto:weddingapp.support@email.com" className="text-blue-700 underline font-semibold">weddingapp.support@email.com</a></p>
+            <p className="mt-1">Email: <a href="mailto:pixelnext9@gmail.com" className="text-blue-700 underline font-semibold">pixelnext9@gmail.com</a></p>
             <p className="mt-1">Odgovaramo u roku od 24h.</p>
           </div>
         </div>
