@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "audit": "npm audit",
     "dev": "next dev",
     "build": "prisma generate && next build",
     "test:unit": "jest",
