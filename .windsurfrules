@@ -2,10 +2,10 @@
 📌 Projekat: SaaS aplikacija za prikupljanje slika gostiju sa svadbe
 
 🎯 Cilj:
-Napraviti aplikaciju u kojoj gosti mogu da se prijave pomoću imena, prezimena i email adrese, dobiju verifikacioni kod putem emaila, i nakon potvrde koda dobiju pristup svom dashboardu. Na dashboardu mogu uploadovati do 10 slika i ostaviti poruku ili čestitku. Mladenci (admini) kasnije pregledaju slike po gostima.
+Napraviti aplikaciju u kojoj gosti mogu da se prijave pomoću imena, prezimena i email adrese, dobiju verifikacioni kod putem emaila, i nakon potvrde koda dobiju pristup svom dashboardu. Na dashboardu mogu uploadovati do 10 slika i ostaviti poruku ili čestitku. Mladenci (admini) kasnije pregledaju slike po gostima. Sliko i poruke mogu sacuvati. Kreiraju event i slug za svaki event. Dobijaju na dashboard-u qr kod i url od njihovog eventa koji kasnije dijele sa gostima.
 
 🧠 Pravila za pisanje koda:
-- Piši isključivo kod koji se odnosi na ovu funkcionalnost — ništa van teme (nema registracije sa lozinkom, socijalnih mreža, itd.)
+- Piši isključivo kod koji se odnosi na ovu funkcionalnost — ništa van teme.
 - Kod mora biti čitljiv, jasan i optimalan.
 - Komentariši kompleksnije delove koda, ali ne zatrpavaj trivijalne linije.
 - Održavaj konzistentan stil kroz ceo projekat (TypeScript + Next.js 14 App Router + Tailwind).
@@ -24,12 +24,12 @@ Napraviti aplikaciju u kojoj gosti mogu da se prijave pomoću imena, prezimena i
 - Backend: Next.js API routes
 - Baza: PostgreSQL (preko Prisma ORM)
 - Email: Nodemailer (ili simulacija ako nije u produkciji)
-- Upload slika: (planirano kasnije, ne dodavati dok nije zatraženo)
+- Upload slika: Cloudinary
 - Paket manager: pnpm
 
 🧱 Korisnici:
 - Gost: prijavljuje se putem email koda, dobija pristup dashboardu
-- Admin (mladenci): pregledaju sve pristigle slike i poruke (kasnije)
+- Admin (mladenci): pregledaju sve pristigle slike i poruke.
 
 🧪 Testiranje:
 - Svaka funkcionalnost mora se moći lokalno testirati (dev mode)
