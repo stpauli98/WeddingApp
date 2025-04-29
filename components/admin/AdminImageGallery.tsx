@@ -5,10 +5,25 @@ import type { GuestDetail } from "@/components/ui/types";
 
 interface AdminImageGalleryProps {
   images: GuestDetail["images"];
+  selectable?: boolean;
+  selectedIds?: string[];
+  onSelectChange?: (ids: string[]) => void;
+  onDownloadSelected?: () => void;
+  downloadSelectedLoading?: boolean;
 }
 
-export function AdminImageGallery({ images }: AdminImageGalleryProps) {
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+export function AdminImageGallery({ images, selectable = true, selectedIds, onSelectChange, onDownloadSelected, downloadSelectedLoading }: AdminImageGalleryProps) {
+  // Ako parent kontroliše selekciju, koristi to, inače lokalni state
+  const [localSelected, setLocalSelected] = useState<Set<string>>(new Set());
+  const selected = selectedIds ? new Set(selectedIds) : localSelected;
+  const setSelected = (fn: (prev: Set<string>) => Set<string>) => {
+    if (onSelectChange) {
+      const next = fn(new Set(selected));
+      onSelectChange(Array.from(next));
+    } else {
+      setLocalSelected(fn);
+    }
+  };
   const [fullView, setFullView] = useState<string | null>(null);
 
   const toggleSelect = (id: string) => {
@@ -51,11 +66,15 @@ export function AdminImageGallery({ images }: AdminImageGalleryProps) {
       <div className="flex gap-2 mb-4">
         <Button
           variant="outline"
-          disabled={selected.size === 0}
-          onClick={downloadSelected}
+          disabled={selected.size === 0 || !!downloadSelectedLoading}
+          onClick={onDownloadSelected || downloadSelected}
           className="flex items-center gap-2"
         >
-          <Download className="w-4 h-4" />
+          {downloadSelectedLoading ? (
+            <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
+          ) : (
+            <Download className="w-4 h-4" />
+          )}
           Preuzmi selektovane ({selected.size})
         </Button>
       </div>
@@ -75,14 +94,16 @@ export function AdminImageGallery({ images }: AdminImageGalleryProps) {
               >
                 {selected.has(img.id) ? <CheckSquare className="text-blue-600 w-5 h-5" /> : <Square className="w-5 h-5 text-gray-400" />}
               </button>
-              <button
-                className="absolute top-2 right-2 z-10 bg-white/80 rounded p-1"
-                onClick={e => { e.stopPropagation(); downloadImage(validUrl); }}
-                title="Preuzmi sliku"
-                type="button"
-              >
-                <Download className="w-5 h-5 text-gray-700" />
-              </button>
+              {!selectable && (
+                <button
+                  className="absolute top-2 right-2 z-10 bg-white/80 rounded p-1"
+                  onClick={e => { e.stopPropagation(); downloadImage(validUrl); }}
+                  title="Preuzmi sliku"
+                  type="button"
+                >
+                  <Download className="w-5 h-5 text-gray-700" />
+                </button>
+              )}
               <div
                 className="w-full h-full cursor-pointer"
                 onClick={() => setFullView(validUrl)}
