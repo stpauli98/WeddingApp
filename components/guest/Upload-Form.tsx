@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react";
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -22,12 +22,21 @@ interface UploadFormProps {
 }
 
 export function UploadForm({ guestId, message }: UploadFormProps) {
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { message: message ?? "", images: [] },
   })
+
+  // Povuci CSRF token na mount
+  React.useEffect(() => {
+    fetch("/api/guest/upload")
+      .then(res => res.json())
+      .then(data => setCsrfToken(data.csrfToken))
+      .catch(() => setCsrfToken(null)); // Token je sada csrf_token_guest_upload u kolačiću
+  }, []);
 
   // Funkcija za resize slike pomoću canvas-a
   async function resizeImage(file: File, maxWidth = 1280): Promise<File> {
@@ -120,6 +129,9 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
       const response = await fetch(`/api/guest/upload?guestId=${guestId}`, {
         method: "POST",
         body: formData,
+        headers: {
+          "x-csrf-token": csrfToken || "",
+        },
       });
 
       const data = await response.json();

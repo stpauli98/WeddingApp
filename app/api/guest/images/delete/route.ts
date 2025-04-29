@@ -1,7 +1,22 @@
 import { NextResponse } from "next/server"
 import { prisma } from '@/lib/prisma'
+import crypto from 'crypto';
+import { cookies } from 'next/headers';
 
 // Definisanje tipa za sliku
+
+export async function GET() {
+  const csrfToken = crypto.randomBytes(32).toString('hex');
+  const response = NextResponse.json({ csrfToken });
+  response.cookies.set('csrf_token_guest_delete', csrfToken, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 30, // 30 minuta
+    path: '/'
+  });
+  return response;
+}
 
 interface Image {
   id: string
@@ -11,6 +26,13 @@ interface Image {
 }
 
 export async function DELETE(request: Request) {
+  // CSRF zaštita
+  const reqCookies = await cookies();
+  const csrfCookie = reqCookies.get('csrf_token_guest_delete')?.value;
+  const csrfHeader = request.headers.get('x-csrf-token');
+  if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
+    return NextResponse.json({ error: 'Neispravan CSRF token. Osvežite stranicu i pokušajte ponovo.' }, { status: 403 });
+  }
   try {
     // Dobavi parametre iz URL-a (guestId za autentifikaciju i imageId za brisanje)
     const { searchParams } = new URL(request.url);

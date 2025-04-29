@@ -12,7 +12,7 @@ export async function GET() {
 
   // Postavi ga u httpOnly kolačić (važi 30min)
   const response = NextResponse.json({ csrfToken });
-  response.cookies.set("csrf_token", csrfToken, {
+  response.cookies.set("csrf_token_guest_login", csrfToken, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
   try {
     // 1. Provera CSRF tokena
     const reqCookies = await cookies();
-    const csrfCookie = reqCookies.get("csrf_token")?.value;
+    const csrfCookie = reqCookies.get("csrf_token_guest_login")?.value;
     const csrfHeader = request.headers.get("x-csrf-token");
     if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
       return NextResponse.json({ error: "Neispravan CSRF token. Osvežite stranicu i pokušajte ponovo." }, { status: 403 });

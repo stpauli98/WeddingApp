@@ -1,8 +1,30 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
+import crypto from "crypto";
+
+export async function GET() {
+  const csrfToken = crypto.randomBytes(32).toString("hex");
+  const response = NextResponse.json({ csrfToken });
+  response.cookies.set("csrf_token_admin_events", csrfToken, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 30, // 30 minuta
+    path: "/"
+  });
+  return response;
+}
+
 
 export async function POST(request: Request) {
+  // CSRF zaštita
+  const reqCookies = await cookies();
+  const csrfCookie = reqCookies.get("csrf_token_admin_events")?.value;
+  const csrfHeader = request.headers.get("x-csrf-token");
+  if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
+    return NextResponse.json({ error: "Neispravan CSRF token. Osvežite stranicu i pokušajte ponovo." }, { status: 403 });
+  }
   try {
     const body = await request.json();
     const { coupleName, location, date, slug, guestMessage } = body;

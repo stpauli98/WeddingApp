@@ -8,6 +8,22 @@ export const config = {
 };
 
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
+import { cookies } from "next/headers";
+
+export async function GET() {
+  const csrfToken = crypto.randomBytes(32).toString("hex");
+  const response = NextResponse.json({ csrfToken });
+  response.cookies.set("csrf_token_guest_upload", csrfToken, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 30, // 30 minuta
+    path: "/"
+  });
+  return response;
+}
+
 import { prisma } from '@/lib/prisma';
 import { getGuestById } from '@/lib/auth';
 import sharp from 'sharp';
@@ -21,6 +37,13 @@ type UploadResult = { success: boolean; images: number } | { error: string };
  * Poruka NIKAD ne ide u bucket, slike NIKAD ne idu u message tabelu.
  */
 export async function POST(request: NextRequest): Promise<NextResponse<UploadResult>> {
+  // CSRF zaštita
+  const reqCookies = await cookies();
+  const csrfCookie = reqCookies.get("csrf_token_guest_upload")?.value;
+  const csrfHeader = request.headers.get("x-csrf-token");
+  if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
+    return NextResponse.json({ error: "Neispravan CSRF token. Osvežite stranicu i pokušajte ponovo." }, { status: 403 });
+  }
   try {
     // --- Validacija korisnika ---
     const url = new URL(request.url);

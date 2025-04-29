@@ -10,13 +10,19 @@ export async function GET() {
   // Generiši i pošalji CSRF token
   const { token, cookie } = await generateCsrfToken();
   const response = NextResponse.json({ csrfToken: token });
-  response.headers.set('set-cookie', cookie);
+  response.cookies.set("csrf_token_admin_register", token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 30, // 30 minuta
+    path: "/"
+  });
   return response;
 }
 
 export async function POST(req: NextRequest) {
   // Provera CSRF tokena
-  const csrfToken = req.headers.get('x-csrf-token') || req.cookies.get('csrf_token')?.value || '';
+  const csrfToken = req.headers.get('x-csrf-token') || req.cookies.get('csrf_token_admin_register')?.value || '';
   const validCsrf = await validateCsrfToken(csrfToken);
   if (!validCsrf) {
     return NextResponse.json({ error: 'Nevažeći CSRF token.' }, { status: 403 });
