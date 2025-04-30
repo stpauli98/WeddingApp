@@ -61,7 +61,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: {
         id: img.id,
         imageUrl: img.imageUrl,
         storagePath: img.storagePath === null ? undefined : img.storagePath,
-      }))} />
+      }))} guestId={guestId} />
      {/* {guest.images && guest.images.length === 10 && (
         <div className="mt-8">
           <LogoutButton />
