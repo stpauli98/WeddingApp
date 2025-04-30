@@ -28,39 +28,59 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false 
 
   // Funkcija za brisanje slike
   const handleDelete = async (imageId: string) => {
-    if (!guestId) return;
+    if (!guestId) {
+      console.warn("Brisanje slike: guestId nije definisan");
+      return;
+    }
     setDeletingId(imageId);
     setError(null);
+    console.log("[BRISANJE] Početak brisanja slike", { guestId, imageId });
     try {
       // Uvek refetch CSRF token pre DELETE
       const csrfRes = await fetch("/api/guest/images/delete");
       const { csrfToken } = await csrfRes.json();
+      console.log("[BRISANJE] Povučen CSRF token:", csrfToken);
       if (!csrfToken) {
         setError("Nije moguće dobiti CSRF token. Osvežite stranicu i pokušajte ponovo.");
         setDeletingId(null);
+        console.error("[BRISANJE] Nije moguće dobiti CSRF token");
         return;
       }
-      const res = await fetch(`/api/guest/images/delete?id=${imageId}&guestId=${guestId}`, {
+      const url = `/api/guest/images/delete?id=${imageId}&guestId=${guestId}`;
+      console.log("[BRISANJE] Šaljem DELETE na:", url);
+      const res = await fetch(url, {
         method: "DELETE",
         headers: {
           "x-csrf-token": csrfToken,
         },
       });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        setError(data.error || "Greška pri brisanju slike.");
+      console.log("[BRISANJE] Status DELETE zahteva:", res.status);
+      let data = null;
+      try {
+        data = await res.json();
+        console.log("[BRISANJE] Odgovor backend-a:", data);
+      } catch (jsonErr) {
+        console.error("[BRISANJE] Ne mogu da parsiram JSON odgovor:", jsonErr);
+      }
+      if (!res.ok || !data?.success) {
+        setError(data?.error || "Greška pri brisanju slike.");
+        console.error("[BRISANJE] Backend error:", data?.error || res.statusText);
       } else {
         setImages((imgs) => imgs.filter(img => img.id !== imageId));
         if (selectedImage && images.find(img => img.id === imageId)?.imageUrl === selectedImage) {
           setSelectedImage(null);
         }
+        console.log("[BRISANJE] Slika uspešno obrisana");
       }
     } catch (e) {
       setError("Greška pri komunikaciji sa serverom.");
+      console.error("[BRISANJE] Network/JS greška:", e);
     } finally {
       setDeletingId(null);
+      console.log("[BRISANJE] Kraj procesa brisanja slike");
     }
   };
+
 
 
   // Funkcija za otvaranje slike u punom prikazu
@@ -84,50 +104,48 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false 
   return (
     <>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        {images.map((image) => {
-  
-  return (
-    <Card key={image.id} className="relative aspect-square overflow-hidden group bg-white border border-[#E2C275] shadow-lg rounded-xl transition-transform duration-200 hover:shadow-xl hover:scale-105">
-      {/* Dugme za brisanje slike */}
-      {!readOnly && (
-        <Button
-          variant="destructive"
-          size="icon"
-          className="absolute top-2 right-2 z-10 opacity-80 hover:opacity-100"
-          onClick={e => { e.stopPropagation(); handleDelete(image.id); }}
-          disabled={deletingId === image.id}
-          aria-label="Obriši sliku"
-        >
-          {deletingId === image.id ? (
-            <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
-          ) : (
-            <Trash className="h-4 w-4" />
-          )}
-        </Button>
-      )}
-      <div 
-        className="w-full h-full cursor-pointer"
-        onClick={() => openFullView(image.imageUrl)}
-      >
-        {image.imageUrl && typeof image.imageUrl === 'string' ? (
-          <ImageWithSpinner
-            src={image.imageUrl}
-            width={400}
-            height={400}
-            crop="fill"
-            alt="Slika gosta"
-            className="p-2"
-            rounded={true}
-          />
-        ) : (
-          <div className="flex items-center justify-center w-full h-full bg-red-100 text-red-500 text-center text-sm p-4">
-            Greška: Slika nije dostupna ili nije validan URL
-          </div>
-        )}
-      </div>
-    </Card>
-  );
-})}
+        {images.map((image) => (
+          <Card key={image.id} className="relative aspect-square overflow-hidden group bg-white border border-[#E2C275] shadow-lg rounded-xl transition-transform duration-200 hover:shadow-xl hover:scale-105">
+            {/* Dugme za brisanje slike */}
+            {!readOnly && (
+              <Button
+                variant="destructive"
+                size="icon"
+                className="absolute top-2 right-2 z-10 opacity-80 hover:opacity-100"
+                onClick={e => { e.stopPropagation(); handleDelete(image.id); }}
+                disabled={deletingId === image.id}
+                aria-label="Obriši sliku"
+              >
+                {deletingId === image.id ? (
+                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
+                ) : (
+                  <Trash className="h-4 w-4" />
+                )}
+              </Button>
+            )}
+            <div 
+              className="w-full h-full cursor-pointer"
+              onClick={() => openFullView(image.imageUrl)}
+            >
+              {image.imageUrl && typeof image.imageUrl === 'string' ? (
+                <ImageWithSpinner
+                  src={image.imageUrl}
+                  width={400}
+                  height={400}
+                  crop="fill"
+                  alt="Slika gosta"
+                  className="p-2"
+                  rounded={true}
+                />
+              ) : (
+                <div className="flex items-center justify-center w-full h-full bg-red-100 text-red-500 text-center text-sm p-4">
+                  Greška: Slika nije dostupna ili nije validan URL
+                </div>
+              )}
+            </div>
+          </Card>
+        ))}
+
       </div>
 
       {/* Modal za prikaz slike u punoj veličini */}
