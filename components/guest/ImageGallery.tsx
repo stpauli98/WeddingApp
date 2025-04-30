@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react";
-import { X } from "lucide-react"
+import { X, Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import ImageWithSpinner from "@/components/shared/ImageWithSpinner"
@@ -101,7 +101,7 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false 
           {deletingId === image.id ? (
             <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
           ) : (
-            <X className="h-4 w-4" />
+            <Trash className="h-4 w-4" />
           )}
         </Button>
       )}
