@@ -60,6 +60,15 @@ export async function POST(req: NextRequest) {
     }
     // Uspešan login: resetuj pokušaje za IP
     loginAttempts.delete(ip);
+
+    // AUTOMATSKO BRISANJE ISTEKLIH ADMIN SESIJA
+    await prisma.adminSession.deleteMany({
+      where: {
+        expiresAt: { lt: new Date() }
+      }
+    });
+    // ---
+
     // Generiši session token
     const sessionToken = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 7 dana

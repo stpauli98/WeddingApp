@@ -1,3 +1,9 @@
+export const metadata = {
+  title: 'Admin Dashboard | WeddingApp',
+  description: 'Pregled i upravljanje svadbenim događajem i gostima.',
+  robots: 'noindex, nofollow'
+};
+
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers';
 import { redirect } from "next/navigation";

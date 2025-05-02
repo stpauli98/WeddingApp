@@ -20,8 +20,12 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest }) => {
         <Image
           src={guest.images[0].imageUrl}
           alt={`Slika gosta: ${guest.firstName} ${guest.lastName}`}
+          width={400}
+          height={160}
           className="w-full h-40 object-cover rounded-t-xl border-b"
-          style={{ minHeight: '160px', background: '#f7fafc' }}
+          style={{ minHeight: '160px', backgroundColor: '#f7fafc' }}
+          placeholder="blur"
+          blurDataURL="/placeholder.png"
         />
       ) : (
         <div className="w-full h-40 flex items-center justify-center rounded-t-xl border-b bg-gray-100 text-4xl text-yellow-400 font-bold select-none" style={{ minHeight: '160px' }} role="img" aria-label="Gost bez slike">
