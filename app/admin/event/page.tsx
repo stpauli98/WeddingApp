@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -46,6 +46,24 @@ export default function CreateEventPage() {
   const [slugError, setSlugError] = useState<string | null>(null);
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  // State za CSRF token
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
+  const [csrfError, setCsrfError] = useState<string | null>(null);
+
+  // Dohvati CSRF token pri mountu
+  useEffect(() => {
+    const fetchCsrf = async () => {
+      try {
+        const res = await fetch("/api/admin/events", { method: "GET", credentials: "include" });
+        if (!res.ok) throw new Error("Neuspešno dobijanje CSRF tokena");
+        const data = await res.json();
+        setCsrfToken(data.csrfToken);
+      } catch (e) {
+        setCsrfError("Neuspešno dobijanje CSRF tokena. Osvežite stranicu.");
+      }
+    };
+    fetchCsrf();
+  }, []);
 
   // Initialize the form
   const form = useForm<FormSchemaType>({
@@ -90,10 +108,13 @@ export default function CreateEventPage() {
   type EventApiPayload = Omit<FormSchemaType, "date"> & { date: string; guestMessage?: string };
 
   // Poziv backend API-ja za kreiranje eventa
-  async function createEvent(data: EventApiPayload) {
+  async function createEvent(data: EventApiPayload, csrfToken: string) {
     const res = await fetch("/api/admin/events", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-csrf-token": csrfToken,
+      },
       body: JSON.stringify(data),
       credentials: "include",
     });
@@ -102,6 +123,10 @@ export default function CreateEventPage() {
 
   // Handle form submission
   const onSubmit = async (data: FormSchemaType) => {
+    if (!csrfToken) {
+      setCsrfError("CSRF token nije dostupan. Osvežite stranicu.");
+      return;
+    }
     try {
       setIsSubmitting(true)
       setSlugError(null);
@@ -114,7 +139,7 @@ export default function CreateEventPage() {
       };
 
       // Pozovi API za kreiranje eventa
-      const result = await createEvent(formattedData);
+      const result = await createEvent(formattedData, csrfToken);
 
       if (result.success) {
         toast({
@@ -296,7 +321,10 @@ export default function CreateEventPage() {
               {slugError && (
                 <div className="text-sm text-red-600 mb-2 text-center">{slugError}</div>
               )}
-              <Button type="submit" className="w-full" disabled={isSubmitting || !form.getValues('slug') || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(form.getValues('slug')) || form.getValues('slug').length < 3 || !!slugError}>
+              {csrfError && (
+                <div className="text-sm text-red-600 mb-2 text-center">{csrfError}</div>
+              )}
+              <Button type="submit" className="w-full" disabled={isSubmitting || !form.getValues('slug') || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(form.getValues('slug')) || form.getValues('slug').length < 3 || !!slugError || !csrfToken}>
                 {isSubmitting ? "Kreiram dogadja..." : "Kreiraj dogadjaj"}
               </Button>
             </form>
