@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import crypto from "crypto";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET() {
   const csrfToken = crypto.randomBytes(32).toString("hex");
@@ -33,20 +35,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // 1. Pronađi admina preko session cookie-ja
-    const cookieStore = await cookies();
-    const sessionToken = cookieStore.get("admin_session")?.value;
-    if (!sessionToken) {
+    const session = await getServerSession(authOptions);
+console.log("[ADMIN EVENT API] Session:", session);
+    if (!session || !session.user || session.user.role !== "admin") {
       return NextResponse.json({ error: "Niste prijavljeni kao admin." }, { status: 401 });
     }
-    const session = await prisma.adminSession.findUnique({
-      where: { sessionToken },
-      include: { admin: true },
-    });
-    if (!session || !session.admin) {
-      return NextResponse.json({ error: "Nevažeća admin sesija." }, { status: 401 });
-    }
-    const adminId = session.admin.id;
+    const adminId = session.user.id;
 
     // 2. Proveri da li admin već ima event
     const existingEvent = await prisma.event.findFirst({ where: { adminId } });

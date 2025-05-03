@@ -49,41 +49,22 @@ export async function POST(req: NextRequest) {
     if (password.length < 6 || password.length > 64) {
       return NextResponse.json({ error: 'Lozinka mora imati između 6 i 64 znaka.' }, { status: 400 });
     }
-    // Proveri da li admin već postoji
-    const existing = await prisma.admin.findUnique({ where: { email } });
+    // Proveri da li admin već postoji u NextAuth User modelu
+    const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
       return NextResponse.json({ error: 'Admin sa tim emailom već postoji.' }, { status: 409 });
     }
     const passwordHash = await bcrypt.hash(password, 10);
-    const admin = await prisma.admin.create({
+    const user = await prisma.user.create({
       data: {
         email,
         passwordHash,
         firstName,
         lastName,
+        role: "admin",
       },
     });
-
-    // Automatski kreiraj session i postavi cookie (kao na loginu)
-    const sessionToken = crypto.randomUUID();
-    const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 7 dana
-    await prisma.adminSession.create({
-      data: {
-        adminId: admin.id,
-        sessionToken,
-        expiresAt,
-      },
-    });
-
-    const response = NextResponse.json({ success: true, admin: { id: admin.id, email: admin.email } });
-    response.cookies.set("admin_session", sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 dana
-    });
-    return response;
+    return NextResponse.json({ success: true, user: { id: user.id, email: user.email } });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: 'Greška na serveru.' }, { status: 500 });

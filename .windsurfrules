@@ -18,6 +18,7 @@ Napraviti aplikaciju u kojoj gosti mogu da se prijave pomoću imena, prezimena i
 - Sve komponente moraju biti pravilno implementirane i testirane.
 - Korisnik mora biti zadovoljan i sve mu mora biti jasno i pojasnjeno kroz poruke na UI.
 - Uvijek koristi <Image /> za prikaz slika.
+- Sve što je custom auth a nije NextAuth mora biti implementirano u NextAuth a višak koga izbrisan.
 
 🔧 Tehnologije:
 - Frontend: Next.js 14 (App Router), Tailwind CSS, TypeScript
@@ -26,6 +27,7 @@ Napraviti aplikaciju u kojoj gosti mogu da se prijave pomoću imena, prezimena i
 - Email: Nodemailer (ili simulacija ako nije u produkciji)
 - Upload slika: Cloudinary
 - Paket manager: pnpm
+- Auth: NextAuth
 
 🧱 Korisnici:
 - Gost: prijavljuje se putem email koda, dobija pristup dashboardu

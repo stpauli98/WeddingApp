@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="sr" dir="ltr" className="light" style={{ colorScheme: "light" }}>
+    <html lang="sr" dir="ltr" className="light">
       <head>
         {/* Inter font se učitava preko next/font/google, nije potreban preload */}
         {/* Favicon (dodaćeš public/favicon.ico po želji) */}

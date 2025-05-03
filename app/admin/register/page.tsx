@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
 
 export default function AdminRegisterPage() {
   const [firstName, setFirstName] = useState("");
@@ -111,7 +112,19 @@ export default function AdminRegisterPage() {
         setError(data.error || "Greška pri registraciji.");
         return;
       }
-      router.push("/admin/event");
+      // Ako je registracija uspešna, automatski prijavi korisnika
+      const signInResult = await signIn("credentials", {
+        email,
+        password,
+        callbackUrl: "/admin/event",
+        redirect: false
+      });
+      if (signInResult?.error) {
+        setError("Registracija je uspela, ali prijava nije. Prijavite se ručno.");
+        router.push("/admin/login");
+      } else {
+        router.push("/admin/event");
+      }
     } catch (err) {
       setError("Došlo je do greške na mreži.");
     } finally {
@@ -226,16 +239,32 @@ export default function AdminRegisterPage() {
             {error && <div className="text-red-500 text-sm pt-2">{error}</div>}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button className="w-full" type="submit" disabled={loading || !csrfToken}>{loading ? "Registering..." : "Register"}</Button>
-            <div className="text-center text-sm">
-              Already have an account?{" "}
-              <Link href="/admin/login" className="font-medium text-primary hover:underline">
-                Login
-              </Link>
-            </div>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
+          <Button className="w-full" type="submit" disabled={loading || !csrfToken}>
+            {loading ? "Registracija..." : "Registruj se"}
+          </Button>
+          <div className="relative py-2 flex items-center justify-center">
+            <span className="bg-white px-2 text-gray-400 text-xs z-10">ili</span>
+            <span className="absolute left-0 right-0 top-1/2 border-t border-gray-200 -z-0"></span>
+          </div>
+          <Button
+            type="button"
+            className="w-full flex items-center justify-center gap-2 bg-white border text-gray-700 hover:bg-gray-50"
+            variant="outline"
+            onClick={() => signIn('google', { callbackUrl: '/admin/event' })}
+            disabled={loading}
+          >
+            <svg className="w-5 h-5" viewBox="0 0 48 48"><g><path fill="#4285F4" d="M24 9.5c3.54 0 6.7 1.22 9.18 3.6l6.85-6.85C36.1 2.68 30.53 0 24 0 14.85 0 6.73 5.8 2.69 14.09l7.98 6.2C12.11 13.19 17.62 9.5 24 9.5z"/><path fill="#34A853" d="M46.1 24.55c0-1.64-.15-3.21-.42-4.73H24v9.01h12.48c-.54 2.9-2.18 5.36-4.66 7.01l7.25 5.64C43.58 37.93 46.1 31.82 46.1 24.55z"/><path fill="#FBBC05" d="M9.67 28.13A14.5 14.5 0 0 1 9.5 24c0-1.43.24-2.82.67-4.13l-7.98-6.2A23.93 23.93 0 0 0 0 24c0 3.77.9 7.33 2.69 10.33l7.98-6.2z"/><path fill="#EA4335" d="M24 48c6.53 0 12.1-2.17 16.12-5.93l-7.25-5.64c-2.01 1.35-4.59 2.16-8.87 2.16-6.38 0-11.89-3.69-13.33-8.89l-7.98 6.2C6.73 42.2 14.85 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></g></svg>
+            Registruj se Google nalogom
+          </Button>
+        </CardFooter>
+        <div className="text-center text-sm pb-6">
+          Već imate nalog?{' '}
+          <Link href="/admin/login" className="font-medium text-primary hover:underline">
+            Prijavi se
+          </Link>
+        </div>
+      </form>
+    </Card>
+  </div>
   );
 }
