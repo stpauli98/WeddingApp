@@ -23,15 +23,6 @@ export default function Footer() {
               </Button>
             </div>
           </div>
-
-          <div>
-            <h3 className="text-xl font-bold mb-6">Pretplatite se na naš newsletter</h3>
-            <p className="text-gray-400 mb-4">Budite u toku sa najnovijim funkcionalnostima i ponudama</p>
-            <div className="flex gap-2">
-              <Input type="email" placeholder="Vaša email adresa" className="bg-gray-800 border-gray-700 text-white" />
-              <Button className="bg-rose-600 hover:bg-rose-700">Pretplatite se</Button>
-            </div>
-          </div>
         </div>
 
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">

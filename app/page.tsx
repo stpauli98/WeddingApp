@@ -1,23 +1,41 @@
 export const metadata = {
-  title: "DodajUspomenu",
-  description: "Aplikacija za goste – uploadujte slike i čestitke mladencima.",
+  title: "DodajUspomenu – Digitalni svadbeni album i razmena slika",
+  description: "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene. Brza i sigurna razmena fotografija sa venčanja.",
+  keywords: [
+    "svadbeni album",
+    "slike sa venčanja",
+    "upload slika",
+    "mladenci",
+    "gosti",
+    "digitalni album",
+    "čestitke",
+    "uspomene",
+    "wedding photo album",
+    "wedding guests",
+    "wedding app"
+  ],
+  authors: [{ name: "DodajUspomenu Team", url: "https://mojasvadbaa.com" }],
   openGraph: {
-    title: "DodajUspomenu",
-    description: "Aplikacija za goste – uploadujte slike i čestitke mladencima.",
+    title: "DodajUspomenu – Digitalni svadbeni album i razmena slika",
+    description: "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene.",
     images: ["/seo-cover.png"],
     type: "website",
-    url: "https://mojasvadbaa.com/admin/register",
+    url: "https://mojasvadbaa.com/",
+    siteName: "DodajUspomenu"
   },
   twitter: {
     card: "summary_large_image",
-    title: "Svadbeni Album – Pošaljite slike mladencima",
-    description: "Aplikacija za goste – uploadujte slike i čestitke mladencima.",
+    title: "DodajUspomenu – Digitalni svadbeni album i razmena slika",
+    description: "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene.",
     images: ["/seo-cover.png"],
+    site: "@dodajuspomenu"
   },
   alternates: {
-    canonical: "https://mojasvadbaa.com/admin/register",
+    canonical: "https://mojasvadbaa.com/",
   }
 };
+
+
 
 import { Inter } from "next/font/google";
 import HeroSection from "@/components/landingPage/HeroSection";
