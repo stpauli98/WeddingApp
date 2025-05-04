@@ -66,18 +66,24 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
     <>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {sortedImages.map((img, idx) => (
-          <div key={img.id} className="relative rounded overflow-hidden shadow bg-white group cursor-pointer" onClick={() => openModal(idx)}>
-            <div
-              className="w-full h-40 bg-center bg-cover transition-transform group-hover:scale-105"
-              style={{ backgroundImage: `url('${img.imageUrl}')` }}
-              title={img.guestName ? `Gost: ${img.guestName}` : undefined}
-            />
-            {img.guestName && (
-              <div className="absolute bottom-0 left-0 w-full bg-black/40 text-white text-xs px-2 py-1 truncate">
-                {img.guestName}
-              </div>
-            )}
-          </div>
+           <div key={img.id} className="relative rounded overflow-hidden shadow bg-white group cursor-pointer" onClick={() => openModal(idx)}>
+             <Image
+               src={img.imageUrl && img.imageUrl.trim() !== "" ? img.imageUrl : "/placeholder.png"}
+               alt={img.guestName ? `Slika gosta: ${img.guestName}` : "Slika gosta"}
+               width={400}
+               height={400}
+               className="w-full h-40 object-cover transition-transform group-hover:scale-105"
+               priority={idx === 0}
+               loading={idx === 0 ? undefined : "lazy"}
+               title={img.guestName ? `Gost: ${img.guestName}` : undefined}
+               style={{ background: "#eee" }}
+             />
+             {img.guestName && (
+               <div className="absolute bottom-0 left-0 w-full bg-black/40 text-white text-xs px-2 py-1 truncate">
+                 {img.guestName}
+               </div>
+             )}
+           </div>
         ))}
       </div>
       {modalOpen && (
@@ -109,6 +115,9 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
             <Image
               src={sortedImages[currentIdx].imageUrl}
               alt={`Slika gosta${sortedImages[currentIdx].guestName ? ': ' + sortedImages[currentIdx].guestName : ''}`}
+              width={1200}
+              height={900}
+              loading="lazy"
               className="max-h-[80vh] max-w-[90vw] rounded shadow-lg border-4 border-white"
               style={{ background: "#eee" }}
             />

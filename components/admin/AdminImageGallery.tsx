@@ -55,6 +55,8 @@ export function AdminImageGallery({ images, selectable = true, selectedIds, onSe
         <Image
           src="/no-image-uploaded.png"
           alt="Nema slike"
+          width={128}
+          height={128}
           className="w-32 h-32 object-contain opacity-80 mb-2"
         />
         <div className="text-center text-muted-foreground">Nema uploadovanih slika</div>
@@ -111,6 +113,8 @@ export function AdminImageGallery({ images, selectable = true, selectedIds, onSe
               <Image
                 src={validUrl}
                 alt={'Slika gosta'}
+                width={400}
+                height={400}
                 className="w-full h-full object-cover cursor-pointer"
                 onClick={() => setFullView(validUrl)}
                 title="Klikni za prikaz u punoj veličini"
@@ -129,6 +133,8 @@ export function AdminImageGallery({ images, selectable = true, selectedIds, onSe
             <Image
               src={fullView && fullView.trim() !== "" ? fullView : "/no-image-uploaded.png"}
               alt="Slika gosta"
+              width={1200}
+              height={900}
               className="object-contain w-full h-full rounded-2xl bg-white p-2 shadow-2xl"
               style={{ maxWidth: '90vw', maxHeight: '85vh' }}
             />
