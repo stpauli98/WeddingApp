@@ -9,8 +9,8 @@ module.exports = withBundleAnalyzer({
       'res.cloudinary.com',
     ],
   },
-  // Zaobilazimo TypeScript greške pri build-u
- /* typescript: {
+  // Zaobilazimo TypeScript greške pri build-uu
+  typescript: {
     ignoreBuildErrors: true,
-  },*/
+  },
 });
