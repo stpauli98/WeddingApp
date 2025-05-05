@@ -44,7 +44,7 @@ const testimonials = [
   {
     text: "Aplikacija je bila savršena za naše vjenčanje. Gosti su lako dijelili svoje fotografije, a mi smo dobili prekrasne uspomene koje bismo inače propustili!",
     name: "Marija i Nikola",
-    role: "Vkenčani jun 2023.",
+    role: "Vjenčani jun 2023.",
   },
   {
     text: "Mnogo bolje od deljenja fotografija preko WhatsApp-a ili drugih društvenih mreža. Sve je na jednom mestu i privatno.",
