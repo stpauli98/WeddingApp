@@ -75,38 +75,35 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
         }
       })
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const processFiles = async (acceptedFiles: File[]) => {
-    const types = allowedTypes || DEFAULT_ALLOWED_TYPES;
-    const maxSize = (maxSizeMB || DEFAULT_MAX_SIZE_MB) * 1024 * 1024;
-    const errors: string[] = [];
-    const filteredFiles: File[] = [];
-    for (const file of acceptedFiles) {
-      const error = validateImage(file, types, maxSize);
-      if (error) {
-        errors.push(error);
-        continue;
-      }
-      // Ukloni EXIF podatke pre dodavanja
-      const cleanFile = await removeExif(file);
-      filteredFiles.push(cleanFile);
-    }
-    if (errors.length > 0) {
-      alert(errors.join('\n'));
-    }
-    const newFiles = [...value, ...filteredFiles].slice(0, maxFiles);
-    onChange(newFiles);
-    createPreviews(newFiles);
-  };
+  }, [createPreviews, value, previews])
 
   // Funkcija koja se poziva kada se dodaju nove slike
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      await processFiles(acceptedFiles);
+      const types = allowedTypes || DEFAULT_ALLOWED_TYPES;
+      const maxSize = (maxSizeMB || DEFAULT_MAX_SIZE_MB) * 1024 * 1024;
+      const errors: string[] = [];
+      const filteredFiles: File[] = [];
+      for (const file of acceptedFiles) {
+        const error = validateImage(file, types, maxSize);
+        if (error) {
+          errors.push(error);
+          continue;
+        }
+        // Ukloni EXIF podatke pre dodavanja
+        const cleanFile = await removeExif(file);
+        filteredFiles.push(cleanFile);
+      }
+      if (errors.length > 0) {
+        alert(errors.join('\n'));
+      }
+      const newFiles = [...value, ...filteredFiles].slice(0, maxFiles);
+      onChange(newFiles);
+      createPreviews(newFiles);
     },
-    [value, onChange, maxFiles, createPreviews, allowedTypes, maxSizeMB]
+    [allowedTypes, maxFiles, maxSizeMB, onChange, value, createPreviews]
   );
+
 
   // Funkcija za uklanjanje slike
   const removeImage = (index: number) => {

@@ -15,6 +15,8 @@ async function main() {
       data: {
         email,
         passwordHash,
+        firstName: "Admin",
+        lastName: "Test",
       },
     });
     console.log('Test admin kreiran:', email);
