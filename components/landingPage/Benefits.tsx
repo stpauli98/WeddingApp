@@ -3,10 +3,10 @@ import { Check, Lock, Smartphone, Zap, Heart, Cloud } from "lucide-react"
 export default function Benefits() {
   return (
     <section className="py-20">
-      <div className="container px-4 mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Zašto izabrati našu aplikaciju</h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+      <div className="container px-6 mx-auto">
+        <div className="text-center mb-14">
+          <h2 className="text-3xl md:text-4xl font-bold text-lp-primary mb-3">Zašto izabrati našu aplikaciju</h2>
+          <p className="text-base md:text-lg text-lp-text max-w-2xl mx-auto">
             Dizajnirana sa fokusom na jednostavnost i efikasnost, naša aplikacija nudi brojne prednosti
           </p>
         </div>
@@ -15,13 +15,13 @@ export default function Benefits() {
           {benefits.map((benefit, index) => (
             <div
               key={index}
-              className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+              className="bg-lp-card p-6 rounded-xl shadow-md border border-lp-accent hover:border-lp-primary hover:shadow-lg hover:shadow-lp-accent/30 transition-shadow flex flex-col items-center text-center"
             >
-              <div className="w-12 h-12 rounded-lg bg-rose-100 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-lg bg-lp-muted flex items-center justify-center mb-4">
                 {benefit.icon}
               </div>
-              <h3 className="text-xl font-bold mb-2">{benefit.title}</h3>
-              <p className="text-muted-foreground">{benefit.description}</p>
+              <h3 className="text-lg font-semibold text-lp-primary mb-1">{benefit.title}</h3>
+              <p className="text-lp-text text-sm">{benefit.description}</p>
             </div>
           ))}
         </div>
@@ -32,35 +32,39 @@ export default function Benefits() {
 
 const benefits = [
   {
-    icon: <Lock className="w-6 h-6 text-rose-600" />,
-    title: "Privatnost",
+    icon: <Lock className="w-6 h-6 text-lp-accent" />,
+    title: "Privatnost i sigurnost",
     description:
-      "Fotografije su dostupne samo osobama kojima vi dozvolite pristup. Potpuna kontrola nad vašim uspomenama.",
+      "Samo vaši gosti imaju pristup slikama — nema javnog dijeljenja, potpuna kontrola nad privatnošću i sigurnošću uspomena.",
   },
   {
-    icon: <Zap className="w-6 h-6 text-rose-600" />,
-    title: "Jednostavnost",
+    icon: <Zap className="w-6 h-6 text-lp-accent" />,
+    title: "Jednostavno za sve",
     description:
-      "Intuitivni interfejs koji omogućava lako korišćenje za sve goste, bez obzira na njihovo tehničko znanje.",
+      "Nema instalacije, nema komplikacija — sve funkcioniše kroz web pretraživač na svakom uređaju.",
   },
   {
-    icon: <Smartphone className="w-6 h-6 text-rose-600" />,
-    title: "Mobilna podrška",
-    description: "Aplikacija radi savršeno na svim uređajima - telefonima, tabletima i računarima.",
+    icon: <Smartphone className="w-6 h-6 text-lp-accent" />,
+    title: "Mobilna i desktop podrška",
+    description:
+      "Aplikacija radi besprijekorno na telefonima, tabletima i računarima, za sve generacije gostiju.",
   },
   {
-    icon: <Heart className="w-6 h-6 text-rose-600" />,
-    title: "Bez propuštenih trenutaka",
-    description: "Prikupite fotografije iz svih uglova i perspektiva, uhvatite svaki poseban trenutak vašeg dana.",
+    icon: <Cloud className="w-6 h-6 text-lp-accent" />,
+    title: "Sigurno čuvanje u oblaku",
+    description:
+      "Sve slike se čuvaju na sigurnom (Cloudinary), sa backupom — nema gubitka uspomena.",
   },
   {
-    icon: <Cloud className="w-6 h-6 text-rose-600" />,
-    title: "Sigurno čuvanje",
-    description: "Sve fotografije se čuvaju u oblaku, tako da nikada nećete izgubiti dragocene uspomene.",
+    icon: <Check className="w-6 h-6 text-lp-accent" />,
+    title: "Brz pristup QR kodom",
+    description:
+      "Gosti pristupaju događaju jednostavno — skeniraju QR kod, unesu ime i email, potvrde kod i odmah mogu uploadovati slike.",
   },
   {
-    icon: <Check className="w-6 h-6 text-rose-600" />,
-    title: "Bez instalacije",
-    description: "Gosti ne moraju da instaliraju aplikaciju - sve funkcioniše direktno kroz web pretraživač.",
+    icon: <Heart className="w-6 h-6 text-lp-accent" />,
+    title: "Poruke i čestitke",
+    description:
+      "Uz slike, gosti mogu ostaviti poruku ili čestitku — sve uspomene na jednom mjestu.",
   },
 ]

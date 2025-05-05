@@ -3,20 +3,20 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 export default function FAQ() {
   return (
     <section className="py-20">
-      <div className="container px-4 mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Najčešća pitanja</h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+      <div className="container px-6 mx-auto">
+        <div className="text-center mb-14">
+          <h2 className="text-3xl md:text-4xl font-bold text-lp-primary mb-3">Najčešća pitanja</h2>
+          <p className="text-base md:text-lg text-lp-text max-w-2xl mx-auto">
             Odgovori na pitanja koja nas najčešće pitaju
           </p>
         </div>
 
         <div className="max-w-3xl mx-auto">
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion type="single" collapsible className="w-full bg-lp-card border border-lp-accent rounded-xl shadow-md p-2 md:p-4">
             {faqItems.map((item, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left text-lg font-semibold">{item.question}</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">{item.answer}</AccordionContent>
+              <AccordionItem key={index} value={`item-${index}`}> 
+                <AccordionTrigger className="text-left text-lg font-semibold text-lp-primary">{item.question}</AccordionTrigger>
+                <AccordionContent className="text-lp-text">{item.answer}</AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
@@ -28,33 +28,34 @@ export default function FAQ() {
 
 const faqItems = [
   {
-    question: "Zašto bih koristio ovu aplikaciju umesto društvenih mreža?",
+    question: "Zašto bih koristio ovu aplikaciju umjesto društvenih mreža?",
     answer:
-      "Za razliku od društvenih mreža, naša aplikacija omogućava privatno deljenje fotografija samo sa osobama kojima vi dozvolite pristup. Takođe, sve fotografije su organizovane na jednom mestu, u visokoj rezoluciji i lako ih je preuzeti.",
+      "Za razliku od društvenih mreža, ovdje su vaše slike potpuno privatne i dostupne samo gostima kojima vi pošaljete link ili QR kod. Nema javnog dijeljenja, nema miješanja sa tuđim sadržajem, niti rizika od curenja fotografija.",
   },
   {
-    question: "Koje su prednosti korišćenja ove aplikacije?",
+    question: "Koje su prednosti korištenja ove aplikacije?",
     answer:
-      "Glavne prednosti su jednostavnost korišćenja, privatnost, mogućnost prikupljanja fotografija od svih gostiju na jednom mestu, bez potrebe za instalacijom aplikacije, i mogućnost preuzimanja svih fotografija u originalnoj rezoluciji.",
+      "Aplikacija je jednostavna za korištenje, ne traži instalaciju, a svi gosti mogu uploadovati slike direktno sa svojih telefona ili računara. Sve slike su organizovane po gostima i događajima, čuvaju se u punoj rezoluciji na sigurnom cloud servisu (Cloudinary), i dostupne su samo vama i vašim gostima.",
   },
   {
     question: "Nije li jednostavnije koristiti WhatsApp ili Viber grupu?",
     answer:
-      "WhatsApp i Viber grupe imaju ograničenja u pogledu kvaliteta fotografija (kompresija), ograničenog prostora za skladištenje i organizacije. Naša aplikacija čuva fotografije u originalnoj rezoluciji, nema ograničenja u broju fotografija i sve je organizovano na jednom mestu.",
+      "WhatsApp i Viber automatski smanjuju kvalitet slika i miješaju ih sa drugim porukama. Naša aplikacija čuva slike u originalnoj rezoluciji, bez kompresije, i omogućava mladencima da sve slike i poruke preuzmu ili sačuvaju na jednom mjestu, bez haosa i gubitaka.",
   },
   {
-    question: "Koliko košta korišćenje aplikacije?",
+    question: "Koliko košta korištenje aplikacije?",
     answer:
-      "Nudimo besplatni osnovni paket koji uključuje do 500 fotografija. Za veća venčanja, imamo premium pakete koji počinju od 29€ sa neograničenim brojem fotografija i dodatnim funkcionalnostima.",
+      "Trenutno nudimo besplatno korištenje za sve korisnike dok je aplikacija u beta fazi. U budućnosti će postojati osnovni besplatan paket sa limitom na broj slika, te premium paketi za veća vjenčanja i dodatne opcije (npr. duže čuvanje slika, veći broj gostiju, napredna administracija).",
   },
   {
-    question: "Da li gosti moraju da kreiraju naloge?",
+    question: "Da li gosti moraju kreirati naloge?",
     answer:
-      "Ne, to je jedna od glavnih prednosti naše aplikacije. Gosti jednostavno skeniraju QR kod i mogu odmah da otpremaju fotografije bez registracije ili instaliranja bilo čega.",
+      "Ne. Gosti ne moraju imati nalog niti instalirati aplikaciju. Dovoljno je da unesu ime, prezime i email, dobiju verifikacioni kod i odmah mogu uploadovati slike i ostaviti poruku – sve potpuno jednostavno i sigurno.",
   },
   {
-    question: "Koliko dugo se čuvaju fotografije?",
+    question: "Koliko dugo se čuvaju slike?",
     answer:
-      "U osnovnom paketu, fotografije se čuvaju 6 meseci. U premium paketima, fotografije se čuvaju neograničeno vreme.",
+      "U beta fazi slike se čuvaju najmanje 6 mjeseci. Nakon izlaska iz beta verzije, osnovni paket će omogućavati čuvanje slika 6 mjeseci, dok će premium paketi omogućiti duže ili neograničeno čuvanje, ovisno o potrebama korisnika.",
   },
 ]
+

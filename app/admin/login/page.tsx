@@ -129,6 +129,14 @@ export default function AdminLoginPage() {
             </div>
           </CardFooter>
         </form>
+        <Button
+          className="w-full mt-4 bg-gray-200 text-gray-900 hover:bg-gray-300"
+          variant="outline"
+          type="button"
+          onClick={() => router.push("/")}
+        >
+          Nazad na početnu
+        </Button>
       </Card>
     </div>
   );
