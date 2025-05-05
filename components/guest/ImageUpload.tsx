@@ -37,37 +37,23 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
   const [previews, setPreviews] = useState<string[]>([])
 
   // Funkcija za kreiranje pregleda slika
-  const createPreviews = useCallback(
-    (files: File[]) => {
-      // Oslobađanje prethodnih URL-ova za pregled
-      previews.forEach((preview) => {
-        if (preview.startsWith("blob:")) {
-          URL.revokeObjectURL(preview)
-        }
-      })
+  function createPreviews(files: File[]) {
+    // Kreiranje novih URL-ova za pregled
+    const newPreviews = files.map((file) => {
+      try {
+        return URL.createObjectURL(file)
+      } catch (error) {
+        console.error("Error creating object URL:", error)
+        return ""
+      }
+    })
+    setPreviews(newPreviews)
+  }
 
-      // Kreiranje novih URL-ova za pregled
-      const newPreviews = files.map((file) => {
-        try {
-          return URL.createObjectURL(file)
-        } catch (error) {
-          console.error("Error creating object URL:", error)
-          return ""
-        }
-      })
-
-      setPreviews(newPreviews)
-    },
-    [previews],
-  )
-
-  // Inicijalno kreiranje pregleda
+  // Kreiraj preview-e kad se value promijeni
   useEffect(() => {
-    if (value.length > 0) {
-      createPreviews(value)
-    }
-
-    // Čišćenje URL-ova prilikom unmount-a komponente
+    createPreviews(value)
+    // Cleanup: revoke sve previews
     return () => {
       previews.forEach((preview) => {
         if (preview.startsWith("blob:")) {
@@ -75,7 +61,7 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
         }
       })
     }
-  }, [createPreviews, value, previews])
+  }, [value])
 
   // Funkcija koja se poziva kada se dodaju nove slike
   const onDrop = useCallback(
