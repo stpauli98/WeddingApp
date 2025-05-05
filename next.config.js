@@ -10,7 +10,7 @@ module.exports = withBundleAnalyzer({
     ],
   },
   // Zaobilazimo TypeScript greške pri build-uu
- typescript: {
+ /*typescript: {
     ignoreBuildErrors: true,
-  },
+  },*/
 });
