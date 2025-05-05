@@ -5,8 +5,8 @@ import AdminDashboardTabs from "@/components/admin/AdminDashboardTabs";
 
 import { cookies } from "next/headers";
 
-export default async function AdminDashboardEventPage({ params }: { params: { eventId: string } }) {
-  const { eventId } = params;
+export default async function AdminDashboardEventPage({ params }: { params: Promise<{ eventId: string }> }) {
+  const { eventId } = await params;
 
   // 1. Provera autentifikacije admina
   const cookieStore = await cookies();

@@ -23,6 +23,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
     setCurrentIdx(idx);
     setModalOpen(true);
   };
+
   const closeModal = () => setModalOpen(false);
   const prevImage = useCallback(() => setCurrentIdx(idx => (idx === 0 ? sortedImages.length - 1 : idx - 1)), [sortedImages.length]);
   const nextImage = useCallback(() => setCurrentIdx(idx => (idx === sortedImages.length - 1 ? 0 : idx + 1)), [sortedImages.length]);
@@ -36,6 +37,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
     return () => {
       document.body.classList.remove("overflow-hidden");
     };
+
   }, [modalOpen]);
 
   useEffect(() => {
@@ -45,6 +47,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
       if (e.key === "ArrowLeft") prevImage();
       if (e.key === "ArrowRight") nextImage();
     };
+
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [modalOpen, prevImage, nextImage]);
@@ -64,26 +67,26 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
   }
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="flex flex-wrap gap-4">
         {sortedImages.map((img, idx) => (
-           <div key={img.id} className="relative rounded overflow-hidden shadow bg-white group cursor-pointer" onClick={() => openModal(idx)}>
-             <Image
-               src={img.imageUrl && img.imageUrl.trim() !== "" ? img.imageUrl : "/placeholder.png"}
-               alt={img.guestName ? `Slika gosta: ${img.guestName}` : "Slika gosta"}
-               width={400}
-               height={400}
-               className="w-full h-40 object-cover transition-transform group-hover:scale-105"
-               priority={idx === 0}
-               loading={idx === 0 ? undefined : "lazy"}
-               title={img.guestName ? `Gost: ${img.guestName}` : undefined}
-               style={{ background: "#eee" }}
-             />
-             {img.guestName && (
-               <div className="absolute bottom-0 left-0 w-full bg-black/40 text-white text-xs px-2 py-1 truncate">
-                 {img.guestName}
-               </div>
-             )}
-           </div>
+          <div key={img.id} className="inline-block relative rounded overflow-hidden shadow bg-white group cursor-pointer align-top" onClick={() => openModal(idx)}>
+            <Image
+              src={img.imageUrl && img.imageUrl.trim() !== "" ? img.imageUrl : "/placeholder.png"}
+              alt={img.guestName ? `Slika gosta: ${img.guestName}` : "Slika gosta"}
+              width={400}
+              height={400}
+              priority={idx === 0}
+              loading={idx === 0 ? undefined : "lazy"}
+              title={img.guestName ? `Gost: ${img.guestName}` : undefined}
+              className="object-contain max-w-xs max-h-60 block bg-[#eee]"
+              style={{display: 'block', margin: '0 auto'}}
+            />
+            {img.guestName && (
+              <div className="absolute bottom-0 left-0 w-full bg-black/40 text-white text-xs px-2 py-1 truncate">
+                {img.guestName}
+              </div>
+            )}
+          </div>
         ))}
       </div>
       {modalOpen && (
@@ -112,15 +115,17 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
           >
             <button onClick={closeModal} className="absolute top-4 right-4 text-white text-3xl hover:text-yellow-400 transition z-10" title="Zatvori" aria-label="Zatvori prikaz slike">&times;</button>
             <button onClick={prevImage} className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 text-white text-4xl hover:text-yellow-400 transition z-10" title="Prethodna slika" aria-label="Prethodna slika">&#8592;</button>
-            <Image
-              src={sortedImages[currentIdx].imageUrl}
-              alt={`Slika gosta${sortedImages[currentIdx].guestName ? ': ' + sortedImages[currentIdx].guestName : ''}`}
-              width={1200}
-              height={900}
-              loading="lazy"
-              className="max-h-[80vh] max-w-[90vw] rounded shadow-lg border-4 border-white"
-              style={{ background: "#eee" }}
-            />
+            <div className="flex items-center justify-center" style={{minHeight: '40vh'}}>
+              <Image
+                src={sortedImages[currentIdx].imageUrl}
+                alt={`Slika gosta${sortedImages[currentIdx].guestName ? ': ' + sortedImages[currentIdx].guestName : ''}`}
+                width={1200}
+                height={900}
+                loading="lazy"
+                className="object-contain max-w-full max-h-[80vh] rounded shadow-lg border-4 border-white"
+                style={{ background: "#eee", width: 'auto', height: 'auto', maxWidth: '90vw', maxHeight: '80vh', display: 'block', margin: '0 auto' }}
+              />
+            </div>
             <button
               aria-label="Preuzmi ovu sliku"
               onClick={async () => {
@@ -168,7 +173,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
         </div>
       )}
     </>
-  );
+   );
 };
 
 export default AdminGalleryAllImages;

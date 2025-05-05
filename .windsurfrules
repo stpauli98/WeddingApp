@@ -22,7 +22,7 @@ Napraviti aplikaciju u kojoj gosti mogu da se prijave pomoću imena, prezimena i
 - Tekst pisemo na ijekavici. 
 
 🔧 Tehnologije:
-- Frontend: Next.js 14 (App Router), Tailwind CSS, TypeScript
+- Frontend: Next.js 15 (App Router), Tailwind CSS, TypeScript
 - Backend: Next.js API routes
 - Baza: PostgreSQL (preko Prisma ORM)
 - Email: Nodemailer (ili simulacija ako nije u produkciji)

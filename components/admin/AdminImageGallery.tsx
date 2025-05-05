@@ -87,7 +87,7 @@ export function AdminImageGallery({ images, selectable = true, selectedIds, onSe
           return (
             <div
               key={img.id}
-              className={`relative aspect-square border rounded-xl overflow-hidden group bg-white shadow-lg transition-transform duration-200 hover:shadow-xl hover:scale-105 ${selected.has(img.id) ? 'ring-2 ring-blue-500' : ''}`}
+              className={`relative border rounded-xl overflow-hidden group bg-white shadow-lg transition-transform duration-200 hover:shadow-xl hover:scale-105 ${selected.has(img.id) ? 'ring-2 ring-blue-500' : ''}`}
             >
               <button
                 className="absolute top-2 left-2 z-10 bg-white/80 rounded p-1"
@@ -115,7 +115,8 @@ export function AdminImageGallery({ images, selectable = true, selectedIds, onSe
                 alt={'Slika gosta'}
                 width={400}
                 height={400}
-                className="w-full h-full object-cover cursor-pointer"
+                className="object-contain max-w-xs max-h-60 block bg-[#eee] cursor-pointer"
+                style={{display: 'block', margin: '0 auto'}}
                 onClick={() => setFullView(validUrl)}
                 title="Klikni za prikaz u punoj veličini"
                 draggable={false}
@@ -135,8 +136,8 @@ export function AdminImageGallery({ images, selectable = true, selectedIds, onSe
               alt="Slika gosta"
               width={1200}
               height={900}
-              className="object-contain w-full h-full rounded-2xl bg-white p-2 shadow-2xl"
-              style={{ maxWidth: '90vw', maxHeight: '85vh' }}
+              className="object-contain rounded-2xl bg-white p-2 shadow-2xl"
+              style={{ maxWidth: '90vw', maxHeight: '85vh', width: 'auto', height: 'auto', display: 'block', margin: '0 auto' }}
             />
             {/* X za zatvaranje u gornjem desnom uglu */}
             <div className="absolute right-4 z-30 flex items-center justify-center" style={{ top: 'calc(1rem + 20px)' }}>

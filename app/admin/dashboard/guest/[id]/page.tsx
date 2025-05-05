@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { getGuestFromCache, setGuestInCache } from "@/lib/guestCache";
 import { useRouter } from "next/navigation";
 import { AdminImageGallery } from "../../../../../components/admin/AdminImageGallery";
@@ -8,8 +8,8 @@ import { formatDate } from "@/lib/formatDate";
 import { GuestMessage } from "@/components/guest/GuestMessage";
 import type { GuestDetail } from "@/components/ui/types";
 
-export default function GuestDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function GuestDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const [guest, setGuest] = useState<GuestDetail | null>(null);
   const [loading, setLoading] = useState(true);
