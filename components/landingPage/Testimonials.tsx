@@ -22,7 +22,7 @@ export default function Testimonials() {
                   <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
                 ))}
               </div>
-              <p className="text-lp-text mb-6 italic">"{testimonial.text}"</p>
+              <p className="text-lp-text mb-6 italic">&quot;{testimonial.text}&quot;</p>
               <div className="flex items-center gap-3 mt-auto">
                 <div className="w-12 h-12 rounded-full bg-lp-muted flex items-center justify-center text-lp-accent font-bold">
                   {testimonial.name.charAt(0)}
@@ -42,7 +42,7 @@ export default function Testimonials() {
 
 const testimonials = [
   {
-    text: "Ova aplikacija je bila savršena za naše venčanje! Naši gosti su lako otpremali fotografije, a mi smo dobili toliko divnih trenutaka koje bismo inače propustili.",
+    text: "Aplikacija je bila savršena za naše vjenčanje. Gosti su lako dijelili svoje fotografije, a mi smo dobili prekrasne uspomene koje bismo inače propustili!",
     name: "Marija i Nikola",
     role: "Vkenčani jun 2023.",
   },

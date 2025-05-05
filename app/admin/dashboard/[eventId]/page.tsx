@@ -3,14 +3,10 @@ import { prisma } from '@/lib/prisma';
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
 import AdminDashboardTabs from "@/components/admin/AdminDashboardTabs";
 
-interface Props {
-  params: { eventId: string } | Promise<{ eventId: string }>
-}
-
 import { cookies } from "next/headers";
 
-export default async function AdminDashboardEventPage({ params }: Props) {
-  const { eventId } = await params;
+export default async function AdminDashboardEventPage({ params }: { params: { eventId: string } }) {
+  const { eventId } = params;
 
   // 1. Provera autentifikacije admina
   const cookieStore = await cookies();
