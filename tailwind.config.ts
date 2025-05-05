@@ -20,6 +20,14 @@ const config = {
     },
     extend: {
       colors: {
+        "lp-primary": "hsl(var(--lp-primary))",
+        "lp-primary-foreground": "hsl(var(--lp-primary-foreground))",
+        "lp-bg": "hsl(var(--lp-bg))",
+        "lp-muted": "hsl(var(--lp-muted))",
+        "lp-accent": "hsl(var(--lp-accent))",
+        "lp-text": "hsl(var(--lp-text))",
+        "lp-card": "hsl(var(--lp-card))",
+        "lp-card-foreground": "hsl(var(--lp-card-foreground))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

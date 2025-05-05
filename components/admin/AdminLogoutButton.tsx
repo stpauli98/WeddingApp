@@ -18,7 +18,7 @@ export default function AdminLogoutButton() {
         setLoading(false);
         return;
       }
-      router.push("/admin/login");
+      router.replace("/admin/login");
     } catch (error) {
       console.error("Logout fetch error:", error);
       alert("Neuspela odjava (network greška).");

@@ -40,7 +40,7 @@ function getSlikaPadez(n: number) {
 }
 
 export default function ClientSuccess({ guest, coupleName, message }: Props) {
-  const [countdown, setCountdown] = useState(10); // 10 sekundi prije preusmeravanja na formu
+  const [countdown, setCountdown] = useState(30); // 30 sekundi prije preusmeravanja na formu
   useEffect(() => {
     if (countdown <= 0) {
       window.location.href = GOOGLE_FORM_URL;

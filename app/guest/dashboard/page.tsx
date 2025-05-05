@@ -18,13 +18,17 @@ interface DashboardImage {
 }
 
 
-export default async function DashboardPage({ searchParams }: { searchParams?: { event?: string } }) {
+export default async function DashboardPage(props: any) {
+  const searchParams = props.searchParams as { [key: string]: string | string[] | undefined } | undefined;
   // Dohvati guestId iz session cookie-ja
   const cookieStore = await cookies();
   const guestId = cookieStore.get("guest_session")?.value || "";
 
   // Dohvati eventSlug iz query parametara (serverski način)
-  const eventSlug = searchParams?.event;
+  let eventSlug = searchParams?.event;
+  if (Array.isArray(eventSlug)) {
+    eventSlug = eventSlug[0];
+  }
   let eventId: string | undefined = undefined;
 
   if (eventSlug) {

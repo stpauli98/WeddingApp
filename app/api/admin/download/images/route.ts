@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import JSZip from "jszip";
+
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +14,7 @@ export async function GET() {
       return new NextResponse("Nema slika za preuzimanje", { status: 404 });
     }
     // Pripremi ZIP
+    const JSZip = (await import("jszip")).default;
     const zip = new JSZip();
     images.forEach((img, idx) => {
       if (img.imageUrl.startsWith("data:")) {

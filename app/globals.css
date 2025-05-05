@@ -1,3 +1,4 @@
+@import "../styles/landing-colors.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

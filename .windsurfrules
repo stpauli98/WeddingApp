@@ -18,10 +18,15 @@ Napraviti aplikaciju u kojoj gosti mogu da se prijave pomoću imena, prezimena i
 - Sve komponente moraju biti pravilno implementirane i testirane.
 - Korisnik mora biti zadovoljan i sve mu mora biti jasno i pojasnjeno kroz poruke na UI.
 - Uvijek koristi <Image /> za prikaz slika.
+<<<<<<< HEAD
 - Sve što je custom auth a nije NextAuth mora biti implementirano u NextAuth a višak koga izbrisan.
+=======
+- www.mojasvadbaa.com je domen koji koristimo za aplikaciju.
+- Tekst pisemo na ijekavici. 
+>>>>>>> main
 
 🔧 Tehnologije:
-- Frontend: Next.js 14 (App Router), Tailwind CSS, TypeScript
+- Frontend: Next.js 15 (App Router), Tailwind CSS, TypeScript
 - Backend: Next.js API routes
 - Baza: PostgreSQL (preko Prisma ORM)
 - Email: Nodemailer (ili simulacija ako nije u produkciji)

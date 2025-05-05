@@ -65,8 +65,8 @@ export async function POST(req: NextRequest) {
       },
     });
     return NextResponse.json({ success: true, user: { id: user.id, email: user.email } });
-  } catch (e) {
-    console.error(e);
-    return NextResponse.json({ error: 'Greška na serveru.' }, { status: 500 });
+  } catch (e: any) {
+    console.error("Admin register error:", e?.message, e?.stack, e);
+    return NextResponse.json({ error: e?.message || 'Greška na serveru.' }, { status: 500 });
   }
 }

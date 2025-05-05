@@ -53,5 +53,5 @@ export default async function SuccessPage() {
     select: { coupleName: true }
   });
 
-  return <ClientSuccess guest={guest} coupleName={event?.coupleName} message={message} />;
+  return <ClientSuccess guest={guest} coupleName={event?.coupleName} message={message ? { text: message.text } : undefined} />;
 }
