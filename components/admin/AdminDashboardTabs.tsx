@@ -27,7 +27,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
   const [qrColor, setQrColor] = useState<string>(defaultQrColor);
 
   // Pravi URL za goste
-  const guestUrl = event?.slug ? `https://www.mojasvadbaa.com/guest/login?event=${event.slug}` : '';
+  const guestUrl = event?.slug ? `https://www.dodajuspomenu.com/guest/login?event=${event.slug}` : '';
 
   // Kopiranje URL-a
   const handleCopy = async () => {
