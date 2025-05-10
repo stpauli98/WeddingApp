@@ -92,27 +92,14 @@ export function LoginForm() {
         throw new Error(data.error || "Došlo je do greške")
       }
 
-      // Provjera da li je korisnik već verifikovan
-      if (data.verified) {
-        toast({
-          title: "Uspješna prijava",
-          description: "Već ste verifikovani, preusmjeravamo vas na dashboard.",
-        })
-        
-        // Direktno preusmeri na dashboard, guestId se više ne koristi u URL-u
-        window.location.href = "/guest/dashboard"
-      } else {
-        // Ako nije verifikovan, sačuvaj email i vreme isteka koda za verifikaciju i preusmeri na stranicu za verifikaciju
-        localStorage.setItem('pendingEmail', data.email)
-        if (data.codeExpires) {
-          localStorage.setItem('codeExpires', data.codeExpires)
-        }
-        toast({
-          title: "Verifikacija potrebna",
-          description: "Niste završili verifikaciju. Novi kod je poslat na vaš email.",
-        });
-        router.push("/guest/verify")
-      }
+      // Sada će korisnik uvijek biti automatski verifikovan
+      toast({
+        title: "Uspješna prijava",
+        description: "Preusmjeravamo vas na dashboard.",
+      })
+      
+      // Direktno preusmeri na dashboard sa eventSlug parametrom
+      window.location.href = `/guest/dashboard?event=${eventSlug}`
     } catch (error) {
       console.error("Login error:", error)
       toast({

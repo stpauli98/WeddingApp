@@ -12,7 +12,6 @@ export async function getGuestByEmail(email: string, eventId?: string) {
     const guest = await prisma.guest.findFirst({
       where: {
         email,
-        verified: true,
         ...(eventId ? { eventId } : {})
       },
       include: {
@@ -40,7 +39,6 @@ export async function getGuestById(id: string, eventId?: string) {
     const guest = await prisma.guest.findFirst({
       where: {
         id,
-        verified: true,
         ...(eventId ? { eventId } : {})
       },
       include: {

@@ -9,12 +9,22 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { ImageUpload } from "@/components/guest/ImageUpload"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { CheckCircle, Loader2 } from "lucide-react"
 
 // Validacija: max 10 slika, max 500 karaktera poruka
 const formSchema = z.object({
   message: z.string().max(500, { message: "Poruka ne može biti duža od 500 karaktera" }).optional(),
   images: z.array(z.instanceof(File)).max(10, { message: "Možete poslati najviše 10 slika" }).optional(),
 })
+
+// Tip za status uploada slike
+type ImageUploadStatus = {
+  file: File;
+  status: 'waiting' | 'uploading' | 'success' | 'error';
+  progress: number;
+  error?: string;
+  preview?: string;
+}
 
 interface UploadFormProps {
   guestId: string;
@@ -24,6 +34,8 @@ interface UploadFormProps {
 export function UploadForm({ guestId, message }: UploadFormProps) {
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false)
+  const [uploadStatuses, setUploadStatuses] = useState<ImageUploadStatus[]>([])
+  const [showUploadStatus, setShowUploadStatus] = useState(false)
   const router = useRouter()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -97,89 +109,194 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      setIsLoading(true);
-      const formData = new FormData();
-      if (values.message) formData.append("message", values.message);
-      if (values.images && values.images.length > 0) {
-        // Sekvencijalni resize slika zbog memory limita na mobilnim browserima
-        const resizedImages: File[] = [];
-        for (let i = 0; i < values.images.length; i++) {
-          const img = values.images[i];
-          try {
-            const resized = await resizeImage(img);
-            console.log(`[Resize] ${i+1}/${values.images.length}:`, resized, resized instanceof File, resized?.name, resized?.type);
-            if (!(resized instanceof File)) {
-              alert("Došlo je do greške pri obradi slike. Pokušajte ponovo ili koristite drugi browser.");
-              throw new Error("Resize nije vratio File objekat");
-            }
-            resizedImages.push(resized);
-          } catch (e) {
-            alert("Neka slika nije mogla biti obrađena. Probajte ponovo ili smanjite broj slika.");
-            throw e;
-          }
-        }
-        for (const image of resizedImages) formData.append("images", image);
-      }
-
       // Provera da li imamo guestId
       if (!guestId) {
         throw new Error("Niste prijavljeni ili nedostaje ID gosta");
       }
 
-      const response = await fetch(`/api/guest/upload?guestId=${guestId}`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          "x-csrf-token": csrfToken || "",
-        },
+      if (!values.images || values.images.length === 0) {
+        throw new Error("Molimo odaberite bar jednu sliku");
+      }
+
+      setIsLoading(true);
+      setShowUploadStatus(true);
+      
+      // Inicijalizacija statusa za svaku sliku
+      const initialStatuses: ImageUploadStatus[] = values.images.map(file => {
+        return {
+          file,
+          status: 'waiting',
+          progress: 0,
+          preview: URL.createObjectURL(file)
+        };
       });
+      setUploadStatuses(initialStatuses);
 
-      const data = await response.json();
+      // Prvo pošalji poruku ako postoji
+      if (values.message) {
+        const messageFormData = new FormData();
+        messageFormData.append("message", values.message);
+        
+        const messageResponse = await fetch(`/api/guest/upload?guestId=${guestId}`, {
+          method: "POST",
+          body: messageFormData,
+          headers: {
+            "x-csrf-token": csrfToken || "",
+          },
+        });
+        
+        if (!messageResponse.ok) {
+          const data = await messageResponse.json();
+          throw new Error(data.error || "Došlo je do greške prilikom slanja poruke");
+        }
+      }
 
-      if (!response.ok) {
-        throw new Error(data.error || "Došlo je do greške");
+      // Sekvencijalno uploaduj svaku sliku pojedinačno
+      let uploadedCount = 0;
+      for (let i = 0; i < values.images.length; i++) {
+        try {
+          // Ažuriraj status da je slika u procesu uploada
+          setUploadStatuses(prev => prev.map((status, idx) => 
+            idx === i ? { ...status, status: 'uploading', progress: 10 } : status
+          ));
+          
+          // Resize slike
+          const img = values.images[i];
+          const resizedImg = await resizeImage(img);
+          
+          // Ažuriraj progress nakon resize-a
+          setUploadStatuses(prev => prev.map((status, idx) => 
+            idx === i ? { ...status, progress: 30 } : status
+          ));
+          
+          // Kreiraj formData za pojedinačnu sliku
+          const imageFormData = new FormData();
+          imageFormData.append("images", resizedImg);
+          
+          // Ažuriraj progress prije uploada
+          setUploadStatuses(prev => prev.map((status, idx) => 
+            idx === i ? { ...status, progress: 50 } : status
+          ));
+          
+          // Upload slike
+          const response = await fetch(`/api/guest/upload?guestId=${guestId}`, {
+            method: "POST",
+            body: imageFormData,
+            headers: {
+              "x-csrf-token": csrfToken || "",
+            },
+          });
+          
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.error || "Došlo je do greške");
+          }
+          
+          // Ažuriraj status da je slika uspješno uploadovana
+          setUploadStatuses(prev => prev.map((status, idx) => 
+            idx === i ? { ...status, status: 'success', progress: 100 } : status
+          ));
+          
+          uploadedCount++;
+        } catch (error) {
+          // Ažuriraj status da je došlo do greške pri uploadu slike
+          setUploadStatuses(prev => prev.map((status, idx) => 
+            idx === i ? { 
+              ...status, 
+              status: 'error', 
+              error: error instanceof Error ? error.message : "Greška pri uploadu" 
+            } : status
+          ));
+        }
       }
       
-      setTimeout(() => {
-        window.location.href = "/guest/success";
-      }, 100);
+      // Ako su sve slike uspješno uploadovane, preusmjeri na success stranicu
+      if (uploadedCount === values.images.length) {
+        setTimeout(() => {
+          window.location.href = "/guest/success";
+        }, 1500);
+      } else {
+        // Ako neke slike nisu uploadovane, prikaži poruku o djelimičnom uspjehu
+        alert(`Uspješno je uploadovano ${uploadedCount} od ${values.images.length} slika.`);
+        setIsLoading(false);
+      }
     } catch (error) {
       alert(error instanceof Error ? error.message : "Došlo je do greške prilikom slanja");
-    } finally {
       setIsLoading(false);
+      setShowUploadStatus(false);
     }
   }
 
   return (
     <Card className="relative max-w-xl mx-auto my-8">
-      {/* Loading overlay */}
-      {isLoading && (
-  <div
-    className="absolute inset-0 bg-white/90 z-30 flex flex-col items-center justify-center rounded-xl shadow-lg"
-    aria-live="assertive"
-    aria-label="Slanje u toku"
-  >
-    <div className="flex flex-col items-center gap-3">
-      {/* Custom spinner */}
-      <svg className="animate-spin h-10 w-10 text-[#E2C275] drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-        <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-      </svg>
-      <span className="text-[#E2C275] text-lg font-bold tracking-wide animate-pulse">
-        Slika se šalje...
-      </span>
-      <span className="text-sm text-gray-500 font-medium">
-        Molimo sačekajte, upload može potrajati par sekundi.
-      </span>
-      {/* Dots animation */}
-      <span className="flex gap-1 mt-2">
-        <span className="block w-2 h-2 bg-[#E2C275] rounded-full animate-bounce" style={{ animationDelay: '0s' }}></span>
-        <span className="block w-2 h-2 bg-[#E2C275] rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></span>
-        <span className="block w-2 h-2 bg-[#E2C275] rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></span>
-      </span>
-    </div>
-  </div>
-)}
+      {/* Upload status overlay */}
+      {showUploadStatus && (
+        <div
+          className="absolute inset-0 bg-white/95 z-30 flex flex-col items-center justify-start p-6 rounded-xl shadow-lg overflow-y-auto"
+          aria-live="assertive"
+          aria-label="Status uploada slika"
+        >
+          <div className="flex flex-col items-center gap-3 w-full max-w-md">
+            <h3 className="text-[#E2C275] text-lg font-bold tracking-wide mb-4">
+              Upload slika u toku
+            </h3>
+            
+            {/* Lista slika sa statusima */}
+            <div className="w-full space-y-4">
+              {uploadStatuses.map((status, index) => (
+                <div key={index} className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg w-full">
+                  {/* Preview slike */}
+                  <div 
+                    className="w-16 h-16 rounded-md bg-cover bg-center flex-shrink-0" 
+                    style={{ backgroundImage: status.preview ? `url(${status.preview})` : 'none' }}
+                  />
+                  
+                  <div className="flex-grow">
+                    {/* Ime fajla */}
+                    <p className="text-sm font-medium truncate mb-1">{status.file.name}</p>
+                    
+                    {/* Progress bar */}
+                    <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
+                      <div 
+                        className={`h-2 rounded-full ${status.status === 'error' ? 'bg-red-500' : 'bg-[#E2C275]'}`} 
+                        style={{ width: `${status.progress}%` }}
+                      />
+                    </div>
+                    
+                    {/* Status tekst */}
+                    <p className="text-xs text-gray-500">
+                      {status.status === 'waiting' && 'Čeka na upload...'}
+                      {status.status === 'uploading' && 'Slanje u toku...'}
+                      {status.status === 'success' && 'Uspješno uploadovano'}
+                      {status.status === 'error' && (status.error || 'Greška pri uploadu')}
+                    </p>
+                  </div>
+                  
+                  {/* Status ikona */}
+                  <div className="w-6 flex-shrink-0">
+                    {status.status === 'uploading' && (
+                      <Loader2 className="h-5 w-5 text-[#E2C275] animate-spin" />
+                    )}
+                    {status.status === 'success' && (
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Ukupni progress */}
+            {isLoading && (
+              <div className="flex gap-1 mt-4">
+                <span className="block w-2 h-2 bg-[#E2C275] rounded-full animate-bounce" style={{ animationDelay: '0s' }}></span>
+                <span className="block w-2 h-2 bg-[#E2C275] rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></span>
+                <span className="block w-2 h-2 bg-[#E2C275] rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       <CardHeader>
         <CardTitle>Dodaj slike</CardTitle>
         <CardDescription>Maksimalno 10 slika i poruka mladencima</CardDescription>

@@ -107,66 +107,70 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Ne postoji događaj za dati link. Kontaktirajte mladence ili proverite link!" }, { status: 404 });
     }
 
-    // Provjera da li korisnik već postoji u bazi i da li je već verifikovan
-    const existingGuest = await getGuestByEmail(email, event.id)
-    // Ako korisnik postoji i već je verifikovan, direktno ga prijavljujemo
-    if (existingGuest && existingGuest.verified) {
-      const response = NextResponse.json({ 
-        success: true, 
-        verified: true, 
-        guestId: existingGuest.id 
-      });
-      response.cookies.set("guest_session", existingGuest.id, {
-        httpOnly: true,
-        path: "/",
-        maxAge: 60 * 60 * 24, // 24h
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-      });
-      return response;
-    }
+    // Provjera da li korisnik već postoji u bazi
+    const existingGuest = await prisma.guest.findFirst({
+      where: { 
+        email,
+        eventId: event.id
+      }
+    });
     
-    // Generisanje verifikacionog koda (6 cifara)
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
+    let guestId;
     
-    // Postavljanje vremena isteka koda (5 minuta)
-    const codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000)
-
     if (existingGuest) {
-      // Ažuriranje postojećeg korisnika sa novim kodom
-      await prisma.guest.update({
-        where: { email },
+      // Ažuriranje postojećeg korisnika i automatska verifikacija
+      const updatedGuest = await prisma.guest.update({
+        where: { id: existingGuest.id },
         data: {
-          code: verificationCode,
-          codeExpires: codeExpiresAt,
-          verified: false
-        }
-      })
-    } else {
-      await prisma.guest.upsert({
-        where: { email },
-        update: {
-          code: verificationCode,
-          codeExpires: codeExpiresAt,
-          verified: false,
           firstName,
-          lastName
-        },
-        create: {
+          lastName,
+          verified: true,
+          code: null,
+          codeExpires: null
+        }
+      });
+      guestId = updatedGuest.id;
+    } else {
+      // Kreiranje novog korisnika i automatska verifikacija
+      const newGuest = await prisma.guest.create({
+        data: {
           eventId: event.id,
           firstName,
           lastName,
           email,
-          code: verificationCode,
-          codeExpires: codeExpiresAt
+          verified: true
         }
       });
+      guestId = newGuest.id;
     }
 
-    // Slanje verifikacionog email-a
-    await sendVerificationEmail(email, verificationCode, firstName)
-
-    return NextResponse.json({ success: true, verified: false, email, codeExpires: codeExpiresAt.toISOString() })
+    // Postavi session cookie i vrati odgovor
+    const response = NextResponse.json({ 
+      success: true, 
+      verified: true,
+      guestId,
+      eventId: event.id
+    });
+    
+    // Postavi guest_session cookie sa ID-om gosta
+    response.cookies.set("guest_session", guestId, {
+      httpOnly: true,
+      path: "/",
+      maxAge: 60 * 60 * 24, // 24h
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+    
+    // Postavi guest_event cookie sa ID-om eventa
+    response.cookies.set("guest_event", event.id, {
+      httpOnly: true,
+      path: "/",
+      maxAge: 60 * 60 * 24, // 24h
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+    
+    return response
   } catch (error) {
     return NextResponse.json({ 
       error: error instanceof Error ? error.message : "Došlo je do greške prilikom prijave" 

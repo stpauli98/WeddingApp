@@ -25,9 +25,10 @@ function formatDate(dateInput: Date | string | null | undefined): string {
   return `${day}. ${month} ${year}. u ${hours}:${minutes}h`
 }
 
-export async function WeddingInfo() {
-  // Dohvatanje podataka (ovo radi samo na serveru)
-  const event = await prisma.event.findFirst({
+export async function WeddingInfo({ eventId }: { eventId: string }) {
+  // Dohvatanje podataka za specifični event
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
     select: { coupleName: true, location: true, date: true, guestMessage: true },
   });
 

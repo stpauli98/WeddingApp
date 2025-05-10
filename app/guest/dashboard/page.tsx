@@ -23,33 +23,78 @@ export default async function DashboardPage(props: any) {
   // Dohvati guestId iz session cookie-ja
   const cookieStore = await cookies();
   const guestId = cookieStore.get("guest_session")?.value || "";
-
+  
+  // Ako nema guestId, preusmjeri na login
+  if (!guestId) {
+    redirect("/guest/login");
+  }
+  
   // Dohvati eventSlug iz query parametara (serverski način)
   let eventSlug = searchParams?.event;
   if (Array.isArray(eventSlug)) {
     eventSlug = eventSlug[0];
   }
-  let eventId: string | undefined = undefined;
-
-  if (eventSlug) {
-    const event = await prisma.event.findUnique({ where: { slug: eventSlug } });
-    if (event) eventId = event.id;
-  }
-
-  if (!guestId) {
+  
+  // Ako nema eventSlug u URL-u, preusmjeri na login stranicu
+  if (!eventSlug) {
     redirect("/guest/login");
   }
-
-  // Proveri da li gost postoji i da li je verifikovan za taj event
-  const guest = await getGuestById(guestId, eventId);
-
+  
+  // Dohvati event na osnovu sluga
+  const event = await prisma.event.findUnique({ where: { slug: eventSlug } });
+  
+  // Ako event ne postoji, preusmjeri na login
+  if (!event) {
+    redirect("/guest/login");
+  }
+  
+  // Koristi eventId iz pronađenog eventa
+  const eventId = event.id;
+  
+  // Proveri da li gost postoji za taj event
+  const guest = await prisma.guest.findFirst({
+    where: {
+      id: guestId,
+      eventId: eventId
+    },
+    include: {
+      images: true,
+      message: true
+    }
+  });
+  
+  // Ako gost ne postoji za taj event, to znači da gost nije autorizovan za ovaj event
+  // U tom slučaju, kreiraj novog gosta za taj event sa istim ID-om
   if (!guest) {
-    redirect("/guest/login");
+    // Dohvati osnovne podatke o gostu
+    const baseGuest = await prisma.guest.findUnique({
+      where: { id: guestId },
+      select: { firstName: true, lastName: true, email: true }
+    });
+    
+    if (!baseGuest) {
+      redirect("/guest/login");
+    }
+    
+    // Kreiraj novog gosta za ovaj event
+    await prisma.guest.create({
+      data: {
+        id: guestId, // Koristi isti ID
+        eventId: eventId,
+        firstName: baseGuest.firstName,
+        lastName: baseGuest.lastName,
+        email: baseGuest.email,
+        verified: true
+      }
+    });
+    
+    // Osvježi stranicu da bi se prikazali podaci novog gosta
+    redirect(`/guest/dashboard?event=${eventSlug}`);
   }
 
   return (
     <div className="container max-w-md mx-auto px-4 py-8">
-      <WeddingInfo />
+      <WeddingInfo eventId={eventId} />
       
       <div className="mb-8">
         {guest.images && guest.images.length >= 10 ? (

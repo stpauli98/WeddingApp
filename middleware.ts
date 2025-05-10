@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Zaštićene rute
-  const isProtectedRoute = path === "/dashboard" || path === "/success";
+  const isProtectedRoute = path === "/dashboard" || path === "/success" || path === "/guest/dashboard";
   const hasSession = request.cookies.has("guest_session");
 
   if (isProtectedRoute && !hasSession) {
@@ -21,5 +21,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard", "/success"],
+  matcher: ["/dashboard", "/success", "/guest/dashboard"],
 };
