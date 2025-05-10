@@ -24,6 +24,7 @@ interface Props {
   guest: Guest
   coupleName?: string
   message?: { text: string }
+  eventSlug?: string
 }
 
 function getSlikaPadez(n: number) {
@@ -39,7 +40,7 @@ function getSlikaPadez(n: number) {
   }
 }
 
-export default function ClientSuccess({ guest, coupleName, message }: Props) {
+export default function ClientSuccess({ guest, coupleName, message, eventSlug }: Props) {
   const [countdown, setCountdown] = useState(30); // 30 sekundi prije preusmeravanja na formu
   useEffect(() => {
     if (countdown <= 0) {
@@ -61,6 +62,7 @@ export default function ClientSuccess({ guest, coupleName, message }: Props) {
               storagePath: img.storagePath === null ? undefined : img.storagePath,
             }))}
             guestId={guest.id}
+            eventSlug={eventSlug}
           />
           {guest.images && guest.images.length < 10 && (
             <div className="mt-2 text-sm text-muted-foreground">

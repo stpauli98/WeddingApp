@@ -1,15 +1,16 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { ImageUpload } from "@/components/guest/ImageUpload"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { CheckCircle, Loader2 } from "lucide-react"
+import { CheckCircle, Loader2, AlertCircle, X } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ImageSlotBar } from "@/components/guest/ImageSlotBar"
 
 // Validacija: max 10 slika, max 500 karaktera poruka
 const formSchema = z.object({
@@ -36,19 +37,36 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [uploadStatuses, setUploadStatuses] = useState<ImageUploadStatus[]>([])
   const [showUploadStatus, setShowUploadStatus] = useState(false)
-  const router = useRouter()
+  const [showLimitError, setShowLimitError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("");
+  const [selectedImagesCount, setSelectedImagesCount] = useState(0);
+  const [existingImagesCount, setExistingImagesCount] = useState(0);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { message: message ?? "", images: [] },
   })
 
-  // Povuci CSRF token na mount
+  // Povuci CSRF token i broj postojećih slika na mount
   React.useEffect(() => {
+    // Dohvati CSRF token
     fetch("/api/guest/upload")
       .then(res => res.json())
       .then(data => setCsrfToken(data.csrfToken))
       .catch(() => setCsrfToken(null)); // Token je sada csrf_token_guest_upload u kolačiću
-  }, []);
+    
+    // Dohvati broj postojećih slika
+    if (guestId) {
+      fetch(`/api/guest/images/count?guestId=${guestId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.count !== undefined) {
+            setExistingImagesCount(data.count);
+            console.log(`Broj postojećih slika: ${data.count}`);
+          }
+        })
+        .catch(err => console.error("Greška pri dohvatanju broja slika:", err));
+    }
+  }, [guestId]);
 
   // Funkcija za resize slike pomoću canvas-a
   async function resizeImage(file: File, maxWidth = 1280): Promise<File> {
@@ -108,6 +126,18 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    // Dodatna provjera ukupnog broja slika prije slanja (postojeće + nove)
+    const totalImages = existingImagesCount + (values.images?.length || 0);
+    if (totalImages > 10) {
+      const preostalo = Math.max(0, 10 - existingImagesCount);
+      setErrorMessage(
+        `Možete imati najviše 10 slika ukupno. Trenutno imate ${existingImagesCount} slika, ` +
+        `tako da možete dodati još najviše ${preostalo} ${preostalo === 1 ? 'sliku' : preostalo >= 2 && preostalo <= 4 ? 'slike' : 'slika'}.`
+      );
+      setShowLimitError(true);
+      return;
+    }
+    
     try {
       // Provera da li imamo guestId
       if (!guestId) {
@@ -229,77 +259,119 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
   }
 
   return (
-    <Card className="relative max-w-xl mx-auto my-8">
-      {/* Upload status overlay */}
+    <Card className="w-full max-w-xl mx-auto">
+      {/* Prikaz obavještenja o prekoračenju limita slika */}
+      {showLimitError && (
+        <div className="p-4 border-b border-gray-200">
+          <Alert variant="destructive" className="flex items-center justify-between">
+            <div className="flex items-center">
+              <AlertCircle className="h-4 w-4 mr-2" />
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </div>
+            <button 
+              onClick={() => setShowLimitError(false)} 
+              className="text-gray-500 hover:text-gray-700"
+              aria-label="Zatvori obavještenje"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </Alert>
+        </div>
+      )}
+      
       {showUploadStatus && (
-        <div
-          className="absolute inset-0 bg-white/95 z-30 flex flex-col items-center justify-start p-6 rounded-xl shadow-lg overflow-y-auto"
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4 md:p-6 overflow-y-auto"
           aria-live="assertive"
           aria-label="Status uploada slika"
         >
-          <div className="flex flex-col items-center gap-3 w-full max-w-md">
-            <h3 className="text-[#E2C275] text-lg font-bold tracking-wide mb-4">
-              Upload slika u toku
-            </h3>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            {/* Header sa naslovom i brojem uploadovanih slika */}
+            <div className="sticky top-0 bg-white p-4 border-b border-gray-100 flex items-center justify-between z-10">
+              <div>
+                <h3 className="text-[#E2C275] text-lg font-semibold">
+                  Upload slika
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {uploadStatuses.filter(s => s.status === 'success').length} od {uploadStatuses.length} slika
+                </p>
+              </div>
+              
+              {/* Indikator ukupnog progresa */}
+              {isLoading && (
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 bg-[#E2C275] rounded-full animate-pulse" style={{ animationDelay: '0s' }}></div>
+                  <div className="w-2 h-2 bg-[#E2C275] rounded-full animate-pulse" style={{ animationDelay: '0.15s' }}></div>
+                  <div className="w-2 h-2 bg-[#E2C275] rounded-full animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+                </div>
+              )}
+            </div>
             
             {/* Lista slika sa statusima */}
-            <div className="w-full space-y-4">
+            <div className="p-4 space-y-3">
               {uploadStatuses.map((status, index) => (
-                <div key={index} className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg w-full">
+                <div 
+                  key={index} 
+                  className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${status.status === 'success' ? 'border-green-100 bg-green-50' : status.status === 'error' ? 'border-red-100 bg-red-50' : 'border-gray-100 bg-gray-50'}`}
+                >
                   {/* Preview slike */}
                   <div 
-                    className="w-16 h-16 rounded-md bg-cover bg-center flex-shrink-0" 
+                    className="w-14 h-14 md:w-16 md:h-16 rounded-md bg-cover bg-center flex-shrink-0 border border-gray-200" 
                     style={{ backgroundImage: status.preview ? `url(${status.preview})` : 'none' }}
                   />
                   
-                  <div className="flex-grow">
+                  <div className="flex-grow min-w-0">
                     {/* Ime fajla */}
-                    <p className="text-sm font-medium truncate mb-1">{status.file.name}</p>
+                    <p className="text-sm font-medium truncate mb-1.5">{status.file.name}</p>
                     
-                    {/* Progress bar */}
-                    <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
+                    {/* Progress bar sa animacijom */}
+                    <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1.5 overflow-hidden">
                       <div 
-                        className={`h-2 rounded-full ${status.status === 'error' ? 'bg-red-500' : 'bg-[#E2C275]'}`} 
+                        className={`h-full rounded-full transition-all duration-300 ${status.status === 'error' ? 'bg-red-500' : status.status === 'success' ? 'bg-green-500' : 'bg-[#E2C275]'}`} 
                         style={{ width: `${status.progress}%` }}
                       />
                     </div>
                     
                     {/* Status tekst */}
-                    <p className="text-xs text-gray-500">
-                      {status.status === 'waiting' && 'Čeka na upload...'}
-                      {status.status === 'uploading' && 'Slanje u toku...'}
-                      {status.status === 'success' && 'Uspješno uploadovano'}
-                      {status.status === 'error' && (status.error || 'Greška pri uploadu')}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-600">
+                        {status.status === 'waiting' && 'Čeka na upload...'}
+                        {status.status === 'uploading' && 'Slanje u toku...'}
+                        {status.status === 'success' && 'Uspješno uploadovano'}
+                        {status.status === 'error' && (status.error || 'Greška pri uploadu')}
+                      </p>
+                      <span className="text-xs font-medium">{status.progress}%</span>
+                    </div>
                   </div>
                   
                   {/* Status ikona */}
-                  <div className="w-6 flex-shrink-0">
+                  <div className="flex-shrink-0">
                     {status.status === 'uploading' && (
                       <Loader2 className="h-5 w-5 text-[#E2C275] animate-spin" />
                     )}
                     {status.status === 'success' && (
                       <CheckCircle className="h-5 w-5 text-green-500" />
                     )}
+                    {status.status === 'error' && (
+                      <AlertCircle className="h-5 w-5 text-red-500" />
+                    )}
                   </div>
                 </div>
               ))}
             </div>
             
-            {/* Ukupni progress */}
-            {isLoading && (
-              <div className="flex gap-1 mt-4">
-                <span className="block w-2 h-2 bg-[#E2C275] rounded-full animate-bounce" style={{ animationDelay: '0s' }}></span>
-                <span className="block w-2 h-2 bg-[#E2C275] rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></span>
-                <span className="block w-2 h-2 bg-[#E2C275] rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></span>
-              </div>
-            )}
+            {/* Footer sa informacijom */}
+            <div className="sticky bottom-0 bg-white p-4 border-t border-gray-100 text-center text-sm text-gray-500">
+              Molimo sačekajte dok se slike uploaduju...
+            </div>
           </div>
         </div>
       )}
       <CardHeader>
         <CardTitle>Dodaj slike</CardTitle>
-        <CardDescription>Maksimalno 10 slika i poruka mladencima</CardDescription>
+        
+        {/* Korištenje postojeće ImageSlotBar komponente */}
+        <ImageSlotBar current={selectedImagesCount + existingImagesCount} max={10} />
       </CardHeader>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
@@ -310,9 +382,36 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
           <div>
             <label className="block font-medium mb-1" htmlFor="images-upload">Slike (max 10)</label>
             <span id="upload-instructions" className="sr-only">Prvo izaberite slike, zatim kliknite na dugme Potvrdi upload. Sve akcije su dostupne tastaturom. Status slanja će biti automatski najavljen.</span>
+
             <ImageUpload
               value={form.watch("images") || []}
-              onChange={val => form.setValue("images", val)}
+              onChange={val => {
+                // Provjeri ukupan broj slika (postojeće + nove)
+                const totalImages = existingImagesCount + val.length;
+                setSelectedImagesCount(val.length);
+                
+                if (totalImages > 10) {
+                  // Prikaži toast obavještenje o prekoračenju limita
+                  const preostalo = Math.max(0, 10 - existingImagesCount);
+                  setErrorMessage(
+                    `Možete poslati najviše 10 slika ukupno. Trenutno imate ${existingImagesCount} slika, ` +
+                    `tako da možete dodati još najviše ${preostalo} ${preostalo === 1 ? 'sliku' : preostalo >= 2 && preostalo <= 4 ? 'slike' : 'slika'}.`
+                  );
+                  setShowLimitError(true);
+                  
+                  // Ograniči na maksimalan dozvoljeni broj slika
+                  if (preostalo > 0) {
+                    form.setValue("images", val.slice(0, preostalo));
+                    setSelectedImagesCount(preostalo);
+                  } else {
+                    form.setValue("images", []);
+                    setSelectedImagesCount(0);
+                  }
+                } else {
+                  form.setValue("images", val);
+                  setShowLimitError(false); // Sakrij poruku o grešci ako je broj slika validan
+                }
+              }}
               maxFiles={10}
               inputProps={{
                 id: "images-upload",

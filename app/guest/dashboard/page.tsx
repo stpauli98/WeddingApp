@@ -101,7 +101,6 @@ export default async function DashboardPage(props: any) {
           <UploadLimitReachedCelebration />
         ) : (
           <>
-            <ImageSlotBar current={guest.images?.length || 0} max={10} />
             <UploadForm guestId={guestId} message={guest.message?.text ?? ""} />
           </>
         )}

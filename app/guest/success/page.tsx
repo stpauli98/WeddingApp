@@ -26,13 +26,21 @@ interface Image {
 }
 
 
-export default async function SuccessPage() {
+export default async function SuccessPage(props: any) {
+  const searchParams = props.searchParams as { [key: string]: string | string[] | undefined } | undefined;
+  
   // Dohvati guestId iz session cookie-ja
   const cookieStore = await cookies();
   const guestId = cookieStore.get("guest_session")?.value || "";
 
   if (!guestId) {
     redirect("/guest/login");
+  }
+  
+  // Dohvati eventSlug iz query parametara
+  let eventSlug = searchParams?.event;
+  if (Array.isArray(eventSlug)) {
+    eventSlug = eventSlug[0];
   }
 
   // Dohvatanje gosta sa slikama
@@ -47,11 +55,19 @@ export default async function SuccessPage() {
     where: { guestId: guestId }
   });
 
-  // Dohvatanje imena brudova iz baze
+  // Dohvatanje imena brudova iz baze i slug-a
   const event = await prisma.event.findFirst({
     where: { id: guest?.eventId },
-    select: { coupleName: true }
+    select: { coupleName: true, slug: true }
   });
 
-  return <ClientSuccess guest={guest} coupleName={event?.coupleName} message={message ? { text: message.text } : undefined} />;
+  // Ako imamo eventSlug iz URL-a, koristimo ga, inače koristimo slug iz baze
+  const finalEventSlug = eventSlug || event?.slug;
+
+  return <ClientSuccess 
+    guest={guest} 
+    coupleName={event?.coupleName} 
+    message={message ? { text: message.text } : undefined}
+    eventSlug={finalEventSlug} 
+  />;
 }
