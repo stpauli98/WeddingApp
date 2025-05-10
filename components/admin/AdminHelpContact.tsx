@@ -17,7 +17,7 @@ const AdminHelpContact: React.FC = () => {
           <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
             <li><span className="font-semibold text-gray-900">Kako preuzeti sve slike?</span> — U tabu <b>Preuzimanje</b> kliknite na odgovarajuće dugme za eksport.</li>
             <li><span className="font-semibold text-gray-900">Ne vidim slike gosta?</span> — Proverite da li je gost uspešno uploadovao slike i da li je stranica osvežena.</li>
-            <li><span className="font-semibold text-gray-900">Kako kontaktirati podršku?</span> — Pišite nam na <a href="mailto:weddingapp.support@email.com" className="text-yellow-700 underline" title="Pošalji email podršci">weddingapp.support@email.com</a>.</li>
+            <li><span className="font-semibold text-gray-900">Kako kontaktirati podršku?</span> — Pišite nam na <a href="mailto:pixelnext9@gmail.com" className="text-yellow-700 underline" title="Pošalji email podršci">pixelnext9@gmail.com</a>.</li>
             <li><span className="font-semibold text-gray-900">Mogu li izbrisati sliku?</span> — Da, klikom na ikonicu korpe pored slike u galeriji.</li>
           </ul>
         </div>
@@ -28,7 +28,7 @@ const AdminHelpContact: React.FC = () => {
           </h4>
           <div className="text-sm text-gray-700">
             <p>Naš tim za podršku je tu za vas svaki dan od 9 do 18h.</p>
-            <p className="mt-1">Email: <a href="mailto:weddingapp.support@email.com" className="text-blue-700 underline font-semibold" title="Pošalji email podršci">weddingapp.support@email.com</a></p>
+            <p className="mt-1">Email: <a href="mailto:pixelnext9@gmail.com" className="text-blue-700 underline font-semibold" title="Pošalji email podršci">pixelnext9@gmail.com</a></p>
             <p className="mt-1">Odgovaramo u roku od 24h.</p>
           </div>
         </div>

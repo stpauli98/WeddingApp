@@ -148,10 +148,46 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
               <div className="text-sm text-gray-400">Kada se gosti registruju za ovaj event, ovde će se pojaviti njihovi profili i slike.</div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {guests.map((guest: any) => (
-                <GuestCard key={guest.id} guest={guest} />
-              ))}
+            <div className="space-y-8">
+              {/* Gosti koji su uploadovali bar jednu sliku */}
+              {(() => {
+                const guestsWithImages = guests.filter(guest => guest.images && guest.images.length > 0);
+                return guestsWithImages.length > 0 ? (
+                  <div>
+                    <h3 className="text-lg font-semibold text-yellow-700 mb-4 flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      Gosti sa slikama ({guestsWithImages.length})
+                    </h3>
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      {guestsWithImages.map((guest: any) => (
+                        <GuestCard key={guest.id} guest={guest} />
+                      ))}
+                    </div>
+                  </div>
+                ) : null;
+              })()}
+              
+              {/* Gosti koji nisu uploadovali nijednu sliku */}
+              {(() => {
+                const guestsWithoutImages = guests.filter(guest => !guest.images || guest.images.length === 0);
+                return guestsWithoutImages.length > 0 ? (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-600 mb-4 flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      Gosti bez slika ({guestsWithoutImages.length})
+                    </h3>
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      {guestsWithoutImages.map((guest: any) => (
+                        <GuestCard key={guest.id} guest={guest} />
+                      ))}
+                    </div>
+                  </div>
+                ) : null;
+              })()}
             </div>
           )}
         </> 
