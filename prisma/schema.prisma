@@ -34,7 +34,7 @@ model Event {
 
 model Guest {
   id             String    @id @default(uuid())
-  email          String    @unique
+  email          String    
   code           String?
   verified       Boolean   @default(false)
   codeExpires    DateTime?
