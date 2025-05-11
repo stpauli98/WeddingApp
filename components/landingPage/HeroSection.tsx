@@ -40,25 +40,22 @@ export default function HeroSection() {
           </div>
 
           <div className="flex-1 flex items-center justify-center">
-            <div className="relative w-full aspect-square max-w-md mx-auto">
-              <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/jeremy-wong-weddings-464ps_nOflw-unsplash.jpg-vgCJXLrTmNrEVnDt4NNSCtmFsQpHpt.jpeg"
-                alt="Mladenci se drže za ruke"
-                fill
-                className="object-cover rounded-2xl shadow-md"
-                priority
-              />
-              {/* Badge za desktop/tablet: lebdi ispod slike, centriran */}
-              <div
-                className="hidden sm:flex absolute left-1/2 -translate-x-1/2 -bottom-8 bg-lp-card border border-lp-accent shadow-md rounded-xl px-8 py-4 flex-col items-center transition-transform duration-200 ease-in-out hover:scale-105 z-20 w-auto"
-              >
-                <div className="text-sm font-semibold text-lp-text tracking-wide uppercase mb-1">Prikupljeno slika</div>
-                <div className="text-2xl font-extrabold text-lp-accent"><TotalImagesCounter /></div>
+            <div className="relative w-full max-w-md mx-auto">
+              {/* Slika sa ljepšim okvirom, bez brojača na slici */}
+              <div className="relative aspect-square w-full rounded-2xl overflow-hidden shadow-xl mb-12">
+                <Image
+                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/jeremy-wong-weddings-464ps_nOflw-unsplash.jpg-vgCJXLrTmNrEVnDt4NNSCtmFsQpHpt.jpeg"
+                  alt="Mladenci se drže za ruke"
+                  fill
+                  className="object-cover"
+                  priority
+                />
               </div>
-              {/* Badge za mobilne uređaje: ispod slike, centriran, veća širina */}
-              <div className="sm:hidden w-11/12 mx-auto mt-4 bg-lp-card border border-lp-accent shadow-md rounded-xl px-4 py-3 flex flex-col items-center transition-transform duration-200 ease-in-out hover:scale-105 z-10">
-                <div className="text-xs font-semibold text-lp-text tracking-wide uppercase mb-1">Prikupljeno slika</div>
-                <div className="text-xl font-extrabold text-lp-accent"><TotalImagesCounter /></div>
+              
+              {/* Brojač ispod slike kao zasebni element */}
+              <div className="w-full bg-white border-2 border-lp-accent shadow-xl rounded-xl px-6 py-3 sm:px-8 sm:py-4 flex flex-col items-center transition-transform duration-200 ease-in-out hover:scale-105">
+                <div className="text-sm font-semibold text-lp-text tracking-wide uppercase mb-1">Prikupljeno slika</div>
+                <div className="text-2xl sm:text-3xl font-extrabold text-lp-accent"><TotalImagesCounter /></div>
               </div>
             </div>
           </div>
