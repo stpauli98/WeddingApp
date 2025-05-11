@@ -36,16 +36,31 @@ export async function POST(req: NextRequest) {
   if (!event) {
     return NextResponse.json({ error: "Nijedan događaj ne postoji u bazi" }, { status: 500 });
   }
-  // Upsert korisnika
+  // Provjeri postoji li gost sa tim email-om i eventId-om
   try {
-    await prisma.guest.upsert({
-      where: { email },
-      update: { firstName, lastName, code, codeExpires, verified: false },
-      create: { eventId: event.id, firstName, lastName, email, code, codeExpires },
+    const existingGuest = await prisma.guest.findFirst({
+      where: {
+        email: email,
+        eventId: event.id
+      }
     });
+
+    if (existingGuest) {
+      // Ažuriraj postojećeg gosta
+      await prisma.guest.update({
+        where: { id: existingGuest.id },
+        data: { firstName, lastName, code, codeExpires, verified: false }
+      });
+    } else {
+      // Kreiraj novog gosta
+      await prisma.guest.create({
+        data: { eventId: event.id, firstName, lastName, email, code, codeExpires }
+      });
+    }
     console.log('Upis u bazu OK');
   } catch (e) {
     console.error('GRESKA PRI UPISU U BAZU:', e);
+    return NextResponse.json({ error: "Greška pri upisu u bazu podataka" }, { status: 500 });
   }
 
   await sendVerificationEmail(email, code);
