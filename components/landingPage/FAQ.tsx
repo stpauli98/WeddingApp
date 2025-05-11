@@ -50,7 +50,7 @@ const faqItems = [
   {
     question: "Da li gosti moraju kreirati naloge?",
     answer:
-      "Ne. Gosti ne moraju imati nalog niti instalirati aplikaciju. Dovoljno je da unesu ime, prezime i email, dobiju verifikacioni kod i odmah mogu uploadovati slike i ostaviti poruku – sve potpuno jednostavno i sigurno.",
+      "Ne. Gosti ne moraju imati nalog niti instalirati aplikaciju. Dovoljno je da unesu ime, prezime i email, i odmah mogu uploadovati slike i ostaviti poruku – sve potpuno jednostavno i sigurno.",
   },
   {
     question: "Koliko dugo se čuvaju slike?",

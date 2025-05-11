@@ -54,44 +54,4 @@ export async function getGuestById(id: string, eventId?: string) {
   }
 }
 
-/**
- * Proverava verifikacioni kod
- * @param email Email adresa gosta
- * @param code Verifikacioni kod
- * @returns Vraća gosta ako je kod validan, null ako nije
- */
-export async function verifyCode(email: string, code: string) {
-  if (!email || !code) return null;
-
-  try {
-    const guest = await prisma.guest.findFirst({
-      where: { 
-        email,
-        code,
-        verified: false,
-        codeExpires: {
-          gt: new Date() // Kod nije istekao
-        }
-      }
-    });
-
-    if (guest) {
-      // Označi gosta kao verifikovanog
-      await prisma.guest.update({
-        where: { id: guest.id },
-        data: { 
-          verified: true,
-          code: null,
-          codeExpires: null
-        }
-      });
-
-      return guest;
-    }
-
-    return null;
-  } catch (error) {
-    console.error('Greška pri verifikaciji koda:', error);
-    return null;
-  }
-}
+// Funkcija verifyCode je uklonjena jer se više ne koristi verifikacioni kod za prijavu gostiju
