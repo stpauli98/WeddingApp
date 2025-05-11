@@ -15,12 +15,23 @@ export default function FooterCommentForm() {
     if (!comment.trim()) return
     setStatus("sending")
     try {
-      // Simulacija slanja komentara (zamijeniti API endpoint u produkciji)
-      await new Promise((r) => setTimeout(r, 1000))
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ comment, email: email || null }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Greška prilikom slanja komentara")
+      }
+
       setStatus("success")
       setComment("")
       setEmail("")
-    } catch {
+    } catch (error) {
+      console.error("Greška prilikom slanja komentara:", error)
       setStatus("error")
     }
   }
