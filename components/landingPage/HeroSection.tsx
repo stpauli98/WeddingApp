@@ -1,5 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
+import TotalImagesCounter from "./TotalImagesCounter"
 
 export default function HeroSection() {
   return (
@@ -52,12 +53,12 @@ export default function HeroSection() {
                 className="hidden sm:flex absolute left-1/2 -translate-x-1/2 -bottom-8 bg-lp-card border border-lp-accent shadow-md rounded-xl px-8 py-4 flex-col items-center transition-transform duration-200 ease-in-out hover:scale-105 z-20 w-auto"
               >
                 <div className="text-sm font-semibold text-lp-text tracking-wide uppercase mb-1">Prikupljeno slika</div>
-                <div className="text-2xl font-extrabold text-lp-accent">1,254</div>
+                <div className="text-2xl font-extrabold text-lp-accent"><TotalImagesCounter /></div>
               </div>
               {/* Badge za mobilne uređaje: ispod slike, centriran, veća širina */}
               <div className="sm:hidden w-11/12 mx-auto mt-4 bg-lp-card border border-lp-accent shadow-md rounded-xl px-4 py-3 flex flex-col items-center transition-transform duration-200 ease-in-out hover:scale-105 z-10">
                 <div className="text-xs font-semibold text-lp-text tracking-wide uppercase mb-1">Prikupljeno slika</div>
-                <div className="text-xl font-extrabold text-lp-accent">1,254</div>
+                <div className="text-xl font-extrabold text-lp-accent"><TotalImagesCounter /></div>
               </div>
             </div>
           </div>
