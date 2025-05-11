@@ -2,11 +2,15 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
+interface UploadLimitReachedCelebrationProps {
+  imagesCount?: number; // Opcioni prop za broj slika
+}
+
 /**
  * Animacija šljokica (confetti) + lepa poruka za limitiran broj slika.
  * Nema eksternih zavisnosti, koristi samo CSS i canvas.
  */
-export function UploadLimitReachedCelebration() {
+export function UploadLimitReachedCelebration({ imagesCount = 10 }: UploadLimitReachedCelebrationProps = {}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasWidth, setCanvasWidth] = useState(1200);
   const [canvasHeight] = useState(200);
@@ -85,7 +89,7 @@ export function UploadLimitReachedCelebration() {
         aria-hidden
       />
       <div className="relative z-10 bg-white/90 border-2 border-[#E2C275] rounded-xl shadow-lg px-6 py-6 flex flex-col items-center">
-        <span className="text-lg text-gray-700 text-center mb-2">Dostigli ste maksimalan broj slika (10/10).</span>
+        <span className="text-lg text-gray-700 text-center mb-2">Dostigli ste maksimalan broj slika ({imagesCount}/10).</span>
         <span className="text-base text-gray-500 text-center">Hvala na vašem doprinosu!</span>
       </div>
     </div>

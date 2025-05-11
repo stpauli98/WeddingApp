@@ -4,7 +4,6 @@ import { getGuestById } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import ClientSuccess from "./client-success"
 import { cookies } from "next/headers";
-import { useEffect, useState } from "react"
 
 function getSlikaPadez(n: number) {
   switch (n) {
@@ -25,9 +24,11 @@ interface Image {
   storagePath?: string | null
 }
 
-
+// Pristup identičan ispravnom rješenju za dashboard/page.tsx
 export default async function SuccessPage(props: any) {
-  const searchParams = props.searchParams as { [key: string]: string | string[] | undefined } | undefined;
+  // U Next.js 15, searchParams mora biti awaited
+  const resolvedProps = await Promise.resolve(props);
+  const searchParams = resolvedProps.searchParams as { [key: string]: string | string[] | undefined } | undefined;
   
   // Dohvati guestId iz session cookie-ja
   const cookieStore = await cookies();
@@ -36,12 +37,13 @@ export default async function SuccessPage(props: any) {
   if (!guestId) {
     redirect("/guest/login");
   }
-  
-  // Dohvati eventSlug iz query parametara
+
+  // Dohvati eventSlug iz query parametara (sada je safe pristupiti searchParams)
   let eventSlug = searchParams?.event;
   if (Array.isArray(eventSlug)) {
     eventSlug = eventSlug[0];
   }
+
 
   // Dohvatanje gosta sa slikama
   const guest = await getGuestById(guestId);

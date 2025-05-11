@@ -8,6 +8,7 @@ import { UploadLimitReachedCelebration } from "@/components/guest/UploadLimitRea
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
+import { DashboardClient } from "@/components/guest/DashboardClient"
 
 // Lokalni tip Image ako nije globalno dostupan
 // Tip za slike koji je kompatibilan sa ImageGallery komponentom
@@ -96,20 +97,16 @@ export default async function DashboardPage(props: any) {
     <div className="container max-w-md mx-auto px-4 py-8">
       <WeddingInfo eventId={eventId} />
       
-      <div className="mb-8">
-        {guest.images && guest.images.length >= 10 ? (
-          <UploadLimitReachedCelebration />
-        ) : (
-          <>
-            <UploadForm guestId={guestId} message={guest.message?.text ?? ""} />
-          </>
-        )}
-      </div>
-      <ImageGallery images={(guest.images || []).map((img: { id: string; imageUrl: string; storagePath?: string | null }) => ({
-        id: img.id,
-        imageUrl: img.imageUrl,
-        storagePath: img.storagePath === null ? undefined : img.storagePath,
-      }))} guestId={guestId} />
+      {/* Koristimo DashboardClient komponentu koja će upravljati brojem slika i osigurati da se sve komponente ažuriraju kada se broj slika promijeni */}
+      <DashboardClient 
+        initialImages={(guest.images || []).map((img: { id: string; imageUrl: string; storagePath?: string | null }) => ({
+          id: img.id,
+          imageUrl: img.imageUrl,
+          storagePath: img.storagePath === null ? undefined : img.storagePath,
+        }))} 
+        guestId={guestId}
+        message={guest.message?.text ?? ""}
+      />
      {/* {guest.images && guest.images.length === 10 && (
         <div className="mt-8">
           <LogoutButton />

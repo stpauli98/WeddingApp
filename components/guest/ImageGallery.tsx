@@ -16,10 +16,11 @@ interface ImageGalleryProps {
   images: Image[];
   guestId?: string; // Dodaj guestId za DELETE
   readOnly?: boolean;
+  onImagesChange?: (images: Image[]) => void; // Callback za obavještavanje o promjeni broja slika
 }
 
 
-export function ImageGallery({ images: initialImages, guestId, readOnly = false }: ImageGalleryProps) {
+export function ImageGallery({ images: initialImages, guestId, readOnly = false, onImagesChange }: ImageGalleryProps) {
   const [images, setImages] = useState<Image[]>(initialImages);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +66,16 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false 
         setError(data?.error || "Greška pri brisanju slike.");
     
       } else {
-        setImages((imgs) => imgs.filter(img => img.id !== imageId));
+        // Filtriraj slike i ažuriraj lokalno stanje
+        const updatedImages = images.filter(img => img.id !== imageId);
+        setImages(updatedImages);
+        
+        // Obavijesti roditelja o promjeni broja slika ako postoji callback
+        if (onImagesChange) {
+          onImagesChange(updatedImages);
+        }
+        
+        // Zatvori prikaz slike ako je trenutno otvorena slika koja je obrisana
         if (selectedImage && images.find(img => img.id === imageId)?.imageUrl === selectedImage) {
           setSelectedImage(null);
         }

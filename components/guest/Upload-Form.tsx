@@ -25,14 +25,180 @@ type ImageUploadStatus = {
   progress: number;
   error?: string;
   preview?: string;
+  retryable?: boolean; // Označava da li se upload može ponovno pokušati
+  id: string; // Jedinstveni identifikator za svaki upload status
 }
 
 interface UploadFormProps {
   guestId: string;
   message?: string;
+  existingImagesCount?: number; // Dodajemo opcioni prop za broj postojećih slika
 }
 
-export function UploadForm({ guestId, message }: UploadFormProps) {
+export function UploadForm({ guestId, message, existingImagesCount: initialImagesCount }: UploadFormProps) {
+  // Funkcija za ponovno pokušavanje uploada neuspjelih slika
+  async function retryFailedUploads() {
+    // Filtriraj samo slike koje su označene kao retryable
+    const failedUploads = uploadStatuses.filter(status => status.status === 'error' && status.retryable);
+    
+    if (failedUploads.length === 0) return;
+    
+    setIsLoading(true);
+    
+    let retrySuccessCount = 0;
+    
+    for (const failedStatus of failedUploads) {
+      try {
+        // Pronađi indeks u trenutnom nizu statusa
+        const statusIndex = uploadStatuses.findIndex(s => s.id === failedStatus.id);
+        if (statusIndex === -1) continue;
+        
+        // Ažuriraj status da je slika u procesu ponovnog uploada
+        setUploadStatuses(prev => prev.map((status) => 
+          status.id === failedStatus.id ? { ...status, status: 'uploading', progress: 10, retryable: false } : status
+        ));
+        
+        // Resize slike
+        const resizedImg = await resizeImage(failedStatus.file);
+        
+        // Ažuriraj progress nakon resize-a
+        setUploadStatuses(prev => prev.map((status) => 
+          status.id === failedStatus.id ? { ...status, progress: 30 } : status
+        ));
+        
+        // Kreiraj formData za pojedinačnu sliku
+        const imageFormData = new FormData();
+        imageFormData.append("images", resizedImg);
+        
+        // Ažuriraj progress prije uploada
+        setUploadStatuses(prev => prev.map((status) => 
+          status.id === failedStatus.id ? { ...status, progress: 50 } : status
+        ));
+        
+        // Upload slike
+        const response = await fetch(`/api/guest/upload?guestId=${guestId}`, {
+          method: "POST",
+          body: imageFormData,
+          headers: {
+            "x-csrf-token": csrfToken || "",
+          },
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || "Došlo je do greške");
+        }
+        
+        // Ažuriraj status da je slika uspješno uploadovana
+        setUploadStatuses(prev => prev.map((status) => 
+          status.id === failedStatus.id ? { ...status, status: 'success', progress: 100 } : status
+        ));
+        
+        retrySuccessCount++;
+      } catch (error) {
+        // Ažuriraj status da je došlo do greške pri ponovnom uploadu slike
+        setUploadStatuses(prev => prev.map((status) => 
+          status.id === failedStatus.id ? { 
+            ...status, 
+            status: 'error', 
+            error: error instanceof Error ? error.message : "Greška pri ponovnom uploadu",
+            retryable: true // I dalje je retryable
+          } : status
+        ));
+      }
+    }
+    
+    // Provjeri da li su sve slike uspješno uploadovane
+    const allSuccess = uploadStatuses.every(status => status.status === 'success');
+    
+    if (allSuccess) {
+      setTimeout(() => {
+        window.location.href = "/guest/success";
+      }, 1500);
+    } else {
+      setIsLoading(false);
+    }
+  }
+  
+  // Funkcija za ponovni pokušaj uploada jedne slike
+  async function retryUpload(statusId: string) {
+    const statusIndex = uploadStatuses.findIndex(s => s.id === statusId);
+    if (statusIndex === -1) return;
+    
+    const failedStatus = uploadStatuses[statusIndex];
+    
+    setIsLoading(true);
+    
+    try {
+      // Ažuriraj status da je slika u procesu ponovnog uploada
+      setUploadStatuses(prev => prev.map((status) => 
+        status.id === statusId ? { ...status, status: 'uploading', progress: 10, retryable: false } : status
+      ));
+      
+      // Resize slike
+      const resizedImg = await resizeImage(failedStatus.file);
+      
+      // Ažuriraj progress nakon resize-a
+      setUploadStatuses(prev => prev.map((status) => 
+        status.id === statusId ? { ...status, progress: 30 } : status
+      ));
+      
+      // Kreiraj formData za pojedinačnu sliku
+      const imageFormData = new FormData();
+      imageFormData.append("images", resizedImg);
+      
+      // Ažuriraj progress prije uploada
+      setUploadStatuses(prev => prev.map((status) => 
+        status.id === statusId ? { ...status, progress: 50 } : status
+      ));
+      
+      // Upload slike
+      const response = await fetch(`/api/guest/upload?guestId=${guestId}`, {
+        method: "POST",
+        body: imageFormData,
+        headers: {
+          "x-csrf-token": csrfToken || "",
+        },
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Došlo je do greške");
+      }
+      
+      // Ažuriraj status da je slika uspješno uploadovana
+      setUploadStatuses(prev => prev.map((status) => 
+        status.id === statusId ? { ...status, status: 'success', progress: 100 } : status
+      ));
+      
+      // Provjeri da li su sve slike uspješno uploadovane
+      const allSuccess = uploadStatuses.every(status => 
+        status.status === 'success' || status.id === statusId
+      );
+      
+      if (allSuccess) {
+        setTimeout(() => {
+          window.location.href = "/guest/success";
+        }, 1500);
+      } else {
+        setIsLoading(false);
+      }
+    } catch (error) {
+      // Ažuriraj status da je došlo do greške pri ponovnom uploadu slike
+      setUploadStatuses(prev => prev.map((status) => 
+        status.id === statusId ? { 
+          ...status, 
+          status: 'error', 
+          error: error instanceof Error ? error.message : "Greška pri ponovnom uploadu",
+          retryable: true // I dalje je retryable
+        } : status
+      ));
+      
+      setIsLoading(false);
+    }
+  }
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false)
   const [uploadStatuses, setUploadStatuses] = useState<ImageUploadStatus[]>([])
@@ -40,7 +206,7 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
   const [showLimitError, setShowLimitError] = useState(false)
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedImagesCount, setSelectedImagesCount] = useState(0);
-  const [existingImagesCount, setExistingImagesCount] = useState(0);
+  const [existingImagesCount, setExistingImagesCount] = useState(initialImagesCount || 0);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { message: message ?? "", images: [] },
@@ -54,8 +220,8 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
       .then(data => setCsrfToken(data.csrfToken))
       .catch(() => setCsrfToken(null)); // Token je sada csrf_token_guest_upload u kolačiću
     
-    // Dohvati broj postojećih slika
-    if (guestId) {
+    // Dohvati broj postojećih slika samo ako nije proslijeđen kroz props
+    if (guestId && initialImagesCount === undefined) {
       fetch(`/api/guest/images/count?guestId=${guestId}`)
         .then(res => res.json())
         .then(data => {
@@ -66,7 +232,16 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
         })
         .catch(err => console.error("Greška pri dohvatanju broja slika:", err));
     }
-  }, [guestId]);
+  }, [guestId, initialImagesCount]);
+  
+  // Dodajemo novi useEffect koji će osvježiti broj slika kada se komponenta ponovno renderuje
+  React.useEffect(() => {
+    // Ako je proslijeđen initialImagesCount, koristi ga
+    if (initialImagesCount !== undefined) {
+      setExistingImagesCount(initialImagesCount);
+      console.log(`Ažuriran broj postojećih slika iz props-a: ${initialImagesCount}`);
+    }
+  }, [initialImagesCount]);
 
   // Funkcija za resize slike pomoću canvas-a
   async function resizeImage(file: File, maxWidth = 1280): Promise<File> {
@@ -157,7 +332,8 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
           file,
           status: 'waiting',
           progress: 0,
-          preview: URL.createObjectURL(file)
+          preview: URL.createObjectURL(file),
+          id: `${file.name}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}` // Generisanje jedinstvenog ID-a
         };
       });
       setUploadStatuses(initialStatuses);
@@ -235,7 +411,8 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
             idx === i ? { 
               ...status, 
               status: 'error', 
-              error: error instanceof Error ? error.message : "Greška pri uploadu" 
+              error: error instanceof Error ? error.message : "Greška pri uploadu",
+              retryable: true // Označavamo da se ovaj upload može ponovno pokušati
             } : status
           ));
         }
@@ -248,7 +425,7 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
         }, 1500);
       } else {
         // Ako neke slike nisu uploadovane, prikaži poruku o djelimičnom uspjehu
-        alert(`Uspješno je uploadovano ${uploadedCount} od ${values.images.length} slika.`);
+        // Umjesto alert-a, korisnik će vidjeti status svake slike i imati opciju za retry
         setIsLoading(false);
       }
     } catch (error) {
@@ -353,16 +530,49 @@ export function UploadForm({ guestId, message }: UploadFormProps) {
                       <CheckCircle className="h-5 w-5 text-green-500" />
                     )}
                     {status.status === 'error' && (
-                      <AlertCircle className="h-5 w-5 text-red-500" />
+                      <div className="flex items-center space-x-1">
+                        <AlertCircle className="h-5 w-5 text-red-500" />
+                        {status.retryable && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              retryUpload(status.id);
+                            }}
+                            disabled={isLoading}
+                          >
+                            Pokušaj ponovo
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
               ))}
             </div>
             
-            {/* Footer sa informacijom */}
-            <div className="sticky bottom-0 bg-white p-4 border-t border-gray-100 text-center text-sm text-gray-500">
-              Molimo sačekajte dok se slike uploaduju...
+            {/* Footer sa informacijom i opcijom za retry svih */}
+            <div className="sticky bottom-0 bg-white p-4 border-t border-gray-100 flex justify-between items-center">
+              <span className="text-sm text-gray-500">
+                {isLoading 
+                  ? "Molimo sačekajte dok se slike uploaduju..." 
+                  : uploadStatuses.some(s => s.status === 'error' && s.retryable)
+                    ? "Neke slike nisu uspješno uploadovane."
+                    : "Status uploada slika"}
+              </span>
+              
+              {!isLoading && uploadStatuses.some(s => s.status === 'error' && s.retryable) && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-xs"
+                  onClick={retryFailedUploads}
+                >
+                  Pokušaj ponovno sve neuspjele
+                </Button>
+              )}
             </div>
           </div>
         </div>
