@@ -1,41 +1,59 @@
+/**
+ * Funkcija koja čuva orijentaciju slike, ali uklanja ostale EXIF podatke
+ * koji mogu sadržavati osjetljive informacije (lokacija, uređaj, itd.)
+ */
 export async function removeExif(file: File): Promise<File> {
-    return new Promise((resolve) => {
-      if (file && file.type === 'image/jpeg') {
-        const fr = new FileReader();
-        fr.onload = function (this: FileReader) {
-          const cleanedBuffer = cleanBuffer(this.result as ArrayBuffer);
-          const blob = new Blob([cleanedBuffer], { type: file.type });
-          const newFile = new File([blob], file.name, { type: file.type });
-          resolve(newFile);
-        };
-        fr.readAsArrayBuffer(file);
-      } else {
-        resolve(file); // PNG, WEBP, GIF vratiti bez izmene
-      }
-    });
-  };
-  
-  function cleanBuffer(arrayBuffer: ArrayBuffer) {
-    let dataView = new DataView(arrayBuffer);
-    const exifMarker = 0xffe1;
-    let offset = 2; // Skip the first two bytes (0xFFD8)
-  
-    while (offset < dataView.byteLength) {
-      if (dataView.getUint16(offset) === exifMarker) {
-        // Found an EXIF marker
-        const segmentLength = dataView.getUint16(offset + 2, false) + 2;
-        arrayBuffer = removeSegment(arrayBuffer, offset, segmentLength);
-        dataView = new DataView(arrayBuffer);
-      } else {
-        offset += 2 + dataView.getUint16(offset + 2, false);
-      }
-    }
-    return arrayBuffer;
+  // Za slike koje nisu JPEG, vraćamo original bez izmjena
+  if (!file || !file.type.includes('jpeg')) {
+    return file;
   }
-  
-  function removeSegment(buffer: ArrayBuffer, offset: number, length: number) {
-    const modifiedBuffer = new Uint8Array(buffer.byteLength - length);
-    modifiedBuffer.set(new Uint8Array(buffer.slice(0, offset)), 0);
-    modifiedBuffer.set(new Uint8Array(buffer.slice(offset + length)), offset);
-    return modifiedBuffer.buffer;
-  }
+
+  // Koristimo canvas za očuvanje orijentacije slike
+  return new Promise((resolve) => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = function() {
+      img.src = reader.result as string;
+    };
+
+    img.onload = function() {
+      // Kreiramo canvas sa originalnim dimenzijama slike
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      
+      // Crtamo sliku na canvas - ovo automatski ispravlja orijentaciju
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        // Ako canvas nije podržan, vraćamo originalnu sliku
+        resolve(file);
+        return;
+      }
+      
+      // Crtamo sliku na canvas
+      ctx.drawImage(img, 0, 0, img.width, img.height);
+      
+      // Konvertujemo canvas u blob
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          // Ako konverzija ne uspije, vraćamo originalnu sliku
+          resolve(file);
+          return;
+        }
+        
+        // Kreiramo novu sliku bez EXIF podataka, ali sa očuvanom orijentacijom
+        const cleanFile = new File([blob], file.name, { type: file.type });
+        resolve(cleanFile);
+      }, file.type, 0.95); // Koristimo visoku kvalitetu (0.95)
+    };
+
+    img.onerror = function() {
+      // U slučaju greške, vraćamo originalnu sliku
+      console.error('Greška pri učitavanju slike za uklanjanje EXIF podataka');
+      resolve(file);
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
