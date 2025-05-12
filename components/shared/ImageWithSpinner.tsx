@@ -51,7 +51,7 @@ export default function ImageWithSpinner({
           alt={alt}
           loading="lazy"
           className={`object-cover w-full h-full ${rounded ? 'rounded-lg' : ''}`}
-          style={{ background: 'none', ...style, visibility: loading ? 'hidden' : 'visible' }}
+          style={{ background: 'none', ...style, visibility: loading ? 'hidden' : 'visible', imageOrientation: 'from-image' }}
           onLoad={() => setLoading(false)}
           onError={() => { setError(true); setLoading(false) }}
         />
@@ -63,7 +63,7 @@ export default function ImageWithSpinner({
           alt={alt}
           loading="lazy"
           className={`object-cover w-full h-full ${rounded ? 'rounded-lg' : ''}`}
-          style={{ ...style, visibility: loading ? 'hidden' : 'visible' }}
+          style={{ ...style, visibility: loading ? 'hidden' : 'visible', imageOrientation: 'from-image' }}
           onLoad={() => setLoading(false)}
           onError={() => { setError(true); setLoading(false) }}
         />

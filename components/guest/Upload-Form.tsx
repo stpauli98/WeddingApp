@@ -1,7 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react";
-import EXIF from "exif-js";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -249,113 +248,6 @@ async function resizeImage(file: File, maxWidth = 1280): Promise<File> {
   return new Promise((resolve, reject) => {
     const img = new window.Image();
     const reader = new FileReader();
-
-    // Prvo čitamo EXIF podatke da dobijemo orijentaciju
-    EXIF.getData(file as any, function(this: any) {
-      const orientation = EXIF.getTag(this, 'Orientation') || 1;
-      
-      reader.onload = (e) => {
-        img.src = e.target?.result as string;
-      };
-
-      img.onload = () => {
-        let width = img.width;
-        let height = img.height;
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
-        }
-        
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return reject("Canvas not supported");
-        
-        // Postavljamo dimenzije canvasa prema orijentaciji
-        if (orientation > 4 && orientation < 9) {
-          // Za orijentacije 5-8, zamijenimo širinu i visinu
-          canvas.width = height;
-          canvas.height = width;
-        } else {
-          canvas.width = width;
-          canvas.height = height;
-        }
-        
-        // Primjenjujemo transformacije prema EXIF orijentaciji
-        // https://www.daveperrett.com/articles/2012/07/28/exif-orientation-handling-is-a-ghetto/
-        ctx.save();
-        switch (orientation) {
-          case 2: // horizontalno zrcaljenje
-            ctx.translate(width, 0);
-            ctx.scale(-1, 1);
-            break;
-          case 3: // 180° rotacija
-            ctx.translate(width, height);
-            ctx.rotate(Math.PI);
-            break;
-          case 4: // vertikalno zrcaljenje
-            ctx.translate(0, height);
-            ctx.scale(1, -1);
-            break;
-          case 5: // vertikalno zrcaljenje + 90° rotacija
-            ctx.rotate(0.5 * Math.PI);
-            ctx.scale(1, -1);
-            break;
-          case 6: // 90° rotacija
-            ctx.rotate(0.5 * Math.PI);
-            ctx.translate(0, -height);
-            break;
-          case 7: // horizontalno zrcaljenje + 90° rotacija
-            ctx.rotate(0.5 * Math.PI);
-            ctx.translate(width, -height);
-            ctx.scale(-1, 1);
-            break;
-          case 8: // 270° rotacija
-            ctx.rotate(-0.5 * Math.PI);
-            ctx.translate(-width, 0);
-            break;
-        }
-        
-        // Crtamo sliku s primijenjenom transformacijom
-        if (orientation > 4 && orientation < 9) {
-          ctx.drawImage(img, 0, 0, height, width);
-        } else {
-          ctx.drawImage(img, 0, 0, width, height);
-        }
-        
-        ctx.restore();
-
-        // Prvo pokušaj toBlob
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              const newFile = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
-              resolve(newFile);
-            } else {
-              // Fallback na toDataURL ako toBlob ne uspe
-              try {
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-                // Pretvori base64 u Blob ručno
-                const arr = dataUrl.split(','), mime = arr[0].match(/:(.*?);/)![1];
-                const bstr = atob(arr[1]);
-                let n = bstr.length;
-                const u8arr = new Uint8Array(n);
-                while(n--) u8arr[n] = bstr.charCodeAt(n);
-                const fallbackBlob = new Blob([u8arr], { type: mime });
-                const newFile = new File([fallbackBlob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: mime });
-                resolve(newFile);
-              } catch (e) {
-                reject('Neuspešan fallback za canvas.toDataURL');
-              }
-            }
-          },
-          'image/jpeg',
-          0.92
-        );
-      };
-      
-      reader.onerror = (e) => reject(e);
-      reader.readAsDataURL(file);
-    });
   });
 }  
 

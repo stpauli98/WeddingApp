@@ -47,7 +47,6 @@ export function UserGallery({ initialImages, guestId, eventSlug: propEventSlug, 
     }
   }, [searchParams, propEventSlug])
 
-
   return (
     <div className={className}>
       <ImageGallery 
