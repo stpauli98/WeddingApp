@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react";
+import EXIF from "exif-js";
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -243,12 +244,16 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
     }
   }, [initialImagesCount]);
 
-  // Funkcija za resize slike pomoću canvas-a
-  async function resizeImage(file: File, maxWidth = 1280): Promise<File> {
-    return new Promise((resolve, reject) => {
-      const img = new window.Image();
-      const reader = new FileReader();
+  // Funkcija za resize slike pomoću canvas-a i ispravljanje orijentacije
+async function resizeImage(file: File, maxWidth = 1280): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    const reader = new FileReader();
 
+    // Prvo čitamo EXIF podatke da dobijemo orijentaciju
+    EXIF.getData(file as any, function(this: any) {
+      const orientation = EXIF.getTag(this, 'Orientation') || 1;
+      
       reader.onload = (e) => {
         img.src = e.target?.result as string;
       };
@@ -260,12 +265,64 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
           height = Math.round((height * maxWidth) / width);
           width = maxWidth;
         }
+        
         const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
         const ctx = canvas.getContext('2d');
         if (!ctx) return reject("Canvas not supported");
-        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Postavljamo dimenzije canvasa prema orijentaciji
+        if (orientation > 4 && orientation < 9) {
+          // Za orijentacije 5-8, zamijenimo širinu i visinu
+          canvas.width = height;
+          canvas.height = width;
+        } else {
+          canvas.width = width;
+          canvas.height = height;
+        }
+        
+        // Primjenjujemo transformacije prema EXIF orijentaciji
+        // https://www.daveperrett.com/articles/2012/07/28/exif-orientation-handling-is-a-ghetto/
+        ctx.save();
+        switch (orientation) {
+          case 2: // horizontalno zrcaljenje
+            ctx.translate(width, 0);
+            ctx.scale(-1, 1);
+            break;
+          case 3: // 180° rotacija
+            ctx.translate(width, height);
+            ctx.rotate(Math.PI);
+            break;
+          case 4: // vertikalno zrcaljenje
+            ctx.translate(0, height);
+            ctx.scale(1, -1);
+            break;
+          case 5: // vertikalno zrcaljenje + 90° rotacija
+            ctx.rotate(0.5 * Math.PI);
+            ctx.scale(1, -1);
+            break;
+          case 6: // 90° rotacija
+            ctx.rotate(0.5 * Math.PI);
+            ctx.translate(0, -height);
+            break;
+          case 7: // horizontalno zrcaljenje + 90° rotacija
+            ctx.rotate(0.5 * Math.PI);
+            ctx.translate(width, -height);
+            ctx.scale(-1, 1);
+            break;
+          case 8: // 270° rotacija
+            ctx.rotate(-0.5 * Math.PI);
+            ctx.translate(-width, 0);
+            break;
+        }
+        
+        // Crtamo sliku s primijenjenom transformacijom
+        if (orientation > 4 && orientation < 9) {
+          ctx.drawImage(img, 0, 0, height, width);
+        } else {
+          ctx.drawImage(img, 0, 0, width, height);
+        }
+        
+        ctx.restore();
 
         // Prvo pokušaj toBlob
         canvas.toBlob(
@@ -295,10 +352,12 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
           0.92
         );
       };
+      
       reader.onerror = (e) => reject(e);
       reader.readAsDataURL(file);
     });
-  }
+  });
+}  
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Dodatna provjera ukupnog broja slika prije slanja (postojeće + nove)

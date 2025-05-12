@@ -19,8 +19,7 @@ interface UserGalleryProps {
 }
 
 export function UserGallery({ initialImages, guestId, eventSlug: propEventSlug, className }: UserGalleryProps) {
-  const [images, setImages] = useState<Image[]>(initialImages)
-  const [isDeleting, setIsDeleting] = useState<string | null>(null)
+  const [images] = useState<Image[]>(initialImages)
   const [eventSlug, setEventSlug] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -48,39 +47,12 @@ export function UserGallery({ initialImages, guestId, eventSlug: propEventSlug, 
     }
   }, [searchParams, propEventSlug])
 
-  const handleDelete = async (imageId: string) => {
-    if (!confirm("Da li ste sigurni da želite da obrišete ovu sliku?")) {
-      return
-    }
-
-    try {
-      setIsDeleting(imageId)
-      
-      const response = await fetch(`/api/guest/images/delete?id=${imageId}&guestId=${guestId}`, {
-        method: "DELETE",
-      })
-
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || "Greška pri brisanju slike")
-      }
-
-      // Ažuriraj lokalni state
-      setImages(images.filter(img => img.id !== imageId))
-      router.refresh()
-    } catch (error) {
-      console.error("Greška pri brisanju slike:", error)
-      alert(error instanceof Error ? error.message : "Došlo je do greške prilikom brisanja slike")
-    } finally {
-      setIsDeleting(null)
-    }
-  }
 
   return (
     <div className={className}>
       <ImageGallery 
         images={images} 
-        readOnly={false}
+        readOnly={true}
       />
       {images.length < 10 && (
         <Button
