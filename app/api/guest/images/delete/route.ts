@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { prisma } from '@/lib/prisma'
 import crypto from 'crypto';
 import { cookies } from 'next/headers';
+import cloudinary from '@/lib/cloudinary';
 
 // Definisanje tipa za sliku
 
@@ -23,6 +24,7 @@ interface Image {
   guestId: string
   imageUrl: string
   createdAt: Date
+  storagePath?: string // Cloudinary public ID
 }
 
 export async function DELETE(request: Request) {
@@ -58,6 +60,25 @@ export async function DELETE(request: Request) {
 
     if (image.guestId !== guestId) {
       return NextResponse.json({ error: "Nemate dozvolu za brisanje ove slike" }, { status: 403 });
+    }
+
+    // Ako slika ima storagePath (Cloudinary public ID), obriši je iz Cloudinary-a
+    if (image.storagePath) {
+      try {
+        // Obriši sliku iz Cloudinary-a
+        await new Promise<void>((resolve, reject) => {
+          cloudinary.uploader.destroy(image.storagePath!, (error, result) => {
+            if (error) {
+              console.error(`Greška pri brisanju slike iz Cloudinary-a: ${error}`);
+              // Ne prekidamo proces ako ne uspijemo obrisati sliku iz Cloudinary-a
+            }
+            resolve();
+          });
+        });
+      } catch (cloudinaryError) {
+        console.error(`Greška pri brisanju slike iz Cloudinary-a: ${cloudinaryError}`);
+        // Nastavljamo sa brisanjem iz baze čak i ako ne uspijemo obrisati iz Cloudinary-a
+      }
     }
 
     // Obriši sliku iz baze

@@ -102,34 +102,54 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadRes
           }, { status: 400 });
         }
         
-        // Konvertuj u JPG radi optimizacije
+        // Konvertuj sliku za optimizaciju
         const buffer = Buffer.from(await image.arrayBuffer());
-        let jpgBuffer: Buffer;
+        let optimizedBuffer: Buffer;
         try {
-          jpgBuffer = await sharp(buffer).jpeg({ quality: 85 }).toBuffer();
+          // Koristimo sharp za osnovno procesiranje slike
+          optimizedBuffer = await sharp(buffer)
+            .rotate() // Automatski ispravlja orijentaciju na osnovu EXIF podataka
+            .toBuffer();
         } catch (err: any) {
           return NextResponse.json({ 
-            error: `Greška pri konverziji slike ${image.name} u JPG: ${err?.message || "Nepoznata greška"}` 
+            error: `Greška pri optimizaciji slike ${image.name}: ${err?.message || "Nepoznata greška"}` 
           }, { status: 400 });
         }
         
-        // Upload na Cloudinary (koristi upload_stream zbog velikih fajlova)
-        const uploadPromise = new Promise<{ url: string }>((resolve, reject) => {
+        // Upload na Cloudinary sa naprednim transformacijama
+        const uploadPromise = new Promise<{ url: string, publicId: string }>((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
-            { folder: 'wedding-app', resource_type: 'image' },
+            { 
+              folder: 'wedding-app', 
+              resource_type: 'image',
+              // Napredne Cloudinary transformacije za optimizaciju
+              transformation: [
+                { quality: "auto" }, // Automatski optimizira kvalitetu
+                { fetch_format: "auto" }, // Automatski bira najbolji format (WebP za moderne browsere)
+              ],
+              // Dodajemo tag za lakše upravljanje slikama
+              tags: ['wedding-app', 'guest-upload']
+            },
             (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
               if (error || !result) return reject(error || new Error('Upload failed'));
-              resolve({ url: result.secure_url });
+              resolve({ 
+                url: result.secure_url,
+                publicId: result.public_id
+              });
             }
           );
-          stream.end(jpgBuffer);
+          stream.end(optimizedBuffer);
         });
         
-        const { url: imageUrl } = await uploadPromise;
+        const { url: imageUrl, publicId } = await uploadPromise;
         
-        // Upis slike i njenog URL-a u bazu
+        // Upis slike i njenog URL-a u bazu, zajedno sa Cloudinary publicId-om
         const uploadedImage = await prisma.image.create({
-          data: { guestId, imageUrl },
+          data: { 
+            guestId, 
+            imageUrl,
+            storagePath: publicId // Koristimo storagePath polje za čuvanje Cloudinary publicId-a
+          },
         });
         uploadedImages.push(uploadedImage);
       } catch (err: any) {
