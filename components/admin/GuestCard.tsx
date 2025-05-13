@@ -1,5 +1,16 @@
 import React from "react";
 import Image from "next/image";
+import { MessageSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+
+interface Guest {
+  id: string;
+  name: string;
+  message?: string;
+  coverImage?: string;
+  uploadDate: string;
+}
 
 interface GuestCardProps {
   guest: {
@@ -10,50 +21,88 @@ interface GuestCardProps {
     message?: { text: string } | null;
     createdAt: string | Date;
   };
+  onViewPhotos?: (guestId: string) => void;
 }
 
-const GuestCard: React.FC<GuestCardProps> = ({ guest }) => {
+// Adapter funkcija za konverziju starog formata gosta u novi
+function adaptGuest(guest: GuestCardProps["guest"]): Guest {
+  return {
+    id: guest.id,
+    name: `${guest.firstName} ${guest.lastName}`,
+    message: guest.message?.text,
+    coverImage: guest.images.length > 0 ? guest.images[0].imageUrl : undefined,
+    uploadDate: new Date(guest.createdAt).toLocaleString('sr-latn', { 
+      day: '2-digit', 
+      month: 'short', 
+      year: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    })
+  };
+}
+
+const GuestCard: React.FC<GuestCardProps> = ({ guest, onViewPhotos }) => {
+  const adaptedGuest = adaptGuest(guest);
+  
+  const handleViewPhotos = () => {
+    if (onViewPhotos) {
+      onViewPhotos(guest.id);
+    } else {
+      // Fallback na stari način navigacije ako nije proslijeđen onViewPhotos
+      window.location.href = `/admin/dashboard/guest/${guest.id}`;
+    }
+  };
+
   return (
-    <div className="relative bg-white rounded-xl shadow border flex flex-col min-h-[240px]">
-      {/* Prva slika gosta ili placeholder */}
-      {guest.images && guest.images.length > 0 ? (
-        <Image
-          src={guest.images[0].imageUrl}
-          alt={`Slika gosta: ${guest.firstName} ${guest.lastName}`}
-          width={400}
-          height={160}
-          className="w-full h-40 object-cover rounded-t-xl border-b"
-          style={{ minHeight: '160px', backgroundColor: '#f7fafc' }}
-          placeholder="blur"
-          blurDataURL="/placeholder.png"
-        />
-      ) : (
-        <div className="w-full h-40 flex items-center justify-center rounded-t-xl border-b bg-gray-100 text-4xl text-yellow-400 font-bold select-none" style={{ minHeight: '160px' }} role="img" aria-label="Gost bez slike">
-          {guest.firstName?.[0] || ''}{guest.lastName?.[0] || ''}
+    <Card className="overflow-hidden shadow-md transition-all duration-300 hover:shadow-lg">
+      {/* Cover Image */}
+      <div className="relative h-48 w-full overflow-hidden">
+        {adaptedGuest.coverImage ? (
+          <Image
+            src={adaptedGuest.coverImage}
+            alt={`${adaptedGuest.name}'s photos`}
+            className="object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, 400px"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-slate-100 text-4xl font-bold text-amber-400">
+            {guest.firstName?.[0] || ''}{guest.lastName?.[0] || ''}
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="bg-white p-5 flex flex-col h-[220px]">
+        <div className="flex-grow">
+          <h3 className="text-xl font-serif text-amber-700">{adaptedGuest.name}</h3>
+
+          {/* Message */}
+          <div className="mt-3 flex items-start gap-2">
+            <MessageSquare className="mt-1 h-5 w-5 flex-shrink-0 text-slate-400" />
+            {adaptedGuest.message ? (
+              <p className="text-slate-600 line-clamp-3">{adaptedGuest.message}</p>
+            ) : (
+              <p className="text-slate-400 italic line-clamp-3">Gost nije ostavio poruku</p>
+            )}
+          </div>
         </div>
-      )}
-      <div className="flex items-center gap-2 px-4 pt-4">
-        <span className="font-semibold text-base text-yellow-700 flex-1 truncate">{guest.firstName} {guest.lastName}</span>
-      </div>
-      <div className="flex-1 flex flex-col justify-between px-4 pb-4 pt-2">
-        <div className="flex items-start gap-2 min-h-[100px] max-h-[180px] overflow-y-auto">
-          <svg className="mt-1 h-5 w-5 flex-shrink-0 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
-          <p className="text-sm text-gray-600 max-h-[160px] overflow-y-auto">
-            {guest.message && guest.message.text ? guest.message.text : <span className="italic text-gray-400">Nema poruke</span>}
-          </p>
+
+        {/* Footer - fiksno na dnu */}
+        <div className="mt-auto pt-3">
+          {/* View All Button */}
+          <Button
+            className="w-full bg-amber-500 hover:bg-amber-600 text-white"
+            onClick={handleViewPhotos}
+          >
+            Pregledaj sve slike ({guest.images.length})
+          </Button>
+
+          {/* Upload Date */}
+          <p className="mt-2 text-sm text-slate-400 text-center">Prijavljeno: {adaptedGuest.uploadDate}</p>
         </div>
       </div>
-      <div className="flex items-center gap-2 mt-2">
-        <svg className="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7" /><path strokeLinecap="round" strokeLinejoin="round" d="M16 3v4M8 3v4M4 11h16" /></svg>
-        <span className="text-sm text-gray-600">{guest.images.length} slika</span>
-      </div>
-      <div className="text-xs text-gray-400 mt-2">
-        Prijavljen: {new Date(guest.createdAt).toLocaleString('sr-latn', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-      </div>
-      <div className="absolute bottom-0 left-0 w-full bg-white/90 p-4 border-t z-10">
-        <a href={`/admin/dashboard/guest/${guest.id}`} className="block w-full text-center bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded py-2 transition">Pregledaj sve slike</a>
-      </div>
-    </div>
+    </Card>
   );
 };
 

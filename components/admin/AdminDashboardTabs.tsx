@@ -129,7 +129,6 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         <TabsTrigger value="guests" className="min-w-[90px] px-2 py-1 text-xs md:text-sm">Gosti</TabsTrigger>
-        <TabsTrigger value="analytics" className="min-w-[90px] px-2 py-1 text-xs md:text-sm">Statistika</TabsTrigger>
         <TabsTrigger value="gallery" className="min-w-[90px] px-2 py-1 text-xs md:text-sm">Galerija</TabsTrigger>
         <TabsTrigger value="messages" className="min-w-[90px] px-2 py-1 text-xs md:text-sm">Poruke</TabsTrigger>
         <TabsTrigger value="download" className="min-w-[110px] px-2 py-1 text-xs md:text-sm">Preuzimanje</TabsTrigger>
@@ -191,9 +190,6 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
             </div>
           )}
         </> 
-      </TabsContent>
-      <TabsContent value="analytics">
-        <DashboardAnalytics guests={guests} />
       </TabsContent>
       <TabsContent value="gallery">
         <div className="rounded-lg border p-6 bg-white/70">

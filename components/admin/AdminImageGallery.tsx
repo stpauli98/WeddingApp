@@ -1,54 +1,439 @@
-import { useState } from "react";
-import { Download, CheckSquare, Square } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import type { GuestDetail } from "@/components/ui/types";
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import { Download, CheckCircle, X, Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import type { GuestDetail } from "@/components/ui/types";
+import dynamic from "next/dynamic";
 
+// Pomoćna funkcija za preuzimanje slika koja podržava različite formate
+async function downloadImageHelper(imgUrl: string, fileName = "fotografija") {
+  try {
+    // Provjera je li base64
+    const match = imgUrl.match(/^data:image\/(\w+);base64,(.+)$/);
+    if (match) {
+      const ext = match[1] || 'jpg';
+      const base64 = match[2];
+      const byteCharacters = atob(base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: `image/${ext}` });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${fileName}.${ext}`;
+      document.body.appendChild(link);
+      link.click();
+      
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+      }, 100);
+      return;
+    }
+    
+    // Ako nije base64, provjeri je li URL
+    const urlMatch = imgUrl.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?.*)?$/i);
+    const ext = urlMatch ? urlMatch[1] : 'jpg';
+    
+    // Za URL-ove, moramo dohvatiti sliku i pretvoriti je u blob
+    const response = await fetch(imgUrl);
+    if (!response.ok) throw new Error('Neuspješno preuzimanje slike');
+    
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${fileName}.${ext}`;
+    document.body.appendChild(link);
+    link.click();
+    
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    }, 100);
+  } catch (error) {
+    console.error('Greška pri preuzimanju slike:', error);
+    alert('Došlo je do greške pri preuzimanju slike. Molimo pokušajte ponovno.');
+  }
+}
+
+// Tipovi za novu implementaciju
+interface Photo {
+  id: string;
+  imageUrl: string;
+  isLiked?: boolean;
+  uploadDate?: string;
+}
+
+// Tip Guest više nije potreban jer smo uklonili adaptGuestDetail funkciju
+
+// Komponenta za prikaz pojedinačne fotografije
+function PhotoCard({
+  photo,
+  selectionMode,
+  isSelected,
+  onSelect,
+  onLike,
+  onShare,
+}: {
+  photo: Photo;
+  selectionMode: boolean;
+  isSelected: boolean;
+  onSelect: () => void;
+  onLike?: () => void;
+  onShare?: () => void;
+}) {
+  const [fullView, setFullView] = useState<boolean>(false);
+  const validUrl = photo.imageUrl && photo.imageUrl.trim() !== "" ? photo.imageUrl : "/no-image-uploaded.png";
+
+  const downloadImage = (imgUrl: string) => {
+    downloadImageHelper(imgUrl, "fotografija");
+  };
+
+  return (
+    <>
+      <div className="relative overflow-hidden rounded-lg bg-white shadow-md transition-all duration-200 hover:shadow-lg">
+        {selectionMode && (
+          <button
+            className={`absolute left-2 top-2 z-10 rounded-full p-1 ${isSelected ? 'bg-blue-500 text-white' : 'bg-white/80 text-slate-500'}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect();
+            }}
+          >
+            <CheckCircle className="h-5 w-5" />
+          </button>
+        )}
+
+        <div className="relative aspect-square overflow-hidden bg-slate-50">
+          <Image
+            src={validUrl}
+            alt="Fotografija sa vjenčanja"
+            fill
+            className="object-cover transition-transform duration-300 hover:scale-105"
+            onClick={() => setFullView(true)}
+          />
+        </div>
+
+        <div className="flex items-center justify-between p-2">
+          <div className="text-xs text-slate-500">{photo.uploadDate || "Nedavno"}</div>
+          <div className="flex gap-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onLike?.();
+              }}
+              className={`rounded-full p-1 ${photo.isLiked ? 'text-pink-500' : 'text-slate-400 hover:text-pink-400'}`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill={photo.isLiked ? "currentColor" : "none"}
+                stroke="currentColor"
+                className="h-4 w-4"
+                strokeWidth={photo.isLiked ? 0 : 2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                />
+              </svg>
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                downloadImage(validUrl);
+              }}
+              className="rounded-full p-1 text-slate-400 hover:text-blue-500"
+            >
+              <Download className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {fullView && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setFullView(false)}
+        >
+          <div className="relative flex h-full w-full max-h-[90vh] max-w-4xl items-center justify-center">
+            <Image
+              src={validUrl}
+              alt="Slika gosta"
+              width={1200}
+              height={900}
+              className="rounded-2xl bg-white p-2 shadow-2xl object-contain"
+              style={{ maxWidth: '90vw', maxHeight: '85vh', width: 'auto', height: 'auto', display: 'block', margin: '0 auto' }}
+            />
+            {/* X za zatvaranje u gornjem desnom uglu */}
+            <div className="absolute right-4 z-30 flex items-center justify-center" style={{ top: 'calc(1rem + 20px)' }}>
+              <button
+                onClick={e => { e.stopPropagation(); setFullView(false); }}
+                title="Zatvori prikaz"
+                type="button"
+                className="bg-white/80 hover:bg-red-100 border border-gray-200 rounded-full shadow-lg p-2 transition-all duration-150 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-red-400"
+              >
+                <span className="sr-only">Zatvori</span>
+                <X className="w-7 h-7 text-red-500 hover:text-red-700" />
+              </button>
+            </div>
+            {/* Download dugme u donjem desnom uglu */}
+            <div className="absolute right-4 z-30 flex items-center justify-center" style={{ bottom: 'calc(1rem + 20px)' }}>
+              <button
+                onClick={e => { e.stopPropagation(); downloadImage(validUrl); }}
+                title="Preuzmi ovu sliku"
+                type="button"
+                className="bg-white/80 hover:bg-blue-100 border border-gray-200 rounded-full shadow-lg p-2 transition-all duration-150 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                <Download className="w-7 h-7 text-blue-600 hover:text-blue-800" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+
+// Props za AdminImageGallery komponentu
 interface AdminImageGalleryProps {
   images: GuestDetail["images"];
-  selectable?: boolean;
   selectedIds?: string[];
   onSelectChange?: (ids: string[]) => void;
   onDownloadSelected?: () => void;
   downloadSelectedLoading?: boolean;
+  onBack?: () => void;
+  zipFileNamePrefix?: string; // Opcioni prefiks za ime ZIP fajla
 }
 
-export function AdminImageGallery({ images, selectable = true, selectedIds, onSelectChange, onDownloadSelected, downloadSelectedLoading }: AdminImageGalleryProps) {
-  // Ako parent kontroliše selekciju, koristi to, inače lokalni state
-  const [localSelected, setLocalSelected] = useState<Set<string>>(new Set());
-  const selected = selectedIds ? new Set(selectedIds) : localSelected;
-  const setSelected = (fn: (prev: Set<string>) => Set<string>) => {
+// Lokalno skladište za omiljene slike
+const FAVORITES_STORAGE_KEY = 'wedding_app_favorite_images';
+
+// Funkcije za rad s omiljenim slikama
+const getFavoriteImages = (): string[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const stored = localStorage.getItem(FAVORITES_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    console.error('Greška pri čitanju omiljenih slika:', e);
+    return [];
+  }
+};
+
+const saveFavoriteImages = (ids: string[]): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(ids));
+  } catch (e) {
+    console.error('Greška pri spremanju omiljenih slika:', e);
+  }
+};
+
+// Glavna komponenta - AdminImageGallery
+export function AdminImageGallery({ 
+  images, 
+  selectedIds, 
+  onSelectChange, 
+  onDownloadSelected, 
+  downloadSelectedLoading,
+  onBack,
+  zipFileNamePrefix = 'slike'
+}: AdminImageGalleryProps) {
+  const [selectionMode, setSelectionMode] = useState<boolean>(false);
+  const [localSelected, setLocalSelected] = useState<string[]>([]);
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  
+  // Učitaj omiljene slike pri inicijalizaciji komponente
+  useEffect(() => {
+    setFavoriteIds(getFavoriteImages());
+  }, []);
+  
+  // Koristi selectedIds ako je proslijeđen, inače koristi lokalni state
+  const selectedPhotos = selectedIds || localSelected;
+  
+  // Funkcija za promjenu selekcije
+  const handleSelectChange = (newSelection: string[]) => {
     if (onSelectChange) {
-      const next = fn(new Set(selected));
-      onSelectChange(Array.from(next));
+      onSelectChange(newSelection);
     } else {
-      setLocalSelected(fn);
+      setLocalSelected(newSelection);
     }
   };
-  const [fullView, setFullView] = useState<string | null>(null);
 
-  const toggleSelect = (id: string) => {
-    setSelected(prev => {
-      const copy = new Set(prev);
-      if (copy.has(id)) copy.delete(id);
-      else copy.add(id);
-      return copy;
-    });
+  // Toggle selekcije fotografije
+  const togglePhotoSelection = (photoId: string) => {
+    const newSelection = selectedPhotos.includes(photoId)
+      ? selectedPhotos.filter(id => id !== photoId)
+      : [...selectedPhotos, photoId];
+    
+    handleSelectChange(newSelection);
+  };
+  
+  // Toggle omiljene fotografije
+  const toggleFavorite = (photoId: string) => {
+    const newFavorites = favoriteIds.includes(photoId)
+      ? favoriteIds.filter(id => id !== photoId)
+      : [...favoriteIds, photoId];
+    
+    setFavoriteIds(newFavorites);
+    saveFavoriteImages(newFavorites);
   };
 
-  const downloadImage = (imgUrl: string) => {
-    const link = document.createElement("a");
-    link.href = imgUrl;
-    link.download = "slika-gosta.jpg";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // Toggle režima selekcije
+  const toggleSelectionMode = () => {
+    setSelectionMode(prev => !prev);
+    if (selectionMode) {
+      handleSelectChange([]);
+    }
   };
 
-  const downloadSelected = () => {
-    images.filter(img => selected.has(img.id)).forEach(img => downloadImage(img.imageUrl));
+  // Selektuj sve fotografije
+  const selectAll = () => {
+    if (selectedPhotos.length === images.length) {
+      handleSelectChange([]);
+    } else {
+      handleSelectChange(images.map(img => img.id));
+    }
   };
 
+  // Preuzimanje selektovanih slika kao ZIP
+  const downloadSelected = async () => {
+    if (selectedPhotos.length === 0) return;
+    
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      let validCount = 0;
+      
+      for (let idx = 0; idx < images.length; idx++) {
+        const img = images[idx];
+        if (!selectedPhotos.includes(img.id)) continue;
+        
+        try {
+          if (typeof img.imageUrl !== 'string') continue;
+          
+          // Provjera je li base64
+          const match = img.imageUrl.match(/^data:image\/(\w+);base64,(.+)$/);
+          if (match) {
+            const ext = match[1] || 'jpg';
+            const base64 = match[2];
+            zip.file(`slika_${idx + 1}.${ext}`, base64, { base64: true });
+            validCount++;
+            continue;
+          }
+          
+          // Provjera je li URL
+          const urlMatch = img.imageUrl.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?.*)?$/i);
+          const ext = urlMatch ? urlMatch[1] : 'jpg';
+          const response = await fetch(img.imageUrl);
+          if (!response.ok) continue;
+          const blob = await response.blob();
+          zip.file(`slika_${idx + 1}.${ext}`, blob);
+          validCount++;
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error('Nevalidna slika za ZIP:', img.imageUrl?.slice(0, 40));
+        }
+      }
+      
+      if (validCount === 0) {
+        window.alert('Nijedna selektovana slika nije validna za preuzimanje.');
+        return;
+      }
+      
+      const blob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${zipFileNamePrefix}_selektovane_slike.zip`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        a.remove();
+      }, 500);
+    } catch (error) {
+      console.error('Greška pri kreiranju ZIP fajla:', error);
+      window.alert('Došlo je do greške pri kreiranju ZIP fajla.');
+    }
+  };
+
+  // Preuzimanje svih slika kao ZIP
+  const downloadAll = async () => {
+    if (images.length === 0) return;
+    
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      let validCount = 0;
+      
+      for (let idx = 0; idx < images.length; idx++) {
+        const img = images[idx];
+        try {
+          if (typeof img.imageUrl !== 'string') continue;
+          
+          // Provjera je li base64
+          const match = img.imageUrl.match(/^data:image\/(\w+);base64,(.+)$/);
+          if (match) {
+            const ext = match[1] || 'jpg';
+            const base64 = match[2];
+            zip.file(`slika_${idx + 1}.${ext}`, base64, { base64: true });
+            validCount++;
+            continue;
+          }
+          
+          // Provjera je li URL
+          const urlMatch = img.imageUrl.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?.*)?$/i);
+          const ext = urlMatch ? urlMatch[1] : 'jpg';
+          const response = await fetch(img.imageUrl);
+          if (!response.ok) continue;
+          const blob = await response.blob();
+          zip.file(`slika_${idx + 1}.${ext}`, blob);
+          validCount++;
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error('Nevalidna slika za ZIP:', img.imageUrl?.slice(0, 40));
+        }
+      }
+      
+      if (validCount === 0) {
+        window.alert('Nijedna slika nije validna za preuzimanje.');
+        return;
+      }
+      
+      const blob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${zipFileNamePrefix}_sve_slike.zip`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        a.remove();
+      }, 500);
+    } catch (error) {
+      console.error('Greška pri kreiranju ZIP fajla:', error);
+      window.alert('Došlo je do greške pri kreiranju ZIP fajla.');
+    }
+  };
+
+  // Ako nema slika, prikaži poruku
   if (images.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-6 gap-2">
@@ -64,109 +449,156 @@ export function AdminImageGallery({ images, selectable = true, selectedIds, onSe
     );
   }
 
+  // Više ne koristimo guestData jer smo uklonili header sekciju
+
   return (
-    <>
-      <div className="flex gap-2 mb-4">
-        <Button
-          variant="outline"
-          disabled={selected.size === 0 || !!downloadSelectedLoading}
-          onClick={onDownloadSelected || downloadSelected}
-          className="flex items-center gap-2"
-        >
-          {downloadSelectedLoading ? (
-            <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
-          ) : (
-            <Download className="w-4 h-4" />
-          )}
-          Preuzmi selektovane ({selected.size})
-        </Button>
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        {images.map(img => {
-          const validUrl = img.imageUrl && img.imageUrl.trim() !== "" ? img.imageUrl : "/no-image-uploaded.png";
-          return (
-            <div
-              key={img.id}
-              className={`relative border rounded-xl overflow-hidden group bg-white shadow-lg transition-transform duration-200 hover:shadow-xl hover:scale-105 ${selected.has(img.id) ? 'ring-2 ring-blue-500' : ''}`}
+    <div>
+      {onBack && (
+        <button onClick={onBack} className="mb-6 flex items-center text-blue-600 hover:text-blue-800 transition-colors">
+          ← Natrag na popis gostiju
+        </button>
+      )}
+
+      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="p-4 flex justify-between items-center border-b">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-medium text-slate-800">Fotografije</h2>
+            <Badge variant="outline" className="bg-white/50">
+              {images.length} fotografija
+            </Badge>
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+              onClick={toggleSelectionMode}
             >
-              <button
-                className="absolute top-2 left-2 z-10 bg-white/80 rounded p-1"
-                onClick={e => { e.stopPropagation(); toggleSelect(img.id); }}
-                title={selected.has(img.id) ? 'Deselect' : 'Select'}
-                type="button"
-                aria-label={selected.has(img.id) ? 'Deselektuj sliku' : 'Selektuj sliku'}
-              >
-                {selected.has(img.id) ? <CheckSquare className="text-blue-600 w-5 h-5" aria-label="Selektovano" role="img" /> : <Square className="w-5 h-5 text-gray-400" aria-label="Nije selektovano" role="img" />}
-              </button>
-              {!selectable && (
-                <button
-                  className="absolute top-2 right-2 z-10 bg-white/80 rounded p-1"
-                  onClick={e => { e.stopPropagation(); downloadImage(validUrl); }}
-                  title="Preuzmi sliku"
-                  type="button"
-                  aria-label="Preuzmi sliku"
-                >
-                  <Download className="w-5 h-5 text-gray-700" aria-label="Preuzmi sliku" role="img" />
-                </button>
+              {selectionMode ? (
+                <>
+                  <X className="mr-1 h-4 w-4" />
+                  Otkaži
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="mr-1 h-4 w-4" />
+                  Odaberi
+                </>
               )}
-              {/* Prikaz slike sa alt opisom */}
-              <Image
-                src={validUrl}
-                alt={'Slika gosta'}
-                width={400}
-                height={400}
-                className="object-contain max-w-xs max-h-60 block bg-[#eee] cursor-pointer"
-                style={{display: 'block', margin: '0 auto'}}
-                onClick={() => setFullView(validUrl)}
-                title="Klikni za prikaz u punoj veličini"
-                draggable={false}
-              />
-            </div>
-          );
-        })}
-      </div>
-      {fullView && (
-        <div
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-          onClick={() => setFullView(null)}
-        >
-          <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
-            <Image
-              src={fullView && fullView.trim() !== "" ? fullView : "/no-image-uploaded.png"}
-              alt="Slika gosta"
-              width={1200}
-              height={900}
-              className="object-contain rounded-2xl bg-white p-2 shadow-2xl"
-              style={{ maxWidth: '90vw', maxHeight: '85vh', width: 'auto', height: 'auto', display: 'block', margin: '0 auto' }}
-            />
-            {/* X za zatvaranje u gornjem desnom uglu */}
-            <div className="absolute right-4 z-30 flex items-center justify-center" style={{ top: 'calc(1rem + 20px)' }}>
-              <button
-                onClick={e => { e.stopPropagation(); setFullView(null); }}
-                title="Zatvori prikaz"
-                type="button"
-                className="bg-white/80 hover:bg-red-100 border border-gray-200 rounded-full shadow-lg p-2 transition-all duration-150 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-red-400"
-              >
-                <span className="sr-only">Zatvori</span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7 text-red-500 hover:text-red-700">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            {/* Download dugme u donjem desnom uglu */}
-            <div className="absolute right-4 z-30 flex items-center justify-center" style={{ bottom: 'calc(1rem + 20px)' }}>
-              <button
-                onClick={e => { e.stopPropagation(); downloadImage(fullView); }}
-                title="Preuzmi ovu sliku"
-                type="button"
-                className="bg-white/80 hover:bg-blue-100 border border-gray-200 rounded-full shadow-lg p-2 transition-all duration-150 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <Download className="w-7 h-7 text-blue-600 hover:text-blue-800" />
-              </button>
-            </div>
+            </Button>
+            <Button
+              className="bg-blue-100 hover:bg-blue-200 text-blue-700"
+              size="sm"
+              onClick={downloadAll}
+            >
+              <Download className="mr-1 h-4 w-4" />
+              Preuzmi sve
+            </Button>
           </div>
         </div>
-      )}
-    </>
+
+        {/* Selection Controls */}
+        {selectionMode && (
+          <div className="flex items-center justify-between px-6 py-3 bg-blue-50 border-y border-blue-100">
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" className="text-blue-700 hover:bg-blue-100" onClick={selectAll}>
+                {selectedPhotos.length === images.length ? "Poništi sve" : "Odaberi sve"}
+              </Button>
+              <span className="text-sm text-slate-500">
+                {selectedPhotos.length} od {images.length} odabrano
+              </span>
+            </div>
+            <Button
+              size="sm"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+              disabled={selectedPhotos.length === 0 || !!downloadSelectedLoading}
+              onClick={onDownloadSelected || downloadSelected}
+            >
+              {downloadSelectedLoading ? (
+                <svg className="animate-spin w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+              ) : (
+                <Download className="mr-1 h-4 w-4" />
+              )}
+              Preuzmi odabrano
+            </Button>
+          </div>
+        )}
+
+        {/* Tabs */}
+        <Tabs defaultValue="all" className="px-6 pt-4">
+          <div className="flex items-center justify-between mb-4">
+            <TabsList className="bg-slate-100">
+              <TabsTrigger value="all" className="data-[state=active]:bg-white">
+                Sve fotografije
+              </TabsTrigger>
+              <TabsTrigger value="favorites" className="data-[state=active]:bg-white">
+                Omiljene
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value="all" className="m-0">
+            <div className="w-full">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pb-6">
+                {images.map((img) => {
+                  const photo: Photo = {
+                    id: img.id,
+                    imageUrl: img.imageUrl,
+                    isLiked: favoriteIds.includes(img.id)
+                  };
+                  return (
+                    <PhotoCard
+                      key={img.id}
+                      photo={photo}
+                      selectionMode={selectionMode}
+                      isSelected={selectedPhotos.includes(img.id)}
+                      onSelect={() => togglePhotoSelection(img.id)}
+                      onLike={() => toggleFavorite(img.id)}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="favorites" className="m-0">
+            <div className="w-full">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pb-6">
+                {images
+                  .filter(img => favoriteIds.includes(img.id))
+                  .map((img) => {
+                    const photo: Photo = {
+                      id: img.id,
+                      imageUrl: img.imageUrl,
+                      isLiked: true
+                    };
+                    return (
+                      <PhotoCard
+                        key={img.id}
+                        photo={photo}
+                        selectionMode={selectionMode}
+                        isSelected={selectedPhotos.includes(img.id)}
+                        onSelect={() => togglePhotoSelection(img.id)}
+                        onLike={() => toggleFavorite(img.id)}
+                      />
+                    );
+                  })}
+
+                {favoriteIds.length === 0 && (
+                  <div className="col-span-3 py-12 text-center text-slate-500">
+                    <p>Još uvijek nemate omiljenih fotografija</p>
+                    <p className="text-sm mt-2 text-slate-400">Kliknite na ikonu srca na fotografijama koje želite označiti kao omiljene</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
   );
 }
