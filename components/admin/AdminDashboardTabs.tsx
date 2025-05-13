@@ -131,7 +131,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
         <TabsTrigger value="guests" className="min-w-[90px] px-2 py-1 text-xs md:text-sm">Gosti</TabsTrigger>
         <TabsTrigger value="gallery" className="min-w-[90px] px-2 py-1 text-xs md:text-sm">Galerija</TabsTrigger>
         <TabsTrigger value="messages" className="min-w-[90px] px-2 py-1 text-xs md:text-sm">Poruke</TabsTrigger>
-        <TabsTrigger value="download" className="min-w-[110px] px-2 py-1 text-xs md:text-sm">Preuzimanje</TabsTrigger>
+       {/* <TabsTrigger value="download" className="min-w-[110px] px-2 py-1 text-xs md:text-sm">Preuzimanje</TabsTrigger> */}
         <TabsTrigger value="help" className="min-w-[80px] px-2 py-1 text-xs md:text-sm">Pomoć</TabsTrigger>
       </TabsList>
       <TabsContent value="guests">
@@ -211,14 +211,14 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
           }))} />
         </div>
       </TabsContent>
-      <TabsContent value="download">
+      {/* <TabsContent value="download">
         <div className="rounded-lg border p-6 bg-white/70">
           <AdminDownloadTab
             imagesCount={guests.reduce((acc: number, g: any) => acc + g.images.length, 0)}
             messagesCount={guests.filter((g: any) => g.message && g.message.text && g.message.text.trim() !== '').length}
           />
         </div>
-      </TabsContent>
+      </TabsContent> */}
       <TabsContent value="help">
         <div className="rounded-lg border p-6 bg-white/70">
           <AdminHelpContact />
