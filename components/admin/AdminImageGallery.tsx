@@ -453,46 +453,39 @@ export function AdminImageGallery({
 
   return (
     <div>
-      {onBack && (
-        <button onClick={onBack} className="mb-6 flex items-center text-blue-600 hover:text-blue-800 transition-colors">
-          ← Natrag na popis gostiju
-        </button>
-      )}
-
       <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="p-4 flex justify-between items-center border-b">
+        <div className="p-3 sm:p-4 flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-0 sm:items-center border-b">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-medium text-slate-800">Fotografije</h2>
             <Badge variant="outline" className="bg-white/50">
               {images.length} fotografija
             </Badge>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
               size="sm"
-              className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+              className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 text-xs sm:text-sm flex-1 sm:flex-none"
               onClick={toggleSelectionMode}
             >
               {selectionMode ? (
                 <>
-                  <X className="mr-1 h-4 w-4" />
+                  <X className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
                   Otkaži
                 </>
               ) : (
                 <>
-                  <CheckCircle className="mr-1 h-4 w-4" />
+                  <CheckCircle className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
                   Odaberi
                 </>
               )}
             </Button>
             <Button
-              className="bg-blue-100 hover:bg-blue-200 text-blue-700"
+              className="bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs sm:text-sm flex-1 sm:flex-none"
               size="sm"
               onClick={downloadAll}
             >
-              <Download className="mr-1 h-4 w-4" />
+              <Download className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
               Preuzmi sve
             </Button>
           </div>
@@ -500,23 +493,23 @@ export function AdminImageGallery({
 
         {/* Selection Controls */}
         {selectionMode && (
-          <div className="flex items-center justify-between px-6 py-3 bg-blue-50 border-y border-blue-100">
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" className="text-blue-700 hover:bg-blue-100" onClick={selectAll}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-6 py-3 bg-blue-50 border-y border-blue-100 gap-2 sm:gap-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="ghost" size="sm" className="text-blue-700 hover:bg-blue-100 text-xs sm:text-sm" onClick={selectAll}>
                 {selectedPhotos.length === images.length ? "Poništi sve" : "Odaberi sve"}
               </Button>
-              <span className="text-sm text-slate-500">
+              <span className="text-xs sm:text-sm text-slate-500">
                 {selectedPhotos.length} od {images.length} odabrano
               </span>
             </div>
             <Button
               size="sm"
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm w-full sm:w-auto"
               disabled={selectedPhotos.length === 0 || !!downloadSelectedLoading}
               onClick={onDownloadSelected || downloadSelected}
             >
               {downloadSelectedLoading ? (
-                <svg className="animate-spin w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>

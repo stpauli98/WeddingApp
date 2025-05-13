@@ -3,6 +3,7 @@ import Image from "next/image";
 import { MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { saveScrollPosition } from "@/lib/scrollPosition";
 
 interface Guest {
   id: string;
@@ -45,6 +46,9 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest, onViewPhotos }) => {
   const adaptedGuest = adaptGuest(guest);
   
   const handleViewPhotos = () => {
+    // Sačuvaj trenutnu poziciju skrola prije navigacije
+    saveScrollPosition();
+    
     if (onViewPhotos) {
       onViewPhotos(guest.id);
     } else {

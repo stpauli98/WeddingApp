@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/formatDate";
 import { GuestMessage } from "@/components/guest/GuestMessage";
 import type { GuestDetail } from "@/components/ui/types";
 import { ArrowLeft, RefreshCw } from "lucide-react";
+import { getScrollPosition, restoreScrollPosition } from "@/lib/scrollPosition";
 
 export default function GuestDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -116,7 +117,12 @@ export default function GuestDetailPage({ params }: { params: Promise<{ id: stri
             selectedIds={selectedImageIds}
             onSelectChange={setSelectedImageIds}
             zipFileNamePrefix={`gost_${guest.firstName}_${guest.lastName}`}
-            onBack={() => router.replace("/admin/dashboard")}
+            onBack={() => {
+              router.replace("/admin/dashboard");
+              // Vraćamo korisnika na sačuvanu poziciju skrola nakon navigacije
+              // Dodajemo malo kašnjenje da se stranica prvo učita
+              setTimeout(() => restoreScrollPosition(), 100);
+            }}
           />
         ) : (
           <div className="italic text-gray-400 border rounded-lg p-4 bg-gray-50">Gost nije uploadovao nijednu fotografiju.</div>
