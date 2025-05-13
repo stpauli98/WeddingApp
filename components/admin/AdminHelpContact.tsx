@@ -2,43 +2,131 @@ import React from "react";
 
 const AdminHelpContact: React.FC = () => {
   return (
-    <div className="max-w-xl mx-auto p-8 bg-gradient-to-br from-blue-50 via-white/80 to-yellow-50 rounded-2xl shadow-lg flex flex-col gap-6 items-center border border-blue-100">
-      <div className="flex flex-col items-center gap-2">
-        <span className="text-5xl animate-bounce">🤝</span>
-        <h3 className="text-2xl font-extrabold text-blue-700 mb-1 tracking-tight">Pomoć & Podrška</h3>
-        <span className="text-sm text-gray-500">Vaš digitalni asistent za admin panel</span>
-      </div>
-      <div className="w-full flex flex-col md:flex-row gap-6">
-        <div className="flex-1 flex flex-col gap-2 bg-white/80 rounded-xl p-4 border border-yellow-100 shadow-sm">
-          <h4 className="font-semibold text-yellow-700 mb-1 text-base flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="FAQ" role="img"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636a9 9 0 11-12.728 0M12 3v9" /></svg>
-            Najčešća pitanja (FAQ)
-          </h4>
-          <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-            <li><span className="font-semibold text-gray-900">Kako preuzeti sve slike?</span> — U tabu <b>Preuzimanje</b> kliknite na odgovarajuće dugme za eksport.</li>
-            <li><span className="font-semibold text-gray-900">Ne vidim slike gosta?</span> — Proverite da li je gost uspešno uploadovao slike i da li je stranica osvežena.</li>
-            <li><span className="font-semibold text-gray-900">Kako kontaktirati podršku?</span> — Pišite nam na <a href="mailto:pixelnext9@gmail.com" className="text-yellow-700 underline" title="Pošalji email podršci">pixelnext9@gmail.com</a>.</li>
-            <li><span className="font-semibold text-gray-900">Mogu li izbrisati sliku?</span> — Da, klikom na ikonicu korpe pored slike u galeriji.</li>
-          </ul>
+    <div className="max-w-xl mx-auto p-6 bg-white rounded-xl shadow-md border border-gray-100 flex flex-col gap-5">
+      <div className="flex items-center gap-4 border-b border-gray-100 pb-4">
+        <div className="bg-gradient-to-br from-pink-400 to-rose-500 p-3 rounded-full">
+          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
         </div>
-        <div className="flex-1 flex flex-col gap-2 bg-white/80 rounded-xl p-4 border border-blue-100 shadow-sm">
-          <h4 className="font-semibold text-blue-700 mb-1 text-base flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="FAQ" role="img"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12v2a4 4 0 01-8 0v-2" /><circle cx="12" cy="8" r="4" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 16v2a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
-            Kontaktirajte nas
-          </h4>
-          <div className="text-sm text-gray-700">
-            <p>Naš tim za podršku je tu za vas svaki dan od 9 do 18h.</p>
-            <p className="mt-1">Email: <a href="mailto:pixelnext9@gmail.com" className="text-blue-700 underline font-semibold" title="Pošalji email podršci">pixelnext9@gmail.com</a></p>
-            <p className="mt-1">Odgovaramo u roku od 24h.</p>
+        <div>
+          <h3 className="text-xl font-bold text-gray-800">Vaš vjenčani album</h3>
+          <p className="text-sm text-gray-500">Upravljajte uspomenama s vašeg posebnog dana</p>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="flex flex-col gap-3 p-4 bg-rose-50 rounded-lg border border-rose-100 hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-2">
+            <div className="bg-rose-100 p-2 rounded-lg">
+              <svg className="w-4 h-4 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h4 className="font-semibold text-gray-800">Galerija uspomena</h4>
+          </div>
+          <p className="text-sm text-gray-600">
+            Pregledajte sve fotografije koje su vaši gosti podijelili. Svaka slika je dragocjena uspomena s vašeg posebnog dana.
+          </p>
+          <div className="flex items-center gap-1 text-xs text-rose-600">
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Sve slike možete preuzeti i sačuvati zauvijek</span>
+          </div>
+        </div>
+        
+        <div className="flex flex-col gap-3 p-4 bg-indigo-50 rounded-lg border border-indigo-100 hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-2">
+            <div className="bg-indigo-100 p-2 rounded-lg">
+              <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+            </div>
+            <h4 className="font-semibold text-gray-800">Čestitke i poruke</h4>
+          </div>
+          <p className="text-sm text-gray-600">
+            Čitajte tople želje i čestitke vaših najmilijih. Svaka poruka je jedinstvena i odražava ljubav koju vam šalju.
+          </p>
+          <div className="flex items-center gap-1 text-xs text-indigo-600">
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Kreirajte knjigu čestitki u PDF formatu</span>
           </div>
         </div>
       </div>
-      <div className="w-full flex flex-col items-center gap-2 mt-2">
-        <div className="flex items-center gap-2 bg-yellow-100/80 border border-yellow-300 rounded-lg px-4 py-2 text-yellow-800 text-sm shadow-sm">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="FAQ" role="img"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01" /></svg>
-          <span>Preporučujemo da redovno preuzimate slike i poruke radi čuvanja uspomena.</span>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="flex flex-col gap-3 p-4 bg-amber-50 rounded-lg border border-amber-100 hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-2">
+            <div className="bg-amber-100 p-2 rounded-lg">
+              <svg className="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+              </svg>
+            </div>
+            <h4 className="font-semibold text-gray-800">QR kod za goste</h4>
+          </div>
+          <p className="text-sm text-gray-600">
+            Podijelite jedinstveni QR kod s vašim gostima kako bi jednostavno pristupili i podijelili svoje fotografije.
+          </p>
+          <div className="flex items-center gap-1 text-xs text-amber-600">
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Isprintajte QR kod za stolove na vjenčanju</span>
+          </div>
         </div>
-        <p className="text-xs text-gray-400 mt-1">Hvala što koristite našu aplikaciju i želimo vam mnogo sreće i lepih uspomena! 💛</p>
+        
+        <div className="flex flex-col gap-3 p-4 bg-emerald-50 rounded-lg border border-emerald-100 hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-2">
+            <div className="bg-emerald-100 p-2 rounded-lg">
+              <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+            </div>
+            <h4 className="font-semibold text-gray-800">Vaša jedinstvena poveznica</h4>
+          </div>
+          <p className="text-sm text-gray-600">
+            Kopirajte i podijelite vašu personaliziranu poveznicu putem društvenih mreža ili poruka s vašim gostima.
+          </p>
+          <div className="flex items-center gap-1 text-xs text-emerald-600">
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>www.mojasvadbaa.com/vas-event</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="mt-2 p-4 bg-gradient-to-r from-rose-50 to-pink-50 rounded-lg border border-rose-100">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="bg-rose-100 p-2 rounded-full">
+            <svg className="w-4 h-4 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+            </svg>
+          </div>
+          <h4 className="font-semibold text-gray-800">Trebate pomoć?</h4>
+        </div>
+        <p className="text-sm text-gray-600 mb-3">
+          Tu smo za vas u svakom trenutku. Ako imate pitanja ili trebate podršku, slobodno nas kontaktirajte.  
+        </p>
+        <a 
+          href="mailto:pixelnext9@gmail.com" 
+          className="inline-flex items-center gap-2 text-sm font-medium text-white bg-gradient-to-r from-rose-500 to-pink-500 px-4 py-2 rounded-lg hover:from-rose-600 hover:to-pink-600 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Kontaktirajte nas
+        </a>
+      </div>
+      
+      <div className="flex items-center justify-center gap-2 mt-1">
+        <svg className="w-4 h-4 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+        <p className="text-xs text-gray-500">Vaše uspomene su sigurne i privatne</p>
       </div>
     </div>
   );
