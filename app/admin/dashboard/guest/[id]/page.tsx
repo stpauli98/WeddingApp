@@ -61,8 +61,8 @@ export default function GuestDetailPage({ params }: { params: Promise<{ id: stri
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-2">
-          <svg className="animate-spin w-8 h-8 text-yellow-500" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
-          <div className="text-gray-500 mt-2">Učitavanje podataka o gostu...</div>
+          <svg className="animate-spin w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
+          <div className="text-muted-foreground mt-2">Učitavanje podataka o gostu...</div>
         </div>
       </div>
     );
@@ -71,12 +71,12 @@ export default function GuestDetailPage({ params }: { params: Promise<{ id: stri
   if (error || !guest) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="bg-white rounded-xl shadow border p-8 max-w-md w-full text-center">
-          <h1 className="text-2xl font-bold mb-4 text-red-600">{error === "NOT_FOUND" ? "Gost nije pronađen" : error || "Greška"}</h1>
+        <div className="bg-card rounded-xl shadow border p-8 max-w-md w-full text-center">
+          <h1 className="text-2xl font-bold mb-4 text-destructive">{error === "NOT_FOUND" ? "Gost nije pronađen" : error || "Greška"}</h1>
           <button
             type="button"
             onClick={() => router.replace("/admin/dashboard")}
-            className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            className="inline-block px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition"
           >
             Nazad na dashboard
           </button>
@@ -86,26 +86,26 @@ export default function GuestDetailPage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <div className="container mx-auto max-w-2xl p-6 md:p-10 bg-white rounded-xl shadow border">
+    <div className="container mx-auto max-w-2xl p-6 md:p-10 bg-card rounded-xl shadow border">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-yellow-100 border text-yellow-600 text-2xl font-bold">
+        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 border text-primary text-2xl font-bold">
           {guest.firstName?.[0]}{guest.lastName?.[0]}
         </div>
         <div className="flex-1">
-          <div className="text-xl font-bold text-yellow-700">{guest.firstName} {guest.lastName}</div>
+          <div className="text-xl font-bold text-primary">{guest.firstName} {guest.lastName}</div>
         </div>
       </div>
       {/* Poruka gosta */}
       <div className="mb-8">
-        <div className="mb-2 text-sm text-gray-500 font-semibold flex items-center gap-2">
-          <svg className="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
+        <div className="mb-2 text-sm text-muted-foreground font-semibold flex items-center gap-2">
+          <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
           Poruka gosta
         </div>
         {guest.message && guest.message.text ? (
           <GuestMessage message={{ text: guest.message.text }} />
         ) : (
-          <div className="italic text-gray-400 border rounded-lg p-4 bg-gray-50">Gost nije ostavio poruku.</div>
+          <div className="italic text-muted-foreground border rounded-lg p-4 bg-muted">Gost nije ostavio poruku.</div>
         )}
       </div>
       
@@ -125,7 +125,7 @@ export default function GuestDetailPage({ params }: { params: Promise<{ id: stri
             }}
           />
         ) : (
-          <div className="italic text-gray-400 border rounded-lg p-4 bg-gray-50">Gost nije uploadovao nijednu fotografiju.</div>
+          <div className="italic text-muted-foreground border rounded-lg p-4 bg-muted">Gost nije uploadovao nijednu fotografiju.</div>
         )}
       </div>
     </div>

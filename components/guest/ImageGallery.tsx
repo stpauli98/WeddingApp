@@ -114,13 +114,13 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
     <>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {images.map((image) => (
-          <Card key={image.id} className="relative aspect-square overflow-hidden group bg-white border border-[#E2C275] shadow-lg rounded-xl transition-transform duration-200 hover:shadow-xl hover:scale-105">
+          <Card key={image.id} className="relative aspect-square overflow-hidden group bg-card border border-primary shadow-lg rounded-xl transition-transform duration-200 hover:shadow-xl hover:scale-105">
             {/* Dugme za brisanje slike */}
             {!readOnly && (
               <Button
                 variant="destructive"
                 size="icon"
-                className="absolute top-2 right-2 z-20 bg-white/90 border border-[#E2C275] shadow-md rounded-full p-1 hover:bg-[#F5E7C1] hover:scale-110 transition-all duration-150"
+                className="absolute top-2 right-2 z-20 bg-card/90 border border-primary shadow-md rounded-full p-1 hover:bg-primary/10 hover:scale-110 transition-all duration-150"
                 onClick={e => { e.stopPropagation(); handleDelete(image.id); }}
                 disabled={deletingId === image.id}
                 aria-label="Obriši sliku"
@@ -128,7 +128,7 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
                 {deletingId === image.id ? (
                   <svg className="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
                 ) : (
-                  <Trash className="h-3 w-3 text-[#C6942E] group-hover:text-red-600 transition-colors duration-150" />
+                  <Trash className="h-3 w-3 text-primary group-hover:text-destructive transition-colors duration-150" />
                 )}
               </Button>
             )}
@@ -147,7 +147,7 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
                   rounded={true}
                 />
               ) : (
-                <div className="flex items-center justify-center w-full h-full bg-red-100 text-red-500 text-center text-sm p-4">
+                <div className="flex items-center justify-center w-full h-full bg-destructive/10 text-destructive text-center text-sm p-4">
                   Greška: Slika nije dostupna ili nije validan URL
                 </div>
               )}
@@ -160,12 +160,12 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
       {/* Modal za prikaz slike u punoj veličini */}
       {selectedImage && (
   <div 
-    className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+    className="fixed inset-0 bg-background/90 z-50 flex items-center justify-center p-4"
     onClick={closeFullView}
   >
     <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
       <div
-        className="mx-auto bg-white/90 border-4 border-[#E2C275] rounded-2xl shadow-2xl p-1 flex items-center justify-center relative"
+        className="mx-auto bg-card/90 border-4 border-primary rounded-2xl shadow-2xl p-1 flex items-center justify-center relative"
         style={{ maxWidth: '96vw', maxHeight: '90vh' }}
       >
         {selectedImage && typeof selectedImage === 'string' ? (
@@ -180,7 +180,7 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
             rounded={true}
           />
         ) : (
-          <div className="flex items-center justify-center w-full h-full bg-red-100 text-red-500 text-center text-sm p-4">
+          <div className="flex items-center justify-center w-full h-full bg-destructive/10 text-destructive text-center text-sm p-4">
             Greška: Slika nije dostupna ili nije validan URL
           </div>
         )}

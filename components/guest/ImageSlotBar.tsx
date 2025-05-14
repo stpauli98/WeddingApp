@@ -14,16 +14,16 @@ export function ImageSlotBar({ current, max }: ImageSlotBarProps) {
   return (
     <div className="w-full mb-4">
       <div className="flex justify-between mb-1 text-sm font-medium">
-        <span className="text-gray-700">Slike</span>
-        <span className="text-gray-500">{current} / {max}</span>
+        <span className="text-foreground">Slike</span>
+        <span className="text-muted-foreground">{current} / {max}</span>
       </div>
-      <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden border border-[#E2C275]">
+      <div className="w-full h-4 bg-muted rounded-full overflow-hidden border border-primary">
         <div
-          className="h-full bg-gradient-to-r from-[#E2C275] to-yellow-200 rounded-full transition-all duration-300"
+          className="h-full bg-primary rounded-full transition-all duration-300"
           style={{ width: `${percent}%` }}
         />
       </div>
-      <div className="text-xs text-gray-500 mt-1 text-right">
+      <div className="text-xs text-muted-foreground mt-1 text-right">
         {max - current > 0
           ? `Možete dodati još ${max - current} ${max - current === 1 ? 'sliku' : 'slika'}`
           : 'Dostigli ste maksimalan broj slika'}

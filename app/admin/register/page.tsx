@@ -43,14 +43,14 @@ export default function AdminRegisterPage() {
   function getStrengthBarInfo(strength: string): { percent: number; color: string } {
     switch (strength) {
       case "Jaka":
-        return { percent: 100, color: "bg-green-500" };
+        return { percent: 100, color: "bg-primary" };
       case "Srednja":
-        return { percent: 66, color: "bg-yellow-500" };
+        return { percent: 66, color: "bg-accent" };
       case "Slaba":
       case "Slaba (min 6 znakova)":
-        return { percent: 33, color: "bg-red-500" };
+        return { percent: 33, color: "bg-destructive" };
       default:
-        return { percent: 0, color: "bg-gray-300" };
+        return { percent: 0, color: "bg-muted" };
     }
   }
 
@@ -120,7 +120,7 @@ export default function AdminRegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Admin Registracija</CardTitle>
@@ -171,16 +171,16 @@ export default function AdminRegisterPage() {
               {/* Progress bar jačine lozinke */}
               {password && (
                 <div className="w-full pt-2">
-                  <div className="w-full h-2 rounded bg-gray-200">
+                  <div className="w-full h-2 rounded bg-muted">
                     <div
                       className={`h-2 rounded transition-all duration-300 ${getStrengthBarInfo(passwordStrength).color}`}
                       style={{ width: `${getStrengthBarInfo(passwordStrength).percent}%` }}
                     />
                   </div>
                   <div className={
-                    passwordStrength === "Jaka" ? "text-green-600 text-xs pt-1" :
-                    passwordStrength === "Srednja" ? "text-yellow-600 text-xs pt-1" :
-                    "text-red-600 text-xs pt-1"
+                    passwordStrength === "Jaka" ? "text-primary text-xs pt-1 font-medium" :
+                    passwordStrength === "Srednja" ? "text-accent text-xs pt-1 font-medium" :
+                    "text-destructive text-xs pt-1 font-medium"
                   }>
                     Jačina lozinke: {passwordStrength}
                   </div>
@@ -217,13 +217,13 @@ export default function AdminRegisterPage() {
               {/* Indikator poklapanja lozinki */}
               {passwordsMatch !== null && (
                 <div className={
-                  passwordsMatch ? "text-green-600 text-xs pt-1" : "text-red-600 text-xs pt-1"
+                  passwordsMatch ? "text-primary text-xs pt-1 font-medium" : "text-destructive text-xs pt-1 font-medium"
                 }>
                   {passwordsMatch ? "Lozinke se poklapaju" : "Lozinke se ne poklapaju"}
                 </div>
               )}
             </div>
-            {error && <div className="text-red-500 text-sm pt-2">{error}</div>}
+            {error && <div className="text-destructive text-sm pt-2">{error}</div>}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button className="w-full" type="submit" disabled={loading || !csrfToken}>{loading ? "Registering..." : "Register"}</Button>

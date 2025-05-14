@@ -2,7 +2,7 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-// Glavna kartica: luksuzna bela pozadina, tanak zlatni border, diskretna senka
+// Glavna kartica: koristi boje iz tema
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -10,7 +10,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "bg-white rounded-xl border border-[#E2C275] shadow-lg p-0",
+      "bg-card rounded-xl border border-primary shadow-lg p-0",
       className
     )}
     {...props}
@@ -31,7 +31,7 @@ const CardHeader = React.forwardRef<
 ))
 CardHeader.displayName = "CardHeader"
 
-// Naslov: veći, tamnosiv, elegantan font, zlatna linija ispod
+// Naslov: veći, elegantan font, linija ispod u boji teme
 const CardTitle = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -40,12 +40,12 @@ const CardTitle = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "text-3xl font-serif font-semibold text-gray-800 text-center tracking-tight mb-2",
+        "text-3xl font-serif font-semibold text-card-foreground text-center tracking-tight mb-2",
         className
       )}
       {...props}
     />
-    <div className="h-1 w-16 bg-[#E2C275] rounded-full mx-auto mb-2" />
+    <div className="h-1 w-16 bg-primary rounded-full mx-auto mb-2" />
   </>
 ))
 CardTitle.displayName = "CardTitle"
@@ -57,7 +57,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("text-base text-gray-600 text-center font-light", className)}
+    className={cn("text-base text-muted-foreground text-center font-light", className)}
     {...props}
   />
 ))
@@ -72,14 +72,14 @@ const CardContent = React.forwardRef<
 ))
 CardContent.displayName = "CardContent"
 
-// Footer: razmaknut sadržaj, diskretna siva linija gore
+// Footer: razmaknut sadržaj, diskretna linija gore
 const CardFooter = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex items-center justify-between p-6 pt-4 border-t border-gray-100", className)}
+    className={cn("flex items-center justify-between p-6 pt-4 border-t border-muted", className)}
     {...props}
   />
 ))

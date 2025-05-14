@@ -7,6 +7,7 @@ module.exports = withBundleAnalyzer({
     domains: [
       'hebbkx1anhila5yf.public.blob.vercel-storage.com',
       'res.cloudinary.com',
+      'images.unsplash.com',
     ],
   },
   // Zaobilazimo TypeScript greške pri build-uu

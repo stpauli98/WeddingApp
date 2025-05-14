@@ -84,8 +84,8 @@ const AdminDownloadAll: React.FC<AdminDownloadAllProps> = ({
           display: inline-block;
           width: 1.1em;
           height: 1.1em;
-          border: 2.5px solid #e3c75c;
-          border-top: 2.5px solid #fffbe7;
+          border: 2.5px solid var(--primary);
+          border-top: 2.5px solid var(--card);
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
           margin-right: 4px;

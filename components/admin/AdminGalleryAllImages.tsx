@@ -269,7 +269,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
               
               {/* Kontrole za preuzimanje */}
               <motion.button
-                whileHover={{ scale: 1.1, backgroundColor: '#FBBF24' }}
+                whileHover={{ scale: 1.1, backgroundColor: 'var(--primary)' }}
                 whileTap={{ scale: 0.95 }}
                 aria-label="Preuzmi ovu sliku"
                 onClick={async () => {

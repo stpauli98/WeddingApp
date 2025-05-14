@@ -113,9 +113,9 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="bg-white border-2 border-[#E2C275] rounded-xl shadow px-6 py-8">
+    <Card className="bg-card border-2 border-primary rounded-xl shadow px-6 py-8">
       <CardHeader>
-        <CardTitle className="text-center text-[#E2C275] text-2xl font-serif font-bold mb-2">Prijava</CardTitle>
+        <CardTitle className="text-center text-primary text-2xl font-serif font-bold mb-2">Prijava</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>

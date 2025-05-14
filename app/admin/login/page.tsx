@@ -61,7 +61,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
@@ -70,7 +70,7 @@ export default function AdminLoginPage() {
         <form onSubmit={handleSubmit} autoComplete="off">
           <CardContent className="space-y-4">
             {error && (
-              <div className="rounded bg-red-100 text-red-700 px-3 py-2 text-sm">{error}</div>
+              <div className="rounded bg-destructive/10 text-destructive px-3 py-2 text-sm">{error}</div>
             )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -101,7 +101,7 @@ export default function AdminLoginPage() {
                 />
                 <button
                   type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   tabIndex={-1}
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? "Sakrij lozinku" : "Prikaži lozinku"}
@@ -130,7 +130,7 @@ export default function AdminLoginPage() {
           </CardFooter>
         </form>
         <Button
-          className="w-full mt-4 bg-gray-200 text-gray-900 hover:bg-gray-300"
+          className="w-full mt-4 bg-muted text-foreground hover:bg-muted/80"
           variant="outline"
           type="button"
           onClick={() => router.push("/")}

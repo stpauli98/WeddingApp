@@ -103,10 +103,10 @@ function PhotoCard({
 
   return (
     <>
-      <div className="relative overflow-hidden rounded-lg bg-white shadow-md transition-all duration-200 hover:shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-card shadow-md transition-all duration-200 hover:shadow-lg">
         {selectionMode && (
           <button
-            className={`absolute left-2 top-2 z-10 rounded-full p-1 ${isSelected ? 'bg-blue-500 text-white' : 'bg-white/80 text-slate-500'}`}
+            className={`absolute left-2 top-2 z-10 rounded-full p-1 ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-card/80 text-muted-foreground'}`}
             onClick={(e) => {
               e.stopPropagation();
               onSelect();
@@ -116,7 +116,7 @@ function PhotoCard({
           </button>
         )}
 
-        <div className="relative aspect-square overflow-hidden bg-slate-50">
+        <div className="relative aspect-square overflow-hidden bg-muted">
           <Image
             src={validUrl}
             alt="Fotografija sa vjenčanja"
@@ -127,14 +127,14 @@ function PhotoCard({
         </div>
 
         <div className="flex items-center justify-between p-2">
-          <div className="text-xs text-slate-500">{photo.uploadDate || "Nedavno"}</div>
+          <div className="text-xs text-muted-foreground">{photo.uploadDate || "Nedavno"}</div>
           <div className="flex gap-1">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onLike?.();
               }}
-              className={`rounded-full p-1 ${photo.isLiked ? 'text-pink-500' : 'text-slate-400 hover:text-pink-400'}`}
+              className={`rounded-full p-1 ${photo.isLiked ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'}`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -156,7 +156,7 @@ function PhotoCard({
                 e.stopPropagation();
                 downloadImage(validUrl);
               }}
-              className="rounded-full p-1 text-slate-400 hover:text-blue-500"
+              className="rounded-full p-1 text-muted-foreground hover:text-primary"
             >
               <Download className="h-4 w-4" />
             </button>
@@ -166,7 +166,7 @@ function PhotoCard({
 
       {fullView && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 p-4"
           onClick={() => setFullView(false)}
         >
           <div className="relative flex h-full w-full max-h-[90vh] max-w-4xl items-center justify-center">
@@ -175,7 +175,7 @@ function PhotoCard({
               alt="Slika gosta"
               width={1200}
               height={900}
-              className="rounded-2xl bg-white p-2 shadow-2xl object-contain"
+              className="rounded-2xl bg-card p-2 shadow-2xl object-contain"
               style={{ maxWidth: '90vw', maxHeight: '85vh', width: 'auto', height: 'auto', display: 'block', margin: '0 auto' }}
             />
             {/* X za zatvaranje u gornjem desnom uglu */}

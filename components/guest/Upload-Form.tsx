@@ -491,12 +491,12 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
         >
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
             {/* Header sa naslovom i brojem uploadovanih slika */}
-            <div className="sticky top-0 bg-white p-4 border-b border-gray-100 flex items-center justify-between z-10">
+            <div className="sticky top-0 bg-card p-4 border-b border-muted flex items-center justify-between z-10">
               <div>
-                <h3 className="text-[#E2C275] text-lg font-semibold">
+                <h3 className="text-primary text-lg font-semibold">
                   Upload slika
                 </h3>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   {uploadStatuses.filter(s => s.status === 'success').length} od {uploadStatuses.length} slika
                 </p>
               </div>
@@ -504,9 +504,9 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
               {/* Indikator ukupnog progresa */}
               {isLoading && (
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 bg-[#E2C275] rounded-full animate-pulse" style={{ animationDelay: '0s' }}></div>
-                  <div className="w-2 h-2 bg-[#E2C275] rounded-full animate-pulse" style={{ animationDelay: '0.15s' }}></div>
-                  <div className="w-2 h-2 bg-[#E2C275] rounded-full animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0s' }}></div>
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.15s' }}></div>
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0.3s' }}></div>
                 </div>
               )}
             </div>
@@ -529,9 +529,9 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
                     <p className="text-sm font-medium truncate mb-1.5">{status.file.name}</p>
                     
                     {/* Progress bar sa animacijom */}
-                    <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1.5 overflow-hidden">
+                    <div className="w-full bg-muted rounded-full h-1.5 mb-1.5 overflow-hidden">
                       <div 
-                        className={`h-full rounded-full transition-all duration-300 ${status.status === 'error' ? 'bg-red-500' : status.status === 'success' ? 'bg-green-500' : 'bg-[#E2C275]'}`} 
+                        className={`h-full rounded-full transition-all duration-300 ${status.status === 'error' ? 'bg-destructive' : status.status === 'success' ? 'bg-primary' : 'bg-accent'}`} 
                         style={{ width: `${status.progress}%` }}
                       />
                     </div>
@@ -551,14 +551,14 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
                   {/* Status ikona */}
                   <div className="flex-shrink-0">
                     {status.status === 'uploading' && (
-                      <Loader2 className="h-5 w-5 text-[#E2C275] animate-spin" />
+                      <Loader2 className="h-5 w-5 text-primary animate-spin" />
                     )}
                     {status.status === 'success' && (
-                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <CheckCircle className="h-5 w-5 text-primary" />
                     )}
                     {status.status === 'error' && (
                       <div className="flex items-center space-x-1">
-                        <AlertCircle className="h-5 w-5 text-red-500" />
+                        <AlertCircle className="h-5 w-5 text-destructive" />
                         {status.retryable && (
                           <Button 
                             variant="ghost" 
@@ -582,7 +582,7 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
             
             {/* Footer sa informacijom i opcijom za retry svih */}
             <div className="sticky bottom-0 bg-white p-4 border-t border-gray-100 flex justify-between items-center">
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-muted-foreground">
                 {isLoading 
                   ? "Molimo sačekajte dok se slike uploaduju..." 
                   : uploadStatuses.some(s => s.status === 'error' && s.retryable)
@@ -663,7 +663,7 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
               rows={4}
               {...form.register("message")}
             />
-            <p className="text-sm text-gray-500 mt-1">Maksimalno 500 karaktera</p>
+            <p className="text-sm text-muted-foreground mt-1">Maksimalno 500 karaktera</p>
           </div>
         </CardContent>
         <CardFooter>

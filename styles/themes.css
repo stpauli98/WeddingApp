@@ -1,0 +1,93 @@
+/* Osnovne teme za različite tipove događaja */
+
+/* Tema za svadbu - romantična, nježna paleta */
+.theme-wedding {
+  --primary: 340 25% 75%;           /* Dusty rose */
+  --primary-foreground: 320 16% 30%; /* Deep mauve/plum */
+  --background: 36 33% 97%;         /* Ivory/bež pozadina */
+  --foreground: 320 12% 18%;        /* Tamni plum/taupe za tekst */
+  --card: 0 0% 100%;                /* Bijele kartice */
+  --card-foreground: 320 12% 18%;   /* Tamni tekst na karticama */
+  --popover: 0 0% 100%;
+  --popover-foreground: 320 12% 18%;
+  --secondary: 325 20% 92%;         /* Blush taupe */
+  --secondary-foreground: 320 16% 30%;
+  --muted: 325 20% 92%;             /* Blush taupe za sekcije */
+  --muted-foreground: 320 16% 45%;
+  --accent: 325 16% 60%;            /* Mauve/rose gold */
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 325 16% 60%;            /* Mauve/rose gold za bordere */
+  --input: 325 16% 60%;
+  --ring: 340 25% 75%;
+}
+
+/* Tema za rođendan - vesela, živahna paleta */
+.theme-birthday {
+  --primary: 210 100% 66%;          /* Svijetlo plava */
+  --primary-foreground: 210 50% 20%; /* Tamno plava */
+  --background: 47 100% 96%;        /* Svijetlo žuta pozadina */
+  --foreground: 210 50% 20%;        /* Tamno plava za tekst */
+  --card: 0 0% 100%;                /* Bijele kartice */
+  --card-foreground: 210 50% 20%;   /* Tamno plava za tekst na karticama */
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 50% 20%;
+  --secondary: 280 75% 90%;         /* Svijetlo ljubičasta */
+  --secondary-foreground: 280 75% 25%;
+  --muted: 47 80% 92%;              /* Prigušena žuta za sekcije */
+  --muted-foreground: 210 40% 40%;
+  --accent: 340 95% 65%;            /* Ružičasta */
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 210 100% 66%;           /* Svijetlo plava za bordere */
+  --input: 210 100% 66%;
+  --ring: 210 100% 66%;
+}
+
+/* Tema za team building - profesionalna, moderna paleta */
+.theme-teambuilding {
+  --primary: 200 80% 50%;           /* Plava */
+  --primary-foreground: 0 0% 100%;  /* Bijela */
+  --background: 220 20% 97%;        /* Svijetlo siva pozadina */
+  --foreground: 220 80% 18%;        /* Tamno plava za tekst */
+  --card: 0 0% 100%;                /* Bijele kartice */
+  --card-foreground: 220 80% 18%;   /* Tamno plava za tekst na karticama */
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 80% 18%;
+  --secondary: 160 60% 50%;         /* Zelena */
+  --secondary-foreground: 0 0% 100%;
+  --muted: 220 15% 94%;             /* Prigušena siva za sekcije */
+  --muted-foreground: 220 40% 40%;
+  --accent: 30 90% 60%;             /* Narančasta */
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 220 20% 80%;            /* Siva za bordere */
+  --input: 220 20% 80%;
+  --ring: 200 80% 50%;
+}
+
+/* Tema za ostalo - neutralna, svestrana paleta */
+.theme-other {
+  --primary: 262 83% 58%;           /* Ljubičasta */
+  --primary-foreground: 0 0% 100%;  /* Bijela */
+  --background: 220 14% 96%;        /* Svijetlo siva pozadina */
+  --foreground: 220 25% 20%;        /* Tamno siva za tekst */
+  --card: 0 0% 100%;                /* Bijele kartice */
+  --card-foreground: 220 25% 20%;   /* Tamno siva za tekst na karticama */
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 25% 20%;
+  --secondary: 180 70% 45%;         /* Tirkizna */
+  --secondary-foreground: 0 0% 100%;
+  --muted: 220 14% 92%;             /* Prigušena siva za sekcije */
+  --muted-foreground: 220 25% 40%;
+  --accent: 340 85% 55%;            /* Ružičasta */
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 220 14% 80%;            /* Siva za bordere */
+  --input: 220 14% 80%;
+  --ring: 262 83% 58%;
+}

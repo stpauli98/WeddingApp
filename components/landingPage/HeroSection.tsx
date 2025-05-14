@@ -27,7 +27,7 @@ export default function HeroSection() {
               mestu, bez komplikacija.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
-              <Link href="/admin/register" className="px-8 py-4 rounded-lg font-semibold bg-lp-primary text-lp-primary-foreground hover:bg-lp-accent hover:text-white transition-colors">
+              <Link href="/choose-theme" className="px-8 py-4 rounded-lg font-semibold bg-lp-primary text-lp-primary-foreground hover:bg-lp-accent hover:text-white transition-colors">
                 Kreirajte besplatan događaj
               </Link>
               <Link
@@ -53,7 +53,7 @@ export default function HeroSection() {
               </div>
               
               {/* Brojač ispod slike kao zasebni element */}
-              <div className="w-full bg-white border-2 border-lp-accent shadow-xl rounded-xl px-6 py-3 sm:px-8 sm:py-4 flex flex-col items-center transition-transform duration-200 ease-in-out hover:scale-105">
+              <div className="w-full bg-white border-1 border-lp-accent shadow-xl rounded-xl px-6 py-3 sm:px-8 sm:py-4 flex flex-col items-center transition-transform duration-200 ease-in-out hover:scale-105">
                 <div className="text-sm font-semibold text-lp-text tracking-wide uppercase mb-1">Prikupljeno slika</div>
                 <div className="text-2xl sm:text-3xl font-extrabold text-lp-accent"><TotalImagesCounter /></div>
               </div>

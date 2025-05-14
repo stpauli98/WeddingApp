@@ -70,24 +70,24 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest, onViewPhotos }) => {
             sizes="(max-width: 768px) 100vw, 400px"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-slate-100 text-4xl font-bold text-amber-400">
+          <div className="flex h-full w-full items-center justify-center bg-muted text-4xl font-bold text-primary">
             {guest.firstName?.[0] || ''}{guest.lastName?.[0] || ''}
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="bg-white p-5 flex flex-col h-[220px]">
+      <div className="bg-card p-5 flex flex-col h-[220px]">
         <div className="flex-grow">
-          <h3 className="text-xl font-serif text-amber-700">{adaptedGuest.name}</h3>
+          <h3 className="text-xl font-serif text-primary">{adaptedGuest.name}</h3>
 
           {/* Message */}
           <div className="mt-3 flex items-start gap-2">
-            <MessageSquare className="mt-1 h-5 w-5 flex-shrink-0 text-slate-400" />
+            <MessageSquare className="mt-1 h-5 w-5 flex-shrink-0 text-muted-foreground" />
             {adaptedGuest.message ? (
-              <p className="text-slate-600 line-clamp-3">{adaptedGuest.message}</p>
+              <p className="text-foreground line-clamp-3">{adaptedGuest.message}</p>
             ) : (
-              <p className="text-slate-400 italic line-clamp-3">Gost nije ostavio poruku</p>
+              <p className="text-muted-foreground italic line-clamp-3">Gost nije ostavio poruku</p>
             )}
           </div>
         </div>
@@ -96,14 +96,14 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest, onViewPhotos }) => {
         <div className="mt-auto pt-3">
           {/* View All Button */}
           <Button
-            className="w-full bg-amber-500 hover:bg-amber-600 text-white"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
             onClick={handleViewPhotos}
           >
             Pregledaj sve slike ({guest.images.length})
           </Button>
 
           {/* Upload Date */}
-          <p className="mt-2 text-sm text-slate-400 text-center">Prijavljeno: {adaptedGuest.uploadDate}</p>
+          <p className="mt-2 text-sm text-muted-foreground text-center">Prijavljeno: {adaptedGuest.uploadDate}</p>
         </div>
       </div>
     </Card>
