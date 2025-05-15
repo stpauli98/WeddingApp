@@ -8,7 +8,7 @@ export default function HeroSection() {
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden bg-lp-muted opacity-10">
         <Image
-          src="images/hero-section.jpg"
+          src="/images/hero-section.jpg"
           alt="Wedding decoration"
           fill
           className="object-cover"
@@ -44,7 +44,7 @@ export default function HeroSection() {
               {/* Slika sa ljepšim okvirom, bez brojača na slici */}
               <div className="relative aspect-square w-full rounded-2xl overflow-hidden shadow-xl mb-12">
                 <Image
-                  src="images/drze-se-za-ruke.jpg"
+                  src="/images/drze-se-za-ruke.jpg"
                   alt="Mladenci se drže za ruke"
                   fill
                   className="object-cover"
