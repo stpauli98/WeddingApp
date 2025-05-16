@@ -63,7 +63,7 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
     }
   }, [value])
 
-  // Funkcija koja se poziva kada se dodaju nove slike
+  // Funkcija koja se poziva kada se dodaju nove slikee
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       const types = allowedTypes || DEFAULT_ALLOWED_TYPES;
