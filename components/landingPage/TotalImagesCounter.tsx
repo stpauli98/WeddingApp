@@ -7,10 +7,8 @@ export const getTotalImagesCount = unstable_cache(
     try {
       const stats = await prisma.stats.findUnique({ where: { id: 1 } });
       const totalImages = stats?.totalUploadedImages || 0;
-      console.log(`[TotalImagesCounter] Prikazano ${totalImages} ukupno uploadovanih slika iz Stats tabele`)
       return totalImages;
     } catch (error) {
-      console.error("Greška pri dohvatanju ukupnog broja uploadovanih slika:", error)
       return 0;
     }
   },

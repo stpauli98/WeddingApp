@@ -1,10 +1,5 @@
 import { WeddingInfo } from "@/components/guest/WeddingInfo"
-import { UploadForm } from "@/components/guest/Upload-Form"
 import { LogoutButton } from "@/components/shared/LogoutButton"
-import { ImageGallery } from "@/components/guest/ImageGallery"
-import { getGuestById } from "@/lib/auth"
-import { ImageSlotBar } from "@/components/guest/ImageSlotBar"
-import { UploadLimitReachedCelebration } from "@/components/guest/UploadLimitReachedCelebration"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
@@ -19,8 +14,11 @@ interface DashboardImage {
 }
 
 
-export default async function DashboardPage(props: any) {
-  const searchParams = props.searchParams as { [key: string]: string | string[] | undefined } | undefined;
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
   // Dohvati guestId iz session cookie-ja
   const cookieStore = await cookies();
   const guestId = cookieStore.get("guest_session")?.value || "";
