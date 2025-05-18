@@ -14,11 +14,8 @@ interface DashboardImage {
 }
 
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+export default async function DashboardPage(props: any) {
+  const searchParams = props.searchParams as { [key: string]: string | string[] | undefined } | undefined;
   // Dohvati guestId iz session cookie-ja
   const cookieStore = await cookies();
   const guestId = cookieStore.get("guest_session")?.value || "";
