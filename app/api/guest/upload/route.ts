@@ -152,6 +152,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadRes
           },
         });
         uploadedImages.push(uploadedImage);
+
+        // Inkrementiraj totalUploadedImages u Stats tabeli
+        await prisma.stats.upsert({
+          where: { id: 1 },
+          update: { totalUploadedImages: { increment: 1 } },
+          create: { id: 1, totalUploadedImages: 1 }
+        });
       } catch (err: any) {
         console.error(`Greška pri uploadu slike:`, err);
         return NextResponse.json({ 

@@ -12,24 +12,38 @@ const isAndroid = () => {
   return /android/.test(window.navigator.userAgent.toLowerCase());
 };
 
+const isMobileDevice = () => {
+  if (typeof window === "undefined") return false;
+  return isiOS() || isAndroid() || 
+    /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(window.navigator.userAgent.toLowerCase());
+};
+
 export default function AddToHomeScreenPrompt() {
   const [show, setShow] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
-    if (localStorage.getItem("a2hsPromptDismissed")) return;
-    setShow(true);
+    // Provjeri da li je uređaj mobilni telefon
+    if (!isMobileDevice() || localStorage.getItem("a2hsPromptDismissed")) {
+      setShow(false);
+      return;
+    }
 
     let promptHandler: any = null;
     if (isAndroid()) {
-      window.addEventListener("beforeinstallprompt", (e: any) => {
+      promptHandler = (e: any) => {
         e.preventDefault();
         setDeferredPrompt(e);
         setShow(true);
-      });
+      };
+      window.addEventListener("beforeinstallprompt", promptHandler);
     } else if (isiOS()) {
       setShow(true);
+    } else {
+      // Ako nije ni Android ni iOS, ne prikazuj prompt
+      setShow(false);
     }
+    
     return () => {
       if (promptHandler) window.removeEventListener("beforeinstallprompt", promptHandler);
     };

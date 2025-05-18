@@ -1,17 +1,17 @@
 import { prisma } from "@/lib/prisma"
 import { unstable_cache } from "next/cache"
 
-// Keširana funkcija za dohvatanje ukupnog broja slika sa revalidacijom svakih 60 sekundi
+// Keširana funkcija za dohvatanje ukupnog broja SVIH uploadovanih slika (Stats.totalUploadedImages)
 export const getTotalImagesCount = unstable_cache(
   async () => {
     try {
-      // Koristimo Prisma za dohvatanje ukupnog broja slika
-      const totalImages = await prisma.image.count()
-      console.log(`[TotalImagesCounter] Dohvaćeno ${totalImages} slika iz baze`)
-      return totalImages
+      const stats = await prisma.stats.findUnique({ where: { id: 1 } });
+      const totalImages = stats?.totalUploadedImages || 0;
+      console.log(`[TotalImagesCounter] Prikazano ${totalImages} ukupno uploadovanih slika iz Stats tabele`)
+      return totalImages;
     } catch (error) {
-      console.error("Greška pri dohvatanju ukupnog broja slika:", error)
-      return 0
+      console.error("Greška pri dohvatanju ukupnog broja uploadovanih slika:", error)
+      return 0;
     }
   },
   ["total-images-count"], // Ključ za keširanje
