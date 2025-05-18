@@ -1,0 +1,21 @@
+{
+  "name": "DodajUspomenu",
+  "short_name": "Uspomene",
+  "start_url": "/guest/dashboard",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#7c3aed",
+  "description": "Aplikacija za prikupljanje slika i čestitki sa svadbe.",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

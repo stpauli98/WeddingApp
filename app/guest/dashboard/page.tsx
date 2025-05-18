@@ -94,27 +94,22 @@ export default async function DashboardPage(props: any) {
   }
 
   return (
-    <div className="container max-w-md mx-auto px-4 py-8">
-      <WeddingInfo eventId={eventId} />
+      <div className="container max-w-md mx-auto px-4 py-8">
+        <WeddingInfo eventId={eventId} />
       
       {/* Koristimo DashboardClient komponentu koja će upravljati brojem slika i osigurati da se sve komponente ažuriraju kada se broj slika promijeni */}
-      <DashboardClient 
-        initialImages={(guest.images || []).map((img: { id: string; imageUrl: string; storagePath?: string | null }) => ({
-          id: img.id,
-          imageUrl: img.imageUrl,
-          storagePath: img.storagePath === null ? undefined : img.storagePath,
-        }))} 
-        guestId={guestId}
-        message={guest.message?.text ?? ""}
-      />
-     {/* {guest.images && guest.images.length === 10 && (
+        <DashboardClient 
+          initialImages={(guest.images || []).map((img: { id: string; imageUrl: string; storagePath?: string | null }) => ({
+            id: img.id,
+            imageUrl: img.imageUrl,
+            storagePath: img.storagePath === null ? undefined : img.storagePath,
+          }))} 
+          guestId={guestId}
+          message={guest.message?.text ?? ""}
+        />
         <div className="mt-8">
           <LogoutButton />
         </div>
-      )} */}
-      <div className="mt-8">
-          <LogoutButton />
-        </div>
-    </div>
-  )
+      </div>
+    )
 }

@@ -17,9 +17,19 @@ interface DashboardClientProps {
   message?: string
 }
 
+import { useEffect } from "react";
+import AddToHomeScreenPrompt from "@/components/AddToHomeScreenPrompt";
+
 export function DashboardClient({ initialImages, guestId, message }: DashboardClientProps) {
   // Lokalno stanje za praćenje slika koje se može ažurirati nakon brisanja
   const [images, setImages] = useState<Image[]>(initialImages)
+
+  // Snimi guestId u localStorage svaki put kad gost uđe na dashboard
+  useEffect(() => {
+    if (guestId) {
+      localStorage.setItem("guestId", guestId);
+    }
+  }, [guestId]);
 
   // Funkcija koja se poziva kada se promijeni broj slika (npr. nakon brisanja)
   const handleImagesChange = (updatedImages: Image[]) => {
@@ -28,6 +38,7 @@ export function DashboardClient({ initialImages, guestId, message }: DashboardCl
 
   return (
     <>
+      <AddToHomeScreenPrompt />
       <div className="mb-8">
         {/* Uvijek prikazujemo sekciju za slike, ali sa različitim sadržajem ovisno o broju slika */}
         <div key={`image-upload-section-${images.length}`}>
