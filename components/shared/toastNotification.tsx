@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { CheckCircle, AlertCircle, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -30,12 +30,12 @@ export function ToastNotification({
   const isControlled = controlledOpen !== undefined
   const currentOpen = isControlled ? controlledOpen : open
 
-  const handleOpenChange = (newOpen: boolean) => {
+  const handleOpenChange = useCallback((newOpen: boolean) => {
     if (!isControlled) {
       setOpen(newOpen)
     }
     onOpenChange?.(newOpen)
-  }
+  }, [isControlled, setOpen, onOpenChange])
 
   useEffect(() => {
     if (currentOpen && duration > 0) {
@@ -45,7 +45,7 @@ export function ToastNotification({
 
       return () => clearTimeout(timer)
     }
-  }, [currentOpen, duration])
+  }, [currentOpen, duration, handleOpenChange])
 
   if (!currentOpen) return null
 
