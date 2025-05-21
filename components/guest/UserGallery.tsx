@@ -71,7 +71,7 @@ export function UserGallery({ initialImages, guestId, eventSlug: propEventSlug, 
               }
             }
           }}
-          className="mt-4"
+          className="mt-4 border-[hsl(var(--lp-primary))]/50 text-[hsl(var(--lp-primary))] hover:bg-[hsl(var(--lp-primary))]/10 hover:text-[hsl(var(--lp-primary-hover))]"
         >
           Dodaj još slika
         </Button>

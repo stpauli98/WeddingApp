@@ -38,19 +38,19 @@ export default async function AdminDashboardEventPage({ params }: { params: Prom
   });
 
   return (
-    <div className="container mx-auto p-6 relative">
-      <div className="sticky flex justify-end top-[46px] right-0 z-50">
+    <div className="container mx-auto p-6 relative bg-[hsl(var(--lp-bg))]">
+      <div className="sticky flex justify-end top-[46px] right-0 z-50 mb-4">
         <AdminLogoutButton />
       </div>
       <div className="mb-8 text-center">
         <div className="flex flex-col items-center gap-2">
-          <span className="inline-block text-3xl font-extrabold tracking-wide bg-gradient-to-r from-yellow-400 via-yellow-600 to-yellow-400 bg-clip-text text-transparent underline underline-offset-8 decoration-[5px] decoration-yellow-400 drop-shadow-md animate-pulse">
+          <span className="inline-block text-3xl font-extrabold tracking-wide bg-gradient-to-r from-[hsl(var(--lp-primary))] via-[hsl(var(--lp-accent))] to-[hsl(var(--lp-primary))] bg-clip-text text-transparent underline underline-offset-8 decoration-[5px] decoration-[hsl(var(--lp-accent))] drop-shadow-md animate-pulse">
             {event.coupleName}
           </span>
-          <span className="block text-lg font-medium text-gray-700 mt-2">
+          <span className="block text-lg font-medium text-[hsl(var(--lp-text))] mt-2">
             uživajte u vašim sličicama
           </span>
-          <span className="block w-24 h-1 rounded-full bg-gradient-to-r from-yellow-400 via-yellow-600 to-yellow-400 opacity-70 mt-2 mb-2"></span>
+          <span className="block w-24 h-1 rounded-full bg-gradient-to-r from-[hsl(var(--lp-primary))] via-[hsl(var(--lp-accent))] to-[hsl(var(--lp-primary))] opacity-70 mt-2 mb-2"></span>
           <span className="block text-2xl">💍</span>
         </div>
       </div>

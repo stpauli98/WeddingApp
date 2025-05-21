@@ -14,16 +14,22 @@ export function ImageSlotBar({ current, max }: ImageSlotBarProps) {
   return (
     <div className="w-full mb-4">
       <div className="flex justify-between mb-1 text-sm font-medium">
-        <span className="text-gray-700">Slike</span>
-        <span className="text-gray-500">{current} / {max}</span>
+        <span className="text-[hsl(var(--lp-foreground))]">Slike</span>
+        <span className="text-[hsl(var(--lp-muted-foreground))]">{current} / {max}</span>
       </div>
-      <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden border border-[#E2C275]">
+      <div className="w-full h-4 bg-[hsl(var(--lp-muted))]/30 rounded-full overflow-hidden border border-[hsl(var(--lp-accent))] relative">
+        {/* Dodajemo min-width da progress bar bude vidljiv čak i kad je postotak mali */}
         <div
-          className="h-full bg-gradient-to-r from-[#E2C275] to-yellow-200 rounded-full transition-all duration-300"
-          style={{ width: `${percent}%` }}
-        />
+          className="h-full bg-gradient-to-r from-[hsl(var(--lp-primary))] via-[hsl(var(--lp-primary))] to-[hsl(var(--lp-primary-hover))] rounded-full transition-all duration-300 shadow-md"
+          style={{ width: `${percent}%`, minWidth: percent > 0 ? '8px' : '0' }}
+        >
+          {/* Dodajemo sjaj/odsjaj za bolju vidljivost */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent"></div>
+        </div>
+        
+        {/* Uklonili smo vertikalne markere prema zahtjevu */}
       </div>
-      <div className="text-xs text-gray-500 mt-1 text-right">
+      <div className="text-xs text-[hsl(var(--lp-muted-foreground))] mt-1 text-right">
         {max - current > 0
           ? `Možete dodati još ${max - current} ${max - current === 1 ? 'sliku' : 'slika'}`
           : 'Dostigli ste maksimalan broj slika'}

@@ -30,7 +30,7 @@ export function UploadLimitReachedCelebration({ imagesCount = 10 }: UploadLimitR
     let animationFrameId: number;
     const width = canvas.width = canvasWidth;
     const height = canvas.height = canvasHeight;
-    const colors = ["#E2C275", "#FFD700", "#FFECB3", "#FDE68A", "#FBBF24", "#FFF9C4"];
+    const colors = ["hsl(var(--lp-accent))", "hsl(var(--lp-accent-light))", "hsl(var(--lp-primary))", "hsl(var(--lp-primary-light))", "hsl(var(--lp-secondary))", "hsl(var(--lp-secondary-light))"];
     const confettiCount = 40;
     const confetti: {x: number, y: number, r: number, d: number, color: string, tilt: number, tiltAngle: number}[] = [];
     for (let i = 0; i < confettiCount; i++) {
@@ -88,9 +88,9 @@ export function UploadLimitReachedCelebration({ imagesCount = 10 }: UploadLimitR
         height={canvasHeight}
         aria-hidden
       />
-      <div className="relative z-10 bg-white/90 border-2 border-[#E2C275] rounded-xl shadow-lg px-6 py-6 flex flex-col items-center">
-        <span className="text-lg text-gray-700 text-center mb-2">Dostigli ste maksimalan broj slika ({imagesCount}/10).</span>
-        <span className="text-base text-gray-500 text-center">Hvala na vašem doprinosu!</span>
+      <div className="relative z-10 bg-white/90 border-2 border-[hsl(var(--lp-accent))] rounded-xl shadow-lg px-6 py-6 flex flex-col items-center">
+        <span className="text-lg text-[hsl(var(--lp-foreground))] text-center mb-2">Dostigli ste maksimalan broj slika ({imagesCount}/10).</span>
+        <span className="text-base text-[hsl(var(--lp-muted-foreground))] text-center">Hvala na vašem doprinosu!</span>
       </div>
     </div>
   );

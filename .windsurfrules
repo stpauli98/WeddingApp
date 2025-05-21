@@ -18,7 +18,7 @@ Napraviti aplikaciju u kojoj gosti mogu da se prijave pomoću imena, prezimena i
 - Sve komponente moraju biti pravilno implementirane i testirane.
 - Korisnik mora biti zadovoljan i sve mu mora biti jasno i pojasnjeno kroz poruke na UI.
 - Uvijek koristi <Image /> za prikaz slika.
-- www.mojasvadbaa.com je domen koji koristimo za aplikaciju.
+- www.dodajuspomenu.com je domen koji koristimo za aplikaciju.
 - Tekst pisemo na ijekavici. 
 
 🔧 Tehnologije:

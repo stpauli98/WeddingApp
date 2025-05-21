@@ -121,11 +121,11 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition-colors
-          ${isDragActive ? "border-primary bg-primary/10" : "border-muted-foreground/20 hover:border-primary/50"}`}
+          ${isDragActive ? "border-[hsl(var(--lp-primary))] bg-[hsl(var(--lp-primary))]/10" : "border-[hsl(var(--lp-muted-foreground))]/20 hover:border-[hsl(var(--lp-primary))]/50"}`}
       >
         <input {...getInputProps()} data-testid="file-input" {...inputProps} />
-        <Upload className="mx-auto h-10 w-10 text-muted-foreground" />
-        <p className="mt-2 text-sm text-muted-foreground">
+        <Upload className="mx-auto h-10 w-10 text-[hsl(var(--lp-muted-foreground))]" />
+        <p className="mt-2 text-sm text-[hsl(var(--lp-muted-foreground))]">
           {isDragActive
             ? "Pustite slike ovde..."
             : value.length >= maxFiles
@@ -137,7 +137,7 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
       {value.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {value.map((file, index) => (
-            <Card key={index} className="relative aspect-square overflow-hidden group">
+            <Card key={index} className="relative aspect-square overflow-hidden group border border-[hsl(var(--lp-accent))]/30 shadow-sm">
               {previews[index] ? (
                 <div className="w-full h-full relative">
                   {/* Koristimo div sa background-image umesto Image komponente */}
@@ -147,8 +147,8 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
                   />
                 </div>
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-muted">
-                  <ImageIcon className="h-12 w-12 text-muted-foreground" />
+                <div className="w-full h-full flex items-center justify-center bg-[hsl(var(--lp-muted))]/30">
+                  <ImageIcon className="h-12 w-12 text-[hsl(var(--lp-muted-foreground))]" />
                 </div>
               )}
               <Button
@@ -160,7 +160,7 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
               >
                 <X className="h-4 w-4" />
               </Button>
-              <div className="absolute bottom-0 left-0 right-0 bg-background/80 px-2 py-1 text-xs truncate">
+              <div className="absolute bottom-0 left-0 right-0 bg-[hsl(var(--lp-card))]/90 px-2 py-1 text-xs truncate text-[hsl(var(--lp-muted-foreground))]">
                 {file.name}
               </div>
             </Card>

@@ -20,6 +20,7 @@ const config = {
     },
     extend: {
       colors: {
+        /* Osnovne boje */
         "lp-primary": "hsl(var(--lp-primary))",
         "lp-primary-foreground": "hsl(var(--lp-primary-foreground))",
         "lp-bg": "hsl(var(--lp-bg))",
@@ -28,6 +29,26 @@ const config = {
         "lp-text": "hsl(var(--lp-text))",
         "lp-card": "hsl(var(--lp-card))",
         "lp-card-foreground": "hsl(var(--lp-card-foreground))",
+        
+        /* Dodatne boje */
+        "lp-secondary": "hsl(var(--lp-secondary))",
+        "lp-secondary-foreground": "hsl(var(--lp-secondary-foreground))",
+        "lp-muted-foreground": "hsl(var(--lp-muted-foreground))",
+        "lp-border": "hsl(var(--lp-border))",
+        "lp-input": "hsl(var(--lp-input))",
+        "lp-ring": "hsl(var(--lp-ring))",
+        
+        /* Funkcionalne boje */
+        "lp-destructive": "hsl(var(--lp-destructive))",
+        "lp-destructive-foreground": "hsl(var(--lp-destructive-foreground))",
+        "lp-success": "hsl(var(--lp-success))",
+        "lp-success-foreground": "hsl(var(--lp-success-foreground))",
+        "lp-warning": "hsl(var(--lp-warning))",
+        "lp-warning-foreground": "hsl(var(--lp-warning-foreground))",
+        
+        /* Hover stanja */
+        "lp-primary-hover": "hsl(var(--lp-primary-hover))",
+        "lp-accent-hover": "hsl(var(--lp-accent-hover))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

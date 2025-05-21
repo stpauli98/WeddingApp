@@ -2,7 +2,7 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-// Glavna kartica: luksuzna bela pozadina, tanak zlatni border, diskretna senka
+// Glavna kartica: luksuzna pozadina, tanak border, diskretna senka
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -10,7 +10,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "bg-white rounded-xl border border-[#E2C275] shadow-lg p-0",
+      "bg-white rounded-xl border border-[hsl(var(--lp-accent))] shadow-lg p-0",
       className
     )}
     {...props}
@@ -45,7 +45,7 @@ const CardTitle = React.forwardRef<
       )}
       {...props}
     />
-    <div className="h-1 w-16 bg-[#E2C275] rounded-full mx-auto mb-2" />
+    <div className="h-1 w-16 bg-[hsl(var(--lp-accent))] rounded-full mx-auto mb-2" />
   </>
 ))
 CardTitle.displayName = "CardTitle"

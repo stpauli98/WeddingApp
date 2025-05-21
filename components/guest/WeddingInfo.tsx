@@ -33,13 +33,13 @@ export async function WeddingInfo({ eventId }: { eventId: string }) {
   });
 
   return (
-    <Card className="mb-8">
+    <Card className="mb-8 border-[hsl(var(--lp-accent))]/30 shadow-md">
       <CardHeader>
-        <CardTitle className="text-center">{event?.coupleName}</CardTitle>
+        <CardTitle className="text-center text-[hsl(var(--lp-primary))]">{event?.coupleName}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-start gap-3">
-          <CalendarIcon className="h-5 w-5 text-muted-foreground mt-0.5" />
+          <CalendarIcon className="h-5 w-5 text-[hsl(var(--lp-accent))] mt-0.5" />
           <div>
             <h3 className="font-medium">Datum i vreme</h3>
             <p className="text-sm text-muted-foreground">
@@ -49,7 +49,7 @@ export async function WeddingInfo({ eventId }: { eventId: string }) {
         </div>
 
         <div className="flex items-start gap-3">
-          <MapPinIcon className="h-5 w-5 text-muted-foreground mt-0.5" />
+          <MapPinIcon className="h-5 w-5 text-[hsl(var(--lp-accent))] mt-0.5" />
           <div>
             <h3 className="font-medium">Lokacija</h3>
             <p className="text-sm text-muted-foreground">{event?.location}</p>
@@ -58,7 +58,7 @@ export async function WeddingInfo({ eventId }: { eventId: string }) {
 
         {event?.guestMessage && (
   <div className="flex items-start gap-3">
-    <HeartIcon className="h-5 w-5 text-muted-foreground mt-0.5" />
+    <HeartIcon className="h-5 w-5 text-[hsl(var(--lp-accent))] mt-0.5" />
     <div>
       <h3 className="font-medium">Poruka za goste</h3>
       <p className="text-sm text-muted-foreground whitespace-pre-line">

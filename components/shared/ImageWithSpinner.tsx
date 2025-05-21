@@ -39,7 +39,7 @@ export default function ImageWithSpinner({
     <div className={`relative w-full h-full ${className}`} style={style} onClick={onClick}>
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/60 z-10">
-          <Loader2 className="animate-spin text-[#E2C275] w-8 h-8" />
+          <Loader2 className="animate-spin text-[hsl(var(--lp-primary))] w-8 h-8" />
         </div>
       )}
       {isCloudinary ? (
@@ -69,7 +69,7 @@ export default function ImageWithSpinner({
         />
       )}
       {error && (
-        <div className="absolute inset-0 flex items-center justify-center bg-red-100 text-red-500 text-center text-sm p-4 z-20">
+        <div className="absolute inset-0 flex items-center justify-center bg-[hsl(var(--lp-destructive))]/10 text-[hsl(var(--lp-destructive))] text-center text-sm p-4 z-20">
           Greška: Slika nije dostupna ili nije validan URL
         </div>
       )}

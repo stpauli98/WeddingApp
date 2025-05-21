@@ -103,10 +103,10 @@ function PhotoCard({
 
   return (
     <>
-      <div className="relative overflow-hidden rounded-lg bg-white shadow-md transition-all duration-200 hover:shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-white shadow-md transition-all duration-200 hover:shadow-lg border border-[hsl(var(--lp-accent))]/20">
         {selectionMode && (
           <button
-            className={`absolute left-2 top-2 z-10 rounded-full p-1 ${isSelected ? 'bg-blue-500 text-white' : 'bg-white/80 text-slate-500'}`}
+            className={`absolute left-2 top-2 z-10 rounded-full p-1 ${isSelected ? 'bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))]' : 'bg-white/80 text-[hsl(var(--lp-muted-foreground))]'}`}
             onClick={(e) => {
               e.stopPropagation();
               onSelect();
@@ -116,7 +116,7 @@ function PhotoCard({
           </button>
         )}
 
-        <div className="relative aspect-square overflow-hidden bg-slate-50">
+        <div className="relative aspect-square overflow-hidden bg-[hsl(var(--lp-muted))]/30">
           <Image
             src={validUrl}
             alt="Fotografija sa vjenčanja"
@@ -127,14 +127,14 @@ function PhotoCard({
         </div>
 
         <div className="flex items-center justify-between p-2">
-          <div className="text-xs text-slate-500">{photo.uploadDate || "Nedavno"}</div>
+          <div className="text-xs text-[hsl(var(--lp-muted-foreground))]">{photo.uploadDate || "Nedavno"}</div>
           <div className="flex gap-1">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onLike?.();
               }}
-              className={`rounded-full p-1 ${photo.isLiked ? 'text-pink-500' : 'text-slate-400 hover:text-pink-400'}`}
+              className={`rounded-full p-1 ${photo.isLiked ? 'text-[hsl(var(--lp-accent))]' : 'text-[hsl(var(--lp-muted-foreground))] hover:text-[hsl(var(--lp-accent))]'}`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -453,7 +453,7 @@ export function AdminImageGallery({
 
   return (
     <div>
-      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-[hsl(var(--lp-accent))]/20">
         <div className="p-3 sm:p-4 flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-0 sm:items-center border-b">
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-white/50">
@@ -465,7 +465,7 @@ export function AdminImageGallery({
             <Button
               variant="outline"
               size="sm"
-              className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 text-xs sm:text-sm flex-1 sm:flex-none"
+              className="bg-white border-[hsl(var(--lp-accent))]/20 text-[hsl(var(--lp-text))] hover:bg-[hsl(var(--lp-muted))]/30 text-xs sm:text-sm flex-1 sm:flex-none"
               onClick={toggleSelectionMode}
             >
               {selectionMode ? (
@@ -481,7 +481,7 @@ export function AdminImageGallery({
               )}
             </Button>
             <Button
-              className="bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs sm:text-sm flex-1 sm:flex-none"
+              className="bg-[hsl(var(--lp-muted))]/50 hover:bg-[hsl(var(--lp-muted))]/70 text-[hsl(var(--lp-primary))] text-xs sm:text-sm flex-1 sm:flex-none"
               size="sm"
               onClick={downloadAll}
             >
@@ -493,18 +493,18 @@ export function AdminImageGallery({
 
         {/* Selection Controls */}
         {selectionMode && (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-6 py-3 bg-blue-50 border-y border-blue-100 gap-2 sm:gap-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-6 py-3 bg-[hsl(var(--lp-muted))]/30 border-y border-[hsl(var(--lp-accent))]/20 gap-2 sm:gap-0">
             <div className="flex flex-wrap items-center gap-2">
-              <Button variant="ghost" size="sm" className="text-blue-700 hover:bg-blue-100 text-xs sm:text-sm" onClick={selectAll}>
+              <Button variant="ghost" size="sm" className="text-[hsl(var(--lp-primary))] hover:bg-[hsl(var(--lp-muted))]/50 text-xs sm:text-sm" onClick={selectAll}>
                 {selectedPhotos.length === images.length ? "Poništi sve" : "Odaberi sve"}
               </Button>
-              <span className="text-xs sm:text-sm text-slate-500">
+              <span className="text-xs sm:text-sm text-[hsl(var(--lp-muted-foreground))]">
                 {selectedPhotos.length} od {images.length} odabrano
               </span>
             </div>
             <Button
               size="sm"
-              className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm w-full sm:w-auto"
+              className="bg-[hsl(var(--lp-primary))] hover:bg-[hsl(var(--lp-primary-hover))] text-[hsl(var(--lp-primary-foreground))] text-xs sm:text-sm w-full sm:w-auto"
               disabled={selectedPhotos.length === 0 || !!downloadSelectedLoading}
               onClick={onDownloadSelected || downloadSelected}
             >
@@ -524,7 +524,7 @@ export function AdminImageGallery({
         {/* Tabs */}
         <Tabs defaultValue="all" className="px-6 pt-4">
           <div className="flex items-center justify-between mb-4">
-            <TabsList className="bg-slate-100">
+            <TabsList className="bg-[hsl(var(--lp-muted))]/30">
               <TabsTrigger value="all" className="data-[state=active]:bg-white">
                 Sve fotografije
               </TabsTrigger>
@@ -582,9 +582,9 @@ export function AdminImageGallery({
                   })}
 
                 {favoriteIds.length === 0 && (
-                  <div className="col-span-3 py-12 text-center text-slate-500">
+                  <div className="col-span-3 py-12 text-center text-[hsl(var(--lp-muted-foreground))]">
                     <p>Još uvijek nemate omiljenih fotografija</p>
-                    <p className="text-sm mt-2 text-slate-400">Kliknite na ikonu srca na fotografijama koje želite označiti kao omiljene</p>
+                    <p className="text-sm mt-2 text-[hsl(var(--lp-muted-foreground))]/80">Kliknite na ikonu srca na fotografijama koje želite označiti kao omiljene</p>
                   </div>
                 )}
               </div>

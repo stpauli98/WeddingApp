@@ -5,19 +5,19 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-base font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E2C275] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-sm [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-base font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--lp-accent))] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-sm [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-white border-2 border-[#E2C275] text-[#E2C275] hover:bg-[#E2C275]/10 hover:text-[#E2C275]",
+        default: "bg-white border-2 border-[hsl(var(--lp-accent))] text-[hsl(var(--lp-accent))] hover:bg-[hsl(var(--lp-accent))]/10 hover:text-[hsl(var(--lp-accent))]",
         destructive:
-          "bg-red-100 border-2 border-red-400 text-red-600 hover:bg-red-200 hover:text-red-700",
+          "bg-[hsl(var(--lp-destructive))]/10 border-2 border-[hsl(var(--lp-destructive))] text-[hsl(var(--lp-destructive))] hover:bg-[hsl(var(--lp-destructive))]/20 hover:text-[hsl(var(--lp-destructive))]",
         outline:
-          "bg-white border border-[#E2C275] text-[#E2C275] hover:bg-[#E2C275]/5 hover:text-[#E2C275]",
+          "bg-white border border-[hsl(var(--lp-accent))] text-[hsl(var(--lp-accent))] hover:bg-[hsl(var(--lp-accent))]/5 hover:text-[hsl(var(--lp-accent))]",
         secondary:
-          "bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200",
-        ghost: "bg-transparent text-[#E2C275] hover:bg-[#E2C275]/10",
-        link: "text-[#E2C275] underline-offset-4 hover:underline",
+          "bg-[hsl(var(--lp-secondary))]/10 border border-[hsl(var(--lp-secondary))] text-[hsl(var(--lp-secondary-foreground))] hover:bg-[hsl(var(--lp-secondary))]/20",
+        ghost: "bg-transparent text-[hsl(var(--lp-accent))] hover:bg-[hsl(var(--lp-accent))]/10",
+        link: "text-[hsl(var(--lp-accent))] underline-offset-4 hover:underline",
       },
       size: {
         default: "h-10 px-4 py-2",
