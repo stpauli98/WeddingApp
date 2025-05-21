@@ -22,7 +22,8 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
   const qrRef = useRef<HTMLDivElement>(null);
 
   // QR COLOR STATE
-  const defaultQrColor = "hsl(var(--lp-qr-code))"; // Koristi boju definiranu u wedding-theme.css
+  // QRCodeCanvas ne može koristiti CSS varijable, pa koristimo direktnu hex vrijednost
+  const defaultQrColor = "#000000"; // Crna boja za maksimalnu vidljivost QR koda
   const [qrColor, setQrColor] = useState<string>(defaultQrColor);
 
   // Pravi URL za goste
@@ -79,7 +80,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
           <div className="flex flex-col md:flex-row items-center justify-center gap-8 p-6 bg-gradient-to-br from-[hsl(var(--lp-muted))] via-white/70 to-[hsl(var(--lp-muted))] rounded-2xl shadow-lg border border-[hsl(var(--lp-accent))]/30">
             {/* QR Vizuelni blok */}
             <div ref={qrRef} className="flex flex-col items-center justify-center bg-white/90 rounded-xl shadow-md p-4 border border-[hsl(var(--lp-accent))]/20">
-              <QRCodeCanvas value={guestUrl} size={148} bgColor="#FFFFFF" fgColor={qrColor} includeMargin={true} className="rounded-xl" />
+              <QRCodeCanvas value={guestUrl} size={148} bgColor="#FFFFFF" fgColor={qrColor} className="rounded-xl shadow-sm" />
               <label className="flex items-center gap-2 mt-2 mb-1 text-xs text-[hsl(var(--lp-muted-foreground))] cursor-pointer" htmlFor="qrColorPicker">
                 Izaberi boju QR koda:
                 <input
@@ -132,23 +133,25 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
       )}
       
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 mb-6 bg-[hsl(var(--lp-muted))] p-1 rounded-xl border border-[hsl(var(--lp-accent))]/20 shadow-sm">
-          <TabsTrigger value="guests" className="data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm">
-            Gosti
-          </TabsTrigger>
-          {/* <TabsTrigger value="analytics" className="data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm">
-            Analitika
-          </TabsTrigger> */}
-          <TabsTrigger value="gallery" className="data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm">
-            Galerija
-          </TabsTrigger>
-          <TabsTrigger value="messages" className="data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm">
-            Poruke
-          </TabsTrigger>
-          <TabsTrigger value="help" className="data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm">
-            Pomoć
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto pb-2 -mx-1 px-1">
+          <TabsList className="flex w-max min-w-full mb-4 bg-[hsl(var(--lp-muted))] p-1.5 rounded-xl border border-[hsl(var(--lp-accent))]/20 shadow-sm">
+            <TabsTrigger value="guests" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
+              Gosti
+            </TabsTrigger>
+            {/* <TabsTrigger value="analytics" className="data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm">
+              Analitika
+            </TabsTrigger> */}
+            <TabsTrigger value="gallery" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
+              Galerija
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
+              Poruke
+            </TabsTrigger>
+            <TabsTrigger value="help" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
+              Pomoć
+            </TabsTrigger>
+          </TabsList>
+        </div>
         
         <TabsContent value="guests">
           {guests.length === 0 ? (

@@ -19,7 +19,7 @@
   
   /* Funkcionalne boje */
   --lp-destructive: 0 65% 65%;      /* Crvena za brisanje/upozorenja */
-  --lp-qr-code: 320 16% 30%;        /* Boja QR koda, ista kao primary-foreground za bolju čitljivost */
+  --lp-qr-code: 340 25% 75%;          /* Boja QR koda, ista kao primary-foreground za bolju čitljivost */
   --lp-destructive-foreground: 0 0% 100%; /* Bijela za tekst na destructive elementima */
   --lp-success: 142 50% 45%;        /* Zelena za uspješne akcije */
   --lp-success-foreground: 0 0% 100%; /* Bijela za tekst na success elementima */
