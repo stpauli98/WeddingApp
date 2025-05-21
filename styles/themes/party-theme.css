@@ -1,0 +1,45 @@
+:root {
+  /* OSNOVNE BOJE */
+  --lp-primary: 200 100% 80%; /* Sky blue */
+  --lp-primary-foreground: 220 40% 25%; /* Deep blue-gray */
+  --lp-bg: 48 100% 95%; /* Light pastel yellow */
+  --lp-muted: 280 40% 90%; /* Soft lilac */
+  --lp-accent: 12 80% 75%; /* Coral pink */
+  --lp-text: 220 12% 20%; /* Dark slate */
+  --lp-card: 0 0% 100%; /* White */
+  --lp-card-foreground: 220 12% 20%; /* Same as text */
+
+  /* DODATNE BOJE */
+  --lp-secondary: 280 60% 70%; /* Lavender rose */
+  --lp-secondary-foreground: 220 40% 25%; /* Dark blue-gray */
+  --lp-muted-foreground: 220 10% 40%; /* Muted slate text */
+  --lp-border: 280 30% 80%; /* Light lavender border */
+  --lp-input: 280 40% 90%; /* Same as muted */
+  --lp-ring: 12 80% 75%; /* Coral pink ring */
+
+  /* FUNKCIONALNE BOJE */
+  --lp-destructive: 0 65% 65%; /* Red for errors */
+  --lp-qr-code: 0 0% 0%; /* Black QR code */
+  --lp-destructive-foreground: 0 0% 100%; /* White text on destructive */
+  --lp-success: 142 50% 45%; /* Green success */
+  --lp-success-foreground: 0 0% 100%; /* White on green */
+  --lp-warning: 38 92% 50%; /* Yellow warning */
+  --lp-warning-foreground: 0 0% 20%; /* Dark text on yellow */
+
+  /* HOVER STANJA */
+  --lp-primary-hover: 200 100% 70%; /* Darker sky blue */
+  --lp-accent-hover: 12 80% 65%; /* Darker coral pink */
+}
+
+/* Autofill fix */
+.input-autofill-fix {
+  background-color: hsl(var(--lp-card)) !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: hsl(var(--lp-text));
+  -webkit-box-shadow: 0 0 0px 1000px hsl(var(--lp-card)) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}

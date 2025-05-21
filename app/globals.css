@@ -1,4 +1,6 @@
-@import "../styles/wedding-theme.css";
+
+@import "../styles/themes/wedding-theme.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -1,0 +1,45 @@
+:root {
+    /* OSNOVNE BOJE */
+    --lp-primary: 240 25% 65%; /* Slate blue */
+    --lp-primary-foreground: 220 20% 20%; /* Tamna siva/plava za tekst na primarnoj */
+    --lp-bg: 42 30% 94%; /* Ivory pastel */
+    --lp-muted: 270 20% 90%; /* Cool taupe */
+    --lp-accent: 12 25% 65%; /* Muted copper/rose */
+    --lp-text: 220 12% 20%; /* Warm charcoal */
+    --lp-card: 0 0% 100%; /* White */
+    --lp-card-foreground: 220 12% 20%; /* Isti kao tekst */
+  
+    /* DODATNE BOJE */
+    --lp-secondary: 230 30% 55%; /* Dusty navy */
+    --lp-secondary-foreground: 220 20% 20%;
+    --lp-muted-foreground: 220 10% 40%;
+    --lp-border: 240 20% 75%; /* Suptilno plavi borderi */
+    --lp-input: 270 20% 90%; /* Isto kao muted */
+    --lp-ring: 12 25% 65%; /* Isto kao accent */
+  
+    /* FUNKCIONALNE BOJE */
+    --lp-destructive: 0 65% 60%;
+    --lp-qr-code: 0 0% 0%;
+    --lp-destructive-foreground: 0 0% 100%;
+    --lp-success: 142 50% 45%;
+    --lp-success-foreground: 0 0% 100%;
+    --lp-warning: 38 92% 50%;
+    --lp-warning-foreground: 0 0% 20%;
+  
+    /* HOVER STANJA */
+    --lp-primary-hover: 240 25% 55%;
+    --lp-accent-hover: 12 25% 55%;
+  }
+  
+  .input-autofill-fix {
+    background-color: hsl(var(--lp-card)) !important;
+  }
+  
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: hsl(var(--lp-text));
+    -webkit-box-shadow: 0 0 0px 1000px hsl(var(--lp-card)) inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+  

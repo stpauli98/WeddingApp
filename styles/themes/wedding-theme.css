@@ -1,0 +1,219 @@
+:root {
+  /*
+   * OSNOVNE BOJE
+   * Ove boje definiraju glavni vizualni identitet aplikacije
+   */
+  
+  /* Dusty rose - glavna boja aplikacije
+   * Koristi se za: 
+   * - Glavna dugmad ("Prijavi se", "Registruj se", "Pošalji")
+   * - Zaglavlja sekcija
+   * - Naglasci i važni elementi
+   * - Pozadina aktivnih tabova
+   */
+  --lp-primary: 340 25% 75%;
+  
+  /* Deep mauve/plum - boja teksta na primary elementima
+   * Koristi se za:
+   * - Tekst na glavnim dugmadima
+   * - Tekst na elementima s primary pozadinom
+   * - Osigurava dobar kontrast i čitljivost na primary boji
+   */
+  --lp-primary-foreground: 320 16% 30%;
+  
+  /* Ivory/bež - glavna pozadinska boja
+   * Koristi se za:
+   * - Pozadina cijele aplikacije
+   * - Topla neutralna boja koja stvara ugodan osjećaj
+   * - Pozadina landing stranice i glavnih sekcija
+   */
+  --lp-bg: 36 33% 97%;
+  
+  /* Blush taupe - boja za sekundarne pozadine
+   * Koristi se za:
+   * - Pozadina sekcija koje želimo suptilno odvojiti
+   * - Pozadina neaktivnih tabova
+   * - Pozadina input polja
+   */
+  --lp-muted: 325 20% 92%;
+  
+  /* Mauve/rose gold - boja za akcente i detalje
+   * Koristi se za:
+   * - Obrubi (borderi) oko input polja
+   * - Ikone i dekorativni elementi
+   * - Linkovi i interaktivni elementi
+   * - Fokus stanja na elementima
+   */
+  --lp-accent: 325 16% 60%;
+  
+  /* Tamni plum/taupe - glavna boja teksta
+   * Koristi se za:
+   * - Glavni tekst kroz cijelu aplikaciju
+   * - Naslovi i važni tekstualni elementi
+   * - Osigurava dobar kontrast na svijetlim pozadinama
+   */
+  --lp-text: 320 12% 18%;
+  
+  /* Bijela - boja kartica i panela
+   * Koristi se za:
+   * - Pozadina kartica (login, register, dashboard kartice)
+   * - Pozadina modala i dijaloga
+   * - Kontrastna pozadina za sadržaj na glavnoj pozadini
+   */
+  --lp-card: 0 0% 100%;
+  
+  /* Tamni plum/taupe - boja teksta na karticama
+   * Koristi se za:
+   * - Tekst na bijelim karticama i panelima
+   * - Ista kao --lp-text za konzistentnost
+   */
+  --lp-card-foreground: 320 12% 18%;
+  
+  /*
+   * DODATNE BOJE
+   * Ove boje nadopunjuju osnovne i koriste se za specifične elemente
+   */
+  
+  /* Svjetliji mauve/rose - boja za sekundarne elemente
+   * Koristi se za:
+   * - Sekundarna dugmad ("Nazad", "Otkaži")
+   * - Manje važni naglasci
+   * - Alternativni elementi u odnosu na primary
+   */
+  --lp-secondary: 325 30% 65%;
+  
+  /* Tamniji plum - boja teksta na sekundarnim elementima
+   * Koristi se za:
+   * - Tekst na sekundarnim dugmadima
+   * - Osigurava dobar kontrast na secondary boji
+   */
+  --lp-secondary-foreground: 320 16% 20%;
+  
+  /* Prigušena boja teksta za manje važne informacije
+   * Koristi se za:
+   * - Opisi i pomoćni tekstovi
+   * - Datumi i vremenske oznake
+   * - Sekundarne informacije
+   * - Placeholderi u input poljima
+   */
+  --lp-muted-foreground: 320 10% 40%;
+  
+  /* Svjetlija verzija accent boje za bordere
+   * Koristi se za:
+   * - Suptilni obrubi između sekcija
+   * - Separatori i djelitelji
+   * - Obrubi oko neaktivnih elemenata
+   */
+  --lp-border: 325 20% 82%;
+  
+  /* Boja pozadine input polja
+   * Koristi se za:
+   * - Pozadina svih input polja (text, email, password)
+   * - Pozadina dropdown menija
+   * - Ista kao --lp-muted za konzistentnost
+   */
+  --lp-input: 325 20% 92%;
+  
+  /* Boja fokus prstena oko elemenata
+   * Koristi se za:
+   * - Prsten oko input polja kada su u fokusu
+   * - Prsten oko interaktivnih elemenata u fokusu
+   * - Ista kao --lp-accent za konzistentnost
+   */
+  --lp-ring: 325 16% 60%;
+  
+  /*
+   * FUNKCIONALNE BOJE
+   * Ove boje imaju specifične funkcije i značenja u korisničkom sučelju
+   */
+  
+  /* Crvena za brisanje i upozorenja
+   * Koristi se za:
+   * - Dugmad za brisanje i opasne akcije
+   * - Poruke o greškama
+   * - Ikone upozorenja
+   * - Negativne indikatore
+   */
+  --lp-destructive: 0 65% 65%;
+  
+  /* Boja QR koda
+   * Koristi se za:
+   * - QR kod na admin dashboardu
+   * - Postavljena na crnu za maksimalnu čitljivost
+   * - Korisnik može promijeniti ovu boju po želji
+   */
+  --lp-qr-code: 0 0% 0%;
+  
+  /* Bijela za tekst na destructive elementima
+   * Koristi se za:
+   * - Tekst na crvenim dugmadima i elementima
+   * - Osigurava dobar kontrast na destructive boji
+   */
+  --lp-destructive-foreground: 0 0% 100%;
+  
+  /* Zelena za uspješne akcije
+   * Koristi se za:
+   * - Poruke o uspjehu
+   * - Indikatori uspješnih akcija
+   * - Pozitivni indikatori
+   * - Ikone potvrde
+   */
+  --lp-success: 142 50% 45%;
+  
+  /* Bijela za tekst na success elementima
+   * Koristi se za:
+   * - Tekst na zelenim elementima
+   * - Osigurava dobar kontrast na success boji
+   */
+  --lp-success-foreground: 0 0% 100%;
+  
+  /* Žuta/zlatna za upozorenja
+   * Koristi se za:
+   * - Poruke upozorenja (ne greške)
+   * - Indikatori koji zahtijevaju pažnju
+   * - Ikone upozorenja
+   */
+  --lp-warning: 38 92% 50%;
+  
+  /* Tamna za tekst na warning elementima
+   * Koristi se za:
+   * - Tekst na žutim elementima
+   * - Osigurava dobar kontrast na warning boji
+   */
+  --lp-warning-foreground: 0 0% 20%;
+  
+  /*
+   * NIJANSE ZA HOVER I AKTIVNA STANJA
+   * Ove boje se koriste za interaktivna stanja elemenata
+   */
+  
+  /* Tamnija verzija primary za hover stanja
+   * Koristi se za:
+   * - Hover stanje na glavnim dugmadima
+   * - Hover stanje na primary elementima
+   * - Daje vizualnu povratnu informaciju korisniku
+   */
+  --lp-primary-hover: 340 25% 65%;
+  
+  /* Tamnija verzija accent za hover stanja
+   * Koristi se za:
+   * - Hover stanje na linkovima
+   * - Hover stanje na accent elementima
+   * - Daje vizualnu povratnu informaciju korisniku
+   */
+  --lp-accent-hover: 325 16% 50%;
+}
+
+/* Rješava problem žute pozadine kod autofill-a */
+.input-autofill-fix {
+  background-color: hsl(var(--lp-card)) !important;
+}
+
+/* Stilizacija za autofill stanje */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: hsl(var(--lp-text));
+  -webkit-box-shadow: 0 0 0px 1000px hsl(var(--lp-card)) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
