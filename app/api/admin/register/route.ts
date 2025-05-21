@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   }
   try {
     const body = await req.json();
-    const { email, password, firstName, lastName } = body;
+    const { email, password, firstName, lastName, language } = body;
     // Validacija polja
     function isValidEmail(email: string) {
       return /^\S+@\S+\.\S+$/.test(email);
@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
         passwordHash,
         firstName,
         lastName,
+        language: language || 'sr', // Ako jezik nije specificiran, koristi srpski
       },
     });
 

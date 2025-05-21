@@ -7,8 +7,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslation } from "react-i18next"
+import I18nProvider from "@/components/I18nProvider"
+import LanguageSelector from "@/components/LanguageSelector"
 
 export default function AdminRegisterPage() {
+  const { t, i18n } = useTranslation();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -21,39 +25,43 @@ export default function AdminRegisterPage() {
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [passwordStrength, setPasswordStrength] = useState<string>("");
   const [passwordsMatch, setPasswordsMatch] = useState<boolean | null>(null);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
-  // Funkcija za proveru jačine lozinke
+  // Funkcija za provjeru jačine lozinke
   function getPasswordStrength(pw: string): string {
     if (!pw) return "";
-    if (pw.length < 6) return "Slaba (min 6 znakova)";
+    if (pw.length < 6) return t('admin.register.weakMinChars');
     let score = 0;
     if (/[a-z]/.test(pw)) score++;
     if (/[A-Z]/.test(pw)) score++;
     if (/[0-9]/.test(pw)) score++;
     if (/[^a-zA-Z0-9]/.test(pw)) score++;
     if (pw.length >= 12) score++;
-    if (score <= 2) return "Slaba";
-    if (score === 3) return "Srednja";
-    if (score >= 4) return "Jaka";
+    if (score <= 2) return t('admin.register.weak');
+    if (score === 3) return t('admin.register.medium');
+    if (score >= 4) return t('admin.register.strong');
     return "";
   }
 
   // Procenat i boja za progress bar
   function getStrengthBarInfo(strength: string): { percent: number; color: string } {
-    switch (strength) {
-      case "Jaka":
-        return { percent: 100, color: "bg-green-500" };
-      case "Srednja":
-        return { percent: 66, color: "bg-yellow-500" };
-      case "Slaba":
-      case "Slaba (min 6 znakova)":
-        return { percent: 33, color: "bg-red-500" };
-      default:
-        return { percent: 0, color: "bg-gray-300" };
+    if (strength === t('admin.register.strong')) {
+      return { percent: 100, color: "bg-green-500" };
+    } else if (strength === t('admin.register.medium')) {
+      return { percent: 66, color: "bg-yellow-500" };
+    } else if (strength === t('admin.register.weak') || strength === t('admin.register.weakMinChars')) {
+      return { percent: 33, color: "bg-red-500" };
+    } else {
+      return { percent: 0, color: "bg-gray-300" };
     }
   }
 
+  // Pratimo stanje montiranja komponente za hidrataciju
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   // Real-time feedback
   useEffect(() => {
     setPasswordStrength(getPasswordStrength(password));
@@ -62,7 +70,7 @@ export default function AdminRegisterPage() {
     } else {
       setPasswordsMatch(password === confirmPassword);
     }
-  }, [password, confirmPassword]);
+  }, [password, confirmPassword, t]);
 
   useEffect(() => {
     fetch("/api/admin/register")
@@ -75,22 +83,29 @@ export default function AdminRegisterPage() {
     e.preventDefault();
     setError(null);
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
-      setError("Sva polja su obavezna.");
+      setError(t('admin.register.errors.allFieldsRequired'));
       return;
     }
     if (password !== confirmPassword) {
-      setError("Lozinke se ne poklapaju.");
+      setError(t('admin.register.errors.passwordsDontMatch'));
       return;
     }
     setLoading(true);
     try {
+      // Dodajemo odabrani jezik u podatke za registraciju
       const res = await fetch("/api/admin/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-csrf-token": csrfToken || ""
         },
-        body: JSON.stringify({ email, password, firstName, lastName }),
+        body: JSON.stringify({ 
+          email, 
+          password, 
+          firstName, 
+          lastName,
+          language: i18n.language // Spremamo odabrani jezik
+        }),
       });
       let data;
       try {
@@ -105,44 +120,62 @@ export default function AdminRegisterPage() {
             .then(res => res.json())
             .then(data => setCsrfToken(data.csrfToken))
             .catch(() => setCsrfToken(null));
-          setError("Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.");
+          setError(t('admin.register.errors.sessionExpired'));
           return;
         }
-        setError(data.error || "Greška pri registraciji.");
+        setError(data.error || t('admin.register.errors.networkError'));
         return;
       }
       router.push("/admin/event");
     } catch (err) {
-      setError("Došlo je do greške na mreži.");
+      setError(t('admin.register.errors.networkError'));
     } finally {
       setLoading(false);
     }
   }
 
+  // Ako komponenta nije montirana, prikazujemo skeleton
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-lp-muted py-12 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md animate-pulse">
+          <div className="h-8 bg-gray-200 rounded mb-6"></div>
+          <div className="h-64 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Admin Registracija</CardTitle>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">Ime</Label>
-                <Input id="firstName" placeholder="Marko" required value={firstName} onChange={e => setFirstName(e.target.value)} />
+    <I18nProvider>
+      <div className="flex items-center justify-center min-h-screen bg-lp-muted py-12 px-4 sm:px-6 lg:px-8 relative">
+        {/* Dodajemo selektor jezika u gornjem desnom uglu */}
+        <div className="absolute top-4 right-4">
+          <LanguageSelector className="backdrop-blur-sm bg-white/50" />
+        </div>
+        
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center font-bold">{t('admin.register.title')}</CardTitle>
+          </CardHeader>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">{t('admin.register.firstName')}</Label>
+                  <Input id="firstName" placeholder="Marko" required value={firstName} onChange={e => setFirstName(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">{t('admin.register.lastName')}</Label>
+                  <Input id="lastName" placeholder="Marković" required value={lastName} onChange={e => setLastName(e.target.value)} />
+                </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Prezime</Label>
-                <Input id="lastName" placeholder="Marković" required value={lastName} onChange={e => setLastName(e.target.value)} />
+                <Label htmlFor="email">{t('admin.register.email')}</Label>
+                <Input id="email" type="email" placeholder="admin@gmail.com" required value={email} onChange={e => setEmail(e.target.value)} />
               </div>
-            </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="admin@gmail.com" required value={email} onChange={e => setEmail(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('admin.register.password')}</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -157,7 +190,7 @@ export default function AdminRegisterPage() {
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   tabIndex={-1}
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Sakrij lozinku" : "Prikaži lozinku"}
+                  aria-label={showPassword ? t('admin.register.hidePassword') : t('admin.register.showPassword')}
                 >
                   {showPassword ? (
                     // Eye with slash (hide)
@@ -178,17 +211,17 @@ export default function AdminRegisterPage() {
                     />
                   </div>
                   <div className={
-                    passwordStrength === "Jaka" ? "text-green-600 text-xs pt-1" :
-                    passwordStrength === "Srednja" ? "text-yellow-600 text-xs pt-1" :
+                    passwordStrength === t('admin.register.strong') ? "text-green-600 text-xs pt-1" :
+                    passwordStrength === t('admin.register.medium') ? "text-yellow-600 text-xs pt-1" :
                     "text-red-600 text-xs pt-1"
                   }>
-                    Jačina lozinke: {passwordStrength}
+                    {t('admin.register.passwordStrength')}: {passwordStrength}
                   </div>
                 </div>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">{t('admin.register.confirmPassword')}</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
@@ -203,7 +236,7 @@ export default function AdminRegisterPage() {
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   tabIndex={-1}
                   onClick={() => setShowConfirmPassword((v) => !v)}
-                  aria-label={showConfirmPassword ? "Sakrij lozinku" : "Prikaži lozinku"}
+                  aria-label={showConfirmPassword ? t('admin.register.hidePassword') : t('admin.register.showPassword')}
                 >
                   {showConfirmPassword ? (
                     // Eye with slash (hide)
@@ -219,23 +252,26 @@ export default function AdminRegisterPage() {
                 <div className={
                   passwordsMatch ? "text-green-600 text-xs pt-1" : "text-red-600 text-xs pt-1"
                 }>
-                  {passwordsMatch ? "Lozinke se poklapaju" : "Lozinke se ne poklapaju"}
+                  {passwordsMatch ? t('admin.register.passwordsMatch') : t('admin.register.passwordsDontMatch')}
                 </div>
               )}
             </div>
             {error && <div className="text-red-500 text-sm pt-2">{error}</div>}
-          </CardContent>
+           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button className="w-full" type="submit" disabled={loading || !csrfToken}>{loading ? "Registering..." : "Register"}</Button>
+            <Button className="w-full" type="submit" disabled={loading || !csrfToken}>
+              {loading ? t('admin.register.loading') : t('admin.register.registerButton')}
+            </Button>
             <div className="text-center text-sm">
-              Already have an account?{" "}
+              {t('admin.register.alreadyHaveAccount')}{" "}
               <Link href="/admin/login" className="font-medium text-primary hover:underline">
-                Login
+                {t('admin.register.login')}
               </Link>
             </div>
           </CardFooter>
         </form>
       </Card>
     </div>
+    </I18nProvider>
   );
 }

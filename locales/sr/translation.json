@@ -75,6 +75,66 @@
       "email": "Email (nije obavezno)",
       "loading": "Učitavanje...",
       "error": "Greška"
+    },
+    "admin": {
+      "register": {
+        "title": "Registracija",
+        "firstName": "Ime",
+        "lastName": "Prezime",
+        "email": "Email adresa",
+        "password": "Lozinka",
+        "confirmPassword": "Potvrdite lozinku",
+        "registerButton": "Registrujte se",
+        "alreadyHaveAccount": "Već imate nalog?",
+        "login": "Prijavite se",
+        "passwordStrength": "Jačina lozinke",
+        "weak": "Slaba",
+        "weakMinChars": "Slaba (min 6 znakova)",
+        "medium": "Srednja",
+        "strong": "Jaka",
+        "passwordsMatch": "Lozinke se poklapaju",
+        "passwordsDontMatch": "Lozinke se ne poklapaju",
+        "showPassword": "Prikaži lozinku",
+        "hidePassword": "Sakrij lozinku",
+        "loading": "Registracija u toku...",
+        "errors": {
+          "allFieldsRequired": "Sva polja su obavezna.",
+          "passwordsDontMatch": "Lozinke se ne poklapaju.",
+          "sessionExpired": "Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.",
+          "networkError": "Došlo je do greške na mreži."
+        }
+      },
+      "login": {
+        "title": "Prijava",
+        "email": "Email adresa",
+        "password": "Lozinka",
+        "loginButton": "Prijavite se",
+        "dontHaveAccount": "Nemate nalog?",
+        "register": "Registrujte se",
+        "rememberMe": "Zapamti me",
+        "forgotPassword": "Zaboravili ste lozinku?",
+        "showPassword": "Prikaži lozinku",
+        "hidePassword": "Sakrij lozinku",
+        "loading": "Prijava u toku...",
+        "errors": {
+          "allFieldsRequired": "Sva polja su obavezna.",
+          "invalidCredentials": "Pogrešan email ili lozinka.",
+          "sessionExpired": "Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.",
+          "networkError": "Došlo je do greške na mreži."
+        }
+      },
+      "event": {
+        "title": "Kreirajte vaš događaj",
+        "weddingName": "Naziv vjenčanja",
+        "weddingDate": "Datum vjenčanja",
+        "weddingLocation": "Lokacija vjenčanja",
+        "createButton": "Kreirajte događaj",
+        "loading": "Kreiranje događaja...",
+        "errors": {
+          "allFieldsRequired": "Sva polja su obavezna.",
+          "networkError": "Došlo je do greške na mreži."
+        }
+      }
     }
-  
-}
+  }
+

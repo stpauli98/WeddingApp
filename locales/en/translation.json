@@ -75,6 +75,67 @@
     "email": "Email (optional)",
     "loading": "Loading...",
     "error": "Error"
+  },
 
+
+  "admin": {
+    "register": {
+      "title": "Registration",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "registerButton": "Register",
+      "alreadyHaveAccount": "Already have an account?",
+      "login": "Login",
+      "passwordStrength": "Password Strength",
+      "weak": "Weak",
+      "weakMinChars": "Weak (min 6 characters)",
+      "medium": "Medium",
+      "strong": "Strong",
+      "passwordsMatch": "Passwords match",
+      "passwordsDontMatch": "Passwords don't match",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "loading": "Registering...",
+      "errors": {
+        "allFieldsRequired": "All fields are required.",
+        "passwordsDontMatch": "Passwords don't match.",
+        "sessionExpired": "Session expired or security token error. Please try again.",
+        "networkError": "A network error occurred."
+      }
+    },
+    "login": {
+      "title": "Login",
+      "email": "Email Address",
+      "password": "Password",
+      "loginButton": "Login",
+      "dontHaveAccount": "Don't have an account?",
+      "register": "Register",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "loading": "Logging in...",
+      "errors": {
+        "allFieldsRequired": "All fields are required.",
+        "invalidCredentials": "Invalid email or password.",
+        "sessionExpired": "Session expired or security token error. Please try again.",
+        "networkError": "A network error occurred."
+      }
+    },
+    "event": {
+      "title": "Create Your Event",
+      "weddingName": "Wedding Name",
+      "weddingDate": "Wedding Date",
+      "weddingLocation": "Wedding Location",
+      "createButton": "Create Event",
+      "loading": "Creating event...",
+      "errors": {
+        "allFieldsRequired": "All fields are required.",
+        "networkError": "A network error occurred."
+      }
+    }
   }
 }

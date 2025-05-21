@@ -15,6 +15,7 @@ model Admin {
   eventId      String?        @unique
   firstName    String
   lastName     String
+  language     String         @default("sr") // Defaultni jezik je srpski
   sessions     AdminSession[]
   event        Event?         @relation("AdminEvent")
 }
