@@ -1,0 +1,80 @@
+{
+  "hero": {
+    "title": "Save all memories from your <accent>wedding</accent>",
+    "description": "A simple way to collect all the photos your guests took during the wedding in one place, without complications.",
+    "createEvent": "Create a free event",
+    "howItWorks": "How it works",
+    "imagesCollected": "Images collected"
+  },
+  "howItWorks": {
+    "title": "How it works",
+    "description": "A simple way to collect all the photos your guests took during the wedding in one place, without complications.",
+    "step1Title": "Register",
+    "step1Description": "Create your event in a few simple steps",
+    "step2Title": "Share the code",
+    "step2Description": "Share a unique QR code with your guests",
+    "step3Title": "Collect photos",
+    "step3Description": "Guests upload photos directly from their phones",
+    "step4Title": "Download memories",
+    "step4Description": "Access all photos in one place",
+    "qrCodeText": "Simple scanning"
+  },
+  "benefits": {
+    "title": "Why use our application",
+    "subtitle": "Benefits you get",
+    "benefit1Title": "Easy to use",
+    "benefit1Description": "Intuitive interface for you and your guests",
+    "benefit2Title": "No app installation",
+    "benefit2Description": "Guests can upload photos directly through a web browser",
+    "benefit3Title": "Privacy",
+    "benefit3Description": "Only you have access to the photos",
+    "benefit4Title": "High quality",
+    "benefit4Description": "Photos are stored in their original resolution",
+    "benefit5Title": "Easy to use",
+    "benefit5Description": "Intuitive interface for you and your guests",
+    "benefit6Title": "No app installation",
+    "benefit6Description": "Guests can upload photos directly through a web browser"
+  },
+  "testimonials": {
+    "title": "What our users say",
+    "subtitle": "What our users say",
+    "testimonial1Author": "Maria and Nicholas",
+    "testimonial1Text": "Excellent app! We managed to collect over 300 photos from our guests that we wouldn't have otherwise.",
+    "testimonial2Author": "Anna and Mark",
+    "testimonial2Text": "Our guests were delighted by how easy it was to add photos. We recommend it to everyone!",
+    "testimonial3Author": "Helen and Stephen",
+    "testimonial3Text": "The best way to save all wedding memories in one place."
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Frequently Asked Questions",
+    "question1": "Is the application free?",
+    "answer1": "Yes, the basic version of the application is completely free to use.",
+    "question2": "How many photos can guests upload?",
+    "answer2": "Each guest can upload up to 10 photos.",
+    "question3": "How long are the photos stored?",
+    "answer3": "Photos are stored for 1 months after the wedding.",
+    "question4": "Do guests need to create an account?",
+    "answer4": "No, guests sign in only with their name and email address."
+  },
+  "footer": {
+    "copyright": "All rights reserved.",
+    "title": "Save all memories from your wedding",
+    "subtitle": "A simple way to collect all the photos your guests took during the wedding in one place, without complications.",
+    "button": "Start for free",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "contact": "Contact"
+  },
+  "common": {
+    "title": "If you have any questions or suggestions, please let us know.",
+    "subtitle": "Your feedback is important to us. We read and use all comments and suggestions to improve the application.",
+    "success": "Success",
+    "submit": "Submit",
+    "comment": "Comment",
+    "email": "Email (optional)",
+    "loading": "Loading...",
+    "error": "Error"
+
+  }
+}

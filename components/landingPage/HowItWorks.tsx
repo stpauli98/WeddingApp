@@ -1,18 +1,21 @@
 import Image from "next/image"
 import { ArrowRight, QrCode, Upload, Users } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 type HowItWorksProps = {
   id?: string;
 };
 
 export default function HowItWorks({ id }: HowItWorksProps) {
+  const { t } = useTranslation();
+  
   return (
     <section id={id} className="py-20 bg-lp-bg">
       <div className="container px-6 mx-auto">
         <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold text-lp-text mb-3">Kako funkcioniše</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-lp-text mb-3">{t('howItWorks.title')}</h2>
           <p className="text-base md:text-lg text-lp-text max-w-2xl mx-auto">
-            Naša aplikacija omogućava jednostavno prikupljanje i dijeljenje svih fotografija sa vašeg venčanja
+            {t('howItWorks.description')}
           </p>
         </div>
 
@@ -23,10 +26,9 @@ export default function HowItWorks({ id }: HowItWorksProps) {
                 <Users className="w-6 h-6 text-lp-accent" />
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2">Za mladence</h3>
+                <h3 className="text-xl font-bold mb-2">{t('howItWorks.step1Title')}</h3>
                 <p className="text-muted-foreground">
-                  Kreirajte svoj događaj u nekoliko jednostavnih koraka. Unesite datum venčanja, dodajte osnovne
-                  informacije i dobićete jedinstveni kod za vaše goste.
+                  {t('howItWorks.step1Description')}
                 </p>
               </div>
             </div>
@@ -36,10 +38,9 @@ export default function HowItWorks({ id }: HowItWorksProps) {
                 <QrCode className="w-6 h-6 text-lp-accent" />
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2">Podjelite QR kod</h3>
+                <h3 className="text-xl font-bold mb-2">{t('howItWorks.step2Title')}</h3>
                 <p className="text-muted-foreground">
-                  Podjelite jedinstveni QR kod sa vašim gostima putem pozivnica ili postavite ga na vidljivo mesto tokom
-                  proslave.
+                  {t('howItWorks.step2Description')}
                 </p>
               </div>
             </div>
@@ -49,10 +50,9 @@ export default function HowItWorks({ id }: HowItWorksProps) {
                 <Upload className="w-6 h-6 text-lp-accent" />
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2">Za goste</h3>
+                <h3 className="text-xl font-bold mb-2">{t('howItWorks.step3Title')}</h3>
                 <p className="text-muted-foreground">
-                  Gosti skeniraju QR kod, pristupaju galeriji i jednostavno otpremaju fotografije direktno sa svojih
-                  telefona.
+                  {t('howItWorks.step3Description')}
                 </p>
               </div>
             </div>
@@ -62,10 +62,9 @@ export default function HowItWorks({ id }: HowItWorksProps) {
                 <ArrowRight className="w-6 h-6 text-lp-accent" />
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2">Pristupite svim fotografijama</h3>
+                <h3 className="text-xl font-bold mb-2">{t('howItWorks.step4Title')}</h3>
                 <p className="text-muted-foreground">
-                  Nakon vjenčanja, imate pristup svim fotografijama na jednom mjestu. Možete ih preuzeti, dijeliti ili
-                  kreirati posebne albume.
+                  {t('howItWorks.step4Description')}
                 </p>
               </div>
             </div>
@@ -75,8 +74,9 @@ export default function HowItWorks({ id }: HowItWorksProps) {
             <div className="relative w-full aspect-[4/5] max-w-md mx-auto">
               <Image
                 src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/photos-by-lanty-O38Id_cyV4M-unsplash.jpg-AxWKul1i86GZ5PjxXEUimpeEnTmupv.jpeg"
-                alt="Dekoracija stola za venčanje"
+                alt="Dekoracija stola za vjenčanje"
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover rounded-2xl shadow-xl"
               />
 
@@ -84,7 +84,7 @@ export default function HowItWorks({ id }: HowItWorksProps) {
                 <div className="flex items-center justify-center w-16 h-16 bg-lp-muted rounded-full mb-2">
                   <QrCode className="w-8 h-8 text-lp-accent" />
                 </div>
-                <div className="text-sm font-medium text-center">Jednostavno skeniranje</div>
+                <div className="text-sm font-medium text-center">{t('howItWorks.qrCodeText')}</div>
               </div>
             </div>
           </div>

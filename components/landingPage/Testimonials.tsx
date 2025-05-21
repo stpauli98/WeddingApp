@@ -1,14 +1,14 @@
 import { Star } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 export default function Testimonials() {
+  const { t } = useTranslation();
+  
   return (
     <section className="py-20 bg-lp-bg">
       <div className="container px-6 mx-auto">
         <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold text-lp-primary mb-3">Šta kažu naši korisnici</h2>
-          <p className="text-base md:text-lg text-lp-text max-w-2xl mx-auto">
-            Pridružite se stotinama zadovoljnih parova koji su koristili našu aplikaciju za svoje venčanje
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-lp-primary mb-3">{t('testimonials.title')}</h2>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -1,0 +1,80 @@
+{
+  "hero": {
+    "title": "Sačuvajte sve uspomene sa vašeg <accent>vjenčanja</accent>",
+    "description": "Jednostavan način da prikupite sve fotografije koje su vaši gosti napravili tokom vjenčanja na jednom mjestu, bez komplikacija.",
+    "createEvent": "Kreirajte besplatan događaj",
+    "howItWorks": "Kako funkcioniše",
+    "imagesCollected": "Prikupljeno slika"
+  },
+  "howItWorks": {
+    "title": "Kako funkcioniše",
+    "description": "Jednostavan način da prikupite sve fotografije koje su vaši gosti napravili tokom vjenčanja na jednom mjestu, bez komplikacija.",
+    "step1Title": "Registrujte se",
+    "step1Description": "Kreirajte svoj događaj u nekoliko jednostavnih koraka",
+    "step2Title": "Podijelite kod",
+    "step2Description": "Podijelite jedinstveni QR kod sa svojim gostima",
+    "step3Title": "Prikupite fotografije",
+    "step3Description": "Gosti uploaduju fotografije direktno sa svojih telefona",
+    "step4Title": "Preuzmite uspomene",
+    "step4Description": "Pristupite svim fotografijama na jednom mjestu",
+    "qrCodeText": "Jednostavno skeniranje"
+  },
+  "benefits": {
+    "title": "Zašto koristiti našu aplikaciju",
+    "subtitle": "Prednosti koje dobijate",
+    "benefit1Title": "Jednostavno korištenje",
+    "benefit1Description": "Intuitivni interfejs za vas i vaše goste",
+    "benefit2Title": "Bez instalacije aplikacije",
+    "benefit2Description": "Gosti mogu uploadovati fotografije direktno kroz web preglednik",
+    "benefit3Title": "Privatnost",
+    "benefit3Description": "Samo vi imate pristup fotografijama",
+    "benefit4Title": "Visok kvalitet",
+    "benefit4Description": "Fotografije se čuvaju u originalnoj rezoluciji",
+    "benefit5Title": "Jednostavno korištenje",
+    "benefit5Description": "Intuitivni interfejs za vas i vaše goste",
+    "benefit6Title": "Bez instalacije aplikacije",
+    "benefit6Description": "Gosti mogu uploadovati fotografije direktno kroz web preglednik"
+  },
+  "testimonials": {
+    "title": "Šta kažu naši korisnici",
+    "subtitle": "Šta kažu naši korisnici",
+    "testimonial1Author": "Marija i Nikola",
+    "testimonial1Text": "Odlična aplikacija! Uspjeli smo prikupiti preko 300 fotografija od naših gostiju koje inače ne bismo imali.",
+    "testimonial2Author": "Ana i Marko",
+    "testimonial2Text": "Naši gosti su bili oduševljeni koliko je jednostavno dodati fotografije. Preporučujemo svima!",
+    "testimonial3Author": "Jelena i Stefan",
+    "testimonial3Text": "Najbolji način da sačuvate sve uspomene sa vjenčanja na jednom mjestu."
+  },
+  "faq": {
+    "title": "Često postavljana pitanja",
+    "subtitle": "Često postavljana pitanja",
+    "question1": "Da li je aplikacija besplatna?",
+    "answer1": "Da, osnovna verzija aplikacije je potpuno besplatna za korištenje.",
+    "question2": "Koliko fotografija mogu uploadovati gosti?",
+    "answer2": "Svaki gost može uploadovati do 10 fotografija.",
+    "question3": "Koliko dugo se čuvaju fotografije?",
+    "answer3": "Fotografije se čuvaju 1 mjesec nakon vjenčanja.",
+    "question4": "Da li gosti moraju kreirati nalog?",
+    "answer4": "Ne, gosti se prijavljuju samo sa svojim imenom i email adresom."
+  },
+  "footer": {
+    "copyright": "Sva prava zadržana.",
+    "title": "Sačuvajte sve uspomene sa vašeg vjenčanja",
+    "subtitle": "Jednostavan način da prikupite sve fotografije koje su vaši gosti napravili tokom vjenčanja na jednom mjestu, bez komplikacija.",
+    "button": "Kreirajte besplatno događaj",
+    "privacyPolicy": "Politika privatnosti",
+    "termsOfService": "Uslovi korištenja",
+    "contact": "Kontakt"
+  },
+    "common": {
+      "title": "Ako imate pitanja ili prijedloge, javite nam se.",
+      "subtitle": "Vaše mišljenje nam je važno. Sve komentare i prijedloge čitamo i koristimo kako bismo unaprijedili aplikaciju.",
+      "success": "Uspješno",
+      "submit": "Pošalji",
+      "comment": "Komentar",
+      "email": "Email (nije obavezno)",
+      "loading": "Učitavanje...",
+      "error": "Greška"
+    }
+  
+}
