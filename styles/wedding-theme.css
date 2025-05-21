@@ -30,3 +30,17 @@
   --lp-primary-hover: 340 25% 65%;  /* Tamnija verzija primary za hover */
   --lp-accent-hover: 325 16% 50%;   /* Tamnija verzija accent za hover */
 }
+
+/* Rješava problem žute pozadine kod autofill-a */
+.input-autofill-fix {
+  background-color: hsl(var(--lp-card)) !important;
+}
+
+/* Stilizacija za autofill stanje */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: hsl(var(--lp-text));
+  -webkit-box-shadow: 0 0 0px 1000px hsl(var(--lp-card)) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
