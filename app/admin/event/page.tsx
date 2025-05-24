@@ -210,12 +210,25 @@ export default function CreateEventPage() {
       setIsSubmitting(true);
       setSlugError(null);
 
+      // Debugiranje datuma prije formatiranja
+      console.log('Original date from form:', data.date);
+      console.log('Date type:', typeof data.date);
+      console.log('Is Date object:', data.date instanceof Date);
+      
+      // Osigurati da je datum validan Date objekt prije formatiranja
+      let dateToFormat = data.date;
+      if (typeof data.date === 'string') {
+        dateToFormat = new Date(data.date);
+      }
+      
       // Format date for API
       const formattedData: EventApiPayload = {
         ...data,
-        date: new Date(data.date).toISOString(),
+        date: dateToFormat instanceof Date ? dateToFormat.toISOString() : new Date().toISOString(),
         guestMessage: data.guestMessage || '',
       };
+      
+      console.log('Formatted date for API:', formattedData.date);
 
       // Call API to create event
       const result = await createEvent(formattedData, csrfToken);

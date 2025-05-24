@@ -11,17 +11,18 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { useTranslation } from "react-i18next"
 
-// Definisanje šeme za validaciju forme
-const formSchema = z.object({
+// Definisanje šeme za validaciju forme - biće ažurirano s prijevodima
+const createFormSchema = (t: any) => z.object({
   firstName: z.string().min(2, {
-    message: "Ime mora imati najmanje 2 karaktera",
+    message: t("guest.login.errors.firstNameMin"),
   }),
   lastName: z.string().min(2, {
-    message: "Prezime mora imati najmanje 2 karaktera",
+    message: t("guest.login.errors.lastNameMin"),
   }),
   email: z.string().email({
-    message: "Unesite validnu email adresu",
+    message: t("guest.login.errors.invalidEmail"),
   }),
 })
 
@@ -30,10 +31,14 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
+  const { t } = useTranslation()
 
   // Inicijalizacija forme sa react-hook-form i zod validacijom
   const searchParams = useSearchParams();
   const eventSlug = searchParams.get('event');
+
+  // Kreiramo formSchema s prijevodima
+  const formSchema = createFormSchema(t);
 
   // Povuci CSRF token na mount
   useEffect(() => {
@@ -61,8 +66,8 @@ export function LoginForm() {
     if (!eventSlug) {
       toast({
         variant: "destructive",
-        title: "Greška",
-        description: "Nedostaje event identifikator u linku. Kontaktirajte mladence ili proverite link!",
+        title: t("common.error"),
+        description: t("guest.login.errors.missingEvent"),
       });
       return;
     }
@@ -87,15 +92,15 @@ export function LoginForm() {
             .then(res => res.json())
             .then(data => setCsrfToken(data.csrfToken))
             .catch(() => setCsrfToken(null));
-          throw new Error("Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.");
+          throw new Error(t("guest.login.errors.sessionExpired"));
         }
-        throw new Error(data.error || "Došlo je do greške")
+        throw new Error(data.error || t("guest.login.errors.genericError"))
       }
 
       // Sada će korisnik uvijek biti automatski verifikovan
       toast({
-        title: "Uspješna prijava",
-        description: "Preusmjeravamo vas na dashboard.",
+        title: t("guest.login.success.title"),
+        description: t("guest.login.success.description"),
       })
       
       // Direktno preusmeri na dashboard sa eventSlug parametrom
@@ -104,8 +109,8 @@ export function LoginForm() {
       console.error("Login error:", error)
       toast({
         variant: "destructive",
-        title: "Greška",
-        description: error instanceof Error ? error.message : "Došlo je do greške prilikom prijave",
+        title: t("common.error"),
+        description: error instanceof Error ? error.message : t("guest.login.errors.genericError"),
       })
     } finally {
       setIsLoading(false)
@@ -115,7 +120,9 @@ export function LoginForm() {
   return (
     <Card className="bg-white border border-[hsl(var(--lp-accent))]/30 rounded-xl shadow-md px-6 py-8">
       <CardHeader>
-        <CardTitle className="text-center text-[hsl(var(--lp-primary))] text-2xl font-bold mb-2">Prijava</CardTitle>
+        <CardTitle className="text-center text-[hsl(var(--lp-primary))] text-2xl font-bold mb-2">
+          {t("guest.login.title")}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -125,9 +132,9 @@ export function LoginForm() {
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ime</FormLabel>
+                  <FormLabel>{t("guest.login.firstName")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Unesite vaše ime" {...field} />
+                    <Input placeholder={t("guest.login.firstNamePlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -138,9 +145,9 @@ export function LoginForm() {
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Prezime</FormLabel>
+                  <FormLabel>{t("guest.login.lastName")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Unesite vaše prezime" {...field} />
+                    <Input placeholder={t("guest.login.lastNamePlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -151,16 +158,16 @@ export function LoginForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>{t("guest.login.email")}</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="vasa.adresa@email.com" {...field} />
+                    <Input type="email" placeholder={t("guest.login.emailPlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <Button type="submit" className="w-full" disabled={isLoading || !csrfToken}>
-              {isLoading ? "Slanje..." : "Prijavi se"}
+              {isLoading ? t("guest.login.loading") : t("guest.login.submitButton")}
             </Button>
           </form>
         </Form>

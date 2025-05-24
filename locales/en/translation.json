@@ -77,6 +77,35 @@
     "error": "Error"
   },
 
+  "guest": {
+    "login": {
+      "title": "Sign In",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "submitButton": "Sign In",
+      "loading": "Sending...",
+      "firstNamePlaceholder": "Enter your first name",
+      "lastNamePlaceholder": "Enter your last name",
+      "emailPlaceholder": "your.email@example.com",
+      "errors": {
+        "firstNameMin": "First name must be at least 2 characters",
+        "lastNameMin": "Last name must be at least 2 characters",
+        "invalidEmail": "Please enter a valid email address",
+        "missingEvent": "Missing event identifier in the link. Contact the couple or check the link!",
+        "sessionExpired": "Session expired or security token error. Please try again.",
+        "genericError": "An error occurred during sign in"
+      },
+      "success": {
+        "title": "Sign in successful",
+        "description": "Redirecting you to the dashboard."
+      },
+      "accessDenied": {
+        "title": "Access Denied",
+        "description": "To access the login page, you must use a valid link from a QR code or an invitation from the admin (event not created or link is invalid)."
+      }
+    }
+  },
 
   "admin": {
     "event": {

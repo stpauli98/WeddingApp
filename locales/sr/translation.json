@@ -76,6 +76,35 @@
       "loading": "Učitavanje...",
       "error": "Greška"
     },
+    "guest": {
+      "login": {
+        "title": "Prijava",
+        "firstName": "Ime",
+        "lastName": "Prezime",
+        "email": "Email",
+        "submitButton": "Prijavi se",
+        "loading": "Slanje...",
+        "firstNamePlaceholder": "Unesite vaše ime",
+        "lastNamePlaceholder": "Unesite vaše prezime",
+        "emailPlaceholder": "vasa.adresa@email.com",
+        "errors": {
+          "firstNameMin": "Ime mora imati najmanje 2 karaktera",
+          "lastNameMin": "Prezime mora imati najmanje 2 karaktera",
+          "invalidEmail": "Unesite validnu email adresu",
+          "missingEvent": "Nedostaje event identifikator u linku. Kontaktirajte mladence ili proverite link!",
+          "sessionExpired": "Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.",
+          "genericError": "Došlo je do greške prilikom prijave"
+        },
+        "success": {
+          "title": "Uspješna prijava",
+          "description": "Preusmjeravamo vas na dashboard."
+        },
+        "accessDenied": {
+          "title": "Nedozvoljen pristup",
+          "description": "Za pristup login stranici morate koristiti validan link sa QR koda ili pozivnicu od admina (event nije kreiran ili link nije ispravan)."
+        }
+      }
+    },
     "admin": {
       "event": {
         "title": "Unesite detalje događaja",
