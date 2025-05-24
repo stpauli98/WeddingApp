@@ -79,6 +79,66 @@
 
 
   "admin": {
+    "event": {
+      "title": "Enter Event Details",
+      "description": "Enter the details of the event you will use to create your wedding page.",
+      "coupleName": "Couple's Names (e.g., John and Jane)",
+      "coupleNamePlaceholder": "Bride and groom's names",
+      "coupleNameDescription": "Enter the full name of both partners.",
+      "location": "Location",
+      "locationPlaceholder": "City, venue name",
+      "locationDescription": "Where will the wedding take place?",
+      "date": "Wedding Date",
+      "datePlaceholder": "Select a date",
+      "dateDescription": "Wedding date",
+      "slug": "URL to share with guests",
+      "slugPlaceholder": "john-and-jane-wedding",
+      "slugSuggestion": "Suggestion: {suggestion}",
+      "slugDescription": "bride-groom-wedding (one of the options)",
+      "slugRules": "Must be at least 3 characters, can only contain lowercase letters, numbers, and hyphens (not at the start/end, no double hyphens).",
+      "guestMessage": "Message for guests (fun fact, welcome...)",
+      "guestMessagePlaceholder": "E.g., Welcome to our wedding! We have many surprises in store...",
+      "guestMessageDescription": "This message will be displayed to guests on their dashboard.",
+      "submitButton": "Create Event",
+      "submittingButton": "Creating event...",
+      "requiredFields": "All fields are required",
+      "errors": {
+        "coupleNameMin": "Couple name must be at least 2 characters.",
+        "locationMin": "Location must be at least 2 characters.",
+        "dateRequired": "Please select a wedding date.",
+        "invalidDate": "Invalid date. Please select a valid date.",
+        "slugMin": "URL must be at least 2 characters.",
+        "slugInvalid": "URL can only contain lowercase letters, numbers, and hyphens.",
+        "guestMessageMax": "Message for guests can be up to 500 characters long.",
+        "slugExists": "The URL you chose already exists. Please choose a different one.",
+        "createError": "Error creating event. Please try again.",
+        "csrfTokenFetch": "Failed to get CSRF token. Please refresh the page.",
+        "csrfTokenMissing": "CSRF token is not available. Please refresh the page."
+      },
+      "success": {
+        "title": "Event Created",
+        "description": "Event has been successfully created."
+      }
+    },
+    "login": {
+      "title": "Admin Login",
+      "subtitle": "Enter your credentials to access the admin panel",
+      "email": "Email",
+      "emailPlaceholder": "admin@example.com",
+      "password": "Password",
+      "loginButton": "Sign In",
+      "dontHaveAccount": "Don't have an account?",
+      "register": "Register",
+      "backToHome": "Back to Home",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "loading": "Signing in...",
+      "errors": {
+        "invalidCredentials": "Invalid email or password.",
+        "sessionExpired": "Your session has expired or there was a security token error. Please try again.",
+        "networkError": "A network or server error occurred."
+      }
+    },
     "register": {
       "title": "Registration",
       "firstName": "First Name",
@@ -103,37 +163,6 @@
         "allFieldsRequired": "All fields are required.",
         "passwordsDontMatch": "Passwords don't match.",
         "sessionExpired": "Session expired or security token error. Please try again.",
-        "networkError": "A network error occurred."
-      }
-    },
-    "login": {
-      "title": "Login",
-      "email": "Email Address",
-      "password": "Password",
-      "loginButton": "Login",
-      "dontHaveAccount": "Don't have an account?",
-      "register": "Register",
-      "rememberMe": "Remember me",
-      "forgotPassword": "Forgot password?",
-      "showPassword": "Show password",
-      "hidePassword": "Hide password",
-      "loading": "Logging in...",
-      "errors": {
-        "allFieldsRequired": "All fields are required.",
-        "invalidCredentials": "Invalid email or password.",
-        "sessionExpired": "Session expired or security token error. Please try again.",
-        "networkError": "A network error occurred."
-      }
-    },
-    "event": {
-      "title": "Create Your Event",
-      "weddingName": "Wedding Name",
-      "weddingDate": "Wedding Date",
-      "weddingLocation": "Wedding Location",
-      "createButton": "Create Event",
-      "loading": "Creating event...",
-      "errors": {
-        "allFieldsRequired": "All fields are required.",
         "networkError": "A network error occurred."
       }
     }

@@ -77,6 +77,67 @@
       "error": "Greška"
     },
     "admin": {
+      "event": {
+        "title": "Unesite detalje događaja",
+        "description": "Unesite detalje događaja koje ćete koristiti za kreiranje vaše svadbe.",
+        "coupleName": "Ime para (npr. Marko i Ana)",
+        "coupleNamePlaceholder": "Ime mladoženje i mlade",
+        "coupleNameDescription": "Unesite puno ime oba partnera.",
+        "location": "Lokacija",
+        "locationPlaceholder": "Grad, naziv mesta",
+        "locationDescription": "Gdje će se svadba održavati?",
+        "date": "Datum svadbe",
+        "datePlaceholder": "Odaberite datum",
+        "dateDescription": "Datum svadbe",
+        "slug": "URL koji ćete dijeliti sa gostima",
+        "slugPlaceholder": "marko-i-ana-svadba",
+        "slugSuggestion": "Predlog: {suggestion}",
+        "slugDescription": "ime-mladozenje-ime-mlade (jedna od mogućnosti)",
+        "slugRules": "Mora imati najmanje 3 karaktera, može sadržati samo mala slova, brojeve i crtice (ne na početku/kraju, ne duple crtice).",
+        "guestMessage": "Poruka za goste (fun fact, dobrodošlica...)",
+        "guestMessagePlaceholder": "Npr: Dobrodošli na našu svadbu! Očekuje vas puno iznenađenja...",
+        "guestMessageDescription": "Ova poruka će biti prikazana gostima na njihovom dashboardu.",
+        "submitButton": "Kreiraj događaj",
+        "submittingButton": "Kreiram događaj...",
+        "requiredFields": "Sva polja su obavezna",
+        "errors": {
+          "coupleNameMin": "Ime para mora imati najmanje 2 karaktera.",
+          "locationMin": "Lokacija mora imati najmanje 2 karaktera.",
+          "dateRequired": "Molimo izaberite datum vjenčanja.",
+          "invalidDate": "Neispravan datum. Molimo izaberite ispravan datum.",
+          "slugMin": "URL mora imati najmanje 2 karaktera.",
+          "slugInvalid": "URL može sadržati samo mala slova, brojeve i crtice.",
+          "guestMessageMax": "Poruka za goste može imati najviše 500 karaktera.",
+          "slugExists": "URL koji ste odabrali već postoji. Molimo izaberite drugi.",
+          "createError": "Greška prilikom kreiranja događaja. Pokušajte ponovo.",
+          "csrfTokenFetch": "Neuspješno dobijanje CSRF tokena. Osvježite stranicu.",
+          "csrfTokenMissing": "CSRF token nije dostupan. Osvježite stranicu."
+        },
+        "success": {
+          "title": "Događaj kreiran",
+          "description": "Događaj je uspešno kreiran."
+        }
+      },
+      "login": {
+        "title": "Administratorska prijava",
+        "subtitle": "Unesite vaše podatke za pristup admin panelu",
+        "email": "Email",
+        "emailPlaceholder": "admin@example.com",
+        "password": "Lozinka",
+        "loginButton": "Prijavite se",
+        "dontHaveAccount": "Nemate nalog?",
+        "register": "Registrujte se",
+        "backToHome": "Nazad na početnu",
+        "showPassword": "Prikaži lozinku",
+        "hidePassword": "Sakrij lozinku",
+        "loading": "Prijava u toku...",
+        "errors": {
+          "invalidCredentials": "Pogrešan email ili lozinka.",
+          "sessionExpired": "Vaša sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.",
+          "networkError": "Došlo je do greške na mreži ili serveru.",
+          "allFieldsRequired": "Sva polja su obavezna."
+        }
+      },
       "register": {
         "title": "Registracija",
         "firstName": "Ime",
@@ -101,37 +162,6 @@
           "allFieldsRequired": "Sva polja su obavezna.",
           "passwordsDontMatch": "Lozinke se ne poklapaju.",
           "sessionExpired": "Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.",
-          "networkError": "Došlo je do greške na mreži."
-        }
-      },
-      "login": {
-        "title": "Prijava",
-        "email": "Email adresa",
-        "password": "Lozinka",
-        "loginButton": "Prijavite se",
-        "dontHaveAccount": "Nemate nalog?",
-        "register": "Registrujte se",
-        "rememberMe": "Zapamti me",
-        "forgotPassword": "Zaboravili ste lozinku?",
-        "showPassword": "Prikaži lozinku",
-        "hidePassword": "Sakrij lozinku",
-        "loading": "Prijava u toku...",
-        "errors": {
-          "allFieldsRequired": "Sva polja su obavezna.",
-          "invalidCredentials": "Pogrešan email ili lozinka.",
-          "sessionExpired": "Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.",
-          "networkError": "Došlo je do greške na mreži."
-        }
-      },
-      "event": {
-        "title": "Kreirajte vaš događaj",
-        "weddingName": "Naziv vjenčanja",
-        "weddingDate": "Datum vjenčanja",
-        "weddingLocation": "Lokacija vjenčanja",
-        "createButton": "Kreirajte događaj",
-        "loading": "Kreiranje događaja...",
-        "errors": {
-          "allFieldsRequired": "Sva polja su obavezna.",
           "networkError": "Došlo je do greške na mreži."
         }
       }

@@ -12,7 +12,17 @@ import I18nProvider from "@/components/I18nProvider";
 import LanguageSelector from "@/components/LanguageSelector";
 
 export default function AdminLoginPage() {
-  const { t, i18n } = useTranslation();
+  const { t, i18n, ready } = useTranslation();
+
+  
+  // Wait for translations to be loaded
+  if (!ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--lp-bg))] px-4 py-12 sm:px-6 lg:px-8">
+        <div className="animate-pulse">Loading translations...</div>
+      </div>
+    );
+  }
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -58,13 +68,13 @@ export default function AdminLoginPage() {
             .then(res => res.json())
             .then(data => setCsrfToken(data.csrfToken))
             .catch(() => setCsrfToken(null));
-          setError("Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.");
+          setError(t('admin.login.errors.sessionExpired'));
         } else {
-          setError(data.error || "Greška prilikom logovanja.");
+          setError(data.error || t('admin.login.errors.invalidCredentials'));
         }
       }
     } catch (err) {
-      setError("Greška na mreži ili serveru.");
+      setError(t('admin.login.errors.networkError'));
     } finally {
       setLoading(false);
     }
@@ -92,8 +102,12 @@ export default function AdminLoginPage() {
         </div>
         <Card className="w-full max-w-md bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-card-foreground))] shadow-lg border-[hsl(var(--lp-accent))]">
           <CardHeader className="space-y-1 text-center relative pb-6">
-            <CardTitle className="text-2xl font-bold text-[hsl(var(--lp-text))]">Admin Login</CardTitle>
-            <CardDescription className="text-[hsl(var(--lp-muted-foreground))]">Unesite podatke za pristup admin panelu</CardDescription>
+            <CardTitle className="text-2xl font-bold text-[hsl(var(--lp-text))]">
+              {t('admin.login.title', 'Admin Login')}
+            </CardTitle>
+            <CardDescription className="text-[hsl(var(--lp-muted-foreground))]">
+              {t('admin.login.subtitle', 'Enter your credentials to access the admin panel')}
+            </CardDescription>
           </CardHeader>
         <form onSubmit={handleSubmit} autoComplete="off">
           <CardContent className="space-y-4">
@@ -101,11 +115,11 @@ export default function AdminLoginPage() {
               <div className="rounded bg-[hsl(var(--lp-destructive))/10] text-[hsl(var(--lp-destructive))] px-3 py-2 text-sm font-medium">{error}</div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-[hsl(var(--lp-text))]">Email</Label>
+              <Label htmlFor="email" className="text-[hsl(var(--lp-text))]">{t('admin.login.email')}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@gmail.com"
+                placeholder={t('admin.login.emailPlaceholder', 'admin@gmail.com')}
                 autoComplete="username"
                 required
                 value={email}
@@ -116,7 +130,7 @@ export default function AdminLoginPage() {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-[hsl(var(--lp-text))]">Lozinka</Label>
+                <Label htmlFor="password" className="text-[hsl(var(--lp-text))]">{t('admin.login.password')}</Label>
               </div>
               <div className="relative">
                 <Input
@@ -134,7 +148,7 @@ export default function AdminLoginPage() {
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-[hsl(var(--lp-accent))] hover:text-[hsl(var(--lp-accent))/80]"
                   tabIndex={-1}
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Sakrij lozinku" : "Prikaži lozinku"}
+                  aria-label={showPassword ? t('admin.login.hidePassword') : t('admin.login.showPassword')}
                 >
                   {showPassword ? (
                     // Eye open (password is visible)
@@ -153,12 +167,12 @@ export default function AdminLoginPage() {
               type="submit" 
               disabled={loading || !csrfToken}
             >
-              {loading ? "Prijava..." : "Prijavi se"}
+              {loading ? t('admin.login.loading') : t('admin.login.loginButton')}
             </Button>
             <div className="text-center text-sm">
-              Nemate nalog?{" "}
+              {t('admin.login.dontHaveAccount')}{" "}
               <Link href="/admin/register" className="font-medium text-[hsl(var(--lp-accent))] hover:underline">
-                Registrujte se
+                {t('admin.login.register')}
               </Link>
             </div>
           </CardFooter>
@@ -170,7 +184,7 @@ export default function AdminLoginPage() {
             type="button"
             onClick={() => router.push("/")}
           >
-            Nazad na početnu
+            {t('admin.login.backToHome', 'Back to Home')} {/* Fallback text */}
           </Button>
         </div>
       </Card>

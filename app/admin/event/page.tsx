@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { ArrowLeft, CalendarIcon } from "lucide-react"
+import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
-
+import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,65 +16,126 @@ import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { toast } from "@/components/ui/use-toast"
 
-// Define the form schema with Zod
-const formSchema = z.object({
+// Define form schema outside component with default messages
+const defaultFormSchema = (t: (key: string) => string) => z.object({
   coupleName: z.string().min(2, {
-    message: "Ime paru mora imati najmanje 2 karaktera.",
+    message: 'admin.event.errors.coupleNameMin',
   }),
   location: z.string().min(2, {
-    message: "Lokacija mora imati najmanje 2 karaktera.",
+    message: 'admin.event.errors.locationMin',
   }),
   date: z.date({
-    required_error: "Datum svadebe je obavezan.",
+    required_error: 'admin.event.errors.dateRequired',
   }),
   slug: z
     .string()
     .min(2, {
-      message: "Slug mora imati najmanje 2 karaktera.",
+      message: 'admin.event.errors.slugMin',
     })
     .regex(/^[a-z0-9-]+$/, {
-      message: "Slug može sadržati samo mala slova, brojeve i crtica.",
+      message: 'admin.event.errors.slugInvalid',
     }),
-  guestMessage: z.string().max(500, { message: "Poruka za goste može imati najviše 500 karaktera." }).optional(),
+  guestMessage: z.string().max(500, { 
+    message: 'admin.event.errors.guestMessageMax'
+  }).optional(),
 });
 
-type FormSchemaType = z.infer<typeof formSchema>;
-
+type FormSchemaType = z.infer<ReturnType<typeof defaultFormSchema>>;
 
 export default function CreateEventPage() {
+  const { t, i18n, ready } = useTranslation();
+  
+  // Debug: Log available namespaces and current language
+  useEffect(() => {
+    if (ready) {
+      console.log('Available namespaces:', i18n.options.ns);
+      console.log('Current language:', i18n.language);
+      console.log('Sample translation:', t('admin.event.title'));
+    }
+  }, [i18n, ready, t]);
+  
+  // Create form schema with current translations
+  const formSchema = defaultFormSchema(t);
+  
+  // Show loading state while translations are being loaded
+  if (!ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse">{t('common.loading')}</div>
+      </div>
+    );
+  }
+
+
+
+
   const [slugError, setSlugError] = useState<string | null>(null);
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  // State za CSRF token
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // State for CSRF token
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [csrfError, setCsrfError] = useState<string | null>(null);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
-  // Dohvati CSRF token pri mountu
+  // Fetch CSRF token on mount
   useEffect(() => {
     const fetchCsrf = async () => {
       try {
         const res = await fetch("/api/admin/events", { method: "GET", credentials: "include" });
-        if (!res.ok) throw new Error("Neuspešno dobijanje CSRF tokena");
+        if (!res.ok) throw new Error(t('admin.event.errors.csrfTokenFetch'));
         const data = await res.json();
         setCsrfToken(data.csrfToken);
       } catch (e) {
-        setCsrfError("Neuspešno dobijanje CSRF tokena. Osvežite stranicu.");
+        setCsrfError(t('admin.event.errors.csrfTokenFetch'));
       }
     };
     fetchCsrf();
-  }, []);
+  }, [t]);
 
-  // Initialize the form
+  // Initialize the form with a custom error message resolver
   const form = useForm<FormSchemaType>({
-    resolver: zodResolver(formSchema),
+    resolver: async (values, context, options) => {
+      // Get the result from zod resolver
+      const result = await zodResolver(formSchema)(values, context, options);
+      
+      // If there are errors, translate them
+      if (result.errors) {
+        const translatedErrors: Record<string, any> = {};
+        
+        for (const [key, error] of Object.entries(result.errors)) {
+          if (error && typeof error === 'object' && 'message' in error) {
+            translatedErrors[key] = {
+              ...error,
+              message: t(error.message as string)
+            };
+          } else {
+            translatedErrors[key] = error;
+          }
+        }
+        
+        return {
+          values: {},
+          errors: translatedErrors
+        };
+      }
+      
+      return result;
+    },
     defaultValues: {
       coupleName: "",
       location: "",
-      date: undefined as unknown as Date,
+      date: undefined,
       slug: "",
       guestMessage: "",
     },
+    mode: 'onChange',
   });
+
+  // Watch the date value for debugging
+  const selectedDate = form.watch('date');
+  useEffect(() => {
+    console.log('Selected date:', selectedDate);
+  }, [selectedDate]);
 
   // Generate a slug from the couple name
   const generateSlug = (name: string) => {
@@ -89,8 +149,7 @@ export default function CreateEventPage() {
       .slice(0, 50); // Limit length
   }
 
-  // State to track if user manually changed slug
-  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+
 
   // Handle couple name change to auto-generate slug
   const handleCoupleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,10 +163,10 @@ export default function CreateEventPage() {
     }
   }
 
-  // Tip za payload ka API-ju
+  // Type for API payload
   type EventApiPayload = Omit<FormSchemaType, "date"> & { date: string; guestMessage?: string };
 
-  // Poziv backend API-ja za kreiranje eventa
+  // Call backend API to create event
   async function createEvent(data: EventApiPayload, csrfToken: string) {
     const res = await fetch("/api/admin/events", {
       method: "POST",
@@ -124,49 +183,72 @@ export default function CreateEventPage() {
   // Handle form submission
   const onSubmit = async (data: FormSchemaType) => {
     if (!csrfToken) {
-      setCsrfError("CSRF token nije dostupan. Osvežite stranicu.");
+      setCsrfError(t('admin.event.errors.csrfTokenMissing'));
       return;
     }
+    
+    // Check if date is selected and valid
+    if (!data.date) {
+      form.setError('date', {
+        type: 'required',
+        message: t('admin.event.errors.dateRequired')
+      });
+      return;
+    }
+    
+    // Additional validation for date format
+    const dateObj = new Date(data.date);
+    if (isNaN(dateObj.getTime())) {
+      form.setError('date', {
+        type: 'invalid',
+        message: t('admin.event.errors.invalidDate')
+      });
+      return;
+    }
+    
     try {
-      setIsSubmitting(true)
+      setIsSubmitting(true);
       setSlugError(null);
 
-      // Formatiraj date kao string za API
+      // Format date for API
       const formattedData: EventApiPayload = {
         ...data,
-        date: data.date.toISOString(),
-        guestMessage: data.guestMessage,
+        date: new Date(data.date).toISOString(),
+        guestMessage: data.guestMessage || '',
       };
 
-      // Pozovi API za kreiranje eventa
+      // Call API to create event
       const result = await createEvent(formattedData, csrfToken);
 
       if (result.success) {
         toast({
-          title: "Događaj kreiran",
-          description: "Događaj je uspešno kreiran.",
+          title: t('admin.event.success.title'),
+          description: t('admin.event.success.description'),
         });
-        if (result.event && result.event.id) {
+        if (result.event?.id) {
           router.push(`/admin/dashboard/${result.event.id}`);
         } else {
           router.push("/admin/dashboard"); // fallback
         }
       } else if (result.error) {
-        if (result.error.toLowerCase().includes('url (slug) koji ste odabrali već postoji')) {
-          setSlugError("URL (slug) koji ste odabrali već postoji. Molimo izaberite drugi.");
+        // Check for slug exists error in both languages
+        const errorLower = result.error.toLowerCase();
+        if (errorLower.includes('url (slug) koji ste odabrali već postoji') || 
+            errorLower.includes('the url (slug) you chose already exists')) {
+          setSlugError(t('admin.event.errors.slugExists'));
         } else {
           toast({
-            title: "Greška",
+            title: t('common.error'),
             description: result.error,
             variant: "destructive",
           });
         }
       }
     } catch (error) {
-      console.error("Greška prilikom kreiranja događaja:", error);
+      console.error("Error creating event:", error);
       toast({
-        title: "Greška",
-        description: "Greška prilikom kreiranja događaja. Pokušajte ponovo.",
+        title: t('common.error'),
+        description: t('admin.event.errors.createError'),
         variant: "destructive",
       });
     } finally {
@@ -178,8 +260,8 @@ export default function CreateEventPage() {
     <div className="container mx-auto p-6">
       <Card className="max-w-xl mx-auto">
         <CardHeader>
-          <CardTitle>Unesite detalje događaja</CardTitle>
-          <CardDescription>Unesite detalje događaja koje ćete koristiti za kreiranje vaše sličica.</CardDescription>
+          <CardTitle>{t('admin.event.title')}</CardTitle>
+          <CardDescription>{t('admin.event.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -189,15 +271,19 @@ export default function CreateEventPage() {
                 name="coupleName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Ime para (npr. Marko i Ana)</FormLabel>
+                    <FormLabel>{t('admin.event.coupleName')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ime mladoženje i mlade" {...field} onChange={e => {
-                        handleCoupleNameChange(e);
-                        field.onChange(e);
-                        setSlugManuallyEdited(false);
-                      }} />
+                      <Input 
+                        placeholder={t('admin.event.coupleNamePlaceholder')} 
+                        {...field} 
+                        onChange={e => {
+                          handleCoupleNameChange(e);
+                          field.onChange(e);
+                          setSlugManuallyEdited(false);
+                        }} 
+                      />
                     </FormControl>
-                    <FormDescription>Unesite puno ime oba partnera.</FormDescription>
+                    <FormDescription>{t('admin.event.coupleNameDescription')}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -208,11 +294,14 @@ export default function CreateEventPage() {
                 name="location"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Lokacija</FormLabel>
+                    <FormLabel>{t('admin.event.location')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Lokan, naziv grada" {...field} />
+                      <Input 
+                        placeholder={t('admin.event.locationPlaceholder')} 
+                        {...field} 
+                      />
                     </FormControl>
-                    <FormDescription>Gdje će se svadba održavati?</FormDescription>
+                    <FormDescription>{t('admin.event.locationDescription')}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -223,7 +312,7 @@ export default function CreateEventPage() {
                 name="date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Datum svadebe</FormLabel>
+                    <FormLabel>{t('admin.event.date')}</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -231,7 +320,7 @@ export default function CreateEventPage() {
                             variant={"outline"}
                             className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
                           >
-                            {field.value ? format(field.value, "PPP") : <span>Odaberite datum</span>}
+                            {field.value ? format(field.value, "PPP") : <span>{t('admin.event.datePlaceholder')}</span>}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -240,13 +329,19 @@ export default function CreateEventPage() {
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            // Clear any existing date errors when a date is selected
+                            if (date) {
+                              form.clearErrors('date');
+                            }
+                          }}
                           disabled={(date) => date < new Date()}
                           initialFocus
                         />
                       </PopoverContent>
                     </Popover>
-                    <FormDescription>Datum svadbe</FormDescription>
+                    <FormDescription>{t('admin.event.dateDescription')}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -259,37 +354,39 @@ export default function CreateEventPage() {
                   const currentCoupleName = form.getValues("coupleName");
                   const slugSuggestion = generateSlug(currentCoupleName);
                   const slugValue = field.value;
-                  // Valid slug: min 3, max 50, samo [a-z0-9-], ne pocinje/zavrsava crticom, nema duplih crtica
+                  // Valid slug: min 3, max 50, only [a-z0-9-], no hyphens at start/end, no double hyphens
                   const slugValid = /^[a-z0-9]+(-[a-z0-9]+)*$/.test(slugValue) && slugValue.length >= 3;
                   return (
                     <FormItem>
-                      <FormLabel>URL koji ćete dijeliti sa gostima</FormLabel>
+                      <FormLabel>{t('admin.event.slug')}</FormLabel>
                       <FormControl>
                         <div className="flex items-center">
                           <span className="rounded-l-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-                            yoursite.com/
+                            dodajuspomenu.com/
                           </span>
                           <Input
                             className="rounded-l-none"
-                            placeholder="marko-i-ana-svadba"
+                            placeholder={t('admin.event.slugPlaceholder')}
                             {...field}
                             value={slugValue}
                             onChange={e => {
                               field.onChange(e);
                               setSlugManuallyEdited(true);
-                              setSlugError(null); // resetuj grešku na izmenu
+                              setSlugError(null);
                             }}
                           />
                         </div>
                       </FormControl>
                       <FormDescription>
-                        ime-mladozenje-ime-mlade (jedna od mogućnosti)
+                        {t('admin.event.slugDescription')}
                         <br />
-                        <span className={`text-xs ${slugValid ? 'text-green-600' : 'text-red-600'}`}>Predlog: <b>{slugSuggestion}</b></span>
+                        <span className={`text-xs ${slugValid ? 'text-green-600' : 'text-red-600'}`}>
+                          {t('admin.event.slugSuggestion', { suggestion: slugSuggestion })}
+                        </span>
                       </FormDescription>
                       {!slugValid && (
                         <div className="text-xs text-red-600 mt-1">
-                          Slug mora imati najmanje 3 karaktera, može sadržati samo mala slova, brojeve i crtice (ne na početku/kraju, ne duple crtice).
+                          {t('admin.event.slugRules')}
                         </div>
                       )}
                       <FormMessage />
@@ -303,16 +400,16 @@ export default function CreateEventPage() {
                 name="guestMessage"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Poruka za goste (fun fact, dobrodošlica...)</FormLabel>
+                    <FormLabel>{t('admin.event.guestMessage')}</FormLabel>
                     <FormControl>
                       <textarea
                         className="w-full min-h-[80px] rounded border px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-primary"
                         maxLength={500}
-                        placeholder="Npr: Dobrodošli na našu svadbu! Očekuje vas puno iznenađenja..."
+                        placeholder={t('admin.event.guestMessagePlaceholder')}
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription>Ova poruka će biti prikazana gostima na njihovom dashboardu.</FormDescription>
+                    <FormDescription>{t('admin.event.guestMessageDescription')}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -324,14 +421,18 @@ export default function CreateEventPage() {
               {csrfError && (
                 <div className="text-sm text-red-600 mb-2 text-center">{csrfError}</div>
               )}
-              <Button type="submit" className="w-full" disabled={isSubmitting || !form.getValues('slug') || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(form.getValues('slug')) || form.getValues('slug').length < 3 || !!slugError || !csrfToken}>
-                {isSubmitting ? "Kreiram dogadja..." : "Kreiraj dogadjaj"}
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={isSubmitting || !form.getValues('slug') || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(form.getValues('slug')) || form.getValues('slug').length < 3 || !!slugError || !csrfToken}
+              >
+                {isSubmitting ? t('admin.event.submittingButton') : t('admin.event.submitButton')}
               </Button>
             </form>
           </Form>
         </CardContent>
         <CardFooter className="flex justify-between text-sm text-muted-foreground">
-          <p>Sva polja su obavezna</p>
+          <p>{t('admin.event.requiredFields')}</p>
         </CardFooter>
       </Card>
     </div>

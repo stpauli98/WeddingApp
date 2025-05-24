@@ -29,6 +29,7 @@ model Event {
   createdAt    DateTime @default(now())
   adminId      String?  @unique
   guestMessage String?
+  language     String   @default("sr") // Jezik događaja (sr ili en)
   admin        Admin?   @relation("AdminEvent", fields: [adminId], references: [id])
   guests       Guest[]
 }

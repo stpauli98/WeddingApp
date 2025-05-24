@@ -60,7 +60,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "URL (slug) koji ste odabrali već postoji. Molimo izaberite drugi." }, { status: 409 });
     }
 
-    // 4. Kreiraj event sa adminId
+    // 4. Dohvati jezik admina
+    const admin = await prisma.admin.findUnique({
+      where: { id: adminId },
+      select: { language: true }
+    });
+    
+    // 5. Kreiraj event sa adminId i jezikom
     const event = await prisma.event.create({
       data: {
         coupleName,
@@ -68,6 +74,7 @@ export async function POST(request: Request) {
         date: new Date(date),
         slug,
         guestMessage: guestMessage || null,
+        language: admin?.language || "sr", // Koristi jezik admina ili default
         admin: { connect: { id: adminId } },
       },
     });

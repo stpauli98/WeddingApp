@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import GuestCard from "./GuestCard";
-import DashboardAnalytics from "./DashboardAnalytics";
 import { QRCodeCanvas } from 'qrcode.react';
 import { Check, Copy, Download } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +10,7 @@ import AdminHelpContact from "@/components/admin/AdminHelpContact";
 
 interface AdminDashboardTabsProps {
   guests: any[];
-  event: { coupleName: string; slug?: string } | null;
+  event: { coupleName: string; slug?: string; language?: string } | null;
 }
 
 const TAB_KEYS = ["guests", "analytics", "gallery", "messages", "download", "help"];
@@ -26,8 +25,10 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
   const defaultQrColor = "#000000"; // Crna boja za maksimalnu vidljivost QR koda
   const [qrColor, setQrColor] = useState<string>(defaultQrColor);
 
-  // Pravi URL za goste
-  const guestUrl = event?.slug ? `https://www.dodajuspomenu.com/guest/login?event=${event.slug}` : '';
+  // Pravi URL za goste s prefiksom jezika
+  const guestUrl = event?.slug 
+    ? `https://www.dodajuspomenu.com/${event.language || 'sr'}/guest/login?event=${event.slug}` 
+    : '';
 
   // Kopiranje URL-a
   const handleCopy = async () => {

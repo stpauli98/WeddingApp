@@ -22,7 +22,7 @@ export default async function AdminDashboardEventPage({ params }: { params: Prom
   // 2. Dohvati event i proveri vlasništvo
   const event = await prisma.event.findUnique({
     where: { id: eventId },
-    select: { id: true, coupleName: true, slug: true, adminId: true }
+    select: { id: true, coupleName: true, slug: true, adminId: true, language: true }
   });
   if (!event || event.adminId !== adminSession.admin.id) return notFound();
 
