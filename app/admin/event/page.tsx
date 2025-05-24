@@ -16,31 +16,29 @@ import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { toast } from "@/components/ui/use-toast"
 
-// Define form schema outside component with default messages
-const defaultFormSchema = (t: (key: string) => string) => z.object({
+// Define the form schema with Zod
+const formSchema = z.object({
   coupleName: z.string().min(2, {
-    message: 'admin.event.errors.coupleNameMin',
+    message: "Ime paru mora imati najmanje 2 karaktera.",
   }),
   location: z.string().min(2, {
-    message: 'admin.event.errors.locationMin',
+    message: "Lokacija mora imati najmanje 2 karaktera.",
   }),
   date: z.date({
-    required_error: 'admin.event.errors.dateRequired',
+    required_error: "Datum svadebe je obavezan.",
   }),
   slug: z
     .string()
     .min(2, {
-      message: 'admin.event.errors.slugMin',
+      message: "Slug mora imati najmanje 2 karaktera.",
     })
     .regex(/^[a-z0-9-]+$/, {
-      message: 'admin.event.errors.slugInvalid',
+      message: "Slug može sadržati samo mala slova, brojeve i crtica.",
     }),
-  guestMessage: z.string().max(500, { 
-    message: 'admin.event.errors.guestMessageMax'
-  }).optional(),
+  guestMessage: z.string().max(500, { message: "Poruka za goste može imati najviše 500 karaktera." }).optional(),
 });
 
-type FormSchemaType = z.infer<ReturnType<typeof defaultFormSchema>>;
+type FormSchemaType = z.infer<typeof formSchema>;
 
 export default function CreateEventPage() {
   const { t, i18n, ready } = useTranslation();
@@ -53,9 +51,6 @@ export default function CreateEventPage() {
       console.log('Sample translation:', t('admin.event.title'));
     }
   }, [i18n, ready, t]);
-  
-  // Create form schema with current translations
-  const formSchema = defaultFormSchema(t);
   
   // Show loading state while translations are being loaded
   if (!ready) {
@@ -92,39 +87,13 @@ export default function CreateEventPage() {
     fetchCsrf();
   }, [t]);
 
-  // Initialize the form with a custom error message resolver
+  // Initialize the form
   const form = useForm<FormSchemaType>({
-    resolver: async (values, context, options) => {
-      // Get the result from zod resolver
-      const result = await zodResolver(formSchema)(values, context, options);
-      
-      // If there are errors, translate them
-      if (result.errors) {
-        const translatedErrors: Record<string, any> = {};
-        
-        for (const [key, error] of Object.entries(result.errors)) {
-          if (error && typeof error === 'object' && 'message' in error) {
-            translatedErrors[key] = {
-              ...error,
-              message: t(error.message as string)
-            };
-          } else {
-            translatedErrors[key] = error;
-          }
-        }
-        
-        return {
-          values: {},
-          errors: translatedErrors
-        };
-      }
-      
-      return result;
-    },
+    resolver: zodResolver(formSchema),
     defaultValues: {
       coupleName: "",
       location: "",
-      date: undefined,
+      date: undefined as unknown as Date,
       slug: "",
       guestMessage: "",
     },
@@ -210,25 +179,12 @@ export default function CreateEventPage() {
       setIsSubmitting(true);
       setSlugError(null);
 
-      // Debugiranje datuma prije formatiranja
-      console.log('Original date from form:', data.date);
-      console.log('Date type:', typeof data.date);
-      console.log('Is Date object:', data.date instanceof Date);
-      
-      // Osigurati da je datum validan Date objekt prije formatiranja
-      let dateToFormat = data.date;
-      if (typeof data.date === 'string') {
-        dateToFormat = new Date(data.date);
-      }
-      
       // Format date for API
       const formattedData: EventApiPayload = {
         ...data,
-        date: dateToFormat instanceof Date ? dateToFormat.toISOString() : new Date().toISOString(),
+        date: data.date.toISOString(),
         guestMessage: data.guestMessage || '',
       };
-      
-      console.log('Formatted date for API:', formattedData.date);
 
       // Call API to create event
       const result = await createEvent(formattedData, csrfToken);
@@ -342,13 +298,7 @@ export default function CreateEventPage() {
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={(date) => {
-                            field.onChange(date);
-                            // Clear any existing date errors when a date is selected
-                            if (date) {
-                              form.clearErrors('date');
-                            }
-                          }}
+                          onSelect={field.onChange}
                           disabled={(date) => date < new Date()}
                           initialFocus
                         />
