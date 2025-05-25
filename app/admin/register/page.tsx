@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 import I18nProvider from "@/components/I18nProvider"
@@ -29,8 +29,8 @@ export default function AdminRegisterPage() {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
-  // Funkcija za provjeru jačine lozinke
-  function getPasswordStrength(pw: string): string {
+  // Funkcija za provjeru jačine lozinke - memoizirana s useCallback
+  const getPasswordStrength = useCallback((pw: string): string => {
     if (!pw) return "";
     if (pw.length < 6) return t('admin.register.weakMinChars');
     let score = 0;
@@ -43,7 +43,7 @@ export default function AdminRegisterPage() {
     if (score === 3) return t('admin.register.medium');
     if (score >= 4) return t('admin.register.strong');
     return "";
-  }
+  }, [t]);
 
   // Procenat i boja za progress bar
   function getStrengthBarInfo(strength: string): { percent: number; color: string } {
@@ -71,7 +71,7 @@ export default function AdminRegisterPage() {
     } else {
       setPasswordsMatch(password === confirmPassword);
     }
-  }, [password, confirmPassword, t]);
+  }, [password, confirmPassword, t, getPasswordStrength]);
 
   useEffect(() => {
     fetch("/api/admin/register")

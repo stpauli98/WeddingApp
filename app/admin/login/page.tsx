@@ -12,17 +12,11 @@ import I18nProvider from "@/components/I18nProvider";
 import LanguageSelector from "@/components/LanguageSelector";
 
 export default function AdminLoginPage() {
-  const { t, i18n, ready } = useTranslation();
-
+  // Svi React Hooks moraju biti pozvani na vrhu komponente
+  const { t, ready } = useTranslation();
+  const router = useRouter();
   
-  // Wait for translations to be loaded
-  if (!ready) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--lp-bg))] px-4 py-12 sm:px-6 lg:px-8">
-        <div className="animate-pulse">Loading translations...</div>
-      </div>
-    );
-  }
+  // State hooks
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -30,7 +24,6 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
-  const router = useRouter();
   
   // Pratimo stanje montiranja komponente za hidrataciju
   useEffect(() => {
@@ -43,6 +36,15 @@ export default function AdminLoginPage() {
       .then(data => setCsrfToken(data.csrfToken))
       .catch(() => setCsrfToken(null));
   }, []);
+  
+  // Wait for translations to be loaded - premješteno nakon svih hook poziva
+  if (!ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--lp-bg))] px-4 py-12 sm:px-6 lg:px-8">
+        <div className="animate-pulse">Loading translations...</div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

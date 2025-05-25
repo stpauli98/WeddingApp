@@ -11,6 +11,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { CheckCircle, Loader2, AlertCircle, X } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ImageSlotBar } from "@/components/guest/ImageSlotBar"
+import { useTranslation } from "react-i18next"
 
 // Validacija: max 10 slika, max 500 karaktera poruka
 const formSchema = z.object({
@@ -36,6 +37,7 @@ interface UploadFormProps {
 }
 
 export function UploadForm({ guestId, message, existingImagesCount: initialImagesCount }: UploadFormProps) {
+  const { t } = useTranslation();
   // Funkcija za ponovno pokušavanje uploada neuspjelih slika
   async function retryFailedUploads() {
     // Filtriraj samo slike koje su označene kao retryable
@@ -494,7 +496,7 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
             <div className="sticky top-0 bg-white p-4 border-b border-[hsl(var(--lp-accent))]/10 flex items-center justify-between z-10">
               <div>
                 <h3 className="text-[hsl(var(--lp-primary))] text-lg font-semibold">
-                  Upload slika
+                  {t('guest.dashboard.uploadPhotos')}
                 </h3>
                 <p className="text-sm text-[hsl(var(--lp-muted-foreground))]">
                   {uploadStatuses.filter(s => s.status === 'success').length} od {uploadStatuses.length} slika

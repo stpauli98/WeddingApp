@@ -36,8 +36,8 @@ function validateImage(file: File, allowedTypes: string[], maxSize: number): str
 export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, allowedTypes = DEFAULT_ALLOWED_TYPES, maxSizeMB = DEFAULT_MAX_SIZE_MB }: ImageUploadProps & { allowedTypes?: string[], maxSizeMB?: number }) {
   const [previews, setPreviews] = useState<string[]>([])
 
-  // Funkcija za kreiranje pregleda slika
-  function createPreviews(files: File[]) {
+  // Funkcija za kreiranje pregleda slika - memoizirana s useCallback
+  const createPreviews = useCallback((files: File[]) => {
     // Kreiranje novih URL-ova za pregled
     const newPreviews = files.map((file) => {
       try {
@@ -48,7 +48,7 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
       }
     })
     setPreviews(newPreviews)
-  }
+  }, []);
 
   // Kreiraj preview-e kad se value promijeni
   useEffect(() => {
@@ -61,7 +61,7 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
         }
       })
     }
-  }, [value])
+  }, [value, createPreviews, previews])
 
   // Funkcija koja se poziva kada se dodaju nove slikee
   const onDrop = useCallback(

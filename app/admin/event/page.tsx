@@ -41,7 +41,29 @@ const formSchema = z.object({
 type FormSchemaType = z.infer<typeof formSchema>;
 
 export default function CreateEventPage() {
+  // Svi React Hooks moraju biti pozvani na vrhu komponente
   const { t, i18n, ready } = useTranslation();
+  const router = useRouter();
+  
+  // State hooks
+  const [slugError, setSlugError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
+  const [csrfError, setCsrfError] = useState<string | null>(null);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  
+  // Initialize the form - mora biti prije uvjetnog renderiranja
+  const form = useForm<FormSchemaType>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      coupleName: "",
+      location: "",
+      date: undefined as unknown as Date,
+      slug: "",
+      guestMessage: "",
+    },
+    mode: 'onChange',
+  });
   
   // Debug: Log available namespaces and current language
   useEffect(() => {
@@ -52,26 +74,12 @@ export default function CreateEventPage() {
     }
   }, [i18n, ready, t]);
   
-  // Show loading state while translations are being loaded
-  if (!ready) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse">{t('common.loading')}</div>
-      </div>
-    );
-  }
-
-
-
-
-  const [slugError, setSlugError] = useState<string | null>(null);
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  // State for CSRF token
-  const [csrfToken, setCsrfToken] = useState<string | null>(null);
-  const [csrfError, setCsrfError] = useState<string | null>(null);
-  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
-
+  // Watch the date value for debugging
+  const selectedDate = form.watch('date');
+  useEffect(() => {
+    console.log('Selected date:', selectedDate);
+  }, [selectedDate]);
+  
   // Fetch CSRF token on mount
   useEffect(() => {
     const fetchCsrf = async () => {
@@ -86,25 +94,18 @@ export default function CreateEventPage() {
     };
     fetchCsrf();
   }, [t]);
+  
+  // Show loading state while translations are being loaded
+  if (!ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse">{t('common.loading')}</div>
+      </div>
+    );
+  }
 
-  // Initialize the form
-  const form = useForm<FormSchemaType>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      coupleName: "",
-      location: "",
-      date: undefined as unknown as Date,
-      slug: "",
-      guestMessage: "",
-    },
-    mode: 'onChange',
-  });
-
-  // Watch the date value for debugging
-  const selectedDate = form.watch('date');
-  useEffect(() => {
-    console.log('Selected date:', selectedDate);
-  }, [selectedDate]);
+  // Ovdje su bili dupli pozivi za CSRF token, form inicijalizaciju i praćenje datuma
+  // Uklonjeni su jer su već definirani na vrhu komponente
 
   // Generate a slug from the couple name
   const generateSlug = (name: string) => {
