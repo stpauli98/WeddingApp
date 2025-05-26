@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { ImageUpload } from "@/components/guest/ImageUpload"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { CheckCircle, Loader2, AlertCircle, X } from "lucide-react"
+import { Loader2, X, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ImageSlotBar } from "@/components/guest/ImageSlotBar"
 import { useTranslation } from "react-i18next"
+import { UploadStatusList } from "./UploadStatusList";
 
 // Validacija: max 10 slika, max 500 karaktera poruka
 const formSchema = z.object({
@@ -461,7 +462,7 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
           window.location.href = "/guest/success";
         }, 1500);
       } else {
-        // Ako neke slike nisu uploadovane, prikaži poruku o djelimičnom uspjehu
+        // Ako neke slike nisu uploadovane, prikaži poruku o djelomičnom uspjehu
         // Umjesto alert-a, korisnik će vidjeti status svake slike i imati opciju za retry
         setIsLoading(false);
       }
@@ -507,7 +508,10 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
                   {t('guest.dashboard.uploadPhotos')}
                 </h3>
                 <p className="text-sm text-[hsl(var(--lp-muted-foreground))]">
-                  {uploadStatuses.filter(s => s.status === 'success').length} od {uploadStatuses.length} slika
+                  {t('guest.uploadStatus.imagesNotUploaded', '{{count}} od {{total}} slika je uploadovano', {
+                    count: uploadStatuses.filter(s => s.status === 'success').length,
+                    total: uploadStatuses.length
+                  })}
                 </p>
               </div>
               
@@ -522,95 +526,13 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
             </div>
             
             {/* Lista slika sa statusima */}
-            <div className="p-4 space-y-3">
-              {uploadStatuses.map((status, index) => (
-                <div 
-                  key={index} 
-                  className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${status.status === 'success' ? 'border-[hsl(var(--lp-success))]/20 bg-[hsl(var(--lp-success))]/10' : status.status === 'error' ? 'border-[hsl(var(--lp-destructive))]/20 bg-[hsl(var(--lp-destructive))]/10' : 'border-[hsl(var(--lp-accent))]/20 bg-[hsl(var(--lp-muted))]/30'}`}
-                >
-                  {/* Preview slike */}
-                  <div 
-                    className="w-14 h-14 md:w-16 md:h-16 rounded-md bg-cover bg-center flex-shrink-0 border border-[hsl(var(--lp-border))]" 
-                    style={{ backgroundImage: status.preview ? `url(${status.preview})` : 'none' }}
-                  />
-                  
-                  <div className="flex-grow min-w-0">
-                    {/* Ime fajla */}
-                    <p className="text-sm font-medium truncate mb-1.5">{status.file.name}</p>
-                    
-                    {/* Progress bar sa animacijom */}
-                    <div className="w-full bg-[hsl(var(--lp-muted))]/30 rounded-full h-1.5 mb-1.5 overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-300 ${status.status === 'error' ? 'bg-[hsl(var(--lp-destructive))]' : status.status === 'success' ? 'bg-[hsl(var(--lp-success))]' : 'bg-[hsl(var(--lp-primary))]/90'}`} 
-                        style={{ width: `${status.progress}%` }}
-                      />
-                    </div>
-                    
-                    {/* Status tekst */}
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-[hsl(var(--lp-muted-foreground))]">
-                        {status.status === 'waiting' && 'Čeka na upload...'}
-                        {status.status === 'uploading' && 'Slanje u toku...'}
-                        {status.status === 'success' && 'Uspješno uploadovano'}
-                        {status.status === 'error' && (status.error || 'Greška pri uploadu')}
-                      </p>
-                      <span className="text-xs font-medium text-[hsl(var(--lp-foreground))]">{status.progress}%</span>
-                    </div>
-                  </div>
-                  
-                  {/* Status ikona */}
-                  <div className="flex-shrink-0">
-                    {status.status === 'uploading' && (
-                      <Loader2 className="h-5 w-5 text-[hsl(var(--lp-accent))] animate-spin" />
-                    )}
-                    {status.status === 'success' && (
-                      <CheckCircle className="h-5 w-5 text-[hsl(var(--lp-success))]" />
-                    )}
-                    {status.status === 'error' && (
-                      <div className="flex items-center space-x-1">
-                        <AlertCircle className="h-5 w-5 text-[hsl(var(--lp-destructive))]" />
-                        {status.retryable && (
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-6 px-2 text-xs text-[hsl(var(--lp-primary))] hover:text-[hsl(var(--lp-primary-hover))] hover:bg-[hsl(var(--lp-muted))]/30"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              retryUpload(status.id);
-                            }}
-                            disabled={isLoading}
-                          >
-                            Pokušaj ponovo
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            {/* Footer sa informacijom i opcijom za retry svih */}
-            <div className="sticky bottom-0 bg-white p-4 border-t border-[hsl(var(--lp-accent))]/10 flex justify-between items-center">
-              <span className="text-sm text-[hsl(var(--lp-muted-foreground))]">
-                {isLoading 
-                  ? "Molimo sačekajte dok se slike uploaduju..." 
-                  : uploadStatuses.some(s => s.status === 'error' && s.retryable)
-                    ? "Neke slike nisu uspješno uploadovane."
-                    : "Status uploada slika"}
-              </span>
-              
-              {!isLoading && uploadStatuses.some(s => s.status === 'error' && s.retryable) && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="text-xs"
-                  onClick={retryFailedUploads}
-                >
-                  Pokušaj ponovno sve neuspjele
-                </Button>
-              )}
-            </div>
+            <UploadStatusList 
+              uploadStatuses={uploadStatuses}
+              isLoading={isLoading}
+              onRetryUpload={retryUpload}
+              onRetryAllFailed={retryFailedUploads}
+              language={language}
+            />
           </div>
         </div>
       )}

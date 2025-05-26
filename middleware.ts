@@ -91,15 +91,26 @@ export async function middleware(request: NextRequest) {
   }
   
   // Ako ruta nema jezični prefiks, preusmjeri na verziju s prefiksom
-  // Dohvati jezik iz kolačića ili koristi defaultni
+  
+  // Provjeri ima li URL parametar za jezik eventa
+  const eventLang = request.nextUrl.searchParams.get('lang');
+  
+  // Dohvati jezik iz URL parametra, kolačića ili koristi defaultni
   const langCookie = request.cookies.get('i18nextLng');
-  const lang = langCookie?.value || defaultLanguage;
+  const lang = eventLang || langCookie?.value || defaultLanguage;
   
   // Kloniraj URL i postavi novu putanju s jezičnim prefiksom
   const url = request.nextUrl.clone();
   url.pathname = `/${lang}${path}`;
   
-  return NextResponse.redirect(url);
+  // Postavi kolačić s jezikom da bi se zapamtio između refresha
+  const response = NextResponse.redirect(url);
+  response.cookies.set('i18nextLng', lang, { 
+    maxAge: 60 * 60 * 24 * 365, // 1 godina
+    path: '/' 
+  });
+  
+  return response;
 }
 
 export const config = {

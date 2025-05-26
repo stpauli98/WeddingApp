@@ -23,9 +23,9 @@ export function ImageSlotBar({ current, max, language = 'sr' }: ImageSlotBarProp
   
   const percent = Math.min(100, Math.round((current / max) * 100));
   
-  // Funkcija za pravilno formatiranje teksta za broj slika na srpskom
+  // Funkcija za pravilno formatiranje teksta za broj slika na srpskom/engleskom
   const formatImagesText = (count: number) => {
-    if (language === 'en') {
+    if (i18n.language === 'en') {
       return count === 1 ? 'image' : 'images';
     }
     

@@ -80,11 +80,22 @@ export default async function SuccessPage(props: any) {
     where: { guestId: guestId }
   });
 
-  // Dohvatanje imena brudova iz baze i slug-a
+  // Dohvatanje imena brudova iz baze, slug-a i jezika admina
   const event = await prisma.event.findFirst({
     where: { id: guest?.eventId },
-    select: { coupleName: true, slug: true }
+    select: { 
+      coupleName: true, 
+      slug: true,
+      admin: {
+        select: {
+          language: true
+        }
+      }
+    }
   });
+  
+  // Dohvati jezik admina koji je kreirao event (ili defaultni ako nije postavljen)
+  const eventLanguage = event?.admin?.language || "sr";
 
   // Ako imamo eventSlug iz URL-a, koristimo ga, inače koristimo slug iz baze
   const finalEventSlug = eventSlug || event?.slug;
@@ -93,6 +104,7 @@ export default async function SuccessPage(props: any) {
     guest={guest} 
     coupleName={event?.coupleName} 
     message={message ? { text: message.text } : undefined}
-    eventSlug={finalEventSlug} 
+    eventSlug={finalEventSlug}
+    language={urlLanguage || eventLanguage || language}
   />;
 }

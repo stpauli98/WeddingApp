@@ -105,7 +105,18 @@
         "maxChars": "Maksimalno 500 karaktera",
         "a11ySubmitButton": "Pošalji slike i poruku mladencima",
         "sending": "Slanje...",
-        "confirmUpload": "Potvrdi upload"
+        "confirmUpload": "Potvrdi upload",
+        "uploadStatus": {
+          "waiting": "Čeka na upload...",
+          "uploading": "Slanje u toku...",
+          "success": "Uspješno uploadovano",
+          "error": "Greška pri uploadu",
+          "retry": "Pokušaj ponovo",
+          "pleaseWait": "Molimo sačekajte dok se slike uploaduju...",
+          "someFailedUpload": "Neke slike nisu uspješno uploadovane.",
+          "uploadStatus": "Status uploada slika",
+          "retryAllFailed": "Pokušaj ponovno sve neuspjele"
+        }
       },
       "imageGallery": {
         "noImages": "Nema uploadovanih slika",
@@ -121,6 +132,40 @@
         "images": "Slike",
         "canAddMore": "Možete dodati još {{count}} {{imageText}}",
         "maxReached": "Dostigli ste maksimalan broj slika"
+      },
+      "userGallery": {
+        "addMorePhotos": "Dodaj još slika",
+        "youCanAdd": "Možete dodati još {{count}} {{imageText}}"
+      },
+      "uploadStatus": {
+        "title": "Status uploada slika",
+        "imagePreview": "Pregled slike",
+        "waiting": "Čeka na upload...",
+        "uploading": "Slanje u toku...",
+        "success": "Uspješno uploadovano",
+        "error": "Greška pri uploadu",
+        "retry": "Pokušaj ponovo",
+        "pleaseWait": "Molimo sačekajte dok se slike uploaduju...",
+        "someFailedUpload": "Neke slike nisu uspješno uploadovane.",
+        "uploadStatus": "Status uploada slika",
+        "retryAllFailed": "Pokušaj ponovno sve neuspjele",
+        "imagesNotUploaded": "{{count}} od {{total}} slika uploadovano"
+      },
+      "dashboard": {
+        "uploadPhotos": "Dodaj fotografije"
+      },
+      "success": {
+        "thankYou": "Hvala!",
+        "imagesAndMessageSent": "Vaše slike i poruka su uspješno poslate.",
+        "coupleWillBeDelighted": " će biti oduševljeni vašim iznenađenjem!"
+      },
+      "survey": {
+        "thankYou": "Hvala na doprinosu!",
+        "redirectSoon": "Za par sekundi bićete prebačeni na kratak formular za povratnu informaciju.",
+        "redirectIn": "Preusmeravanje za:",
+        "seconds": "sekundi...",
+        "fillSurvey": "Popuni anketu",
+        "openFormNow": "Otvori formular odmah"
       },
       "login": {
         "title": "Dobrodošli na vjenčanje",

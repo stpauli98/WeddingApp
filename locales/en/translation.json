@@ -80,7 +80,11 @@
   "guest": {
     "message": {
       "yourMessageToCouple": "Your message to the couple",
-      "noMessage": "You haven't left a message"
+      "noMessage": "No message left"
+    },
+    "userGallery": {
+      "addMorePhotos": "Add more photos",
+      "youCanAdd": "You can add {{count}} more {{imageText}}"
     },
     "weddingInfo": {
       "location": "Location",
@@ -106,13 +110,54 @@
       "maxChars": "Maximum 500 characters",
       "a11ySubmitButton": "Send images and message to the couple",
       "sending": "Sending...",
-      "confirmUpload": "Confirm upload"
+      "confirmUpload": "Confirm upload",
+      "uploadStatus": {
+        "waiting": "Waiting for upload...",
+        "uploading": "Uploading in progress...",
+        "success": "Successfully uploaded",
+        "error": "Upload error",
+        "retry": "Try again",
+        "pleaseWait": "Please wait while images are being uploaded...",
+        "someFailedUpload": "Some images failed to upload.",
+        "uploadStatus": "Upload status",
+        "retryAllFailed": "Retry all failed uploads"
+      }
     },
     "imageGallery": {
       "noImages": "No uploaded images",
       "deleteImage": "Delete image",
       "guestImage": "Guest image",
       "imageError": "Error: Image is not available or URL is invalid"
+    },
+    "uploadStatus": {
+      "title": "Image Upload Status",
+      "imagePreview": "Image preview",
+      "waiting": "Waiting for upload...",
+      "uploading": "Uploading in progress...",
+      "success": "Successfully uploaded",
+      "error": "Upload error",
+      "retry": "Try again",
+      "pleaseWait": "Please wait while images are being uploaded...",
+      "someFailedUpload": "Some images failed to upload.",
+      "uploadStatus": "Upload status",
+      "retryAllFailed": "Retry all failed uploads",
+      "imagesNotUploaded": "{{count}} of {{total}} images uploaded"
+    },
+    "dashboard": {
+      "uploadPhotos": "Add photos"
+    },
+    "success": {
+      "thankYou": "Thank you!",
+      "imagesAndMessageSent": "Your images and message have been successfully sent.",
+      "coupleWillBeDelighted": " will be delighted with your surprise!"
+    },
+    "survey": {
+      "thankYou": "Thank you for your contribution!",
+      "redirectSoon": "In a few seconds, you will be redirected to a short feedback form.",
+      "redirectIn": "Redirecting in:",
+      "seconds": "seconds...",
+      "fillSurvey": "Fill out the survey",
+      "openFormNow": "Open form now"
     },
     "uploadLimit": {
       "maxReached": "You have reached the maximum number of images",

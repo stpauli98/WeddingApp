@@ -50,9 +50,9 @@ export default async function DashboardPage(props: any) {
   // Koristi jezik iz URL-a ako postoji, inače koristi jezik iz kolačića
   const language = urlLanguage || cookieLanguage;
   
-  // Ako nema guestId, preusmjeri na login
+  // Ako nema guestId, preusmjeri na login s odgovarajućim jezikom
   if (!guestId) {
-    redirect("/guest/login");
+    redirect(`/${language}/guest/login`);
   }
   
   // Dohvati eventSlug iz query parametara (serverski način)
@@ -61,18 +61,30 @@ export default async function DashboardPage(props: any) {
     eventSlug = eventSlug[0];
   }
   
-  // Ako nema eventSlug u URL-u, preusmjeri na login stranicu
+  // Ako nema eventSlug u URL-u, preusmjeri na login stranicu s odgovarajućim jezikom
   if (!eventSlug) {
-    redirect("/guest/login");
+    redirect(`/${language}/guest/login`);
   }
   
-  // Dohvati event na osnovu sluga
-  const event = await prisma.event.findUnique({ where: { slug: eventSlug } });
+  // Dohvati event na osnovu sluga, uključujući i jezik admina
+  const event = await prisma.event.findUnique({
+    where: { slug: eventSlug },
+    include: {
+      admin: {
+        select: {
+          language: true
+        }
+      }
+    }
+  });
   
   // Ako event ne postoji, preusmjeri na login
   if (!event) {
-    redirect("/guest/login");
+    redirect(`/${language}/guest/login`);
   }
+  
+  // Dohvati jezik admina koji je kreirao event (ili defaultni ako nije postavljen)
+  const eventLanguage = event.admin?.language || "sr";
   
   // Koristi eventId iz pronađenog eventa
   const eventId = event.id;
@@ -99,7 +111,7 @@ export default async function DashboardPage(props: any) {
     });
     
     if (!baseGuest) {
-      redirect("/guest/login");
+      redirect(`/${language}/guest/login`);
     }
     
     // Kreiraj novog gosta za ovaj event
@@ -114,13 +126,13 @@ export default async function DashboardPage(props: any) {
       }
     });
     
-    // Osvježi stranicu da bi se prikazali podaci novog gosta
-    redirect(`/guest/dashboard?event=${eventSlug}`);
+    // Osvježi stranicu da bi se prikazali podaci novog gosta, koristi jezik eventa
+    redirect(`/${eventLanguage}/guest/dashboard?event=${eventSlug}&lang=${eventLanguage}`);
   }
 
   return (
       <div className="container max-w-md mx-auto px-4 py-8">
-        <WeddingInfo eventId={eventId} language={urlLanguage || language} />
+        <WeddingInfo eventId={eventId} language={urlLanguage || eventLanguage || language} />
       
       {/* Koristimo DashboardClient komponentu koja će upravljati brojem slika i osigurati da se sve komponente ažuriraju kada se broj slika promijeni */}
         <DashboardClient 
@@ -131,10 +143,10 @@ export default async function DashboardPage(props: any) {
           }))} 
           guestId={guestId}
           message={guest.message?.text ?? ""}
-          language={urlLanguage || language}
+          language={urlLanguage || eventLanguage || language}
         />
         <div className="mt-8">
-          <LogoutButton language={urlLanguage || language} />
+          <LogoutButton language={urlLanguage || eventLanguage || language} />
         </div>
       </div>
     )
