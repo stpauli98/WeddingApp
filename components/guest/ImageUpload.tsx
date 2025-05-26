@@ -64,13 +64,13 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
     dragOrClick: "Prevucite slike ovde ili kliknite za odabir"
   };
   
-  // Funkcija za dohvaćanje prijevoda s fallback vrijednostima
-  const getTranslation = (key: string, fallback: string) => {
+  // Funkcija za dohvaćanje prijevoda s fallback vrijednostima - memoizirana s useCallback
+  const getTranslation = useCallback((key: string, fallback: string) => {
     if (!ready) return fallback;
     const translation = t(key);
     // Ako je prijevod isti kao ključ, to znači da prijevod nije pronađen
     return translation === key ? fallback : translation;
-  };
+  }, [ready, t]);
   
   const [previews, setPreviews] = useState<string[]>([])
 
