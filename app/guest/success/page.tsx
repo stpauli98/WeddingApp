@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { getGuestById } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import ClientSuccess from "./client-success"
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 function getSlikaPadez(n: number) {
   switch (n) {
@@ -27,19 +27,42 @@ interface Image {
 // Pristup identičan ispravnom rješenju za dashboard/page.tsx
 export default async function SuccessPage(props: any) {
   // U Next.js 15, searchParams mora biti awaited
-  const resolvedProps = await Promise.resolve(props);
-  const searchParams = resolvedProps.searchParams as { [key: string]: string | string[] | undefined } | undefined;
+  const searchParams = await props.searchParams;
   
   // Dohvati guestId iz session cookie-ja
   const cookieStore = await cookies();
   const guestId = cookieStore.get("guest_session")?.value || "";
+  
+  // Dohvati jezik iz kolačića
+  const languageCookie = cookieStore.get("i18nextLng");
+  const cookieLanguage = languageCookie?.value || "sr";
+  
+  // Dohvati trenutni URL iz headers-a za određivanje jezičnog prefiksa
+  let urlLanguage = null;
+  try {
+    const headersList = await headers();
+    const referer = headersList.get('referer') || headersList.get('x-url') || '';
+    
+    if (referer) {
+      const url = new URL(referer);
+      const pathSegments = url.pathname.split('/');
+      if (pathSegments.length > 1 && ['sr', 'en'].includes(pathSegments[1])) {
+        urlLanguage = pathSegments[1];
+      }
+    }
+  } catch (error) {
+    console.error('Greška pri parsiranju URL-a:', error);
+  }
+  
+  // Koristi jezik iz URL-a ako postoji, inače koristi jezik iz kolačića
+  const language = urlLanguage || cookieLanguage;
 
   if (!guestId) {
-    redirect("/guest/login");
+    redirect(`/${language}/guest/login`);
   }
 
   // Dohvati eventSlug iz query parametara (sada je safe pristupiti searchParams)
-  let eventSlug = searchParams?.event;
+  let eventSlug = searchParams.event;
   if (Array.isArray(eventSlug)) {
     eventSlug = eventSlug[0];
   }
@@ -49,7 +72,7 @@ export default async function SuccessPage(props: any) {
   const guest = await getGuestById(guestId);
 
   if (!guest) {
-    redirect("/guest/login");
+    redirect(`/${language}/guest/login`);
   }
 
   // Posebno dohvatanje poruke za gosta
