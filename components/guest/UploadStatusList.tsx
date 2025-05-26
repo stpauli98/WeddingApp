@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
@@ -59,10 +60,13 @@ export function UploadStatusList({
                 {/* Preview slike */}
                 {status.preview && (
                   <div className="w-10 h-10 rounded-md overflow-hidden flex-shrink-0 border border-[hsl(var(--lp-accent))]/30">
-                    <img 
+                    <Image 
                       src={status.preview} 
                       alt={t('guest.uploadStatus.imagePreview', 'Pregled slike')} 
                       className="w-full h-full object-cover"
+                      width={40}
+                      height={40}
+                      unoptimized={status.preview.startsWith('blob:') || status.preview.startsWith('data:')}
                     />
                   </div>
                 )}
