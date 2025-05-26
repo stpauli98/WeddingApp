@@ -14,8 +14,11 @@ interface DashboardImage {
 }
 
 
+// Umjesto definiranja vlastitih tipova, koristimo any za sada
+// Next.js 15 ima drugačiju strukturu tipova za page komponente
+
 export default async function DashboardPage(props: any) {
-  const searchParams = props.searchParams as { [key: string]: string | string[] | undefined } | undefined;
+  const searchParams = await props.searchParams;
   // Dohvati guestId iz session cookie-ja
   const cookieStore = await cookies();
   const guestId = cookieStore.get("guest_session")?.value || "";
@@ -26,7 +29,7 @@ export default async function DashboardPage(props: any) {
   }
   
   // Dohvati eventSlug iz query parametara (serverski način)
-  let eventSlug = searchParams?.event;
+  let eventSlug = searchParams.event;
   if (Array.isArray(eventSlug)) {
     eventSlug = eventSlug[0];
   }
