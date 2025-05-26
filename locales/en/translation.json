@@ -118,6 +118,11 @@
       "maxReached": "You have reached the maximum number of images",
       "thankYou": "Thank you for your contribution!"
     },
+    "imageSlotBar": {
+      "images": "Images",
+      "canAddMore": "You can add {{count}} more {{imageText}}",
+      "maxReached": "You have reached the maximum number of images"
+    },
     "login": {
       "title": "Welcome to the wedding",
       "firstName": "First Name",

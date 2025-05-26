@@ -618,7 +618,11 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
         <CardTitle>{t('guest.uploadForm.addImages', 'Dodaj slike')}</CardTitle>
         
         {/* Korištenje postojeće ImageSlotBar komponente */}
-        <ImageSlotBar current={selectedImagesCount + (initialImagesCount || 0)} max={10} />
+        <ImageSlotBar 
+          current={selectedImagesCount + (initialImagesCount || 0)} 
+          max={10} 
+          language={language}
+        />
       </CardHeader>
       <form
         onSubmit={form.handleSubmit(onSubmit)}

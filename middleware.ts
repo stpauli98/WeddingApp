@@ -5,6 +5,17 @@ import type { NextRequest } from "next/server";
 const supportedLanguages = ['sr', 'en'];
 const defaultLanguage = 'sr';
 
+// Putanje koje ne zahtijevaju jezični prefiks
+const exemptPaths = [
+  '/',                // Root stranica
+  '/api',             // API rute
+  '/_next',           // Next.js interne rute
+  '/favicon.ico',     // Favicon
+  '/robots.txt',      // Robots.txt
+  '/sitemap.xml',     // Sitemap
+  '/manifest.json'    // PWA manifest
+];
+
 // Funkcija za provjeru je li ruta guest ruta
 const isGuestRoute = (path: string): boolean => {
   return path.includes('/guest/');
@@ -27,60 +38,73 @@ const getLanguageFromPath = (path: string): string | null => {
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
-  // Preskoči API rute
-  if (path.startsWith("/api/")) {
-    return NextResponse.next();
-  }
-
-  // Provjera jezičnih ruta
-  if (supportedLanguages.some(lang => path === `/${lang}`)) {
-    // Ako je ruta samo /sr ili /en, preusmjeri na početnu stranicu s tim jezikom
-    const lang = path.split('/')[1];
-    return NextResponse.redirect(new URL('/', request.url));
+  // Preskoči putanje koje ne zahtijevaju jezični prefiks
+  for (const exemptPath of exemptPaths) {
+    if (path === exemptPath || path.startsWith(`${exemptPath}/`)) {
+      return NextResponse.next();
+    }
   }
   
-  // Rewrite za guest rute s jezičnim prefiksom
-  if (hasLanguagePrefix(path) && isGuestRoute(path)) {
+  // Provjeri ima li ruta već jezični prefiks
+  if (hasLanguagePrefix(path)) {
+    // Ako ima jezični prefiks, nastavi s obradom
     const language = getLanguageFromPath(path);
-    const newPath = path.replace(`/${language}/guest`, '/guest');
     
-    // Rewrite rute, ali zadrži jezični prefiks u URL-u
-    const url = request.nextUrl.clone();
-    url.pathname = newPath;
+    // Ako je guest ruta s jezičnim prefiksom, rewrite na odgovarajuću rutu bez prefiksa
+    if (isGuestRoute(path)) {
+      const newPath = path.replace(`/${language}/guest`, '/guest');
+      
+      // Rewrite rute, ali zadrži jezični prefiks u URL-u
+      const url = request.nextUrl.clone();
+      url.pathname = newPath;
+      
+      // Postavi kolačić s jezikom da bi i18n mogao detektirati jezik
+      const response = NextResponse.rewrite(url);
+      response.cookies.set('i18nextLng', language as string, { 
+        maxAge: 60 * 60 * 24 * 365, // 1 godina
+        path: '/' 
+      });
+      return response;
+    }
     
-    // Postavi kolačić s jezikom da bi i18n mogao detektirati jezik
-    const response = NextResponse.rewrite(url);
+    // Za ostale rute s jezičnim prefiksom, samo postavi kolačić i nastavi
+    const response = NextResponse.next();
     response.cookies.set('i18nextLng', language as string, { 
       maxAge: 60 * 60 * 24 * 365, // 1 godina
       path: '/' 
     });
     return response;
   }
-
-  // Zaštićene rute
-  const isProtectedRoute = path === "/dashboard" || path === "/success" || path === "/guest/dashboard" ||
-    path.match(/^\/[a-z]{2}\/guest\/dashboard$/); // Uključuje i rute s jezičnim prefiksom
+  
+  // Zaštićene rute - provjera sesije
+  const isProtectedRoute = path.includes("/dashboard") || path.includes("/success");
   const hasSession = request.cookies.has("guest_session");
 
   if (isProtectedRoute && !hasSession) {
     // Ako ruta ima jezični prefiks, preusmjeri na odgovarajuću početnu stranicu s tim jezikom
-    if (path.match(/^\/[a-z]{2}\//)) {
-      const lang = path.split('/')[1];
+    if (hasLanguagePrefix(path)) {
+      const lang = getLanguageFromPath(path);
       return NextResponse.redirect(new URL(`/${lang}`, request.url));
     }
-    return NextResponse.redirect(new URL("/", request.url));
+    // Inače preusmjeri na root s defaultnim jezikom
+    return NextResponse.redirect(new URL(`/${defaultLanguage}`, request.url));
   }
-
-  return NextResponse.next();
+  
+  // Ako ruta nema jezični prefiks, preusmjeri na verziju s prefiksom
+  // Dohvati jezik iz kolačića ili koristi defaultni
+  const langCookie = request.cookies.get('i18nextLng');
+  const lang = langCookie?.value || defaultLanguage;
+  
+  // Kloniraj URL i postavi novu putanju s jezičnim prefiksom
+  const url = request.nextUrl.clone();
+  url.pathname = `/${lang}${path}`;
+  
+  return NextResponse.redirect(url);
 }
 
 export const config = {
   matcher: [
-    // Standardne rute
-    "/dashboard", "/success", "/guest/dashboard", "/guest/login", "/guest/success", 
-    // Jezične rute
-    "/sr", "/en", 
-    // Guest rute s jezičnim prefiksom
-    "/sr/guest/:path*", "/en/guest/:path*"
+    // Hvataj sve rute osim onih koje su izuzete
+    '/((?!api|_next|favicon.ico|robots.txt|sitemap.xml|manifest.json).*)',
   ],
 };
