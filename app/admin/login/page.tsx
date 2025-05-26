@@ -61,7 +61,10 @@ export default function AdminLoginPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        router.push("/admin/dashboard");
+        // Dohvati trenutni jezik iz i18n
+        const currentLang = localStorage.getItem('i18nextLng') || 'sr';
+        // Preusmjeri na dashboard s jezičkim prefiksom
+        router.push(`/${currentLang}/admin/dashboard`);
       } else {
         // Ako je CSRF token nevažeći, automatski povuci novi token
         if (res.status === 403 && data.error && data.error.toLowerCase().includes('csrf')) {
@@ -173,7 +176,10 @@ export default function AdminLoginPage() {
             </Button>
             <div className="text-center text-sm">
               {t('admin.login.dontHaveAccount')}{" "}
-              <Link href="/admin/register" className="font-medium text-[hsl(var(--lp-accent))] hover:underline">
+              <Link 
+                href={mounted ? `/${localStorage.getItem('i18nextLng') || 'sr'}/admin/register` : "/admin/register"} 
+                className="font-medium text-[hsl(var(--lp-accent))] hover:underline"
+              >
                 {t('admin.login.register')}
               </Link>
             </div>
@@ -184,7 +190,11 @@ export default function AdminLoginPage() {
             className="w-full bg-[hsl(var(--lp-muted))] text-[hsl(var(--lp-text))] hover:bg-[hsl(var(--lp-muted))/80] border-none"
             variant="outline"
             type="button"
-            onClick={() => router.push("/")}
+            onClick={() => {
+              // Dohvati trenutni jezik iz i18n
+              const currentLang = localStorage.getItem('i18nextLng') || 'sr';
+              router.push(`/${currentLang}`);
+            }}
           >
             {t('admin.login.backToHome', 'Back to Home')} {/* Fallback text */}
           </Button>

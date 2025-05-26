@@ -195,10 +195,13 @@ export default function CreateEventPage() {
           title: t('admin.event.success.title'),
           description: t('admin.event.success.description'),
         });
+        // Dohvati trenutni jezik iz i18n
+        const currentLang = i18n.language || 'sr';
+        
         if (result.event?.id) {
-          router.push(`/admin/dashboard/${result.event.id}`);
+          router.push(`/${currentLang}/admin/dashboard/${result.event.id}`);
         } else {
-          router.push("/admin/dashboard"); // fallback
+          router.push(`/${currentLang}/admin/dashboard`); // fallback
         }
       } else if (result.error) {
         // Check for slug exists error in both languages

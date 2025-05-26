@@ -9,11 +9,13 @@ import { cookies } from 'next/headers';
 import { redirect } from "next/navigation";
 
 export default async function AdminDashboardPage() {
-  // 1. Dohvati session token iz cookie-ja
+  // 1. Dohvati session token i jezik iz cookie-ja
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get('admin_session')?.value;
+  const languagePrefix = cookieStore.get('i18nextLng')?.value || 'sr';
+  
   if (!sessionToken) {
-    redirect('/admin/login');
+    redirect(`/${languagePrefix}/admin/login`);
   }
 
   // 2. Pronađi admina preko session tokena
@@ -22,15 +24,15 @@ export default async function AdminDashboardPage() {
     include: { admin: true },
   });
   if (!adminSession || !adminSession.admin) {
-    redirect('/admin/login');
+    redirect(`/${languagePrefix}/admin/login`);
   }
 
   // 3. Pronađi event koji pripada ovom adminu
   const event = await prisma.event.findFirst({ where: { adminId: adminSession.admin.id } });
   if (event) {
-    redirect(`/admin/dashboard/${event.id}`);
+    redirect(`/${languagePrefix}/admin/dashboard/${event.id}`);
   }
 
   // 4. Ako nema eventa, preusmeri na kreiranje eventa
-  redirect('/admin/event');
+  redirect(`/${languagePrefix}/admin/event`);
 }
