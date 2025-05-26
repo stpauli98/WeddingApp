@@ -55,13 +55,18 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
     createPreviews(value)
     // Cleanup: revoke sve previews
     return () => {
-      previews.forEach((preview) => {
-        if (preview.startsWith("blob:")) {
-          URL.revokeObjectURL(preview)
-        }
+      // Koristimo funkciju koja će pristupiti trenutnom stanju previews-a
+      // umjesto da ga koristimo iz dependency array-a
+      setPreviews(currentPreviews => {
+        currentPreviews.forEach((preview) => {
+          if (preview.startsWith("blob:")) {
+            URL.revokeObjectURL(preview)
+          }
+        })
+        return currentPreviews
       })
     }
-  }, [value, createPreviews, previews])
+  }, [value, createPreviews])
 
   // Funkcija koja se poziva kada se dodaju nove slikee
   const onDrop = useCallback(
