@@ -34,10 +34,18 @@ interface UploadFormProps {
   guestId: string;
   message?: string;
   existingImagesCount?: number; // Dodajemo opcioni prop za broj postojećih slika
+  language?: string; // Dodajemo prop za jezik
 }
 
-export function UploadForm({ guestId, message, existingImagesCount: initialImagesCount }: UploadFormProps) {
-  const { t } = useTranslation();
+export function UploadForm({ guestId, message, existingImagesCount: initialImagesCount = 0, language = 'sr' }: UploadFormProps) {
+  const { t, i18n } = useTranslation();
+  
+  // Postavi jezik ako je različit od trenutnog
+  React.useEffect(() => {
+    if (language && i18n.language !== language) {
+      i18n.changeLanguage(language);
+    }
+  }, [language, i18n]);
   // Funkcija za ponovno pokušavanje uploada neuspjelih slika
   async function retryFailedUploads() {
     // Filtriraj samo slike koje su označene kao retryable
@@ -607,10 +615,10 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
         </div>
       )}
       <CardHeader>
-        <CardTitle>Dodaj slike</CardTitle>
+        <CardTitle>{t('guest.uploadForm.addImages', 'Dodaj slike')}</CardTitle>
         
         {/* Korištenje postojeće ImageSlotBar komponente */}
-        <ImageSlotBar current={selectedImagesCount + existingImagesCount} max={10} />
+        <ImageSlotBar current={selectedImagesCount + (initialImagesCount || 0)} max={10} />
       </CardHeader>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
@@ -619,8 +627,8 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
       >
         <CardContent className="space-y-6">
           <div>
-            <label className="block font-medium mb-1" htmlFor="images-upload">Slike (max 10)</label>
-            <span id="upload-instructions" className="sr-only">Prvo izaberite slike, zatim kliknite na dugme Potvrdi upload. Sve akcije su dostupne tastaturom. Status slanja će biti automatski najavljen.</span>
+            <label className="block font-medium mb-1" htmlFor="images-upload">{t('guest.uploadForm.imagesMax10', 'Slike (max 10)')}</label>
+            <span id="upload-instructions" className="sr-only">{t('guest.uploadForm.a11yInstructions', 'Prvo izaberite slike, zatim kliknite na dugme Potvrdi upload. Sve akcije su dostupne tastaturom. Status slanja će biti automatski najavljen.')}</span>
 
             <ImageUpload
               value={form.watch("images") || []}
@@ -659,23 +667,23 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
             />
           </div>
           <div>
-            <label className="block font-medium mb-1">Poruka (opciono)</label>
+            <label className="block font-medium mb-1">{t('guest.uploadForm.messageOptional', 'Poruka (opciono)')}</label>
             <Textarea
-              placeholder="Napišite poruku ili čestitku mladencima..."
+              placeholder={t('guest.uploadForm.messagePlaceholder', 'Napišite poruku ili čestitku mladencima...')}
               rows={4}
               {...form.register("message")}
             />
-            <p className="text-sm text-[hsl(var(--lp-muted-foreground))] mt-1">Maksimalno 500 karaktera</p>
+            <p className="text-sm text-[hsl(var(--lp-muted-foreground))] mt-1">{t('guest.uploadForm.maxChars', 'Maksimalno 500 karaktera')}</p>
           </div>
         </CardContent>
         <CardFooter>
           <Button
             type="submit"
             className="w-full"
-            aria-label="Pošalji slike i poruku mladencima"
+            aria-label={t('guest.uploadForm.a11ySubmitButton', 'Pošalji slike i poruku mladencima')}
             disabled={isLoading || (form.watch("images")?.length ?? 0) === 0}
           >
-            {isLoading ? "Slanje..." : "Potvrdi upload"}
+            {isLoading ? t('guest.uploadForm.sending', 'Slanje...') : t('guest.uploadForm.confirmUpload', 'Potvrdi upload')}
           </Button>
         </CardFooter>
       </form>

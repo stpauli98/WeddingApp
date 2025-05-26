@@ -86,6 +86,37 @@
         "date": "Datum",
         "messageForGuests": "Poruka za goste"
       },
+      "imageUpload": {
+        "dropHere": "Pustite slike ovde...",
+        "maxReached": "Dostigli ste maksimalan broj slika",
+        "dragOrClick": "Prevucite slike ovde ili kliknite za odabir",
+        "errors": {
+          "heicNotSupported": "HEIC/HEIF slike nisu podržane. Molimo vas da konvertujete sliku u JPG ili PNG format.",
+          "unsupportedFormat": "Nepodržan format slike: {format}",
+          "fileTooLarge": "Slika {fileName} je veća od {maxSize}MB. Molimo vas da smanjite rezoluciju ili veličinu slike."
+        }
+      },
+      "uploadForm": {
+        "addImages": "Dodaj slike",
+        "imagesMax10": "Slike (max 10)",
+        "a11yInstructions": "Prvo izaberite slike, zatim kliknite na dugme Potvrdi upload. Sve akcije su dostupne tastaturom. Status slanja će biti automatski najavljen.",
+        "messageOptional": "Poruka (opciono)",
+        "messagePlaceholder": "Napišite poruku ili čestitku mladencima...",
+        "maxChars": "Maksimalno 500 karaktera",
+        "a11ySubmitButton": "Pošalji slike i poruku mladencima",
+        "sending": "Slanje...",
+        "confirmUpload": "Potvrdi upload"
+      },
+      "imageGallery": {
+        "noImages": "Nema uploadovanih slika",
+        "deleteImage": "Obriši sliku",
+        "guestImage": "Slika gosta",
+        "imageError": "Greška: Slika nije dostupna ili nije validan URL"
+      },
+      "uploadLimit": {
+        "maxReached": "Dostigli ste maksimalan broj slika",
+        "thankYou": "Hvala na vašem doprinosu!"
+      },
       "login": {
         "title": "Dobrodošli na vjenčanje",
         "firstName": "Ime",

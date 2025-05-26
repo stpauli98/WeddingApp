@@ -3,26 +3,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CalendarIcon, MapPinIcon, HeartIcon } from "lucide-react"
 
 // Funkcija za formatiranje datuma
-function formatDate(dateInput: Date | string | null | undefined): string {
+function formatDate(dateInput: Date | string | null | undefined, language: string = 'sr'): string {
   if (!dateInput) return ''
   
   const date = new Date(dateInput)
   
   // Mjeseci na srpskom (latinica)
-  const months = [
+  const monthsSr = [
     'januar', 'februar', 'mart', 'april', 'maj', 'jun',
     'jul', 'avgust', 'septembar', 'oktobar', 'novembar', 'decembar'
   ]
   
+  // Mjeseci na engleskom
+  const monthsEn = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ]
+  
   const day = date.getDate()
-  const month = months[date.getMonth()]
+  const monthIndex = date.getMonth()
   const year = date.getFullYear()
   
   // Formatiranje sati i minuta
   let hours = date.getHours()
   const minutes = date.getMinutes().toString().padStart(2, '0')
   
-  return `${day}. ${month} ${year}. u ${hours}:${minutes}h`
+  if (language === 'en') {
+    return `${monthsEn[monthIndex]} ${day}, ${year} at ${hours}:${minutes}`
+  }
+  
+  return `${day}. ${monthsSr[monthIndex]} ${year}. u ${hours}:${minutes}h`
 }
 
 // Funkcija za dobijanje prijevoda
@@ -43,15 +53,15 @@ function getTranslation(key: string, language: string): string {
   return translations[language]?.[key] || translations['sr'][key];
 }
 
-export async function WeddingInfo({ eventId }: { eventId: string }) {
+export async function WeddingInfo({ eventId, language = 'sr' }: { eventId: string, language?: string }) {
   // Dohvatanje podataka za specifični event
   const event = await prisma.event.findUnique({
     where: { id: eventId },
     select: { coupleName: true, location: true, date: true, guestMessage: true },
   });
   
-  // Za server komponentu koristimo defaultni jezik
-  const language = 'sr';
+  // Koristimo proslijeđeni jezik ili defaultni 'sr'
+  const currentLanguage = language || 'sr';
 
   return (
     <Card className="mb-8 border-[hsl(var(--lp-accent))]/30 shadow-md">
@@ -62,9 +72,9 @@ export async function WeddingInfo({ eventId }: { eventId: string }) {
         <div className="flex items-start gap-3">
           <CalendarIcon className="h-5 w-5 text-[hsl(var(--lp-accent))] mt-0.5" />
           <div>
-            <h3 className="font-medium">{getTranslation('guest.weddingInfo.date', language)}</h3>
+            <h3 className="font-medium">{getTranslation('guest.weddingInfo.date', currentLanguage)}</h3>
             <p className="text-sm text-muted-foreground">
-              {formatDate(event?.date)}
+              {formatDate(event?.date, currentLanguage)}
             </p>
           </div>
         </div>
@@ -72,7 +82,7 @@ export async function WeddingInfo({ eventId }: { eventId: string }) {
         <div className="flex items-start gap-3">
           <MapPinIcon className="h-5 w-5 text-[hsl(var(--lp-accent))] mt-0.5" />
           <div>
-            <h3 className="font-medium">{getTranslation('guest.weddingInfo.location', language)}</h3>
+            <h3 className="font-medium">{getTranslation('guest.weddingInfo.location', currentLanguage)}</h3>
             <p className="text-sm text-muted-foreground">{event?.location}</p>
           </div>
         </div>
@@ -81,7 +91,7 @@ export async function WeddingInfo({ eventId }: { eventId: string }) {
           <div className="flex items-start gap-3">
             <HeartIcon className="h-5 w-5 text-[hsl(var(--lp-accent))] mt-0.5" />
             <div>
-              <h3 className="font-medium">{getTranslation('guest.weddingInfo.messageForGuests', language)}</h3>
+              <h3 className="font-medium">{getTranslation('guest.weddingInfo.messageForGuests', currentLanguage)}</h3>
               <p className="text-sm text-muted-foreground whitespace-pre-line">
                 {event.guestMessage}
               </p>

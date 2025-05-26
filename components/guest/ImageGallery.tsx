@@ -1,10 +1,11 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import ImageWithSpinner from "@/components/shared/ImageWithSpinner"
+import { useTranslation } from "react-i18next"
 
 interface Image {
   id: string
@@ -17,10 +18,19 @@ interface ImageGalleryProps {
   guestId?: string; // Dodaj guestId za DELETE
   readOnly?: boolean;
   onImagesChange?: (images: Image[]) => void; // Callback za obavještavanje o promjeni broja slika
+  language?: string; // Dodajemo prop za jezik
 }
 
 
-export function ImageGallery({ images: initialImages, guestId, readOnly = false, onImagesChange }: ImageGalleryProps) {
+export function ImageGallery({ images: initialImages, guestId, readOnly = false, onImagesChange, language = 'sr' }: ImageGalleryProps) {
+  const { t, i18n } = useTranslation();
+  
+  // Postavi jezik ako je različit od trenutnog
+  useEffect(() => {
+    if (language && i18n.language !== language) {
+      i18n.changeLanguage(language);
+    }
+  }, [language, i18n]);
   const [images, setImages] = useState<Image[]>(initialImages);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -105,7 +115,7 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
   if (images.length === 0) {
     return (
       <div className="text-center py-6 text-muted-foreground">
-        Nema uploadovanih slika
+        {t('guest.imageGallery.noImages', 'Nema uploadovanih slika')}
       </div>
     )
   }
@@ -123,7 +133,7 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
                 className="absolute top-2 right-2 z-20 bg-white/90 border border-[hsl(var(--lp-accent))] shadow-md rounded-full p-1 hover:bg-[hsl(var(--lp-accent))]/20 hover:scale-110 transition-all duration-150"
                 onClick={e => { e.stopPropagation(); handleDelete(image.id); }}
                 disabled={deletingId === image.id}
-                aria-label="Obriši sliku"
+                aria-label={t('guest.imageGallery.deleteImage', 'Obriši sliku')}
               >
                 {deletingId === image.id ? (
                   <svg className="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
@@ -142,13 +152,13 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
                   width={400}
                   height={400}
                   crop="fill"
-                  alt="Slika gosta"
+                  alt={t('guest.imageGallery.guestImage', 'Slika gosta')}
                   className="p-2"
                   rounded={true}
                 />
               ) : (
                 <div className="flex items-center justify-center w-full h-full bg-[hsl(var(--lp-destructive))]/10 text-[hsl(var(--lp-destructive))] text-center text-sm p-4">
-                  Greška: Slika nije dostupna ili nije validan URL
+                  {t('guest.imageGallery.imageError', 'Greška: Slika nije dostupna ili nije validan URL')}
                 </div>
               )}
             </div>
@@ -181,7 +191,7 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
           />
         ) : (
           <div className="flex items-center justify-center w-full h-full bg-[hsl(var(--lp-destructive))]/10 text-[hsl(var(--lp-destructive))] text-center text-sm p-4">
-            Greška: Slika nije dostupna ili nije validan URL
+            {t('guest.imageGallery.imageError', 'Greška: Slika nije dostupna ili nije validan URL')}
           </div>
         )}
         <Button

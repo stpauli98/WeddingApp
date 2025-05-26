@@ -87,6 +87,37 @@
       "date": "Date",
       "messageForGuests": "Message for guests"
     },
+    "imageUpload": {
+      "dropHere": "Drop images here...",
+      "maxReached": "Maximum number of images reached",
+      "dragOrClick": "Drag images here or click to select",
+      "errors": {
+        "heicNotSupported": "HEIC/HEIF images are not supported. Please convert the image to JPG or PNG format.",
+        "unsupportedFormat": "Unsupported image format: {format}",
+        "fileTooLarge": "Image {fileName} is larger than {maxSize}MB. Please reduce the resolution or size of the image."
+      }
+    },
+    "uploadForm": {
+      "addImages": "Add images",
+      "imagesMax10": "Images (max 10)",
+      "a11yInstructions": "First select images, then click the Confirm upload button. All actions are accessible via keyboard. Upload status will be automatically announced.",
+      "messageOptional": "Message (optional)",
+      "messagePlaceholder": "Write a message or congratulations to the couple...",
+      "maxChars": "Maximum 500 characters",
+      "a11ySubmitButton": "Send images and message to the couple",
+      "sending": "Sending...",
+      "confirmUpload": "Confirm upload"
+    },
+    "imageGallery": {
+      "noImages": "No uploaded images",
+      "deleteImage": "Delete image",
+      "guestImage": "Guest image",
+      "imageError": "Error: Image is not available or URL is invalid"
+    },
+    "uploadLimit": {
+      "maxReached": "You have reached the maximum number of images",
+      "thankYou": "Thank you for your contribution!"
+    },
     "login": {
       "title": "Welcome to the wedding",
       "firstName": "First Name",

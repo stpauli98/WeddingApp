@@ -1,16 +1,25 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface UploadLimitReachedCelebrationProps {
   imagesCount?: number; // Opcioni prop za broj slika
+  language?: string; // Prop za jezik
 }
-
 /**
  * Animacija šljokica (confetti) + lepa poruka za limitiran broj slika.
  * Nema eksternih zavisnosti, koristi samo CSS i canvas.
  */
-export function UploadLimitReachedCelebration({ imagesCount = 10 }: UploadLimitReachedCelebrationProps = {}) {
+export function UploadLimitReachedCelebration({ imagesCount = 10, language = 'sr' }: UploadLimitReachedCelebrationProps = {}) {
+  const { t, i18n } = useTranslation();
+  
+  // Postavi jezik ako je različit od trenutnog
+  useEffect(() => {
+    if (language && i18n.language !== language) {
+      i18n.changeLanguage(language);
+    }
+  }, [language, i18n]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasWidth, setCanvasWidth] = useState(1200);
   const [canvasHeight] = useState(200);
@@ -89,8 +98,12 @@ export function UploadLimitReachedCelebration({ imagesCount = 10 }: UploadLimitR
         aria-hidden
       />
       <div className="relative z-10 bg-white/90 border-2 border-[hsl(var(--lp-accent))] rounded-xl shadow-lg px-6 py-6 flex flex-col items-center">
-        <span className="text-lg text-[hsl(var(--lp-foreground))] text-center mb-2">Dostigli ste maksimalan broj slika ({imagesCount}/10).</span>
-        <span className="text-base text-[hsl(var(--lp-muted-foreground))] text-center">Hvala na vašem doprinosu!</span>
+        <span className="text-lg text-[hsl(var(--lp-foreground))] text-center mb-2">
+          {t('guest.uploadLimit.maxReached', 'Dostigli ste maksimalan broj slika')} ({imagesCount}/10).
+        </span>
+        <span className="text-base text-[hsl(var(--lp-muted-foreground))] text-center">
+          {t('guest.uploadLimit.thankYou', 'Hvala na vašem doprinosu!')}
+        </span>
       </div>
     </div>
   );

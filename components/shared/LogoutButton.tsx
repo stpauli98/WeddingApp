@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 
 interface LogoutButtonProps {
-  label: string
+  label?: string
+  language?: string
 }
 
-export function LogoutButton() {
+export function LogoutButton({ language = 'sr' }: LogoutButtonProps = {}) {
   const router = useRouter();
 
   const handleLogout = () => {
@@ -16,9 +17,15 @@ export function LogoutButton() {
    router.replace("/")
   };
 
+  // Prijevodi za gumb za odjavu
+  const translations = {
+    sr: "Odjavi se",
+    en: "Log out"
+  };
+
   return (
     <Button className="w-full" onClick={handleLogout}>
-      Odjavi se
+      {translations[language as keyof typeof translations] || translations.sr}
     </Button>
   );
 } 

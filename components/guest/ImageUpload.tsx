@@ -6,6 +6,7 @@ import { X, Upload, ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { removeExif } from "@/utils/removeExif"
+import { useTranslation } from "react-i18next"
 
 interface ImageUploadProps {
   value: File[];
@@ -17,23 +18,60 @@ interface ImageUploadProps {
 const DEFAULT_MAX_SIZE_MB = 10;
 const DEFAULT_ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
-function validateImage(file: File, allowedTypes: string[], maxSize: number): string | null {
+// Definiramo fallback poruke za greške
+const errorFallbacks = {
+  heicNotSupported: "HEIC/HEIF slike nisu podržane. Molimo vas da konvertujete sliku u JPG ili PNG format.",
+  unsupportedFormat: "Nepodržan format slike: {format}",
+  fileTooLarge: "Slika {fileName} je veća od {maxSize}MB. Molimo vas da smanjite rezoluciju ili veličinu slike."
+};
+
+function validateImage(file: File, allowedTypes: string[], maxSize: number, t: any, getTranslation?: (key: string, fallback: string) => string): string | null {
   if (
     file.type === "image/heic" || file.type === "image/heif" ||
     file.name.toLowerCase().endsWith(".heic") || file.name.toLowerCase().endsWith(".heif")
   ) {
-    return "HEIC/HEIF slike nisu podržane. Molimo vas da konvertujete sliku u JPG ili PNG format.";
+    return getTranslation ? 
+      getTranslation('guest.imageUpload.errors.heicNotSupported', errorFallbacks.heicNotSupported) : 
+      t('guest.imageUpload.errors.heicNotSupported');
   }
   if (!allowedTypes.includes(file.type)) {
-    return `Nepodržan format slike: ${file.type || file.name}`;
+    const message = getTranslation ? 
+      getTranslation('guest.imageUpload.errors.unsupportedFormat', errorFallbacks.unsupportedFormat) : 
+      t('guest.imageUpload.errors.unsupportedFormat', { format: file.type || file.name });
+    
+    // Zamjena parametara
+    return message.replace('{format}', file.type || file.name);
   }
   if (file.size > maxSize) {
-    return `Slika ${file.name} je veća od ${maxSize / 1024 / 1024}MB. Molimo vas da smanjite rezoluciju ili veličinu slike.`;
+    const maxSizeMB = maxSize / 1024 / 1024;
+    const message = getTranslation ? 
+      getTranslation('guest.imageUpload.errors.fileTooLarge', errorFallbacks.fileTooLarge) : 
+      t('guest.imageUpload.errors.fileTooLarge', { fileName: file.name, maxSize: maxSizeMB });
+    
+    // Zamjena parametara
+    return message.replace('{fileName}', file.name).replace('{maxSize}', maxSizeMB.toString());
   }
   return null;
 }
 
 export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, allowedTypes = DEFAULT_ALLOWED_TYPES, maxSizeMB = DEFAULT_MAX_SIZE_MB }: ImageUploadProps & { allowedTypes?: string[], maxSizeMB?: number }) {
+  const { t, ready } = useTranslation();
+  
+  // Fallback tekstovi u slučaju da prijevodi nisu dostupni
+  const fallbackTexts = {
+    dropHere: "Pustite slike ovde...",
+    maxReached: "Dostigli ste maksimalan broj slika",
+    dragOrClick: "Prevucite slike ovde ili kliknite za odabir"
+  };
+  
+  // Funkcija za dohvaćanje prijevoda s fallback vrijednostima
+  const getTranslation = (key: string, fallback: string) => {
+    if (!ready) return fallback;
+    const translation = t(key);
+    // Ako je prijevod isti kao ključ, to znači da prijevod nije pronađen
+    return translation === key ? fallback : translation;
+  };
+  
   const [previews, setPreviews] = useState<string[]>([])
 
   // Funkcija za kreiranje pregleda slika - memoizirana s useCallback
@@ -76,7 +114,7 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
       const errors: string[] = [];
       const filteredFiles: File[] = [];
       for (const file of acceptedFiles) {
-        const error = validateImage(file, types, maxSize);
+        const error = validateImage(file, types, maxSize, t, getTranslation);
         if (error) {
           errors.push(error);
           continue;
@@ -92,7 +130,7 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
       onChange(newFiles);
       createPreviews(newFiles);
     },
-    [allowedTypes, maxFiles, maxSizeMB, onChange, value, createPreviews]
+    [allowedTypes, maxFiles, maxSizeMB, onChange, value, createPreviews, t, getTranslation]
   );
 
 
@@ -132,10 +170,10 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
         <Upload className="mx-auto h-10 w-10 text-[hsl(var(--lp-muted-foreground))]" />
         <p className="mt-2 text-sm text-[hsl(var(--lp-muted-foreground))]">
           {isDragActive
-            ? "Pustite slike ovde..."
+            ? getTranslation('guest.imageUpload.dropHere', fallbackTexts.dropHere)
             : value.length >= maxFiles
-              ? "Dostigli ste maksimalan broj slika"
-              : "Prevucite slike ovde ili kliknite za odabir"}
+              ? getTranslation('guest.imageUpload.maxReached', fallbackTexts.maxReached)
+              : getTranslation('guest.imageUpload.dragOrClick', fallbackTexts.dragOrClick)}
         </p>
       </div>
 

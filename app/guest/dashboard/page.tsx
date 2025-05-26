@@ -1,9 +1,10 @@
 import { WeddingInfo } from "@/components/guest/WeddingInfo"
 import { LogoutButton } from "@/components/shared/LogoutButton"
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { DashboardClient } from "@/components/guest/DashboardClient"
+import { changeLanguage } from "@/lib/i18n/i18n"
 
 // Lokalni tip Image ako nije globalno dostupan
 // Tip za slike koji je kompatibilan sa ImageGallery komponentom
@@ -22,6 +23,32 @@ export default async function DashboardPage(props: any) {
   // Dohvati guestId iz session cookie-ja
   const cookieStore = await cookies();
   const guestId = cookieStore.get("guest_session")?.value || "";
+  
+  // Dohvati jezik iz kolačića
+  const languageCookie = cookieStore.get("i18nextLng");
+  const cookieLanguage = languageCookie?.value || "sr";
+  
+  // Dohvati trenutni URL iz headers-a
+  let urlLanguage = null;
+  
+  try {
+    // U Next.js 15, headers() vraća Promise
+    const headersList = await headers();
+    const referer = headersList.get('referer') || headersList.get('x-url') || '';
+    
+    if (referer) {
+      const url = new URL(referer);
+      const pathSegments = url.pathname.split('/');
+      if (pathSegments.length > 1 && ['sr', 'en'].includes(pathSegments[1])) {
+        urlLanguage = pathSegments[1];
+      }
+    }
+  } catch (error) {
+    console.error('Greška pri parsiranju URL-a:', error);
+  }
+  
+  // Koristi jezik iz URL-a ako postoji, inače koristi jezik iz kolačića
+  const language = urlLanguage || cookieLanguage;
   
   // Ako nema guestId, preusmjeri na login
   if (!guestId) {
@@ -93,7 +120,7 @@ export default async function DashboardPage(props: any) {
 
   return (
       <div className="container max-w-md mx-auto px-4 py-8">
-        <WeddingInfo eventId={eventId} />
+        <WeddingInfo eventId={eventId} language={urlLanguage || language} />
       
       {/* Koristimo DashboardClient komponentu koja će upravljati brojem slika i osigurati da se sve komponente ažuriraju kada se broj slika promijeni */}
         <DashboardClient 
@@ -104,9 +131,10 @@ export default async function DashboardPage(props: any) {
           }))} 
           guestId={guestId}
           message={guest.message?.text ?? ""}
+          language={urlLanguage || language}
         />
         <div className="mt-8">
-          <LogoutButton />
+          <LogoutButton language={urlLanguage || language} />
         </div>
       </div>
     )

@@ -1,9 +1,10 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { UploadForm } from '@/components/guest/Upload-Form'
 import { UploadLimitReachedCelebration } from '@/components/guest/UploadLimitReachedCelebration'
 import { ImageGallery } from '@/components/guest/ImageGallery'
+import { useTranslation } from 'react-i18next'
 
 interface Image {
   id: string
@@ -15,12 +16,20 @@ interface DashboardClientProps {
   initialImages: Image[]
   guestId: string
   message?: string
+  language?: string
 }
 
-import { useEffect } from "react";
 import AddToHomeScreenPrompt from "@/components/AddToHomeScreenPrompt";
 
-export function DashboardClient({ initialImages, guestId, message }: DashboardClientProps) {
+export function DashboardClient({ initialImages, guestId, message, language = 'sr' }: DashboardClientProps) {
+  const { t, i18n } = useTranslation();
+  
+  // Postavi jezik ako je različit od trenutnog
+  useEffect(() => {
+    if (language && i18n.language !== language) {
+      i18n.changeLanguage(language);
+    }
+  }, [language, i18n]);
   // Lokalno stanje za praćenje slika koje se može ažurirati nakon brisanja
   const [images, setImages] = useState<Image[]>(initialImages)
 
@@ -45,14 +54,16 @@ export function DashboardClient({ initialImages, guestId, message }: DashboardCl
           {images.length >= 10 ? (
             // Ako korisnik ima 10 ili više slika, prikazujemo UploadLimitReachedCelebration
             <UploadLimitReachedCelebration 
-              imagesCount={images.length} 
+              imagesCount={images.length}
+              language={language}
             />
           ) : (
             // Inače prikazujemo UploadForm sa brojem postojećih slika
             <UploadForm 
               guestId={guestId} 
               message={message} 
-              existingImagesCount={images.length} 
+              existingImagesCount={images.length}
+              language={language}
             />
           )}
         </div>
@@ -62,6 +73,7 @@ export function DashboardClient({ initialImages, guestId, message }: DashboardCl
         images={images} 
         guestId={guestId}
         onImagesChange={handleImagesChange}
+        language={language}
       />
     </>
   )
