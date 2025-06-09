@@ -24,16 +24,10 @@ function getLanguageFromPathSegments(path: string): string {
   return 'sr';
 }
 
-export default async function AdminDashboardEventPage({ params, searchParams }: { 
-  params: Promise<{ eventId: string }>,
-  searchParams?: { [key: string]: string | string[] | undefined }
+export default async function AdminDashboardEventPage({ params }: { 
+  params: Promise<{ eventId: string }>
 }) {
   const { eventId } = await params;
-  
-  // Dohvaćamo segment iz URL-a za detekciju jezika
-  // U Next.js 14 App Routeru, možemo koristiti segment iz URL-a
-  const pathname = searchParams?._pathname as string || '';
-  const urlLanguage = getLanguageFromPathSegments(pathname);
   
 
   // 1. Provera autentifikacije admina
