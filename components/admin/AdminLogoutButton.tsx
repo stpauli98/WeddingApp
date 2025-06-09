@@ -37,8 +37,14 @@ export default function AdminLogoutButton({ language }: AdminLogoutButtonProps =
   };
 
   // Detekcija jezika iz URL-a ako nije eksplicitno proslijeđen
-  const detectedLanguage = typeof window !== 'undefined' ? getCurrentLanguageFromPath() : 'sr';
-  const currentLanguage = language || detectedLanguage;
+  // Direktno koristimo window.location.pathname za detekciju jezika
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+  const segments = pathname.split('/');
+  const urlLanguage = segments.length > 1 && (segments[1] === 'en' || segments[1] === 'sr') ? segments[1] : 'sr';
+  
+  // Prioritet: 1. URL jezik, 2. Event jezik
+  // Ovo osigurava da će jezik iz URL-a uvijek imati prednost
+  const currentLanguage = urlLanguage || language || 'sr';
   
   // Prijevodi za gumb za odjavu
   const translations = {

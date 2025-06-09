@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { getCurrentLanguageFromPath } from "@/lib/utils/language";
 
 interface AdminDashboardWelcomeProps {
   eventLanguage?: string;
@@ -12,10 +11,14 @@ export default function AdminDashboardWelcome({ eventLanguage }: AdminDashboardW
   const { t } = useTranslation();
   
   // Detektiramo jezik iz URL-a ako nije proslijeđen
-  const urlLanguage = getCurrentLanguageFromPath();
+  // Direktno koristimo window.location.pathname za detekciju jezika
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+  const segments = pathname.split('/');
+  const urlLanguage = segments.length > 1 && (segments[1] === 'en' || segments[1] === 'sr') ? segments[1] : 'sr';
   
-  // Koristimo jezik eventa ako je proslijeđen, inače koristimo jezik iz URL-a
-  const language = eventLanguage || urlLanguage;
+  // Prioritet: 1. URL jezik, 2. Event jezik
+  // Ovo osigurava da će jezik iz URL-a uvijek imati prednost
+  const language = urlLanguage || eventLanguage || 'sr';
   
   // Prijevodi za poruku dobrodošlice
   const welcomeMessages = {
