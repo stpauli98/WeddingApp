@@ -4,6 +4,8 @@ import { MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { saveScrollPosition } from "@/lib/scrollPosition";
+import { useTranslation } from "react-i18next";
+import { getCurrentLanguageFromPath } from "@/lib/utils/language";
 
 interface Guest {
   id: string;
@@ -43,6 +45,7 @@ function adaptGuest(guest: GuestCardProps["guest"]): Guest {
 }
 
 const GuestCard: React.FC<GuestCardProps> = ({ guest, onViewPhotos }) => {
+  const { t } = useTranslation();
   const adaptedGuest = adaptGuest(guest);
   
   const handleViewPhotos = () => {
@@ -53,7 +56,11 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest, onViewPhotos }) => {
       onViewPhotos(guest.id);
     } else {
       // Fallback na stari način navigacije ako nije proslijeđen onViewPhotos
-      window.location.href = `/admin/dashboard/guest/${guest.id}`;
+      // Koristi utility funkciju za detekciju jezika iz URL-a
+      const lang = getCurrentLanguageFromPath();
+      
+      // Konstruiši URL s jezičkim prefiksom
+      window.location.href = `/${lang}/admin/dashboard/guest/${guest.id}`;
     }
   };
 
@@ -87,7 +94,7 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest, onViewPhotos }) => {
             {adaptedGuest.message ? (
               <p className="text-[hsl(var(--lp-text))] line-clamp-3">{adaptedGuest.message}</p>
             ) : (
-              <p className="text-[hsl(var(--lp-muted-foreground))] italic line-clamp-3">Gost nije ostavio poruku</p>
+              <p className="text-[hsl(var(--lp-muted-foreground))] italic line-clamp-3">{t('admin.dashboard.guestList.noMessageLeft')}</p>
             )}
           </div>
         </div>
@@ -99,11 +106,11 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest, onViewPhotos }) => {
             className="w-full bg-[hsl(var(--lp-primary))] hover:bg-[hsl(var(--lp-primary-hover))] text-[hsl(var(--lp-primary-foreground))]"
             onClick={handleViewPhotos}
           >
-            Pregledaj sve slike ({guest.images.length})
+            {t('admin.dashboard.guestList.viewAllPhotos')} ({guest.images.length})
           </Button>
 
           {/* Upload Date */}
-          <p className="mt-2 text-sm text-[hsl(var(--lp-muted-foreground))] text-center">Prijavljeno: {adaptedGuest.uploadDate}</p>
+          <p className="mt-2 text-sm text-[hsl(var(--lp-muted-foreground))] text-center">{t('admin.dashboard.guestList.registeredOn')}: {adaptedGuest.uploadDate}</p>
         </div>
       </div>
     </Card>

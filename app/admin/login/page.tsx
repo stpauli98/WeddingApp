@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
 import I18nProvider from "@/components/I18nProvider";
 import LanguageSelector from "@/components/LanguageSelector";
+import { getCurrentLanguageFromPath } from "@/lib/utils/language";
 
 export default function AdminLoginPage() {
   // Svi React Hooks moraju biti pozvani na vrhu komponente
@@ -61,8 +62,8 @@ export default function AdminLoginPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        // Dohvati trenutni jezik iz i18n
-        const currentLang = localStorage.getItem('i18nextLng') || 'sr';
+        // Dohvati trenutni jezik iz URL-a koristeći utility funkciju
+        const currentLang = getCurrentLanguageFromPath();
         // Preusmjeri na dashboard s jezičkim prefiksom
         router.push(`/${currentLang}/admin/dashboard`);
       } else {
@@ -177,7 +178,7 @@ export default function AdminLoginPage() {
             <div className="text-center text-sm">
               {t('admin.login.dontHaveAccount')}{" "}
               <Link 
-                href={mounted ? `/${localStorage.getItem('i18nextLng') || 'sr'}/admin/register` : "/admin/register"} 
+                href={mounted ? `/${getCurrentLanguageFromPath()}/admin/register` : "/admin/register"} 
                 className="font-medium text-[hsl(var(--lp-accent))] hover:underline"
               >
                 {t('admin.login.register')}
@@ -191,8 +192,8 @@ export default function AdminLoginPage() {
             variant="outline"
             type="button"
             onClick={() => {
-              // Dohvati trenutni jezik iz i18n
-              const currentLang = localStorage.getItem('i18nextLng') || 'sr';
+              // Dohvati trenutni jezik iz URL-a koristeći utility funkciju
+              const currentLang = getCurrentLanguageFromPath();
               router.push(`/${currentLang}`);
             }}
           >

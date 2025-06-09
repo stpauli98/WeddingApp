@@ -284,6 +284,42 @@
         "sessionExpired": "Session expired or security token error. Please try again.",
         "networkError": "A network error occurred."
       }
+    },
+    "dashboard": {
+      "tabs": {
+        "guests": "Guests",
+        "analytics": "Analytics",
+        "gallery": "Gallery",
+        "messages": "Messages",
+        "download": "Download",
+        "help": "Help"
+      },
+      "qr": {
+        "chooseColor": "Choose QR code color:",
+        "colorPickerLabel": "QR code color selection",
+        "downloadButton": "Download QR code",
+        "linkTitle": "Link for guests",
+        "copyButton": "Copy",
+        "copiedMessage": "Copied!",
+        "instructionTitle": "How to share with guests",
+        "instruction1": "Share this link or QR code with your guests",
+        "instruction2": "Guests will be able to upload photos and leave messages",
+        "instruction3": "You'll see all photos and messages here in your dashboard",
+        "scanQR": "Scan the QR code for direct access to the guest page."
+      },
+      "guestList": {
+        "guestsWithPhotos": "Guests with photos",
+        "guestsWithoutPhotos": "Guests without photos",
+        "viewAllPhotos": "View all photos",
+        "registeredOn": "Registered on",
+        "noMessageLeft": "Guest didn't leave a message"
+      },
+      "noGuests": "No registered guests.",
+      "noGuestsDescription": "When guests register for this event, their profiles and images will appear here.",
+      "welcome": {
+        "enjoyPhotos": "enjoy your photos",
+        "welcomeMessage": "Welcome to your dashboard"
+      }
     }
   }
 }

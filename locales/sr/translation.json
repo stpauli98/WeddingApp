@@ -283,6 +283,42 @@
           "sessionExpired": "Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.",
           "networkError": "Došlo je do greške na mreži."
         }
+      },
+      "dashboard": {
+        "tabs": {
+          "guests": "Gosti",
+          "analytics": "Analitika",
+          "gallery": "Galerija",
+          "messages": "Poruke",
+          "download": "Preuzimanje",
+          "help": "Pomoć"
+        },
+        "qr": {
+          "chooseColor": "Izaberi boju QR koda:",
+          "colorPickerLabel": "Izbor boje QR koda",
+          "downloadButton": "Preuzmi QR kod",
+          "linkTitle": "Link za goste",
+          "copyButton": "Kopiraj",
+          "copiedMessage": "Kopirano!",
+          "instructionTitle": "Kako podijeliti sa gostima",
+          "instruction1": "Podijelite ovaj link ili QR kod sa vašim gostima",
+          "instruction2": "Gosti će moći uploadovati slike i ostaviti poruke",
+          "instruction3": "Sve slike i poruke ćete vidjeti ovdje na vašem dashboardu",
+          "scanQR": "Skenirajte QR kod za direktan pristup stranici za goste."
+        },
+        "guestList": {
+          "guestsWithPhotos": "Gosti sa slikama",
+          "guestsWithoutPhotos": "Gosti bez slika",
+          "viewAllPhotos": "Pregledaj sve slike",
+          "registeredOn": "Prijavljeno",
+          "noMessageLeft": "Gost nije ostavio poruku"
+        },
+        "noGuests": "Nema prijavljenih gostiju.",
+        "noGuestsDescription": "Kada se gosti registruju za ovaj event, ovdje će se pojaviti njihovi profili i slike.",
+        "welcome": {
+          "enjoyPhotos": "uživajte u vašim sličicama",
+          "welcomeMessage": "Dobrodošli na vaš dashboard"
+        }
       }
     }
   }

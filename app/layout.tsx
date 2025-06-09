@@ -23,6 +23,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // U Next.js App Routeru, jezik se automatski postavlja na osnovu strukture direktorija
+  // Ovdje ne možemo direktno pristupiti URL-u jer je ovo server komponenta
+  // Jezik će se postaviti na klijentskoj strani u I18nProvider komponenti
+
   return (
     <html lang="sr" dir="ltr" className="light" style={{ colorScheme: "light" }}>
       <head>

@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { useTranslation } from "react-i18next"
+import { getCurrentLanguageFromPath } from "@/lib/utils/language"
 
 // Definisanje šeme za validaciju forme - biće ažurirano s prijevodima
 const createFormSchema = (t: any) => z.object({
@@ -103,8 +104,11 @@ export function LoginForm() {
         description: t("guest.login.success.description"),
       })
       
-      // Direktno preusmeri na dashboard sa eventSlug parametrom
-      window.location.href = `/guest/dashboard?event=${eventSlug}`
+      // Dohvati trenutni jezik iz URL-a koristeći utility funkciju
+      const currentLang = getCurrentLanguageFromPath();
+      
+      // Direktno preusmeri na dashboard sa eventSlug parametrom i jezičnim prefiksom
+      window.location.href = `/${currentLang}/guest/dashboard?event=${eventSlug}`
     } catch (error) {
       console.error("Login error:", error)
       toast({

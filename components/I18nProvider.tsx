@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/lib/i18n/i18n';
+import { getCurrentLanguageFromPath } from '@/lib/utils/language';
 
 interface I18nProviderProps {
   children: ReactNode;
@@ -28,6 +29,16 @@ export default function I18nProvider({ children }: I18nProviderProps) {
           console.error('Greška pri inicijalizaciji i18n:', error);
         }
       }
+
+      // Detektiraj jezik iz URL-a koristeći utility funkciju
+      if (typeof window !== 'undefined') {
+        const langFromPath = getCurrentLanguageFromPath();
+        if (i18n.language !== langFromPath) {
+          console.log(`Postavljanje jezika iz URL-a: ${langFromPath}`);
+          i18n.changeLanguage(langFromPath);
+        }
+      }
+
       setIsReady(true);
     };
 

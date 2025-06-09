@@ -76,7 +76,14 @@ export function UploadStatusList({
                   <p className="text-sm font-medium truncate">{status.file.name}</p>
                   
                   {/* Progress bar */}
-                  <div className="w-full h-1.5 bg-[hsl(var(--lp-muted))]/30 rounded-full mt-1 overflow-hidden">
+                  <div 
+                    className="w-full h-1.5 bg-[hsl(var(--lp-muted))]/30 rounded-full mt-1 overflow-hidden"
+                    role="progressbar"
+                    aria-valuenow={status.progress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={t('guest.uploadStatus.progressLabel', `Upload progress for ${status.file.name}: ${status.progress}%`)}
+                  >
                     <div 
                       className={`h-full rounded-full ${
                         status.status === 'error' 
@@ -86,11 +93,10 @@ export function UploadStatusList({
                             : 'bg-[hsl(var(--lp-primary))]'
                       }`}
                       style={{ width: `${status.progress}%` }}
-                    />
+                    />  
                   </div>
-                  
                   {/* Status tekst */}
-                  <div className="flex items-center justify-between mt-1">
+                  <div id={`upload-status-${status.id}`} className="flex items-center justify-between mt-1">
                     <p className="text-xs text-[hsl(var(--lp-muted-foreground))]">
                       {status.status === 'waiting' && t('guest.uploadStatus.waiting', 'Čeka na upload...')}
                       {status.status === 'uploading' && t('guest.uploadStatus.uploading', 'Slanje u toku...')}
@@ -123,6 +129,8 @@ export function UploadStatusList({
                           onRetryUpload(status.id);
                         }}
                         disabled={isLoading}
+                       aria-label={t('guest.uploadStatus.retryAriaLabel', `Retry upload for ${status.file.name}`)}
+                       title={t('guest.uploadStatus.retryTitle', 'Click to retry this upload')}
                       >
                         {t('guest.uploadStatus.retry', 'Pokušaj ponovo')}
                       </Button>

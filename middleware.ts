@@ -7,7 +7,6 @@ const defaultLanguage = 'sr';
 
 // Putanje koje ne zahtijevaju jezični prefiks
 const exemptPaths = [
-  '/',                // Root stranica
   '/api',             // API rute
   '/_next',           // Next.js interne rute
   '/favicon.ico',     // Favicon
@@ -116,13 +115,20 @@ export async function middleware(request: NextRequest) {
       return response;
     }
     
+    // Provjera sessiona i protected ruta
+    const isProtected = path.includes('/dashboard') || path.includes('/success');
+    if (isProtected && !request.cookies.has('guest_session')) {
+      const redirect = `/${language}`;
+      return NextResponse.redirect(new URL(redirect, request.url));
+    }
+
     // Za ostale rute s jezičnim prefiksom, samo postavi kolačić i nastavi
-    const response = NextResponse.next();
-    response.cookies.set('i18nextLng', language as string, { 
+    const nextResponse = NextResponse.next();
+    nextResponse.cookies.set('i18nextLng', language as string, { 
       maxAge: 60 * 60 * 24 * 365, // 1 godina
       path: '/' 
     });
-    return response;
+    return nextResponse;
   }
   
   // Zaštićene rute - provjera sesije

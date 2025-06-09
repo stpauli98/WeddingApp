@@ -27,7 +27,8 @@ if (!i18n.isInitialized) {
         }
       },
       detection: {
-        order: ['cookie', 'localStorage', 'navigator'],
+        order: ['path', 'cookie', 'localStorage', 'navigator'],
+        lookupFromPathIndex: 0,
         lookupCookie: 'i18nextLng',
         caches: ['cookie', 'localStorage']
       },
