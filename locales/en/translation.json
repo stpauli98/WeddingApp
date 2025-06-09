@@ -294,6 +294,36 @@
         "download": "Download",
         "help": "Help"
       },
+      "help": {
+        "title": "Your Wedding Album",
+        "subtitle": "Manage memories from your special day",
+        "gallery": {
+          "title": "Memory Gallery",
+          "description": "Browse all photos shared by your guests. Each image is a precious memory from your special day.",
+          "feature": "You can download and save all images forever"
+        },
+        "messages": {
+          "title": "Congratulations and Messages",
+          "description": "Read warm wishes and congratulations from your loved ones. Each message is unique and reflects the love they send you.",
+          "feature": "Create a book of congratulations in PDF format"
+        },
+        "qrCode": {
+          "title": "QR Code for Guests",
+          "description": "Share the QR code with your guests so they can easily access the application and share their photos.",
+          "feature": "Print QR codes for tables at your wedding"
+        },
+        "link": {
+          "title": "Your Unique Link",
+          "description": "Copy and share your personalized link via social media or messages with your guests.",
+          "feature": "www.dodajuspomenu.com/your-event"
+        },
+        "contact": {
+          "title": "Need Help?",
+          "description": "We're here for you at any time. If you have questions or need support, feel free to contact us.",
+          "contactButton": "Contact Us"
+        },
+        "security": "Your memories are safe and private"
+      },
       "qr": {
         "chooseColor": "Choose QR code color:",
         "colorPickerLabel": "QR code color selection",

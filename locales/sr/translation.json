@@ -293,6 +293,36 @@
           "download": "Preuzimanje",
           "help": "Pomoć"
         },
+        "help": {
+          "title": "Vaš vjenčani album",
+          "subtitle": "Upravljajte uspomenama s vašeg posebnog dana",
+          "gallery": {
+            "title": "Galerija uspomena",
+            "description": "Pregledajte sve fotografije koje su vaši gosti podijelili. Svaka slika je dragocjena uspomena s vašeg posebnog dana.",
+            "feature": "Sve slike možete preuzeti i sačuvati zauvijek"
+          },
+          "messages": {
+            "title": "Čestitke i poruke",
+            "description": "Čitajte tople želje i čestitke vaših najmilijih. Svaka poruka je jedinstvena i odražava ljubav koju vam šalju.",
+            "feature": "Kreirajte knjigu čestitki u PDF formatu"
+          },
+          "qrCode": {
+            "title": "QR kod za goste",
+            "description": "Podijelite QR kod s vašim gostima kako bi lako pristupili aplikaciji i podijelili svoje fotografije.",
+            "feature": "Isprintajte QR kod za stolove na vjenčanju"
+          },
+          "link": {
+            "title": "Vaša jedinstvena poveznica",
+            "description": "Kopirajte i podijelite vašu personaliziranu poveznicu putem društvenih mreža ili poruka s vašim gostima.",
+            "feature": "www.dodajuspomenu.com/vas-event"
+          },
+          "contact": {
+            "title": "Trebate pomoć?",
+            "description": "Tu smo za vas u svakom trenutku. Ako imate pitanja ili trebate podršku, slobodno nas kontaktirajte.",
+            "contactButton": "Kontaktirajte nas"
+          },
+          "security": "Vaše uspomene su sigurne i privatne"
+        },
         "qr": {
           "chooseColor": "Izaberi boju QR koda:",
           "colorPickerLabel": "Izbor boje QR koda",
