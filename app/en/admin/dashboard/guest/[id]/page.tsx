@@ -29,7 +29,7 @@ function GuestDetailPageContent({ id }: { id: string }) {
     }
   }, [i18n]);
 
-  // Funkcija za fetch podataka (koristi se i za refresh)
+  // Funkcija za fetch podataka (koristi se i za refresh)d
   const fetchGuest = (force = false) => {
     // Ako nije force refresh, proveri keš
     if (!force) {
