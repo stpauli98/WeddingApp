@@ -248,9 +248,15 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
 
     {/* Modal za QR predloške */}
     <Dialog open={isTemplateModalOpen} onOpenChange={setIsTemplateModalOpen}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto sm:max-h-[80vh] p-4 sm:p-6">
+      <DialogContent 
+        className="max-w-4xl max-h-[90vh] overflow-y-auto sm:max-h-[80vh] p-4 sm:p-6"
+        aria-describedby="qr-template-description"
+      >
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl font-semibold">{t('admin.dashboard.qr.templateTitle')}</DialogTitle>
+          <p id="qr-template-description" className="text-sm text-muted-foreground mt-1">
+            {t('admin.dashboard.qr.templateDescription')}
+          </p>
         </DialogHeader>
         <div className="mt-2 sm:mt-4 overflow-y-auto">
           <QrTemplateSelector 

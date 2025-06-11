@@ -349,6 +349,7 @@
         "generatedResult": "Generated result display",
         "hiddenCanvas": "Canvas for image generation (hidden)",
         "templateTitle": "QR Code Templates",
+        "templateDescription": "Choose a template for your QR code and customize the color to your liking.",
         "basicQr": "Basic QR Code",
         "templateQr": "QR Code Templates",
         "download": "Download",

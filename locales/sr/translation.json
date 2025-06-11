@@ -350,6 +350,7 @@
           "generatedResult": "Prikaz generisanog rezultata",
           "hiddenCanvas": "Platno za generisanje slike (skriveno)",
           "templateTitle": "Predlošci za QR kod",
+          "templateDescription": "Odaberite predložak za vaš QR kod i prilagodite boju prema vašim željama.",
           "selectColor": "Odaberi boju",
           "customColor": "Prilagođena boja",
           "colorPalette": "Paleta boja",
