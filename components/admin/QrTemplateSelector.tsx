@@ -187,12 +187,12 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({ qrValue, qrColo
     };
     
     loadTemplateImage();
-  }, [templatePath]);
+  }, [templatePath, generateQrOnTemplate]);
 
   // Trigger regeneracije kada promijenimo predložak ili boju QR-a
   useEffect(() => {
     if (templateImageRef.current) generateQrOnTemplate();
-  }, [selectedTemplate, qrColor]);
+  }, [selectedTemplate, qrColor, generateQrOnTemplate]);
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6 px-1 sm:px-0 max-h-[70vh] sm:max-h-[65vh] overflow-y-auto">
@@ -240,11 +240,13 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({ qrValue, qrColo
                 className={`border rounded-md overflow-hidden w-24 h-36 sm:w-28 sm:h-40 flex-none shadow-sm ${selectedTemplate.id === tpl.id ? 'border-[hsl(var(--lp-primary))] ring-2 ring-[hsl(var(--lp-primary))]' : 'border-gray-300 hover:border-[hsl(var(--lp-primary))]'}`}
                 title={t(`admin.dashboard.qr.${tpl.name}`)}
               >
-                <img 
+                <Image 
                   src={tpl.imageSrc} 
                   alt={t(`admin.dashboard.qr.${tpl.name}`)} 
                   className="object-cover w-full h-full" 
-                  loading="eager"
+                  width={112} 
+                  height={160}
+                  priority
                 />
               </button>
               <span className="text-xs mt-1 text-center text-gray-700">
@@ -266,10 +268,14 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({ qrValue, qrColo
           ) : generatedImage ? (
             <div className="flex flex-col items-center">
               <div className="relative w-full overflow-hidden rounded-md shadow-md bg-white">
-                <img 
+                <Image 
                   src={generatedImage} 
                   alt={t('admin.dashboard.qr.templateAlt')} 
                   className="w-full h-auto max-h-[50vh] sm:max-h-[60vh] object-contain"
+                  width={500} 
+                  height={500}
+                  priority
+                  unoptimized // Potrebno za data URL slike
                 />
               </div>
               <Button
