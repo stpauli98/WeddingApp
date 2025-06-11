@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminGalleryAllImages from "@/components/admin/AdminGalleryAllImages";
 import AdminAllMessages from "@/components/admin/AdminAllMessages";
 import AdminHelpContact from "@/components/admin/AdminHelpContact";
+import QrTemplateSelector from "@/components/admin/QrTemplateSelector";
 import { useTranslation } from "react-i18next";
 import { getCurrentLanguageFromPath } from "@/lib/utils/language";
 
@@ -154,6 +155,9 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
             <TabsTrigger value="help" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
               {t('admin.dashboard.tabs.help')}
             </TabsTrigger>
+            <TabsTrigger value="qr" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
+              {t('admin.dashboard.tabs.qr')}
+            </TabsTrigger>
           </TabsList>
         </div>
         
@@ -233,6 +237,49 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
       <TabsContent value="help">
         <div className="rounded-lg border border-[hsl(var(--lp-accent))]/20 p-6 bg-white/70">
           <AdminHelpContact />
+        </div>
+      </TabsContent>
+      <TabsContent value="qr">
+        <div className="rounded-lg border border-[hsl(var(--lp-accent))]/20 p-6 bg-white/70">
+          <h2 className="text-2xl font-semibold mb-6">{t('admin.dashboard.qr.templateTitle') || 'QR kod na predlošku'}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Lijeva strana - Osnovni QR kod */}
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-medium">{t('admin.dashboard.qr.basicQr') || 'Osnovni QR kod'}</h3>
+              <div className="bg-white rounded-xl shadow-md p-4 border border-[hsl(var(--lp-accent))]/20">
+                <QRCodeCanvas value={guestUrl} size={200} bgColor="#FFFFFF" fgColor={qrColor} className="rounded-xl" />
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-[hsl(var(--lp-muted-foreground))]" htmlFor="qrColorPickerTab">
+                  {t('admin.dashboard.qr.chooseColor') || 'Odaberite boju'}
+                </label>
+                <input
+                  id="qrColorPickerTab"
+                  type="color"
+                  value={qrColor}
+                  onChange={e => setQrColor(e.target.value)}
+                  className="w-8 h-8 rounded cursor-pointer"
+                />
+              </div>
+              <button
+                onClick={handleDownload}
+                className="flex items-center gap-2 px-4 py-2 bg-[hsl(var(--lp-primary))] hover:bg-[hsl(var(--lp-primary-hover))] text-white rounded-md transition-colors w-full justify-center"
+              >
+                <Download className="h-4 w-4" />
+                {t('admin.dashboard.qr.download') || 'Preuzmi QR kod'}
+              </button>
+            </div>
+            
+            {/* Desna strana - QR na predlošku */}
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-medium">{t('admin.dashboard.qr.templateQr') || 'QR kod na predlošku'}</h3>
+              <QrTemplateSelector 
+                qrValue={guestUrl} 
+                qrColor={qrColor} 
+                eventSlug={event?.slug || 'wedding'} 
+              />
+            </div>
+          </div>
         </div>
       </TabsContent>
     </Tabs>

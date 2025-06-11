@@ -36,6 +36,11 @@ module.exports = withBundleAnalyzer(withPWA({
         source: '/:locale/images/:path*',
         destination: '/images/:path*',
       },
+      // Preusmjeravanje za template slike (npr. QR pozadine)
+      {
+        source: '/:locale/templates/:path*',
+        destination: '/templates/:path*',
+      },
       // Preusmjeravanje za sve ostale statičke resurse
       {
         source: '/:locale/_next/static/:path*',
