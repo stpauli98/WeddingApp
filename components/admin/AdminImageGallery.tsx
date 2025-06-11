@@ -8,6 +8,8 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { GuestDetail } from "@/components/ui/types";
 import dynamic from "next/dynamic";
+import { useTranslation } from "react-i18next";
+import '@/lib/i18n/i18n'; // Osigurava da je i18n inicijaliziran
 
 // Pomoćna funkcija za preuzimanje slika koja podržava različite formate
 async function downloadImageHelper(imgUrl: string, fileName = "fotografija") {
@@ -254,6 +256,7 @@ export function AdminImageGallery({
   onBack,
   zipFileNamePrefix = 'slike'
 }: AdminImageGalleryProps) {
+  const { t } = useTranslation();
   const [selectionMode, setSelectionMode] = useState<boolean>(false);
   const [localSelected, setLocalSelected] = useState<string[]>([]);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
@@ -439,12 +442,12 @@ export function AdminImageGallery({
       <div className="flex flex-col items-center justify-center py-6 gap-2">
         <Image
           src="/no-image-uploaded.png"
-          alt="Nema slike"
+          alt={t('admin.imageGallery.noPhotos')}
           width={128}
           height={128}
           className="w-32 h-32 object-contain opacity-80 mb-2"
         />
-        <div className="text-center text-muted-foreground">Nema uploadovanih slika</div>
+        <div className="text-center text-muted-foreground">{t('admin.imageGallery.noPhotos')}</div>
       </div>
     );
   }
@@ -457,7 +460,7 @@ export function AdminImageGallery({
         <div className="p-3 sm:p-4 flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-0 sm:items-center border-b">
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-white/50">
-              {images.length} fotografija
+              {images.length} {t('admin.imageGallery.allPhotos')}
             </Badge>
           </div>
 
@@ -471,12 +474,12 @@ export function AdminImageGallery({
               {selectionMode ? (
                 <>
                   <X className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-                  Otkaži
+                  {t('common.cancel')}
                 </>
               ) : (
                 <>
                   <CheckCircle className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-                  Odaberi
+                  {t('common.select')}
                 </>
               )}
             </Button>
@@ -486,7 +489,7 @@ export function AdminImageGallery({
               onClick={downloadAll}
             >
               <Download className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-              Preuzmi sve
+              {t('common.downloadAll')}
             </Button>
           </div>
         </div>
@@ -496,10 +499,10 @@ export function AdminImageGallery({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-6 py-3 bg-[hsl(var(--lp-muted))]/30 border-y border-[hsl(var(--lp-accent))]/20 gap-2 sm:gap-0">
             <div className="flex flex-wrap items-center gap-2">
               <Button variant="ghost" size="sm" className="text-[hsl(var(--lp-primary))] hover:bg-[hsl(var(--lp-muted))]/50 text-xs sm:text-sm" onClick={selectAll}>
-                {selectedPhotos.length === images.length ? "Poništi sve" : "Odaberi sve"}
+                {selectedPhotos.length === images.length ? t('common.unselectAll') : t('common.selectAll')}
               </Button>
               <span className="text-xs sm:text-sm text-[hsl(var(--lp-muted-foreground))]">
-                {selectedPhotos.length} od {images.length} odabrano
+                {selectedPhotos.length} {t('admin.imageGallery.selected')} {t('admin.imageGallery.of')} {images.length}
               </span>
             </div>
             <Button
@@ -516,7 +519,7 @@ export function AdminImageGallery({
               ) : (
                 <Download className="mr-1 h-4 w-4" />
               )}
-              Preuzmi odabrano
+              {t('admin.imageGallery.downloadSelected')}
             </Button>
           </div>
         )}
@@ -526,10 +529,10 @@ export function AdminImageGallery({
           <div className="flex items-center justify-between mb-4">
             <TabsList className="bg-[hsl(var(--lp-muted))]/30">
               <TabsTrigger value="all" className="data-[state=active]:bg-white">
-                Sve fotografije
+                {t('admin.imageGallery.allPhotos')}
               </TabsTrigger>
               <TabsTrigger value="favorites" className="data-[state=active]:bg-white">
-                Omiljene
+                {t('admin.imageGallery.favorites')}
               </TabsTrigger>
             </TabsList>
           </div>
@@ -583,8 +586,8 @@ export function AdminImageGallery({
 
                 {favoriteIds.length === 0 && (
                   <div className="col-span-3 py-12 text-center text-[hsl(var(--lp-muted-foreground))]">
-                    <p>Još uvijek nemate omiljenih fotografija</p>
-                    <p className="text-sm mt-2 text-[hsl(var(--lp-muted-foreground))]/80">Kliknite na ikonu srca na fotografijama koje želite označiti kao omiljene</p>
+                    <p>{t('admin.imageGallery.noFavorites')}</p>
+                    <p className="text-sm mt-2 text-[hsl(var(--lp-muted-foreground))]/80">{t('admin.imageGallery.clickHeartToFavorite')}</p>
                   </div>
                 )}
               </div>

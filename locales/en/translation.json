@@ -74,7 +74,12 @@
     "comment": "Comment",
     "email": "Email (optional)",
     "loading": "Loading...",
-    "error": "Error"
+    "error": "Error",
+    "cancel": "Cancel",
+    "select": "Select",
+    "downloadAll": "Download all",
+    "unselectAll": "Unselect all",
+    "selectAll": "Select all"
   },
 
   "guest": {
@@ -198,6 +203,22 @@
   },
 
   "admin": {
+    "imageGallery": {
+      "loadingGuestData": "Loading guest data...",
+      "guestNotFound": "Guest not found",
+      "error": "Error",
+      "backToDashboard": "Back to dashboard",
+      "guestMessage": "Guest message",
+      "noMessage": "The guest did not leave a message.",
+      "noPhotos": "The guest did not upload any photos.",
+      "downloadSelected": "Download selected",
+      "allPhotos": "All photos",
+      "favorites": "Favorites",
+      "noFavorites": "You don't have any favorite photos yet",
+      "clickHeartToFavorite": "Click the heart icon on photos you want to mark as favorites",
+      "selected": "selected",
+      "of": "of"
+    },
     "event": {
       "title": "Enter Event Details",
       "description": "Enter the details of the event you will use to create your wedding page.",

@@ -74,7 +74,12 @@
       "comment": "Komentar",
       "email": "Email (nije obavezno)",
       "loading": "Učitavanje...",
-      "error": "Greška"
+      "error": "Greška",
+      "cancel": "Otkaži",
+      "select": "Odaberi",
+      "downloadAll": "Preuzmi sve",
+      "unselectAll": "Poništi sve",
+      "selectAll": "Odaberi sve"
     },
     "guest": {
       "message": {
@@ -196,6 +201,22 @@
       }
     },
     "admin": {
+      "imageGallery": {
+        "loadingGuestData": "Učitavanje podataka o gostu...",
+        "guestNotFound": "Gost nije pronađen",
+        "error": "Greška",
+        "backToDashboard": "Povratak na kontrolnu tablu",
+        "guestMessage": "Poruka gosta",
+        "noMessage": "Gost nije ostavio poruku.",
+        "noPhotos": "Gost nije postavio nijednu fotografiju.",
+        "downloadSelected": "Preuzmi odabrano",
+        "allPhotos": "Sve fotografije",
+        "favorites": "Omiljene",
+        "noFavorites": "Još uvijek nemate omiljenih fotografija",
+        "clickHeartToFavorite": "Kliknite na ikonu srca na fotografijama koje želite označiti kao omiljene",
+        "selected": "odabrano",
+        "of": "od"
+      },
       "event": {
         "title": "Unesite detalje događaja",
         "description": "Unesite detalje događaja koje ćete koristiti za kreiranje vaše svadbe.",
