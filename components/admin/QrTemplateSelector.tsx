@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { QRCodeCanvas } from 'qrcode.react';
 import { Download, Check } from "lucide-react";
@@ -99,8 +99,8 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({ qrValue, qrColo
   // Construct the path to the template image
   const templatePath = selectedTemplate.imageSrc;
 
-  // Generate QR code on the template
-  const generateQrOnTemplate = async () => {
+  // Generate QR code on the template - zamotan u useCallback da izbjegnemo ponovno kreiranje funkcije pri svakom renderiranju
+  const generateQrOnTemplate = useCallback(async () => {
     if (!qrRef.current || !canvasRef.current) return;
     
     setIsGenerating(true);
@@ -151,7 +151,7 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({ qrValue, qrColo
       // Tiha greška pri generiranju QR koda na predlošku
       setIsGenerating(false);
     }
-  };
+  }, [qrRef, canvasRef, templateImageRef, selectedTemplate, setGeneratedImage, setIsGenerating]);
 
   // Preuzimanje generirane slike
   const handleDownload = () => {
