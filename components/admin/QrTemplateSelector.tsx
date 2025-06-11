@@ -26,29 +26,56 @@ interface QrTemplateSelectorProps {
   qrValue: string;
   qrColor: string;
   eventSlug: string;
+  onQrColorChange?: (color: string) => void;
 }
 
-// Lista dostupnih predložaka (možemo lako dodati nove)
+// List of available templates (we can easily add new ones)
 const templates: TemplateOption[] = [
   {
     id: 'template1',
-    name: 'Elegantni',
+    name: 'template1', // ključ za prijevod
     imageSrc: '/templates/wedding-template-1.jpg',
-    qrPosition: { x: 50, y: 86, width: 35, height: 25 },
+    qrPosition: { x: 50, y: 86, width: 35, height: 25 }
   },
   {
     id: 'template2',
-    name: 'Rustični',
+    name: 'template2', // ključ za prijevod
     imageSrc: '/templates/wedding-template-2.jpg',
-    qrPosition: { x: 49, y: 52, width: 45, height: 33 },
+    qrPosition: { x: 49, y: 52, width: 45, height: 33 }
+  },
+  {
+    id: 'template3',
+    name: 'template3', // ključ za prijevod
+    imageSrc: '/templates/wedding-template-3.jpg',
+    qrPosition: { x: 49, y: 27, width: 35, height: 23 }
+  },
+  {
+    id: 'template4',
+    name: 'template4', // ključ za prijevod
+    imageSrc: '/templates/wedding-template-4.jpg',
+    qrPosition: { x: 49, y: 45, width: 35, height: 23 }
   },
 ];
 
-// Helper za dohvat inicijalnog predloška (prvi u listi)
+// Predefinisane boje za QR kod
+const predefinedColors = [
+  "#000000", // Crna
+  "#0047AB", // Kobalt plava
+  "#6B8E23", // Maslinasto zelena
+  "#800020", // Bordo
+  "#4B0082", // Indigo
+  "#228B22", // Šumsko zelena
+  "#8B4513", // Smeđa
+  "#4682B4", // Čelik plava
+  "#708090", // Slate siva
+  "#CD5C5C", // Indijski crvena
+];
+
+// Helper to get the initial template (first in the list)
 const getInitialTemplate = () => templates[0];
 
-const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({ qrValue, qrColor, eventSlug }) => {
-  const { t } = useTranslation();
+const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({ qrValue, qrColor, eventSlug, onQrColorChange }) => {
+  const { t, i18n } = useTranslation();
   const pathname = usePathname();
   const currentLanguage = getCurrentLanguageFromPath(pathname);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -59,20 +86,27 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({ qrValue, qrColo
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const templateImageRef = useRef<HTMLImageElement | null>(null);
   
-  // State za odabrani predložak
+  // State for the selected template
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateOption>(getInitialTemplate);
 
-  // Konstruiramo putanju do slike predloška
+  // Postavljanje jezika na osnovu URL-a
+  useEffect(() => {
+    if (currentLanguage && i18n.language !== currentLanguage) {
+      i18n.changeLanguage(currentLanguage);
+    }
+  }, [currentLanguage, i18n]);
+
+  // Construct the path to the template image
   const templatePath = selectedTemplate.imageSrc;
 
-  // Generiranje QR koda na predlošku
+  // Generate QR code on the template
   const generateQrOnTemplate = async () => {
     if (!qrRef.current || !canvasRef.current) return;
     
     setIsGenerating(true);
     
     try {
-      // Dohvati QR kod kao sliku
+      // Get QR code as an image
       const qrCanvas = qrRef.current.querySelector('canvas');
       if (!qrCanvas) {
         setIsGenerating(false);
@@ -114,7 +148,7 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({ qrValue, qrColo
       
       qrImage.src = qrDataUrl;
     } catch (error) {
-      console.error("Greška pri generiranju QR koda na predlošku:", error);
+      // Tiha greška pri generiranju QR koda na predlošku
       setIsGenerating(false);
     }
   };
@@ -138,19 +172,17 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({ qrValue, qrColo
       // Koristimo globalThis.Image za ispravno tipiziranje
       const img = new globalThis.Image();
       img.onload = () => {
-        console.log('Slika predloška uspješno učitana:', img.src);
         templateImageRef.current = img;
         generateQrOnTemplate();
       };
-      img.onerror = (error) => {
-        console.error('Greška pri učitavanju slike predloška:', error, img.src);
+      img.onerror = () => {
+        // Tiha greška pri učitavanju slike predloška
       };
       
       // Koristimo apsolutnu putanju bez jezičkog prefiksa
       // Next.js aplikacija s višejezičnom podrškom može imati putanje s prefiksima /sr/ ili /en/
       // ali slike u public direktoriju su dostupne direktno iz korijena
       const imagePath = templatePath;
-      console.log('Pokušavam učitati sliku predloška s putanje:', imagePath);
       img.src = imagePath;
     };
     
@@ -163,25 +195,64 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({ qrValue, qrColo
   }, [selectedTemplate, qrColor]);
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-6 px-1 sm:px-0">
+    <div className="flex flex-col gap-4 sm:gap-6 px-1 sm:px-0 max-h-[70vh] sm:max-h-[65vh] overflow-y-auto">
       {/* Skriveni QR kod za generiranje */}
       <div className="hidden" ref={qrRef}>
         <QRCodeCanvas value={qrValue} size={500} bgColor="#FFFFFF" fgColor={qrColor} />
       </div>
       
+      {/* Paleta boja za QR kod */}
+      <div className="mb-3 sm:mb-4">
+        <h4 className="text-sm font-medium mb-2">{t('admin.dashboard.qr.chooseColor')}</h4>
+        <div className="flex flex-wrap gap-2">
+          {predefinedColors.map((color) => (
+            <button
+              key={color}
+              type="button"
+              onClick={() => qrColor !== color && onQrColorChange?.(color)}
+              className={`w-6 h-6 rounded-full border ${qrColor === color ? 'ring-2 ring-[hsl(var(--lp-primary))] border-[hsl(var(--lp-primary))]' : 'border-gray-300'}`}
+              style={{ backgroundColor: color }}
+              title={color}
+              aria-label={`${t('admin.dashboard.qr.selectColor')} ${color}`}
+            />
+          ))}
+          <div className="flex items-center">
+            <input
+              type="color"
+              value={qrColor}
+              onChange={(e) => onQrColorChange?.(e.target.value)}
+              className="w-6 h-6 rounded cursor-pointer"
+              title={t('admin.dashboard.qr.customColor')}
+            />
+          </div>
+        </div>
+      </div>
+      
       {/* Odabir predloška (samo thumbnails) */}
-      <div className="flex gap-2 mb-3 sm:mb-4 overflow-x-auto scrollbar-thin pb-1 -mx-1 px-1">
-        {templates.map((tpl) => (
-          <button
-            key={tpl.id}
-            type="button"
-            onClick={() => setSelectedTemplate(tpl)}
-            className={`border rounded-md overflow-hidden w-14 h-20 sm:w-16 sm:h-24 shrink-0 ${selectedTemplate.id === tpl.id ? 'border-[hsl(var(--lp-primary))] ring-2 ring-[hsl(var(--lp-primary))]' : 'border-gray-300'}`}
-            title={tpl.name}
-          >
-            <img src={tpl.imageSrc} alt={tpl.name} className="object-cover w-full h-full" />
-          </button>
-        ))}
+      <div className="mb-3 sm:mb-4">
+        <h4 className="text-sm font-medium mb-2">{t('admin.dashboard.qr.templateSelection')}</h4>
+        <div className="flex gap-4 overflow-x-auto scrollbar-thin pb-3 -mx-1 px-1 snap-x snap-mandatory">
+          {templates.map((tpl) => (
+            <div key={tpl.id} className="flex flex-col items-center shrink-0 snap-start">
+              <button
+                type="button"
+                onClick={() => setSelectedTemplate(tpl)}
+                className={`border rounded-md overflow-hidden w-24 h-36 sm:w-28 sm:h-40 flex-none shadow-sm ${selectedTemplate.id === tpl.id ? 'border-[hsl(var(--lp-primary))] ring-2 ring-[hsl(var(--lp-primary))]' : 'border-gray-300 hover:border-[hsl(var(--lp-primary))]'}`}
+                title={t(`admin.dashboard.qr.${tpl.name}`)}
+              >
+                <img 
+                  src={tpl.imageSrc} 
+                  alt={t(`admin.dashboard.qr.${tpl.name}`)} 
+                  className="object-cover w-full h-full" 
+                  loading="eager"
+                />
+              </button>
+              <span className="text-xs mt-1 text-center text-gray-700">
+                {t(`admin.dashboard.qr.${tpl.name}`)}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
       
       {/* Prikaz generiranog rezultata */}
@@ -197,24 +268,25 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({ qrValue, qrColo
               <div className="relative w-full overflow-hidden rounded-md shadow-md bg-white">
                 <img 
                   src={generatedImage} 
-                  alt="QR kod na predlošku" 
-                  className="w-full h-auto max-h-[80vh]"
+                  alt={t('admin.dashboard.qr.templateAlt')} 
+                  className="w-full h-auto max-h-[50vh] sm:max-h-[60vh] object-contain"
                 />
               </div>
               <Button
                 onClick={handleDownload}
-                className="mt-3 sm:mt-4 w-full sm:w-auto flex items-center justify-center gap-2 text-sm sm:text-base py-2"
+                className="mt-3 sm:mt-4 w-full sm:w-auto flex items-center justify-center gap-2 text-sm sm:text-base py-2 sticky bottom-0 z-10"
                 variant="default"
+                size="sm"
               >
                 {downloadSuccess ? (
                   <>
                     <Check className="h-4 w-4" />
-                    {t('admin.dashboard.qr.downloaded') || 'Preuzeto'}
+                    {t('admin.dashboard.qr.downloaded')}
                   </>
                 ) : (
                   <>
                     <Download className="h-4 w-4" />
-                    {t('admin.dashboard.qr.downloadTemplate') || 'Preuzmi predložak'}
+                    {t('admin.dashboard.qr.downloadTemplate')}
                   </>
                 )}
               </Button>

@@ -4,6 +4,7 @@ import GuestCard from "./GuestCard";
 import { QRCodeCanvas } from 'qrcode.react';
 import { Check, Copy, Download } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import AdminGalleryAllImages from "@/components/admin/AdminGalleryAllImages";
 import AdminAllMessages from "@/components/admin/AdminAllMessages";
 import AdminHelpContact from "@/components/admin/AdminHelpContact";
@@ -23,6 +24,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const qrRef = useRef<HTMLDivElement>(null);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
 
   // QR COLOR STATE
   // QRCodeCanvas ne može koristiti CSS varijable, pa koristimo direktnu hex vrijednost
@@ -104,6 +106,12 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
               >
                 <Download className="w-4 h-4" /> {t('admin.dashboard.qr.downloadButton')}
               </button>
+              <button
+                onClick={() => setIsTemplateModalOpen(true)}
+                className="mt-2 flex items-center justify-center gap-2 px-4 py-1.5 rounded-md bg-white border border-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary))] hover:bg-[hsl(var(--lp-muted))] text-sm font-medium shadow transition-colors"
+              >
+                {t('admin.dashboard.qr.useTemplate')}
+              </button>
               <span className="mt-2 text-xs text-[hsl(var(--lp-muted-foreground))] text-center max-w-[180px]">{t('admin.dashboard.qr.scanQR')}</span>
             </div>
             
@@ -154,9 +162,6 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
             </TabsTrigger>
             <TabsTrigger value="help" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
               {t('admin.dashboard.tabs.help')}
-            </TabsTrigger>
-            <TabsTrigger value="qr" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
-              {t('admin.dashboard.tabs.qr')}
             </TabsTrigger>
           </TabsList>
         </div>
@@ -239,50 +244,24 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
           <AdminHelpContact />
         </div>
       </TabsContent>
-      <TabsContent value="qr">
-        <div className="rounded-lg border border-[hsl(var(--lp-accent))]/20 p-6 bg-white/70">
-          <h2 className="text-2xl font-semibold mb-6">{t('admin.dashboard.qr.templateTitle') || 'QR kod na predlošku'}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Lijeva strana - Osnovni QR kod */}
-            <div className="flex flex-col gap-4">
-              <h3 className="text-lg font-medium">{t('admin.dashboard.qr.basicQr') || 'Osnovni QR kod'}</h3>
-              <div className="bg-white rounded-xl shadow-md p-4 border border-[hsl(var(--lp-accent))]/20">
-                <QRCodeCanvas value={guestUrl} size={200} bgColor="#FFFFFF" fgColor={qrColor} className="rounded-xl" />
-              </div>
-              <div className="flex items-center gap-2">
-                <label className="text-sm text-[hsl(var(--lp-muted-foreground))]" htmlFor="qrColorPickerTab">
-                  {t('admin.dashboard.qr.chooseColor') || 'Odaberite boju'}
-                </label>
-                <input
-                  id="qrColorPickerTab"
-                  type="color"
-                  value={qrColor}
-                  onChange={e => setQrColor(e.target.value)}
-                  className="w-8 h-8 rounded cursor-pointer"
-                />
-              </div>
-              <button
-                onClick={handleDownload}
-                className="flex items-center gap-2 px-4 py-2 bg-[hsl(var(--lp-primary))] hover:bg-[hsl(var(--lp-primary-hover))] text-white rounded-md transition-colors w-full justify-center"
-              >
-                <Download className="h-4 w-4" />
-                {t('admin.dashboard.qr.download') || 'Preuzmi QR kod'}
-              </button>
-            </div>
-            
-            {/* Desna strana - QR na predlošku */}
-            <div className="flex flex-col gap-4">
-              <h3 className="text-lg font-medium">{t('admin.dashboard.qr.templateQr') || 'QR kod na predlošku'}</h3>
-              <QrTemplateSelector 
-                qrValue={guestUrl} 
-                qrColor={qrColor} 
-                eventSlug={event?.slug || 'wedding'} 
-              />
-            </div>
-          </div>
-        </div>
-      </TabsContent>
     </Tabs>
+
+    {/* Modal za QR predloške */}
+    <Dialog open={isTemplateModalOpen} onOpenChange={setIsTemplateModalOpen}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto sm:max-h-[80vh] p-4 sm:p-6">
+        <DialogHeader>
+          <DialogTitle className="text-xl sm:text-2xl font-semibold">{t('admin.dashboard.qr.templateTitle')}</DialogTitle>
+        </DialogHeader>
+        <div className="mt-2 sm:mt-4 overflow-y-auto">
+          <QrTemplateSelector 
+            qrValue={guestUrl} 
+            qrColor={qrColor} 
+            eventSlug={event?.slug || 'wedding'} 
+            onQrColorChange={(color) => setQrColor(color)}
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
     </>
   );
 };
