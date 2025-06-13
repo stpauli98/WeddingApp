@@ -13,9 +13,36 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "DodajUspomenu",
-  description: "Aplikacija za goste na svadbi",
+  description: "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene.",
   generator: 'v0.dev',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://dodajuspomenu.com"),
+  openGraph: {
+    title: "DodajUspomenu - Digitalni svadbeni album",
+    description: "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene.",
+    url: "https://dodajuspomenu.com",
+    siteName: "DodajUspomenu",
+    images: [
+      {
+        url: "/seo-cover.png",
+        width: 1200,
+        height: 630,
+        alt: "DodajUspomenu - Digitalni svadbeni album",
+      },
+    ],
+    locale: "sr_RS",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DodajUspomenu - Digitalni svadbeni album",
+    description: "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene.",
+    images: ["/seo-cover.png"],
+    creator: "@nextpixel98",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
 }
 
 export default function RootLayout({
