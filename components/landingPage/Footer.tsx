@@ -4,6 +4,7 @@ import { Instagram, Facebook, Twitter, Heart, ChevronUp } from "lucide-react"
 import FooterCommentForm from "./FooterCommentForm"
 import { useTranslation } from "react-i18next"
 import { useState, useEffect } from "react"
+import { getCurrentLanguageFromPath } from "@/lib/utils/language"
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -46,7 +47,7 @@ export default function Footer() {
               {t('footer.subtitle')}
             </p>
             <div className="flex gap-4">
-              <Link href="/admin/register" className="px-8 py-4 rounded-lg font-semibold bg-lp-primary text-lp-primary-foreground hover:bg-lp-accent hover:text-white transition-colors">
+              <Link href={`/${getCurrentLanguageFromPath()}/admin/register`} className="px-8 py-4 rounded-lg font-semibold bg-lp-primary text-lp-primary-foreground hover:bg-lp-accent hover:text-white transition-colors">
                 {t('footer.button')}
               </Link>
             </div>

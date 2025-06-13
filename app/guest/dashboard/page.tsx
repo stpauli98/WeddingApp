@@ -132,7 +132,7 @@ export default async function DashboardPage(props: any) {
 
   return (
       <div className="container max-w-md mx-auto px-4 py-8">
-        <WeddingInfo eventId={eventId} language={urlLanguage || eventLanguage || language} />
+        <WeddingInfo eventId={eventId} language={urlLanguage || language || eventLanguage} />
       
       {/* Koristimo DashboardClient komponentu koja će upravljati brojem slika i osigurati da se sve komponente ažuriraju kada se broj slika promijeni */}
         <DashboardClient 
@@ -143,10 +143,13 @@ export default async function DashboardPage(props: any) {
           }))} 
           guestId={guestId}
           message={guest.message?.text ?? ""}
-          language={urlLanguage || eventLanguage || language}
+          language={urlLanguage || language || eventLanguage}
         />
         <div className="mt-8">
-          <LogoutButton language={urlLanguage || eventLanguage || language} />
+          <LogoutButton 
+            language={urlLanguage || language || eventLanguage} 
+            eventSlug={eventSlug}
+          />
         </div>
       </div>
     )

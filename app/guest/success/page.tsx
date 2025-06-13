@@ -105,6 +105,6 @@ export default async function SuccessPage(props: any) {
     coupleName={event?.coupleName} 
     message={message ? { text: message.text } : undefined}
     eventSlug={finalEventSlug}
-    language={urlLanguage || eventLanguage || language}
+    language={urlLanguage || language || eventLanguage}
   />;
 }

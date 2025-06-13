@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 import LanguageSelector from "@/components/LanguageSelector"
+import { getCurrentLanguageFromPath } from "@/lib/utils/language"
 
 export default function HeroSection() {
   const { t } = useTranslation();
@@ -46,7 +47,7 @@ export default function HeroSection() {
               {t('hero.description') || 'Jednostavan način da prikupite sve fotografije koje su vaši gosti napravili tokom vjenčanja na jednom mjestu, bez komplikacija.'}
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
-              <Link href="/admin/register" className="px-8 py-4 rounded-lg font-semibold bg-lp-primary text-lp-primary-foreground hover:bg-lp-accent hover:text-white transition-colors">
+              <Link href={`/${getCurrentLanguageFromPath()}/admin/register`} className="px-8 py-4 rounded-lg font-semibold bg-lp-primary text-lp-primary-foreground hover:bg-lp-accent hover:text-white transition-colors">
                 {t('hero.createEvent') || 'Kreirajte besplatan događaj'}
               </Link>
               <Link

@@ -73,6 +73,7 @@ export default function ClientSuccess({ guest, coupleName, message, eventSlug, l
             }))}
             guestId={guest.id}
             eventSlug={eventSlug}
+            language={language}
           />
           {guest.images && guest.images.length < 10 && (
             <div className="mt-2 text-sm text-[hsl(var(--lp-muted-foreground))]">
@@ -108,7 +109,10 @@ export default function ClientSuccess({ guest, coupleName, message, eventSlug, l
           </div>
         </div>
         <div className="mt-8">
-          <LogoutButton language={language} />
+          <LogoutButton 
+            language={language} 
+            eventSlug={eventSlug}
+          />
         </div>
       </div>
     </div>

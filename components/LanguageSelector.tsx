@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'next/navigation';
 
 interface LanguageSelectorProps {
   className?: string; // Dodajemo opcionalnu klasu za fleksibilnost pozicioniranja
@@ -9,6 +10,7 @@ interface LanguageSelectorProps {
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({ className = '' }) => {
   const { i18n } = useTranslation();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   
   // Koristimo useEffect kako bismo izbjegli probleme s hidracijom
@@ -24,6 +26,24 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ className = '' }) =
       localStorage.setItem('i18nextLng', lang);
     } catch (error) {
       console.error('Greška pri pohrani jezika u localStorage:', error);
+    }
+    
+    // Promijeni URL da sadrži novi jezični prefiks
+    if (typeof window !== 'undefined') {
+      const currentPath = window.location.pathname;
+      const pathSegments = currentPath.split('/').filter(segment => segment);
+      
+      // Ako je prvi segment jezika, zamijeni ga s novim jezikom
+      if (pathSegments.length > 0 && ['sr', 'en'].includes(pathSegments[0])) {
+        pathSegments[0] = lang;
+      } else {
+        // Inače dodaj novi jezik na početak
+        pathSegments.unshift(lang);
+      }
+      
+      // Konstruiraj novi URL i preusmjeri
+      const newPath = `/${pathSegments.join('/')}`;
+      router.push(newPath);
     }
   };
 
