@@ -18,8 +18,8 @@ export default function ClientPage() {
       <HeroSection />
       <HowItWorks id="how-it-works" />
       <Benefits />
-      <Testimonials />
       <FAQ />
+     {/* <Testimonials /> */}
       <Footer />
     </I18nProvider>
   );
