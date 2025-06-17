@@ -4,7 +4,12 @@
     "description": "A simple way to collect all the photos your guests took during the wedding in one place, without complications.",
     "createEvent": "Create a free event",
     "howItWorks": "How it works",
-    "imagesCollected": "Images collected"
+    "imagesCollected": "Images collected",
+    "adminTitle": "Admin",
+    "guestTitle": "Guest",
+    "adminScreenshot": "Admin application screenshot",
+    "guestScreenshot": "Guest application screenshot",
+    "appScreenshotsDescription": "Application screenshot showing wedding photo collection features"
   },
   "howItWorks": {
     "title": "How it works",

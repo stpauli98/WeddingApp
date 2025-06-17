@@ -8,9 +8,10 @@ interface ImageSliderProps {
   images: string[];
   title: string;
   ariaLabel: string;
+  hideTitle?: boolean;
 }
 
-export default function ImageSlider({ images, title, ariaLabel }: ImageSliderProps) {
+export default function ImageSlider({ images, title, ariaLabel, hideTitle = false }: ImageSliderProps) {
   const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -57,13 +58,15 @@ export default function ImageSlider({ images, title, ariaLabel }: ImageSliderPro
   
   return (
     <div className="flex flex-col">
-      <h3 className="text-xl font-bold text-center mb-3 text-lp-primary">{title}</h3>
+      {!hideTitle && title && (
+        <h3 className="text-xl font-bold text-center mb-3 text-lp-primary">{title}</h3>
+      )}
       <motion.div 
         className="relative w-full mb-12"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="relative w-full" style={{ height: '400px' }}>
+        <div className="relative w-full" style={{ height: 'min(600px, 90vh)' }}>
           {images.map((src, index) => (
             <motion.div
               key={src}
@@ -80,7 +83,7 @@ export default function ImageSlider({ images, title, ariaLabel }: ImageSliderPro
                 alt={`${ariaLabel} ${index + 1}`}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-contain"
+                className="object-contain md:object-contain"
                 priority={index === 0}
                 quality={95}
               />

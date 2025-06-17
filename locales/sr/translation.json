@@ -4,7 +4,12 @@
     "description": "Jednostavan način da prikupite sve fotografije koje su vaši gosti napravili tokom vjenčanja na jednom mjestu, bez komplikacija.",
     "createEvent": "Kreirajte besplatan događaj",
     "howItWorks": "Kako funkcioniše",
-    "imagesCollected": "Prikupljeno slika"
+    "imagesCollected": "Prikupljeno slika",
+    "adminTitle": "Admin",
+    "guestTitle": "Gost",
+    "adminScreenshot": "Screenshot admin dijela aplikacije",
+    "guestScreenshot": "Screenshot korisničkog dijela aplikacije",
+    "appScreenshotsDescription": "Screenshot aplikacije koji prikazuje funkcionalnosti za prikupljanje slika s vjenčanja"
   },
   "howItWorks": {
     "title": "Kako funkcioniše",
