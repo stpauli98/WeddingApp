@@ -4,13 +4,27 @@ import { useTranslation } from "react-i18next"
 import LanguageSelector from "@/components/LanguageSelector"
 import { getCurrentLanguageFromPath } from "@/lib/utils/language"
 import { motion, useScroll, useTransform } from "framer-motion"
-import { useEffect, useState, useRef } from "react"
-import { Heart } from "lucide-react"
+import { useEffect, useState, useRef, useCallback } from "react"
+import { Heart, ChevronLeft, ChevronRight } from "lucide-react"
 
 export default function HeroSection() {
   const { t } = useTranslation();
   const [imagesCount, setImagesCount] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
+  
+  // Slajder stanje i konfiguracija
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  // Koristimo apsolutne putanje koje počinju s / kako bi se izbjegle 404 greške s jezičnim prefiksima
+  const sliderImages = [
+    "/slider_pictures/1.png", // Apsolutna putanja od korijena projekta
+    "/slider_pictures/4.png",
+    "/slider_pictures/2.png",
+    "/slider_pictures/3.png",
+   
+    "/slider_pictures/5.png"
+  ];
   
   // Paralaks efekt za pozadinu
   const { scrollY } = useScroll();
@@ -50,6 +64,36 @@ export default function HeroSection() {
     
     return () => clearTimeout(timeoutId);
   }, []);
+  
+  // Funkcija za promjenu slajda
+  const goToSlide = useCallback((index: number) => {
+    // Osiguraj da je index unutar granica
+    const newIndex = ((index % sliderImages.length) + sliderImages.length) % sliderImages.length;
+    setCurrentSlide(newIndex);
+  }, [sliderImages.length]);
+  
+  // Funkcije za navigaciju slajdera
+  const goToNextSlide = useCallback(() => goToSlide(currentSlide + 1), [currentSlide, goToSlide]);
+  const goToPrevSlide = useCallback(() => goToSlide(currentSlide - 1), [currentSlide, goToSlide]);
+  
+  // Automatsko mijenjanje slajdova
+  useEffect(() => {
+    if (isAutoPlaying) {
+      autoPlayRef.current = setInterval(() => {
+        goToNextSlide();
+      }, 4000); // Promjena slajda svakih 4 sekunde
+    }
+    
+    return () => {
+      if (autoPlayRef.current) {
+        clearInterval(autoPlayRef.current);
+      }
+    };
+  }, [isAutoPlaying, goToNextSlide]);
+  
+  // Pauziranje automatskog mijenjanja na hover
+  const handleMouseEnter = () => setIsAutoPlaying(false);
+  const handleMouseLeave = () => setIsAutoPlaying(true);
   
   return (
     <section 
@@ -176,24 +220,75 @@ export default function HeroSection() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
           >
-            <div className="relative w-full max-w-md mx-auto">
-              {/* Slika sa ljepšim okvirom, bez brojača na slici */}
+            <div className="relative w-full max-w-lg mx-auto">
+              {/* Slajder sa screenshot-ovima aplikacije - bez okvira, veće slike */}
               <motion.div 
-                className="relative aspect-square w-full rounded-2xl overflow-hidden shadow-xl mb-12"
-                whileHover={{ scale: 1.02, rotate: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="relative w-full mb-12"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
               >
-                <Image
-                  src="/images/drze-se-za-ruke.jpg"
-                  alt="Mladenci se drže za ruke"
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover"
-                  priority
-                  aria-describedby="couple-image-desc"
-                />
-                <span id="couple-image-desc" className="sr-only">
-                  {t('hero.coupleImageDescription') || 'Fotografija mladenaca koji se drže za ruke, simbolizirajući ljubav i zajedništvo'}
+                <div className="relative w-full" style={{ height: '500px' }}>
+                  {sliderImages.map((src, index) => (
+                    <motion.div
+                      key={src}
+                      className="absolute inset-0 w-full h-full"
+                      initial={{ opacity: 0 }}
+                      animate={{ 
+                        opacity: index === currentSlide ? 1 : 0,
+                        zIndex: index === currentSlide ? 10 : 0
+                      }}
+                      transition={{ duration: 0.7, ease: "easeInOut" }}
+                    >
+                      <Image
+                        src={src}
+                        alt={`Screenshot aplikacije ${index + 1}`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-contain"
+                        priority={index === 0}
+                        quality={95}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+                
+                {/* Kontrole za slajder - povećane i pomaknute na stranu */}
+                <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-4 z-20">
+                  <motion.button
+                    className="bg-white/50 hover:bg-white/70 rounded-full p-2 backdrop-blur-sm shadow-md"
+                    onClick={goToPrevSlide}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Prethodna slika"
+                  >
+                    <ChevronLeft className="w-6 h-6 text-lp-primary" />
+                  </motion.button>
+                  <motion.button
+                    className="bg-white/50 hover:bg-white/70 rounded-full p-2 backdrop-blur-sm shadow-md"
+                    onClick={goToNextSlide}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Sljedeća slika"
+                  >
+                    <ChevronRight className="w-6 h-6 text-lp-primary" />
+                  </motion.button>
+                </div>
+                
+                {/* Indikatori slajdova - pomaknuti na dno */}
+                <div className="absolute -bottom-8 left-0 right-0 flex justify-center gap-2 z-20">
+                  {sliderImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToSlide(index)}
+                      className={`w-3 h-3 rounded-full transition-all ${index === currentSlide ? 'bg-lp-primary scale-125' : 'bg-lp-primary/40 hover:bg-lp-primary/60'}`}
+                      aria-label={`Prijeđi na sliku ${index + 1}`}
+                      aria-current={index === currentSlide ? 'true' : 'false'}
+                    />
+                  ))}
+                </div>
+                
+                <span className="sr-only">
+                  {t('hero.appScreenshotsDescription') || 'Screenshot aplikacije koji prikazuje funkcionalnosti za prikupljanje slika s vjenčanja'}
                 </span>
               </motion.div>
               

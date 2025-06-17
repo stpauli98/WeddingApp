@@ -12,7 +12,9 @@ const exemptPaths = [
   '/favicon.ico',     // Favicon
   '/robots.txt',      // Robots.txt
   '/sitemap.xml',     // Sitemap
-  '/manifest.json'    // PWA manifest
+  '/manifest.json',   // PWA manifest
+  '/slider_pictures', // Slike za slajder
+  '/.well-known'      // Chrome DevTools konfiguracija
 ];
 
 // Funkcija za provjeru je li ruta guest ruta
@@ -178,6 +180,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Hvataj sve rute osim onih koje su izuzete
-    '/((?!api|_next|favicon.ico|robots.txt|sitemap.xml|manifest.json).*)',
+    '/((?!api|_next|favicon.ico|robots.txt|sitemap.xml|manifest.json|slider_pictures|\\.well-known).*)',
   ],
 };
