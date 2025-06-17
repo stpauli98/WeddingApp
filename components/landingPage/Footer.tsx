@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Instagram, Facebook, Twitter, Heart, ChevronUp, Camera, Mail } from "lucide-react"
+import { Instagram, Facebook, Heart, ChevronUp, Camera, Mail } from "lucide-react"
 import FooterCommentForm from "./FooterCommentForm"
 import { useTranslation } from "react-i18next"
 import { useState, useEffect, useRef } from "react"
@@ -192,7 +192,7 @@ export default function Footer() {
               whileHover="hover"
               viewport={{ once: true }}
             >
-              <Link href="https://instagram.com" className="text-lp-text/70 hover:text-lp-accent transition-colors block">
+              <Link href="https://www.instagram.com/pixelnext9/" className="text-lp-text/70 hover:text-lp-accent transition-colors block">
                 <Instagram className="w-5 h-5" />
                 <span className="sr-only">Instagram</span>
               </Link>
@@ -206,7 +206,7 @@ export default function Footer() {
               whileHover="hover"
               viewport={{ once: true }}
             >
-              <Link href="https://facebook.com" className="text-lp-text/70 hover:text-lp-accent transition-colors block">
+              <Link href="#" className="text-lp-text/70 hover:text-lp-accent transition-colors block">
                 <Facebook className="w-5 h-5" />
                 <span className="sr-only">Facebook</span>
               </Link>
@@ -220,9 +220,27 @@ export default function Footer() {
               whileHover="hover"
               viewport={{ once: true }}
             >
-              <Link href="https://tiktok.com" className="text-lp-text/70 hover:text-lp-accent transition-colors block">
-                <Twitter className="w-5 h-5" />
+              <Link href="https://www.tiktok.com/@next.pixel9" className="text-lp-text/70 hover:text-lp-accent transition-colors block">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.27 0 .54.03.79.1V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.65a6.34 6.34 0 0 0 10.86 4.48 6.29 6.29 0 0 0 1.83-4.48l.01-7.66a8.16 8.16 0 0 0 4.87 1.63v-3.45a4.85 4.85 0 0 1-1-.1z" />
+                </svg>
                 <span className="sr-only">TikTok</span>
+              </Link>
+            </motion.div>
+            
+            <motion.div
+              custom={3}
+              variants={socialIconVariants}
+              initial="hidden"
+              whileInView="visible"
+              whileHover="hover"
+              viewport={{ once: true }}
+            >
+              <Link href="https://x.com/nextpixel98" className="text-lp-text/70 hover:text-lp-accent transition-colors block">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path d="M13.6823 10.6218L20.2391 3H18.6854L12.9921 9.61788L8.44486 3H3.2002L10.0765 13.0074L3.2002 21H4.75404L10.7663 14.0113L15.5549 21H20.7996L13.6819 10.6218H13.6823ZM11.5541 13.0956L10.8574 12.0991L5.31391 4.16971H7.70053L12.1742 10.5689L12.8709 11.5655L18.6861 19.8835H16.2995L11.5541 13.096V13.0956Z" />
+                </svg>
+                <span className="sr-only">X (Twitter)</span>
               </Link>
             </motion.div>
             
@@ -260,9 +278,6 @@ export default function Footer() {
           transition={{ duration: 0.5, delay: 0.6 }}
           viewport={{ once: true }}
         >
-          <span className="flex items-center gap-1">
-            {t('footer.copyright')} <Heart className="w-3 h-3 text-lp-accent inline" />
-          </span>
           
           {/* Strelica za povratak na vrh s AnimatePresence za glatku tranziciju */}
           <AnimatePresence>
