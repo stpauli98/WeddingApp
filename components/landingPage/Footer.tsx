@@ -183,7 +183,7 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} <a href="https://www.nextpixel.dev/" target="_blank" rel="noopener noreferrer" className="text-lp-accent font-semibold hover:underline">Next Pixel</a>. {t('footer.copyright')}
           </motion.div>
 
-          <div className="flex gap-6">
+          <div className="flex gap-6 items-center">
             <motion.div
               custom={0}
               variants={socialIconVariants}
@@ -224,6 +224,31 @@ export default function Footer() {
                 <Twitter className="w-5 h-5" />
                 <span className="sr-only">TikTok</span>
               </Link>
+            </motion.div>
+            
+            {/* Product Hunt bedž */}
+            <motion.div
+              custom={3}
+              variants={socialIconVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="ml-2"
+            >
+              <a 
+                href="https://www.producthunt.com/products/addmemories?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-addmemories" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                aria-label="AddMemories na Product Hunt"
+              >
+                <img 
+                  src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=979471&theme=light&t=1750169940818" 
+                  alt="AddMemories - Collect wedding photos & wishes from your guests | Product Hunt" 
+                  width="120" 
+                  height="26" 
+                  style={{ width: '120px', height: '26px' }}
+                />
+              </a>
             </motion.div>
           </div>
         </motion.div>
