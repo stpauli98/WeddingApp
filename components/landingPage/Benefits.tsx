@@ -77,17 +77,7 @@ export default function Benefits() {
       icon: <Cloud className="w-6 h-6 text-lp-accent" />,
       title: t("benefits.benefit4Title"),
       description: t("benefits.benefit4Description"),
-    },
-    {
-      icon: <Check className="w-6 h-6 text-lp-accent" />,
-      title: t("benefits.benefit5Title") || "Brz pristup QR kodom",
-      description: t("benefits.benefit5Description") || "Gosti pristupaju događaju jednostavno — skeniraju QR kod, unesu ime i email, potvrde kod i odmah mogu uploadovati slike.",
-    },
-    {
-      icon: <Heart className="w-6 h-6 text-lp-accent" />,
-      title: t("benefits.benefit6Title") || "Poruke i čestitke",
-      description: t("benefits.benefit6Description") || "Uz slike, gosti mogu ostaviti poruku ili čestitku — sve uspomene na jednom mjestu.",
-    },
+    }
   ];
   
   return (
@@ -140,7 +130,7 @@ export default function Benefits() {
           <AnimatePresence>
             {isLoaded && (
               <motion.div 
-                className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible" 
