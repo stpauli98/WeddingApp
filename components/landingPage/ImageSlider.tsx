@@ -15,7 +15,7 @@ export default function ImageSlider({ images, title, ariaLabel, hideTitle = fals
   const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
   
   // Funkcije za navigaciju slajdera
   const goToNextSlide = useCallback(() => {
@@ -84,7 +84,7 @@ export default function ImageSlider({ images, title, ariaLabel, hideTitle = fals
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-contain md:object-contain"
-                priority={index === 0}
+                priority={true} // Set priority for all images to fix LCP warnings
                 quality={95}
               />
               {/* Step indicator */}

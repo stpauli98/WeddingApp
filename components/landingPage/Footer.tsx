@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Instagram, Facebook, Heart, ChevronUp, Camera, Mail } from "lucide-react"
 import FooterCommentForm from "./FooterCommentForm"
@@ -259,12 +260,13 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 aria-label="AddMemories na Product Hunt"
               >
-                <img 
+                <Image 
                   src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=979471&theme=light&t=1750169940818" 
                   alt="AddMemories - Collect wedding photos & wishes from your guests | Product Hunt" 
-                  width="120" 
-                  height="26" 
+                  width={120}
+                  height={26}
                   style={{ width: '120px', height: '26px' }}
+                  unoptimized // SVG doesn't need optimization
                 />
               </a>
             </motion.div>
