@@ -17,13 +17,18 @@ export default function HeroSection() {
   // Slike za admin i guest slajdere
   const adminImages = [
     "/slider_pictures/1.png",
-    "/slider_pictures/4.png"
+    "/slider_pictures/2.png",
+    "/slider_pictures/3.png",
+    "/slider_pictures/4.png",
+    "/slider_pictures/5.png",
+    "/slider_pictures/6.png"
   ];
   
   const guestImages = [
-    "/slider_pictures/2.png",
-    "/slider_pictures/3.png",
-    "/slider_pictures/5.png"
+    "/slider_pictures/21.png",
+    "/slider_pictures/22.png",
+    "/slider_pictures/23.png",
+    "/slider_pictures/24.png"
   ];
 
   // Paralaks efekt za pozadinu

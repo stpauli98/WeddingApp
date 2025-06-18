@@ -1,4 +1,10 @@
 {
+  "imageSlider": {
+    "step": "Step {{number}}",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "goToImage": "Go to image {{number}}"
+  },
   "hero": {
     "title": "Save all memories from your <accent>wedding</accent>",
     "description": "A simple way to collect all the photos your guests took during the wedding in one place, without complications.",

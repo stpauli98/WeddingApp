@@ -87,6 +87,12 @@ export default function ImageSlider({ images, title, ariaLabel, hideTitle = fals
                 priority={index === 0}
                 quality={95}
               />
+              {/* Step indicator */}
+              <div className="absolute top-4 left-4 bg-white/70 backdrop-blur-sm px-3 py-1 rounded-full shadow-md">
+                <span className="text-lp-primary font-medium">
+                  {t('imageSlider.step', { number: index + 1 })}
+                </span>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -98,7 +104,7 @@ export default function ImageSlider({ images, title, ariaLabel, hideTitle = fals
             onClick={goToPrevSlide}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            aria-label="Prethodna slika"
+            aria-label={t('imageSlider.previousImage')}
           >
             <ChevronLeft className="w-5 h-5 text-lp-primary" />
           </motion.button>
@@ -107,7 +113,7 @@ export default function ImageSlider({ images, title, ariaLabel, hideTitle = fals
             onClick={goToNextSlide}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            aria-label="Sljedeća slika"
+            aria-label={t('imageSlider.nextImage')}
           >
             <ChevronRight className="w-5 h-5 text-lp-primary" />
           </motion.button>
@@ -119,10 +125,12 @@ export default function ImageSlider({ images, title, ariaLabel, hideTitle = fals
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`w-2.5 h-2.5 rounded-full transition-all ${index === currentSlide ? 'bg-lp-primary scale-125' : 'bg-lp-primary/40 hover:bg-lp-primary/60'}`}
-              aria-label={`Prijeđi na sliku ${index + 1}`}
+              className={`w-6 h-6 flex items-center justify-center rounded-full transition-all text-xs font-medium ${index === currentSlide ? 'bg-lp-primary text-white scale-110' : 'bg-lp-primary/30 text-lp-primary hover:bg-lp-primary/40'}`}
+              aria-label={t('imageSlider.goToImage', { number: index + 1 })}
               aria-current={index === currentSlide ? 'true' : 'false'}
-            />
+            >
+              {index + 1}
+            </button>
           ))}
         </div>
         

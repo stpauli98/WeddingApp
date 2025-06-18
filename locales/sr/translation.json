@@ -1,4 +1,10 @@
 {
+  "imageSlider": {
+    "step": "Korak {{number}}",
+    "previousImage": "Prethodna slika",
+    "nextImage": "Sljedeća slika",
+    "goToImage": "Prijeđi na sliku {{number}}"
+  },
   "hero": {
     "title": "Sačuvajte sve uspomene sa vašeg <accent>vjenčanja</accent>",
     "description": "Jednostavan način da prikupite sve fotografije koje su vaši gosti napravili tokom vjenčanja na jednom mjestu, bez komplikacija.",
