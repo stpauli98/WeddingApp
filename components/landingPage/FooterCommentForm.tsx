@@ -26,14 +26,14 @@ export default function FooterCommentForm() {
       })
 
       if (!response.ok) {
-        throw new Error("Greška prilikom slanja komentara")
+        throw new Error(t('common.error'))
       }
 
       setStatus("success")
       setComment("")
       setEmail("")
     } catch (error) {
-      console.error("Greška prilikom slanja komentara:", error)
+      console.error("Error sending comment:", error)
       setStatus("error")
     }
   }

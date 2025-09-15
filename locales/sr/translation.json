@@ -48,13 +48,21 @@
   },
   "testimonials": {
     "title": "Šta kažu naši korisnici",
-    "subtitle": "Šta kažu naši korisnici",
-    "testimonial1Author": "Marija i Nikola",
-    "testimonial1Text": "Odlična aplikacija! Uspjeli smo prikupiti preko 300 fotografija od naših gostiju koje inače ne bismo imali.",
-    "testimonial2Author": "Ana i Marko",
-    "testimonial2Text": "Naši gosti su bili oduševljeni koliko je jednostavno dodati fotografije. Preporučujemo svima!",
-    "testimonial3Author": "Jelena i Stefan",
-    "testimonial3Text": "Najbolji način da sačuvate sve uspomene sa vjenčanja na jednom mjestu."
+    "testimonial1": {
+      "text": "Aplikacija je bila savršena za naše vjenčanje. Gosti su lako dijelili svoje fotografije, a mi smo dobili prekrasne uspomene koje bismo inače propustili!",
+      "author": "Marija i Nikola",
+      "role": "Vjenčani jun 2023."
+    },
+    "testimonial2": {
+      "text": "Mnogo bolje od deljenja fotografija preko WhatsApp-a ili drugih društvenih mreža. Sve je na jednom mestu i privatno.",
+      "author": "Jelena i Stefan", 
+      "role": "Vjenčani maj 2023."
+    },
+    "testimonial3": {
+      "text": "Jednostavno za korišćenje i za nas i za naše goste. Dobili smo preko 500 fotografija sa našeg venčanja, što je bilo neverovatno!",
+      "author": "Ana i Marko",
+      "role": "Vjenčani avgust 2023."
+    }
   },
   "faq": {
     "title": "Često postavljana pitanja",
@@ -85,7 +93,7 @@
       "comment": "Komentar",
       "email": "Email (nije obavezno)",
       "loading": "Učitavanje...",
-      "error": "Greška",
+      "error": "Greška prilikom slanja komentara",
       "cancel": "Otkaži",
       "select": "Odaberi",
       "downloadAll": "Preuzmi sve",

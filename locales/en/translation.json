@@ -48,13 +48,21 @@
   },
   "testimonials": {
     "title": "What our users say",
-    "subtitle": "What our users say",
-    "testimonial1Author": "Maria and Nicholas",
-    "testimonial1Text": "Excellent app! We managed to collect over 300 photos from our guests that we wouldn't have otherwise.",
-    "testimonial2Author": "Anna and Mark",
-    "testimonial2Text": "Our guests were delighted by how easy it was to add photos. We recommend it to everyone!",
-    "testimonial3Author": "Helen and Stephen",
-    "testimonial3Text": "The best way to save all wedding memories in one place."
+    "testimonial1": {
+      "text": "The application was perfect for our wedding. Guests easily shared their photos, and we got beautiful memories we would have otherwise missed!",
+      "author": "Maria and Nicholas",
+      "role": "Married June 2023"
+    },
+    "testimonial2": {
+      "text": "Much better than sharing photos via WhatsApp or other social networks. Everything is in one place and private.",
+      "author": "Helen and Stephen",
+      "role": "Married May 2023"
+    },
+    "testimonial3": {
+      "text": "Easy to use for both us and our guests. We received over 500 photos from our wedding, which was incredible!",
+      "author": "Anna and Mark",
+      "role": "Married August 2023"
+    }
   },
   "faq": {
     "title": "Frequently Asked Questions",
@@ -85,7 +93,7 @@
     "comment": "Comment",
     "email": "Email (optional)",
     "loading": "Loading...",
-    "error": "Error",
+    "error": "Error sending comment",
     "cancel": "Cancel",
     "select": "Select",
     "downloadAll": "Download all",

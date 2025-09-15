@@ -4,6 +4,25 @@ import { useTranslation } from "react-i18next"
 export default function Testimonials() {
   const { t } = useTranslation();
   
+  // Dinamički testimonials iz translation fajlova
+  const testimonials = [
+    {
+      text: t('testimonials.testimonial1.text'),
+      author: t('testimonials.testimonial1.author'),
+      role: t('testimonials.testimonial1.role')
+    },
+    {
+      text: t('testimonials.testimonial2.text'),
+      author: t('testimonials.testimonial2.author'),
+      role: t('testimonials.testimonial2.role')
+    },
+    {
+      text: t('testimonials.testimonial3.text'),
+      author: t('testimonials.testimonial3.author'),
+      role: t('testimonials.testimonial3.role')
+    }
+  ];
+  
   return (
     <section className="py-20 bg-lp-bg">
       <div className="container px-6 mx-auto">
@@ -25,10 +44,10 @@ export default function Testimonials() {
               <p className="text-lp-text mb-6 italic">&quot;{testimonial.text}&quot;</p>
               <div className="flex items-center gap-3 mt-auto">
                 <div className="w-12 h-12 rounded-full bg-lp-muted flex items-center justify-center text-lp-accent font-bold">
-                  {testimonial.name.charAt(0)}
+                  {testimonial.author.charAt(0)}
                 </div>
                 <div>
-                  <div className="font-semibold text-lp-primary">{testimonial.name}</div>
+                  <div className="font-semibold text-lp-primary">{testimonial.author}</div>
                   <div className="text-xs text-lp-text">{testimonial.role}</div>
                 </div>
               </div>
@@ -40,20 +59,3 @@ export default function Testimonials() {
   )
 }
 
-const testimonials = [
-  {
-    text: "Aplikacija je bila savršena za naše vjenčanje. Gosti su lako dijelili svoje fotografije, a mi smo dobili prekrasne uspomene koje bismo inače propustili!",
-    name: "Marija i Nikola",
-    role: "Vjenčani jun 2023.",
-  },
-  {
-    text: "Mnogo bolje od deljenja fotografija preko WhatsApp-a ili drugih društvenih mreža. Sve je na jednom mestu i privatno.",
-    name: "Jelena i Stefan",
-    role: "Vjenčani maj 2023.",
-  },
-  {
-    text: "Jednostavno za korišćenje i za nas i za naše goste. Dobili smo preko 500 fotografija sa našeg venčanja, što je bilo neverovatno!",
-    name: "Ana i Marko",
-    role: "Vjenčani avgust 2023.",
-  },
-]

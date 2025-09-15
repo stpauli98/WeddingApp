@@ -1,57 +1,42 @@
-import { Check, Lock, Smartphone, Zap, Heart, Cloud, Camera, Star } from "lucide-react"
+import { Lock, Smartphone, Zap, Cloud, Camera, Star } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import { motion, AnimatePresence } from "framer-motion"
-import { useRef, useState, useEffect } from "react"
+import { motion } from "framer-motion"
+import { useRef } from "react"
 
 export default function Benefits() {
   const { t } = useTranslation();
   const sectionRef = useRef<HTMLElement>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
   
-  // Osiguravamo da se komponenta prikaže tek kada je potpuno spremna
-  useEffect(() => {
-    // Kratka odgoda kako bi se osiguralo da su svi resursi učitani
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, []);
-  
-  // Animacijske varijante za naslov
+  // Jednostavne animacijske varijante za naslov
   const titleVariants = {
     hidden: { opacity: 0, y: -20 },
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: 0.7 }
+      transition: { duration: 0.6 }
     }
   };
   
-  // Animacijske varijante za grid container
+  // Jednostavne animacijske varijante za grid container
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.08, // Smanjeno za brže učitavanje
-        delayChildren: 0.1,    // Smanjeno za brže učitavanje
-        when: "beforeChildren" // Osigurava da se container prikaže prije djece
+        staggerChildren: 0.1,
+        delayChildren: 0.2
       }
     }
   };
   
-  // Animacijske varijante za pojedinačne benefite
+  // Pojednostavljene animacije za benefite
   const benefitVariants = {
-    hidden: { opacity: 0, y: 20 }, // Promijenjeno iz scale u y za manje trzanja
+    hidden: { opacity: 0, y: 20 },
     visible: { 
       opacity: 1, 
       y: 0,
       transition: { 
-        type: "spring", 
-        stiffness: 400, 
-        damping: 30, // Povećano prigušenje za manje oscilacija
-        duration: 0.4 // Osigurava konzistentno trajanje
+        duration: 0.5
       }
     }
   };
@@ -87,29 +72,29 @@ export default function Benefits() {
       aria-labelledby="benefits-heading"
       role="region"
     >
-      {/* Dekorativni elementi u pozadini */}
+      {/* Pojednostavljeni dekorativni elementi */}
       <motion.div 
         className="absolute -top-20 -right-20 text-lp-accent opacity-5 pointer-events-none"
         animate={{ 
           rotate: [0, -10, 0],
-          scale: [1, 1.1, 1],
+          scale: [1, 1.05, 1],
         }}
-        transition={{ duration: 25, repeat: Infinity, repeatType: "reverse" }}
+        transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
         aria-hidden="true"
       >
-        <Camera size={180} />
+        <Camera size={160} />
       </motion.div>
       
       <motion.div 
         className="absolute -bottom-20 -left-20 text-lp-accent opacity-5 pointer-events-none"
         animate={{ 
           rotate: [0, 10, 0],
-          scale: [1, 1.1, 1],
+          scale: [1, 1.05, 1],
         }}
-        transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
+        transition={{ duration: 25, repeat: Infinity, repeatType: "reverse" }}
         aria-hidden="true"
       >
-        <Star size={160} />
+        <Star size={140} />
       </motion.div>
       
       <div className="container px-6 mx-auto">
@@ -121,57 +106,46 @@ export default function Benefits() {
           viewport={{ once: true, margin: "-100px" }}
         >
           <h2 id="benefits-heading" className="text-3xl md:text-4xl font-bold text-lp-primary mb-3">{t('benefits.title')}</h2>
-          
         </motion.div>
 
-        {/* Koristimo AnimatePresence za kontrolirano prikazivanje grid containera */}
-        {/* Koristimo position: absolute za grid dok se učitava kako bi spriječili trzanje */}
-        <div className="relative min-h-[500px] md:min-h-[400px]">
-          <AnimatePresence>
-            {isLoaded && (
+        {/* Pojednostavljen grid bez AnimatePresence */}
+        <motion.div 
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+        >
+          {benefits.map((benefit, index) => (
+            <motion.div
+              key={index}
+              className="bg-lp-card p-6 rounded-xl shadow-md border border-lp-accent hover:border-lp-primary hover:shadow-lg transition-all flex flex-col items-center text-center"
+              variants={benefitVariants}
+              whileHover={{ 
+                scale: 1.02, 
+                y: -3
+              }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 300, 
+                damping: 25
+              }}
+            >
               <motion.div 
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible" 
-                layout
-                layoutRoot
+                className="w-16 h-16 rounded-lg bg-lp-muted flex items-center justify-center mb-4"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.2 }}
               >
-                {benefits.map((benefit, index) => (
-                  <motion.div
-                    key={index}
-                    layoutId={`benefit-${index}`}
-                    className="bg-lp-card p-6 rounded-xl shadow-md border border-lp-accent hover:border-lp-primary hover:shadow-lg hover:shadow-lp-accent/30 transition-all flex flex-col items-center text-center relative"
-                    variants={benefitVariants}
-                    whileHover={{ 
-                      scale: 1.03, 
-                      boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                      y: -5
-                    }}
-                    transition={{ 
-                      type: "spring", 
-                      stiffness: 300, 
-                      damping: 30,
-                      layout: { duration: 0.3 }
-                    }}
-                  >
-                    <motion.div 
-                      className="w-16 h-16 rounded-lg bg-lp-muted flex items-center justify-center mb-4"
-                      whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      {benefit.icon}
-                    </motion.div>
-                    <h3 className="text-lg font-semibold text-lp-primary mb-2">{benefit.title}</h3>
-                    <p className="text-lp-text text-sm">{benefit.description}</p>
-                  </motion.div>
-                ))}
+                {benefit.icon}
               </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+              <h3 className="text-lg font-semibold text-lp-primary mb-2">{benefit.title}</h3>
+              <p className="text-lp-text text-sm">{benefit.description}</p>
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     </section>
   )
 }
+
 
