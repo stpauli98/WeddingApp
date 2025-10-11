@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   description: "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene.",
   generator: 'v0.dev',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://dodajuspomenu.com"),
+  verification: {
+    google: "MsLpENmJbTy5jvgQo2Jk1H31j7VqnVCxNJlip5IHPs8",
+  },
   openGraph: {
     title: "DodajUspomenu - Digitalni svadbeni album",
     description: "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene.",

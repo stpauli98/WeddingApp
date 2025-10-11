@@ -1,23 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Landing Pages -->
   <url>
-    <loc>https://mojasvadbaa.com/</loc>
+    <loc>https://www.dodajuspomenu.com/</loc>
     <priority>1.0</priority>
     <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="sr" href="https://www.dodajuspomenu.com/sr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.dodajuspomenu.com/en" />
   </url>
+
   <url>
-    <loc>https://mojasvadbaa.com/admin/register</loc>
+    <loc>https://www.dodajuspomenu.com/sr</loc>
+    <priority>1.0</priority>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.dodajuspomenu.com/en" />
+    <xhtml:link rel="alternate" hreflang="sr" href="https://www.dodajuspomenu.com/sr" />
+  </url>
+
+  <url>
+    <loc>https://www.dodajuspomenu.com/en</loc>
+    <priority>1.0</priority>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="sr" href="https://www.dodajuspomenu.com/sr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.dodajuspomenu.com/en" />
+  </url>
+
+  <!-- About Page -->
+  <url>
+    <loc>https://www.dodajuspomenu.com/about</loc>
     <priority>0.8</priority>
     <changefreq>monthly</changefreq>
   </url>
+
+  <!-- Admin Pages -->
   <url>
-    <loc>https://mojasvadbaa.com/admin/login</loc>
+    <loc>https://www.dodajuspomenu.com/admin/register</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>
+
   <url>
-    <loc>https://mojasvadbaa.com/dashboard</loc>
-    <priority>0.9</priority>
+    <loc>https://www.dodajuspomenu.com/admin/login</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://www.dodajuspomenu.com/admin/dashboard</loc>
+    <priority>0.6</priority>
     <changefreq>weekly</changefreq>
   </url>
+
+  <!-- Guest Pages -->
+  <url>
+    <loc>https://www.dodajuspomenu.com/guest/login</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://www.dodajuspomenu.com/guest/dashboard</loc>
+    <priority>0.6</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://www.dodajuspomenu.com/guest/success</loc>
+    <priority>0.5</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
 </urlset>
