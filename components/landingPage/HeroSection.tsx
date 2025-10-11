@@ -83,7 +83,7 @@ export default function HeroSection() {
   const trustIndicators = [
     {
       icon: Shield,
-      text: t('hero.trustGdpr') || 'GDPR Compliant'
+      text: t('hero.trustPrivacy') || 'Privatno i sigurno'
     },
     {
       icon: Clock,
