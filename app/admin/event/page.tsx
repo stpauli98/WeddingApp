@@ -119,15 +119,6 @@ export default function CreateEventPage() {
       }
     }
   }, [t, form]);
-  
-  // Show loading state while translations are being loaded
-  if (!ready) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse">{t('common.loading')}</div>
-      </div>
-    );
-  }
 
   // Auto-save draft to localStorage
   useEffect(() => {
@@ -165,6 +156,15 @@ export default function CreateEventPage() {
 
     return () => clearTimeout(timeoutId);
   }, [form.watch('slug')]);
+
+  // Show loading state while translations are being loaded
+  if (!ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse">{t('common.loading')}</div>
+      </div>
+    );
+  }
 
   // Generate a slug from the couple name
   const generateSlug = (name: string) => {

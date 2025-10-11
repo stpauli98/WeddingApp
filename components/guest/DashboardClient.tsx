@@ -50,23 +50,21 @@ export function DashboardClient({ initialImages, guestId, message, language = 's
       <AddToHomeScreenPrompt />
       <div className="mb-8">
         {/* Uvijek prikazujemo sekciju za slike, ali sa različitim sadržajem ovisno o broju slika */}
-        <div key={`image-upload-section-${images.length}`}>
-          {images.length >= 10 ? (
-            // Ako korisnik ima 10 ili više slika, prikazujemo UploadLimitReachedCelebration
-            <UploadLimitReachedCelebration 
-              imagesCount={images.length}
-              language={language}
-            />
-          ) : (
-            // Inače prikazujemo UploadForm sa brojem postojećih slika
-            <UploadForm 
-              guestId={guestId} 
-              message={message} 
-              existingImagesCount={images.length}
-              language={language}
-            />
-          )}
-        </div>
+        {images.length >= 10 ? (
+          // Ako korisnik ima 10 ili više slika, prikazujemo UploadLimitReachedCelebration
+          <UploadLimitReachedCelebration
+            imagesCount={images.length}
+            language={language}
+          />
+        ) : (
+          // Inače prikazujemo UploadForm sa brojem postojećih slika
+          <UploadForm
+            guestId={guestId}
+            message={message}
+            existingImagesCount={images.length}
+            language={language}
+          />
+        )}
       </div>
       
       <ImageGallery 

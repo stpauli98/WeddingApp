@@ -125,7 +125,8 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
     
     if (allSuccess) {
       setTimeout(() => {
-        window.location.href = "/guest/success";
+        const langPrefix = language === 'en' ? '/en' : '/sr';
+        window.location.href = `${langPrefix}/guest/success`;
       }, 1500);
     } else {
       setIsLoading(false);
@@ -191,7 +192,8 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
       
       if (allSuccess) {
         setTimeout(() => {
-          window.location.href = "/guest/success";
+          const langPrefix = language === 'en' ? '/en' : '/sr';
+          window.location.href = `${langPrefix}/guest/success`;
         }, 1500);
       } else {
         setIsLoading(false);
@@ -395,33 +397,31 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
         }
       }
 
-      // Sekvencijalno uploaduj svaku sliku pojedinačno
-      let uploadedCount = 0;
-      for (let i = 0; i < values.images.length; i++) {
+      // Paralelno uploaduj sve slike
+      const uploadPromises = values.images.map(async (img, i) => {
         try {
           // Ažuriraj status da je slika u procesu uploada
-          setUploadStatuses(prev => prev.map((status, idx) => 
+          setUploadStatuses(prev => prev.map((status, idx) =>
             idx === i ? { ...status, status: 'uploading', progress: 10 } : status
           ));
-          
+
           // Resize slike
-          const img = values.images[i];
           const resizedImg = await resizeImage(img);
-          
+
           // Ažuriraj progress nakon resize-a
-          setUploadStatuses(prev => prev.map((status, idx) => 
+          setUploadStatuses(prev => prev.map((status, idx) =>
             idx === i ? { ...status, progress: 30 } : status
           ));
-          
+
           // Kreiraj formData za pojedinačnu sliku
           const imageFormData = new FormData();
           imageFormData.append("images", resizedImg);
-          
+
           // Ažuriraj progress prije uploada
-          setUploadStatuses(prev => prev.map((status, idx) => 
+          setUploadStatuses(prev => prev.map((status, idx) =>
             idx === i ? { ...status, progress: 50 } : status
           ));
-          
+
           // Upload slike
           const response = await fetch(`/api/guest/upload?guestId=${guestId}`, {
             method: "POST",
@@ -430,36 +430,42 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
               "x-csrf-token": csrfToken || "",
             },
           });
-          
+
           const data = await response.json();
-          
+
           if (!response.ok) {
-            throw new Error(data.error || "Došlo je do greške");
+            const errorMsg = data.error || data.errors?.[0]?.msg || "Došlo je do greške";
+            throw new Error(errorMsg);
           }
-          
+
           // Ažuriraj status da je slika uspješno uploadovana
-          setUploadStatuses(prev => prev.map((status, idx) => 
+          setUploadStatuses(prev => prev.map((status, idx) =>
             idx === i ? { ...status, status: 'success', progress: 100 } : status
           ));
-          
-          uploadedCount++;
+
+          return { success: true, index: i };
         } catch (error) {
           // Ažuriraj status da je došlo do greške pri uploadu slike
-          setUploadStatuses(prev => prev.map((status, idx) => 
-            idx === i ? { 
-              ...status, 
-              status: 'error', 
+          setUploadStatuses(prev => prev.map((status, idx) =>
+            idx === i ? {
+              ...status,
+              status: 'error',
               error: error instanceof Error ? error.message : "Greška pri uploadu",
               retryable: true // Označavamo da se ovaj upload može ponovno pokušati
             } : status
           ));
+          return { success: false, index: i };
         }
-      }
+      });
+
+      const results = await Promise.allSettled(uploadPromises);
+      const uploadedCount = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
       
-      // Ako su sve slike uspješno uploadovane, preusmjeri na success stranicu
+      // Ako su sve slike uspješno uploadovane, preusmjeri na success stranicu sa jezikom
       if (uploadedCount === values.images.length) {
         setTimeout(() => {
-          window.location.href = "/guest/success";
+          const langPrefix = language === 'en' ? '/en' : '/sr';
+          window.location.href = `${langPrefix}/guest/success`;
         }, 1500);
       } else {
         // Ako neke slike nisu uploadovane, prikaži poruku o djelomičnom uspjehu
@@ -467,7 +473,8 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
         setIsLoading(false);
       }
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Došlo je do greške prilikom slanja");
+      setErrorMessage(error instanceof Error ? error.message : t('guest.uploadForm.errors.genericError', 'Došlo je do greške prilikom slanja'));
+      setShowLimitError(true);
       setIsLoading(false);
       setShowUploadStatus(false);
     }
@@ -602,10 +609,10 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
             <p className="text-sm text-[hsl(var(--lp-muted-foreground))] mt-1">{t('guest.uploadForm.maxChars', 'Maksimalno 500 karaktera')}</p>
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="px-4 py-6 sm:px-6">
           <Button
             type="submit"
-            className="w-full"
+            className="w-full py-6 sm:py-4"
             aria-label={t('guest.uploadForm.a11ySubmitButton', 'Pošalji slike i poruku mladencima')}
             disabled={isLoading || (form.watch("images")?.length ?? 0) === 0}
           >

@@ -2,49 +2,45 @@ import { prisma } from "@/lib/prisma"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CalendarIcon, MapPinIcon, HeartIcon } from "lucide-react"
 
-// Funkcija za formatiranje datuma
+// Funkcija za formatiranje datuma (samo datum, bez vremena)
 function formatDate(dateInput: Date | string | null | undefined, language: string = 'sr'): string {
   if (!dateInput) return ''
-  
+
   const date = new Date(dateInput)
-  
+
   // Mjeseci na srpskom (latinica)
   const monthsSr = [
     'januar', 'februar', 'mart', 'april', 'maj', 'jun',
     'jul', 'avgust', 'septembar', 'oktobar', 'novembar', 'decembar'
   ]
-  
+
   // Mjeseci na engleskom
   const monthsEn = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ]
-  
+
   const day = date.getDate()
   const monthIndex = date.getMonth()
   const year = date.getFullYear()
-  
-  // Formatiranje sati i minuta
-  let hours = date.getHours()
-  const minutes = date.getMinutes().toString().padStart(2, '0')
-  
+
   if (language === 'en') {
-    return `${monthsEn[monthIndex]} ${day}, ${year} at ${hours}:${minutes}`
+    return `${monthsEn[monthIndex]} ${day}, ${year}`
   }
-  
-  return `${day}. ${monthsSr[monthIndex]} ${year}. u ${hours}:${minutes}h`
+
+  return `${day}. ${monthsSr[monthIndex]} ${year}.`
 }
 
 // Funkcija za dobijanje prijevoda
 function getTranslation(key: string, language: string): string {
   const translations: Record<string, Record<string, string>> = {
     sr: {
-      'guest.weddingInfo.date': 'Datum i vreme',
+      'guest.weddingInfo.date': 'Datum',
       'guest.weddingInfo.location': 'Lokacija',
       'guest.weddingInfo.messageForGuests': 'Poruka za goste'
     },
     en: {
-      'guest.weddingInfo.date': 'Date and time',
+      'guest.weddingInfo.date': 'Date',
       'guest.weddingInfo.location': 'Location',
       'guest.weddingInfo.messageForGuests': 'Message for guests'
     }

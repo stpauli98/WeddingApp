@@ -1,9 +1,11 @@
-
 import { redirect } from "next/navigation"
 import { getGuestById } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import ClientSuccess from "./client-success"
 import { cookies, headers } from "next/headers";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
 
 function getSlikaPadez(n: number) {
   switch (n) {

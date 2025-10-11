@@ -6,6 +6,9 @@ import { prisma } from "@/lib/prisma"
 import { DashboardClient } from "@/components/guest/DashboardClient"
 import { changeLanguage } from "@/lib/i18n/i18n"
 
+// Force dynamic rendering - prevent static generation
+export const dynamic = 'force-dynamic';
+
 // Lokalni tip Image ako nije globalno dostupan
 // Tip za slike koji je kompatibilan sa ImageGallery komponentom
 interface DashboardImage {
