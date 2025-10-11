@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
 import AdminDashboardTabs from "@/components/admin/AdminDashboardTabs";
 import AdminDashboardWelcome from "@/components/admin/AdminDashboardWelcome";
+import { EventTierBadge } from "@/components/admin/EventTierBadge";
+import { PricingTier } from "@/lib/pricing-tiers";
 import { SUPPORTED_LANGUAGES } from "@/lib/utils/language";
 
 import { cookies } from "next/headers";
@@ -44,7 +46,15 @@ export default async function AdminDashboardEventPage({ params }: {
   // 2. Dohvati event i proveri vlasništvo
   const event = await prisma.event.findUnique({
     where: { id: eventId },
-    select: { id: true, coupleName: true, slug: true, adminId: true, language: true }
+    select: {
+      id: true,
+      coupleName: true,
+      slug: true,
+      adminId: true,
+      language: true,
+      pricingTier: true,
+      imageLimit: true
+    }
   });
   if (!event || event.adminId !== adminSession.admin.id) return notFound();
 
@@ -70,6 +80,17 @@ export default async function AdminDashboardEventPage({ params }: {
             {event.coupleName}
           </span>
           <AdminDashboardWelcome eventLanguage={event.language} />
+
+          {/* Display current pricing tier */}
+          <div className="mt-4 mb-2">
+            <EventTierBadge
+              tier={event.pricingTier as PricingTier}
+              imageLimit={event.imageLimit || 10}
+              language={event.language as 'sr' | 'en'}
+              variant="badge"
+            />
+          </div>
+
           <span className="block w-24 h-1 rounded-full bg-gradient-to-r from-[hsl(var(--lp-primary))] via-[hsl(var(--lp-accent))] to-[hsl(var(--lp-primary))] opacity-70 mt-2 mb-2"></span>
           <span className="block text-2xl">💍</span>
         </div>

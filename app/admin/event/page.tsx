@@ -15,6 +15,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { toast } from "@/components/ui/use-toast"
+import { PricingTierSelector } from "@/components/admin/PricingTierSelector"
+import { PRICING_TIERS, PricingTier } from "@/lib/pricing-tiers"
 
 // Define the form schema with Zod
 const formSchema = z.object({
@@ -40,6 +42,7 @@ const formSchema = z.object({
       message: "Slug može sadržati samo mala slova, brojeve i crtica.",
     }),
   guestMessage: z.string().max(500, { message: "Poruka za goste može imati najviše 500 karaktera." }).optional(),
+  pricingTier: z.enum(["free", "basic", "premium", "unlimited"]).default("free"),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;
@@ -67,6 +70,7 @@ export default function CreateEventPage() {
       date: undefined as unknown as Date,
       slug: "",
       guestMessage: "",
+      pricingTier: "free",
     },
     mode: 'onChange',
   });
@@ -193,7 +197,12 @@ export default function CreateEventPage() {
   }
 
   // Type for API payload
-  type EventApiPayload = Omit<FormSchemaType, "date"> & { date: string; guestMessage?: string };
+  type EventApiPayload = Omit<FormSchemaType, "date"> & {
+    date: string;
+    guestMessage?: string;
+    pricingTier: string;
+    imageLimit: number;
+  };
 
   // Call backend API to create event
   async function createEvent(data: EventApiPayload, csrfToken: string) {
@@ -240,10 +249,15 @@ export default function CreateEventPage() {
       setSlugError(null);
 
       // Format date for API (YYYY-MM-DD to avoid timezone issues)
+      const selectedTier = data.pricingTier || 'free';
+      const imageLimit = PRICING_TIERS[selectedTier].imageLimit;
+
       const formattedData: EventApiPayload = {
         ...data,
         date: format(data.date, 'yyyy-MM-dd'),
         guestMessage: data.guestMessage || '',
+        pricingTier: selectedTier,
+        imageLimit: imageLimit,
       };
 
       // Call API to create event
@@ -465,6 +479,22 @@ export default function CreateEventPage() {
                       />
                     </FormControl>
                     <FormDescription>{t('admin.event.guestMessageDescription')}</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Pricing Tier Selector */}
+              <FormField
+                control={form.control}
+                name="pricingTier"
+                render={({ field }) => (
+                  <FormItem className="col-span-full">
+                    <PricingTierSelector
+                      selectedTier={field.value as PricingTier}
+                      onTierChange={field.onChange}
+                      language={i18n.language as 'sr' | 'en'}
+                    />
                     <FormMessage />
                   </FormItem>
                 )}

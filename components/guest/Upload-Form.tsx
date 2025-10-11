@@ -14,11 +14,7 @@ import { ImageSlotBar } from "@/components/guest/ImageSlotBar"
 import { useTranslation } from "react-i18next"
 import { UploadStatusList } from "./UploadStatusList";
 
-// Validacija: max 10 slika, max 500 karaktera poruka
-const formSchema = z.object({
-  message: z.string().max(500, { message: "Poruka ne može biti duža od 500 karaktera" }).optional(),
-  images: z.array(z.instanceof(File)).max(10, { message: "Možete poslati najviše 10 slika" }).optional(),
-})
+// Note: formSchema će biti kreiran kao funkcija jer max limit je dinamičan
 
 // Tip za status uploada slike
 type ImageUploadStatus = {
@@ -36,10 +32,17 @@ interface UploadFormProps {
   message?: string;
   existingImagesCount?: number; // Dodajemo opcioni prop za broj postojećih slika
   language?: string; // Dodajemo prop za jezik
+  imageLimit?: number; // Dodajemo opcioni prop za maksimalan broj slika
 }
 
-export function UploadForm({ guestId, message, existingImagesCount: initialImagesCount = 0, language = 'sr' }: UploadFormProps) {
+export function UploadForm({ guestId, message, existingImagesCount: initialImagesCount = 0, language = 'sr', imageLimit = 10 }: UploadFormProps) {
   const { t, i18n } = useTranslation();
+
+  // Dinamička validacija forme sa promjenljivim limitom slika
+  const formSchema = z.object({
+    message: z.string().max(500, { message: "Poruka ne može biti duža od 500 karaktera" }).optional(),
+    images: z.array(z.instanceof(File)).max(imageLimit, { message: `Možete poslati najviše ${imageLimit} slika` }).optional(),
+  });
   
   // Postavi jezik ako je različit od trenutnog
   React.useEffect(() => {
@@ -341,10 +344,10 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Dodatna provjera ukupnog broja slika prije slanja (postojeće + nove)
     const totalImages = existingImagesCount + (values.images?.length || 0);
-    if (totalImages > 10) {
-      const preostalo = Math.max(0, 10 - existingImagesCount);
+    if (totalImages > imageLimit) {
+      const preostalo = Math.max(0, imageLimit - existingImagesCount);
       setErrorMessage(
-        `Možete imati najviše 10 slika ukupno. Trenutno imate ${existingImagesCount} slika, ` +
+        `Možete imati najviše ${imageLimit} slika ukupno. Trenutno imate ${existingImagesCount} slika, ` +
         `tako da možete dodati još najviše ${preostalo} ${preostalo === 1 ? 'sliku' : preostalo >= 2 && preostalo <= 4 ? 'slike' : 'slika'}.`
       );
       setShowLimitError(true);
@@ -540,9 +543,9 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
         <CardTitle>{t('guest.uploadForm.addImages', 'Dodaj slike')}</CardTitle>
         
         {/* Korištenje postojeće ImageSlotBar komponente */}
-        <ImageSlotBar 
-          current={selectedImagesCount + (initialImagesCount || 0)} 
-          max={10} 
+        <ImageSlotBar
+          current={selectedImagesCount + (initialImagesCount || 0)}
+          max={imageLimit}
           language={language}
         />
       </CardHeader>
@@ -553,7 +556,7 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
       >
         <CardContent className="space-y-6">
           <div>
-            <label className="block font-medium mb-1" htmlFor="images-upload">{t('guest.uploadForm.imagesMax10', 'Slike (max 10)')}</label>
+            <label className="block font-medium mb-1" htmlFor="images-upload">{t('guest.uploadForm.imagesMax', `Slike (max ${imageLimit})`)}</label>
             <span id="upload-instructions" className="sr-only">{t('guest.uploadForm.a11yInstructions', 'Prvo izaberite slike, zatim kliknite na dugme Potvrdi upload. Sve akcije su dostupne tastaturom. Status slanja će biti automatski najavljen.')}</span>
 
             <ImageUpload
@@ -562,16 +565,16 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
                 // Provjeri ukupan broj slika (postojeće + nove)
                 const totalImages = existingImagesCount + val.length;
                 setSelectedImagesCount(val.length);
-                
-                if (totalImages > 10) {
+
+                if (totalImages > imageLimit) {
                   // Prikaži toast obavještenje o prekoračenju limita
-                  const preostalo = Math.max(0, 10 - existingImagesCount);
+                  const preostalo = Math.max(0, imageLimit - existingImagesCount);
                   setErrorMessage(
-                    `Možete poslati najviše 10 slika ukupno. Trenutno imate ${existingImagesCount} slika, ` +
+                    `Možete poslati najviše ${imageLimit} slika ukupno. Trenutno imate ${existingImagesCount} slika, ` +
                     `tako da možete dodati još najviše ${preostalo} ${preostalo === 1 ? 'sliku' : preostalo >= 2 && preostalo <= 4 ? 'slike' : 'slika'}.`
                   );
                   setShowLimitError(true);
-                  
+
                   // Ograniči na maksimalan dozvoljeni broj slika
                   if (preostalo > 0) {
                     form.setValue("images", val.slice(0, preostalo));
@@ -585,10 +588,10 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
                   setShowLimitError(false); // Sakrij poruku o grešci ako je broj slika validan
                 }
               }}
-              maxFiles={10}
+              maxFiles={imageLimit}
               inputProps={{
                 id: "images-upload",
-                'aria-label': "Izaberite slike za upload (maksimalno 10)",
+                'aria-label': `Izaberite slike za upload (maksimalno ${imageLimit})`,
               }}
             />
           </div>

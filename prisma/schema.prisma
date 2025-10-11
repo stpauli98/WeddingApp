@@ -30,6 +30,8 @@ model Event {
   adminId      String?  @unique
   guestMessage String?
   language     String   @default("sr") // Jezik događaja (sr ili en)
+  imageLimit   Int      @default(10) // Maximum broj slika po gostu
+  pricingTier  String   @default("free") // free, basic, premium, unlimited
   admin        Admin?   @relation("AdminEvent", fields: [adminId], references: [id])
   guests       Guest[]
 }

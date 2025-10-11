@@ -17,11 +17,12 @@ interface DashboardClientProps {
   guestId: string
   message?: string
   language?: string
+  imageLimit?: number
 }
 
 import AddToHomeScreenPrompt from "@/components/AddToHomeScreenPrompt";
 
-export function DashboardClient({ initialImages, guestId, message, language = 'sr' }: DashboardClientProps) {
+export function DashboardClient({ initialImages, guestId, message, language = 'sr', imageLimit = 10 }: DashboardClientProps) {
   const { t, i18n } = useTranslation();
   
   // Postavi jezik ako je različit od trenutnog
@@ -50,23 +51,23 @@ export function DashboardClient({ initialImages, guestId, message, language = 's
       <AddToHomeScreenPrompt />
       <div className="mb-8">
         {/* Uvijek prikazujemo sekciju za slike, ali sa različitim sadržajem ovisno o broju slika */}
-        <div key={`image-upload-section-${images.length}`}>
-          {images.length >= 10 ? (
-            // Ako korisnik ima 10 ili više slika, prikazujemo UploadLimitReachedCelebration
-            <UploadLimitReachedCelebration 
-              imagesCount={images.length}
-              language={language}
-            />
-          ) : (
-            // Inače prikazujemo UploadForm sa brojem postojećih slika
-            <UploadForm 
-              guestId={guestId} 
-              message={message} 
-              existingImagesCount={images.length}
-              language={language}
-            />
-          )}
-        </div>
+        {images.length >= imageLimit ? (
+          // Ako korisnik ima imageLimit ili više slika, prikazujemo UploadLimitReachedCelebration
+          <UploadLimitReachedCelebration
+            imagesCount={images.length}
+            language={language}
+            imageLimit={imageLimit}
+          />
+        ) : (
+          // Inače prikazujemo UploadForm sa brojem postojećih slika
+          <UploadForm
+            guestId={guestId}
+            message={message}
+            existingImagesCount={images.length}
+            language={language}
+            imageLimit={imageLimit}
+          />
+        )}
       </div>
       
       <ImageGallery 

@@ -273,6 +273,15 @@
         "guestMessageDescription": "Ova poruka će biti prikazana gostima na njihovom dashboardu.",
         "coupleNameCounter": "{{count}}/100 znakova",
         "guestMessageCounter": "{{count}}/500 znakova",
+        "pricing": {
+          "title": "Izaberite plan",
+          "description": "Odaberite koliko slika po gostu želite da dozvolite",
+          "imagesPerGuest": "{{count}} slika po gostu",
+          "free": "Besplatno",
+          "selectTier": "Izaberi {{tier}}",
+          "currentTier": "Trenutni plan",
+          "recommended": "Preporučeno"
+        },
         "submitButton": "Kreiraj događaj",
         "submittingButton": "Kreiram događaj...",
         "requiredFields": "Sva polja su obavezna",

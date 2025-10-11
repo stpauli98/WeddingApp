@@ -18,9 +18,10 @@ interface UserGalleryProps {
   eventSlug?: string
   className?: string
   language?: string
+  imageLimit?: number
 }
 
-export function UserGallery({ initialImages, guestId, eventSlug: propEventSlug, className, language = 'sr' }: UserGalleryProps) {
+export function UserGallery({ initialImages, guestId, eventSlug: propEventSlug, className, language = 'sr', imageLimit = 10 }: UserGalleryProps) {
   const { t, i18n } = useTranslation();
   const [images] = useState<Image[]>(initialImages)
   const [eventSlug, setEventSlug] = useState<string | null>(null)
@@ -59,11 +60,11 @@ export function UserGallery({ initialImages, guestId, eventSlug: propEventSlug, 
 
   return (
     <div className={className}>
-      <ImageGallery 
-        images={images} 
+      <ImageGallery
+        images={images}
         readOnly={true}
       />
-      {images.length < 10 && (
+      {images.length < imageLimit && (
         <Button
           variant="outline"
           onClick={() => {

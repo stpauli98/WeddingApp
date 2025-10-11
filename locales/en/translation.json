@@ -275,6 +275,15 @@
       "guestMessageDescription": "This message will be displayed to guests on their dashboard.",
       "coupleNameCounter": "{{count}}/100 characters",
       "guestMessageCounter": "{{count}}/500 characters",
+      "pricing": {
+        "title": "Choose Your Plan",
+        "description": "Select how many images per guest you want to allow",
+        "imagesPerGuest": "{{count}} images per guest",
+        "free": "Free",
+        "selectTier": "Select {{tier}}",
+        "currentTier": "Current Plan",
+        "recommended": "Recommended"
+      },
       "submitButton": "Create Event",
       "submittingButton": "Creating event...",
       "requiredFields": "All fields are required",

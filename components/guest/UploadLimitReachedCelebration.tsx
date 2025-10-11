@@ -6,12 +6,13 @@ import { useTranslation } from "react-i18next";
 interface UploadLimitReachedCelebrationProps {
   imagesCount?: number; // Opcioni prop za broj slika
   language?: string; // Prop za jezik
+  imageLimit?: number; // Opcioni prop za maksimalan broj slika
 }
 /**
  * Animacija šljokica (confetti) + lepa poruka za limitiran broj slika.
  * Nema eksternih zavisnosti, koristi samo CSS i canvas.
  */
-export function UploadLimitReachedCelebration({ imagesCount = 10, language = 'sr' }: UploadLimitReachedCelebrationProps = {}) {
+export function UploadLimitReachedCelebration({ imagesCount = 10, language = 'sr', imageLimit = 10 }: UploadLimitReachedCelebrationProps = {}) {
   const { t, i18n } = useTranslation();
   
   // Postavi jezik ako je različit od trenutnog
@@ -99,7 +100,7 @@ export function UploadLimitReachedCelebration({ imagesCount = 10, language = 'sr
       />
       <div className="relative z-10 bg-white/90 border-2 border-[hsl(var(--lp-accent))] rounded-xl shadow-lg px-6 py-6 flex flex-col items-center">
         <span className="text-lg text-[hsl(var(--lp-foreground))] text-center mb-2">
-          {t('guest.uploadLimit.maxReached', 'Dostigli ste maksimalan broj slika')} ({imagesCount}/10).
+          {t('guest.uploadLimit.maxReached', 'Dostigli ste maksimalan broj slika')} ({imagesCount}/{imageLimit}).
         </span>
         <span className="text-base text-[hsl(var(--lp-muted-foreground))] text-center">
           {t('guest.uploadLimit.thankYou', 'Hvala na vašem doprinosu!')}

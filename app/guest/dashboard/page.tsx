@@ -66,7 +66,7 @@ export default async function DashboardPage(props: any) {
     redirect(`/${language}/guest/login`);
   }
   
-  // Dohvati event na osnovu sluga, uključujući i jezik admina
+  // Dohvati event na osnovu sluga, uključujući i jezik admina i imageLimit
   const event = await prisma.event.findUnique({
     where: { slug: eventSlug },
     include: {
@@ -75,7 +75,8 @@ export default async function DashboardPage(props: any) {
           language: true
         }
       }
-    }
+    },
+    // Explicitly select imageLimit field
   });
   
   // Ako event ne postoji, preusmjeri na login
@@ -135,15 +136,16 @@ export default async function DashboardPage(props: any) {
         <WeddingInfo eventId={eventId} language={urlLanguage || language || eventLanguage} />
       
       {/* Koristimo DashboardClient komponentu koja će upravljati brojem slika i osigurati da se sve komponente ažuriraju kada se broj slika promijeni */}
-        <DashboardClient 
+        <DashboardClient
           initialImages={(guest.images || []).map((img: { id: string; imageUrl: string; storagePath?: string | null }) => ({
             id: img.id,
             imageUrl: img.imageUrl,
             storagePath: img.storagePath === null ? undefined : img.storagePath,
-          }))} 
+          }))}
           guestId={guestId}
           message={guest.message?.text ?? ""}
           language={urlLanguage || language || eventLanguage}
+          imageLimit={event.imageLimit || 10}
         />
         <div className="mt-8">
           <LogoutButton 

@@ -27,6 +27,7 @@ interface Props {
   message?: { text: string }
   eventSlug?: string
   language?: string
+  imageLimit?: number
 }
 
 function getSlikaPadez(n: number) {
@@ -42,7 +43,7 @@ function getSlikaPadez(n: number) {
   }
 }
 
-export default function ClientSuccess({ guest, coupleName, message, eventSlug, language = 'sr' }: Props) {
+export default function ClientSuccess({ guest, coupleName, message, eventSlug, language = 'sr', imageLimit = 10 }: Props) {
   const { t, i18n } = useTranslation();
   const [countdown, setCountdown] = useState(30); // 30 sekundi prije preusmeravanja na formu
   
@@ -66,7 +67,7 @@ export default function ClientSuccess({ guest, coupleName, message, eventSlug, l
       <SuccessThankYouCard coupleName={coupleName} language={language} />
       <div className="flex flex-col gap-4">
         <div className="bg-white border border-[hsl(var(--lp-accent))]/30 rounded-xl shadow-md px-4 py-6 mb-8">
-          <UserGallery 
+          <UserGallery
             initialImages={(guest?.images || []).map((img: Image) => ({
               ...img,
               storagePath: img.storagePath === null ? undefined : img.storagePath,
@@ -74,12 +75,13 @@ export default function ClientSuccess({ guest, coupleName, message, eventSlug, l
             guestId={guest.id}
             eventSlug={eventSlug}
             language={language}
+            imageLimit={imageLimit}
           />
-          {guest.images && guest.images.length < 10 && (
+          {guest.images && guest.images.length < imageLimit && (
             <div className="mt-2 text-sm text-[hsl(var(--lp-muted-foreground))]">
               {t('guest.imageSlotBar.canAddMore', 'Možete dodati još {{count}} {{imageText}}', {
-                count: 10 - guest.images.length,
-                imageText: getSlikaPadez(10 - guest.images.length)
+                count: imageLimit - guest.images.length,
+                imageText: getSlikaPadez(imageLimit - guest.images.length)
               })}
             </div>
           )}
@@ -88,9 +90,13 @@ export default function ClientSuccess({ guest, coupleName, message, eventSlug, l
             <GuestMessage message={message} />
           </div>
         </div>
-        {guest.images && guest.images.length === 10 && (
+        {guest.images && guest.images.length >= imageLimit && (
           <div className="mb-2">
-            <UploadLimitReachedCelebration imagesCount={guest.images.length} language={language} />
+            <UploadLimitReachedCelebration
+              imagesCount={guest.images.length}
+              language={language}
+              imageLimit={imageLimit}
+            />
           </div>
         )}
         <div className="my-8">
