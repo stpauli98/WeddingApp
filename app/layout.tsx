@@ -60,6 +60,19 @@ export default function RootLayout({
   return (
     <html lang="sr" dir="ltr" className="light" style={{ colorScheme: "light" }}>
       <head>
+        {/* Google Analytics */}
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-Y5LM1PHT8H"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-Y5LM1PHT8H');
+          `}
+        </Script>
         {/* Inter font se učitava preko next/font/google, nije potreban preload */}
         {/* Favicon (dodaćeš public/favicon.ico po želji) */}
         <link rel="icon" href="/favicon.ico" />
@@ -69,7 +82,7 @@ export default function RootLayout({
             "@context": "https://schema.org",
             "@type": "WebSite",
             "name": "DodajUspomenu",
-            "url": "https://mojasvadbaa.com/",
+            "url": "https://www.dodajuspomenu.com/",
             "description": "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene. Brza i sigurna razmena fotografija sa venčanja."
           })}
         </Script>
@@ -82,7 +95,7 @@ export default function RootLayout({
             "location": {
               "@type": "Place",
               "name": "Online platforma",
-              "url": "https://mojasvadbaa.com/"
+              "url": "https://www.dodajuspomenu.com/"
             },
             "description": "Aplikacija za digitalno prikupljanje i deljenje slika i čestitki sa svadbi."
           })}
@@ -93,17 +106,17 @@ export default function RootLayout({
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": "DodajUspomenu",
-            "url": "https://mojasvadbaa.com/",
-            "logo": "https://mojasvadbaa.com/seo-cover.png",
+            "url": "https://www.dodajuspomenu.com/",
+            "logo": "https://www.dodajuspomenu.com/seo-cover.png",
             "sameAs": [
-              "https://www.facebook.com/mojasvadbaa",
-              "https://www.instagram.com/mojasvadbaa"
+              "https://www.facebook.com/dodajuspomenu",
+              "https://www.instagram.com/dodajuspomenu"
             ],
             "contactPoint": [{
               "@type": "ContactPoint",
-              "email": "kontakt@mojasvadbaa.com",
+              "email": "kontakt@dodajuspomenu.com",
               "contactType": "customer support",
-              "url": "https://mojasvadbaa.com/kontakt"
+              "url": "https://www.dodajuspomenu.com/kontakt"
             }]
           })}
         </Script>
@@ -117,25 +130,25 @@ export default function RootLayout({
                 "@type": "ListItem",
                 "position": 1,
                 "name": "Početna",
-                "item": "https://mojasvadbaa.com/"
+                "item": "https://www.dodajuspomenu.com/"
               },
               {
                 "@type": "ListItem",
                 "position": 2,
                 "name": "Registracija",
-                "item": "https://mojasvadbaa.com/admin/register"
+                "item": "https://www.dodajuspomenu.com/admin/register"
               },
               {
                 "@type": "ListItem",
                 "position": 3,
                 "name": "Prijava",
-                "item": "https://mojasvadbaa.com/admin/login"
+                "item": "https://www.dodajuspomenu.com/admin/login"
               },
               {
                 "@type": "ListItem",
                 "position": 4,
                 "name": "Dashboard",
-                "item": "https://mojasvadbaa.com/dashboard"
+                "item": "https://www.dodajuspomenu.com/admin/dashboard"
               }
             ]
           })}
@@ -148,7 +161,7 @@ export default function RootLayout({
             "itemReviewed": {
               "@type": "WebSite",
               "name": "DodajUspomenu",
-              "url": "https://mojasvadbaa.com/"
+              "url": "https://www.dodajuspomenu.com/"
             },
             "reviewRating": {
               "@type": "Rating",
