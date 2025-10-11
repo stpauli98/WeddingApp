@@ -107,7 +107,11 @@ export default function CreateEventPage() {
         const parsedDraft = JSON.parse(draft);
         if (parsedDraft.coupleName) form.setValue('coupleName', parsedDraft.coupleName);
         if (parsedDraft.location) form.setValue('location', parsedDraft.location);
-        if (parsedDraft.date) form.setValue('date', new Date(parsedDraft.date));
+        if (parsedDraft.date) {
+          // Parse YYYY-MM-DD string as local date
+          const [year, month, day] = parsedDraft.date.split('-').map(Number);
+          form.setValue('date', new Date(year, month - 1, day));
+        }
         if (parsedDraft.slug) form.setValue('slug', parsedDraft.slug);
         if (parsedDraft.guestMessage) form.setValue('guestMessage', parsedDraft.guestMessage);
       } catch (e) {
@@ -131,7 +135,7 @@ export default function CreateEventPage() {
     const draft = {
       coupleName: values.coupleName,
       location: values.location,
-      date: values.date?.toISOString(),
+      date: values.date ? format(values.date, 'yyyy-MM-dd') : undefined,
       slug: values.slug,
       guestMessage: values.guestMessage,
     };
@@ -235,10 +239,10 @@ export default function CreateEventPage() {
       setIsSubmitting(true);
       setSlugError(null);
 
-      // Format date for API
+      // Format date for API (YYYY-MM-DD to avoid timezone issues)
       const formattedData: EventApiPayload = {
         ...data,
-        date: data.date.toISOString(),
+        date: format(data.date, 'yyyy-MM-dd'),
         guestMessage: data.guestMessage || '',
       };
 
