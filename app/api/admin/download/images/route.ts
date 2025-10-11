@@ -16,7 +16,7 @@ export async function GET() {
     // Pripremi ZIP
     const JSZip = (await import("jszip")).default;
     const zip = new JSZip();
-    images.forEach((img, idx) => {
+    images.forEach((img: { id: string; imageUrl: string }, idx: number) => {
       if (img.imageUrl.startsWith("data:")) {
         const base64 = img.imageUrl.split(",")[1];
         zip.file(`slika_${img.id || idx}.jpg`, base64, { base64: true });

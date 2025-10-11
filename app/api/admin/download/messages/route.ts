@@ -13,7 +13,7 @@ export async function GET() {
       return new NextResponse("Nema poruka za preuzimanje", { status: 404 });
     }
     // Pripremi HTML za download
-    const htmlRows = messages.map(msg => {
+    const htmlRows = messages.map((msg: any) => {
       const ime = msg.guest?.firstName ? msg.guest.firstName : '';
       const prezime = msg.guest?.lastName ? msg.guest.lastName : '';
       const poruka = (msg.text || '').replace(/\r?\n/g, '<br>');
