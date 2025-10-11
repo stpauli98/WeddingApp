@@ -23,7 +23,7 @@ export async function GET() {
       }
     });
     const content = await zip.generateAsync({ type: "uint8array" });
-    return new NextResponse(content, {
+    return new NextResponse(content as any, {
       status: 200,
       headers: {
         "Content-Type": "application/zip",

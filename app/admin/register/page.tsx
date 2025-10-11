@@ -155,7 +155,40 @@ export default function AdminRegisterPage() {
         <div className="absolute top-4 right-4">
           <LanguageSelector className="backdrop-blur-sm bg-white/50" />
         </div>
-        <Card className="w-full max-w-md bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-card-foreground))] shadow-lg border-[hsl(var(--lp-accent))]">
+
+        {/* Container za banner i card */}
+        <div className="w-full max-w-md space-y-4">
+          {/* Prominentni Login Banner */}
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg border-2 border-[hsl(var(--lp-accent))] p-4 shadow-md">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[hsl(var(--lp-primary))] flex items-center justify-center flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[hsl(var(--lp-text))]">
+                    {t('admin.register.alreadyHaveAccountPrompt')}
+                  </p>
+                  <p className="text-xs text-[hsl(var(--lp-muted-foreground))]">
+                    {t('admin.register.loginPrompt')}
+                  </p>
+                </div>
+              </div>
+              <Button
+                asChild
+                className="bg-[hsl(var(--lp-primary))] text-white hover:bg-[hsl(var(--lp-primary))/90] w-full sm:w-auto whitespace-nowrap"
+              >
+                <Link href="/admin/login">
+                  {t('admin.register.login')}
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          {/* Postojeća registraciona Card */}
+          <Card className="bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-card-foreground))] shadow-lg border-[hsl(var(--lp-accent))]">
           <CardHeader className="space-y-1 text-center relative pb-6">
             <CardTitle className="text-2xl font-bold text-[hsl(var(--lp-text))]">{t('admin.register.title')}</CardTitle>
           </CardHeader>
@@ -267,19 +300,14 @@ export default function AdminRegisterPage() {
               </div>
               {error && <div className="text-red-500 text-sm pt-2 font-medium">{error}</div>}
             </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
+            <CardFooter>
               <Button className="w-full bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))] hover:bg-[hsl(var(--lp-primary))/90] border-none" type="submit" disabled={loading || !csrfToken}>
                 {loading ? t('admin.register.loading') : t('admin.register.registerButton')}
               </Button>
-              <div className="text-center text-sm">
-                {t('admin.register.alreadyHaveAccount')}{" "}
-                <Link href="/admin/login" className="font-medium text-[hsl(var(--lp-accent))] hover:underline">
-                  {t('admin.register.login')}
-                </Link>
-              </div>
             </CardFooter>
           </form>
         </Card>
+        </div>
       </div>
     </I18nProvider>
   );

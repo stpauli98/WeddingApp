@@ -20,12 +20,16 @@ import { toast } from "@/components/ui/use-toast"
 const formSchema = z.object({
   coupleName: z.string().min(2, {
     message: "Ime paru mora imati najmanje 2 karaktera.",
+  }).max(100, {
+    message: "Ime para može imati najviše 100 karaktera.",
   }),
   location: z.string().min(2, {
     message: "Lokacija mora imati najmanje 2 karaktera.",
   }),
   date: z.date({
     required_error: "Datum svadebe je obavezan.",
+  }).refine((date) => date > new Date(), {
+    message: "Datum mora biti u budućnosti.",
   }),
   slug: z
     .string()
@@ -47,6 +51,8 @@ export default function CreateEventPage() {
   
   // State hooks
   const [slugError, setSlugError] = useState<string | null>(null);
+  const [slugChecking, setSlugChecking] = useState(false);
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [csrfError, setCsrfError] = useState<string | null>(null);
@@ -80,7 +86,7 @@ export default function CreateEventPage() {
     console.log('Selected date:', selectedDate);
   }, [selectedDate]);
   
-  // Fetch CSRF token on mount
+  // Fetch CSRF token on mount and load draft from localStorage
   useEffect(() => {
     const fetchCsrf = async () => {
       try {
@@ -93,7 +99,22 @@ export default function CreateEventPage() {
       }
     };
     fetchCsrf();
-  }, [t]);
+
+    // Load draft from localStorage
+    const draft = localStorage.getItem('eventDraft');
+    if (draft) {
+      try {
+        const parsedDraft = JSON.parse(draft);
+        if (parsedDraft.coupleName) form.setValue('coupleName', parsedDraft.coupleName);
+        if (parsedDraft.location) form.setValue('location', parsedDraft.location);
+        if (parsedDraft.date) form.setValue('date', new Date(parsedDraft.date));
+        if (parsedDraft.slug) form.setValue('slug', parsedDraft.slug);
+        if (parsedDraft.guestMessage) form.setValue('guestMessage', parsedDraft.guestMessage);
+      } catch (e) {
+        console.error('Error loading draft:', e);
+      }
+    }
+  }, [t, form]);
   
   // Show loading state while translations are being loaded
   if (!ready) {
@@ -104,8 +125,42 @@ export default function CreateEventPage() {
     );
   }
 
-  // Ovdje su bili dupli pozivi za CSRF token, form inicijalizaciju i praćenje datuma
-  // Uklonjeni su jer su već definirani na vrhu komponente
+  // Auto-save draft to localStorage
+  useEffect(() => {
+    const values = form.getValues();
+    const draft = {
+      coupleName: values.coupleName,
+      location: values.location,
+      date: values.date?.toISOString(),
+      slug: values.slug,
+      guestMessage: values.guestMessage,
+    };
+    localStorage.setItem('eventDraft', JSON.stringify(draft));
+  }, [form.watch()]);
+
+  // Check slug availability with debounce
+  useEffect(() => {
+    const slug = form.getValues('slug');
+    if (!slug || slug.length < 3 || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
+      setSlugAvailable(null);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setSlugChecking(true);
+      try {
+        const response = await fetch(`/api/admin/check-slug?slug=${encodeURIComponent(slug)}`);
+        const data = await response.json();
+        setSlugAvailable(data.available);
+      } catch (error) {
+        console.error('Error checking slug:', error);
+      } finally {
+        setSlugChecking(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [form.watch('slug')]);
 
   // Generate a slug from the couple name
   const generateSlug = (name: string) => {
@@ -191,13 +246,16 @@ export default function CreateEventPage() {
       const result = await createEvent(formattedData, csrfToken);
 
       if (result.success) {
+        // Clear draft from localStorage on success
+        localStorage.removeItem('eventDraft');
+
         toast({
           title: t('admin.event.success.title'),
           description: t('admin.event.success.description'),
         });
         // Dohvati trenutni jezik iz i18n
         const currentLang = i18n.language || 'sr';
-        
+
         if (result.event?.id) {
           router.push(`/${currentLang}/admin/dashboard/${result.event.id}`);
         } else {
@@ -244,16 +302,22 @@ export default function CreateEventPage() {
                 name="coupleName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('admin.event.coupleName')}</FormLabel>
+                    <div className="flex justify-between items-center">
+                      <FormLabel>{t('admin.event.coupleName')}</FormLabel>
+                      <span className="text-xs text-muted-foreground">
+                        {t('admin.event.coupleNameCounter', { count: field.value?.length || 0 })}
+                      </span>
+                    </div>
                     <FormControl>
-                      <Input 
-                        placeholder={t('admin.event.coupleNamePlaceholder')} 
-                        {...field} 
+                      <Input
+                        placeholder={t('admin.event.coupleNamePlaceholder')}
+                        maxLength={100}
+                        {...field}
                         onChange={e => {
                           handleCoupleNameChange(e);
                           field.onChange(e);
                           setSlugManuallyEdited(false);
-                        }} 
+                        }}
                       />
                     </FormControl>
                     <FormDescription>{t('admin.event.coupleNameDescription')}</FormDescription>
@@ -350,6 +414,21 @@ export default function CreateEventPage() {
                         <span className={`text-xs ${slugValid ? 'text-green-600' : 'text-red-600'}`}>
                           {t('admin.event.slugSuggestion', { suggestion: slugSuggestion })}
                         </span>
+                        {slugChecking && (
+                          <span className="text-xs text-blue-600 ml-2">
+                            {t('admin.event.errors.slugChecking')}
+                          </span>
+                        )}
+                        {!slugChecking && slugAvailable === true && (
+                          <span className="text-xs text-green-600 ml-2 font-semibold">
+                            ✓ {t('admin.event.errors.slugAvailable')}
+                          </span>
+                        )}
+                        {!slugChecking && slugAvailable === false && (
+                          <span className="text-xs text-red-600 ml-2 font-semibold">
+                            ✗ {t('admin.event.errors.slugTaken')}
+                          </span>
+                        )}
                       </FormDescription>
                       {!slugValid && (
                         <div className="text-xs text-red-600 mt-1">
@@ -367,7 +446,12 @@ export default function CreateEventPage() {
                 name="guestMessage"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('admin.event.guestMessage')}</FormLabel>
+                    <div className="flex justify-between items-center">
+                      <FormLabel>{t('admin.event.guestMessage')}</FormLabel>
+                      <span className="text-xs text-muted-foreground">
+                        {t('admin.event.guestMessageCounter', { count: field.value?.length || 0 })}
+                      </span>
+                    </div>
                     <FormControl>
                       <textarea
                         className="w-full min-h-[80px] rounded border px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-primary"
@@ -388,10 +472,10 @@ export default function CreateEventPage() {
               {csrfError && (
                 <div className="text-sm text-red-600 mb-2 text-center">{csrfError}</div>
               )}
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={isSubmitting || !form.getValues('slug') || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(form.getValues('slug')) || form.getValues('slug').length < 3 || !!slugError || !csrfToken}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting || slugChecking || slugAvailable === false || !form.getValues('slug') || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(form.getValues('slug')) || form.getValues('slug').length < 3 || !!slugError || !csrfToken}
               >
                 {isSubmitting ? t('admin.event.submittingButton') : t('admin.event.submitButton')}
               </Button>

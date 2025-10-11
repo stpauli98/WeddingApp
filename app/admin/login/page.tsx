@@ -106,7 +106,40 @@ export default function AdminLoginPage() {
         <div className="absolute top-4 right-4">
           <LanguageSelector className="backdrop-blur-sm bg-white/50" />
         </div>
-        <Card className="w-full max-w-md bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-card-foreground))] shadow-lg border-[hsl(var(--lp-accent))]">
+
+        {/* Container za banner i card */}
+        <div className="w-full max-w-md space-y-4">
+          {/* Prominentni Register Banner */}
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg border-2 border-[hsl(var(--lp-accent))] p-4 shadow-md">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[hsl(var(--lp-primary))] flex items-center justify-center flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[hsl(var(--lp-text))]">
+                    {t('admin.login.needAccountPrompt')}
+                  </p>
+                  <p className="text-xs text-[hsl(var(--lp-muted-foreground))]">
+                    {t('admin.login.createAccount')}
+                  </p>
+                </div>
+              </div>
+              <Button
+                asChild
+                className="bg-[hsl(var(--lp-primary))] text-white hover:bg-[hsl(var(--lp-primary))/90] w-full sm:w-auto whitespace-nowrap"
+              >
+                <Link href={mounted ? `/${getCurrentLanguageFromPath()}/admin/register` : "/admin/register"}>
+                  {t('admin.login.register')}
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          {/* Postojeća login Card */}
+          <Card className="bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-card-foreground))] shadow-lg border-[hsl(var(--lp-accent))]">
           <CardHeader className="space-y-1 text-center relative pb-6">
             <CardTitle className="text-2xl font-bold text-[hsl(var(--lp-text))]">
               {t('admin.login.title', 'Admin Login')}
@@ -167,23 +200,14 @@ export default function AdminLoginPage() {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button 
-              className="w-full bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))] hover:bg-[hsl(var(--lp-primary))/90] border-none" 
-              type="submit" 
+          <CardFooter>
+            <Button
+              className="w-full bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))] hover:bg-[hsl(var(--lp-primary))/90] border-none"
+              type="submit"
               disabled={loading || !csrfToken}
             >
               {loading ? t('admin.login.loading') : t('admin.login.loginButton')}
             </Button>
-            <div className="text-center text-sm">
-              {t('admin.login.dontHaveAccount')}{" "}
-              <Link 
-                href={mounted ? `/${getCurrentLanguageFromPath()}/admin/register` : "/admin/register"} 
-                className="font-medium text-[hsl(var(--lp-accent))] hover:underline"
-              >
-                {t('admin.login.register')}
-              </Link>
-            </div>
           </CardFooter>
         </form>
         <div className="p-6 pt-0">
@@ -201,7 +225,8 @@ export default function AdminLoginPage() {
           </Button>
         </div>
       </Card>
-    </div>
+        </div>
+      </div>
     </I18nProvider>
   );
 }
