@@ -7,6 +7,11 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
+  // Skip Prisma initialization during build phase
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    return null as any;
+  }
+
   const baseClient = new PrismaClient({
     log: process.env.NODE_ENV === 'development'
       ? [
