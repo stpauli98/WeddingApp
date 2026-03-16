@@ -19,7 +19,7 @@
    * - Tekst na elementima s primary pozadinom
    * - Osigurava dobar kontrast i čitljivost na primary boji
    */
-  --lp-primary-foreground: 320 16% 30%;
+  --lp-primary-foreground: 0 0% 100%;
   
   /* Ivory/bež - glavna pozadinska boja
    * Koristi se za:
@@ -44,7 +44,7 @@
    * - Linkovi i interaktivni elementi
    * - Fokus stanja na elementima
    */
-  --lp-accent: 325 16% 60%;
+  --lp-accent: 42 60% 70%;
   
   /* Tamni plum/taupe - glavna boja teksta
    * Koristi se za:
@@ -80,14 +80,14 @@
    * - Manje važni naglasci
    * - Alternativni elementi u odnosu na primary
    */
-  --lp-secondary: 325 30% 65%;
+  --lp-secondary: 36 50% 88%;
   
   /* Tamniji plum - boja teksta na sekundarnim elementima
    * Koristi se za:
    * - Tekst na sekundarnim dugmadima
    * - Osigurava dobar kontrast na secondary boji
    */
-  --lp-secondary-foreground: 320 16% 20%;
+  --lp-secondary-foreground: 30 20% 25%;
   
   /* Prigušena boja teksta za manje važne informacije
    * Koristi se za:
@@ -104,7 +104,7 @@
    * - Separatori i djelitelji
    * - Obrubi oko neaktivnih elemenata
    */
-  --lp-border: 325 20% 82%;
+  --lp-border: 325 20% 85%;
   
   /* Boja pozadine input polja
    * Koristi se za:
@@ -201,7 +201,7 @@
    * - Hover stanje na accent elementima
    * - Daje vizualnu povratnu informaciju korisniku
    */
-  --lp-accent-hover: 325 16% 50%;
+  --lp-accent-hover: 42 60% 60%;
 }
 
 /* Rješava problem žute pozadine kod autofill-a */
