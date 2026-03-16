@@ -1,184 +1,97 @@
 {
-  "imageSlider": {
-    "step": "Korak {{number}}",
-    "previousImage": "Prethodna slika",
-    "nextImage": "Sljedeća slika",
-    "goToImage": "Prijeđi na sliku {{number}}"
-  },
   "hero": {
-    "title": "Sačuvajte sve uspomene sa vašeg <accent>vjenčanja</accent>",
-    "description": "Jednostavan način da prikupite sve fotografije koje su vaši gosti napravili tokom vjenčanja na jednom mjestu, bez komplikacija.",
-    "createEvent": "Kreirajte besplatan događaj",
-    "howItWorks": "Kako funkcioniše",
-    "imagesCollected": "Prikupljeno slika",
-    "adminTitle": "Admin",
-    "guestTitle": "Gost",
-    "adminScreenshot": "Screenshot admin dijela aplikacije",
-    "guestScreenshot": "Screenshot korisničkog dijela aplikacije",
-    "appScreenshotsDescription": "Screenshot aplikacije koji prikazuje funkcionalnosti za prikupljanje slika s vjenčanja",
-    "eyebrow": "Najbrži način za prikupljanje fotografija",
-    "titleLine1": "Sačuvajte sve",
-    "titleLine2": "uspomene",
-    "titleLine3": "sa vjenčanja",
-    "statsImages": "Fotografija prikupljeno",
-    "statsUsers": "Parova koristi",
-    "statsEvents": "Događaja kreirano",
-    "trustSetup": "Setup za 2 min",
-    "trustFree": "100% Besplatno",
+    "eyebrow": "Najjednostavniji način za prikupljanje fotografija",
+    "titleLine1": "Sve uspomene",
+    "titleLine2": "sa vjenčanja",
+    "titleLine3": "na jednom mjestu",
+    "description": "Vaši gosti slikaju, vi uživate. Bez WhatsApp grupa, bez kompresije, bez komplikacija.",
+    "primaryCta": "Počnite za 2 minuta",
+    "secondaryCta": "Kako funkcioniše",
     "trustPrivacy": "Privatno i sigurno",
-    "scrollDown": "Skrolujte da vidite više",
-    "demoTitle": "Pogledajte kako funkcioniše",
-    "liveBadge": "Uživo",
-    "freeLabel": "Besplatno",
-    "foreverLabel": "Zauvijek"
+    "trustSpeed": "Setup za 2 min",
+    "trustFree": "100% Besplatno"
   },
   "howItWorks": {
-    "title": "Kako funkcioniše",
-    "description": "Jednostavan način da prikupite sve fotografije koje su vaši gosti napravili tokom vjenčanja na jednom mjestu, bez komplikacija.",
-    "step1Title": "Registrujte se",
-    "step1Description": "Kreirajte svoj događaj u nekoliko jednostavnih koraka",
-    "step2Title": "Podijelite kod",
-    "step2Description": "Podijelite jedinstveni QR kod sa svojim gostima",
-    "step3Title": "Prikupite fotografije",
-    "step3Description": "Gosti uploaduju fotografije direktno sa svojih telefona",
-    "step4Title": "Preuzmite uspomene",
-    "step4Description": "Pristupite svim fotografijama na jednom mjestu",
-    "qrCodeText": "Jednostavno skeniranje"
-  },
-  "benefits": {
-    "title": "Zašto koristiti našu aplikaciju",
-    "subtitle": "Prednosti koje dobijate",
-    "benefit1Title": "Jednostavno korištenje",
-    "benefit1Description": "Intuitivni interfejs za vas i vaše goste",
-    "benefit2Title": "Bez instalacije aplikacije",
-    "benefit2Description": "Gosti mogu uploadovati fotografije direktno kroz web preglednik",
-    "benefit3Title": "Privatnost",
-    "benefit3Description": "Samo vi imate pristup fotografijama",
-    "benefit4Title": "Visok kvalitet",
-    "benefit4Description": "Fotografije se čuvaju u originalnoj rezoluciji",
-    "benefit5Title": "Jednostavno korištenje",
-    "benefit5Description": "Intuitivni interfejs za vas i vaše goste",
-    "benefit6Title": "Bez instalacije aplikacije",
-    "benefit6Description": "Gosti mogu uploadovati fotografije direktno kroz web preglednik"
-  },
-  "testimonials": {
-    "title": "Šta kažu naši korisnici",
-    "testimonial1": {
-      "text": "Aplikacija je bila savršena za naše vjenčanje. Gosti su lako dijelili svoje fotografije, a mi smo dobili prekrasne uspomene koje bismo inače propustili!",
-      "author": "Marija i Nikola",
-      "role": "Vjenčani jun 2023."
-    },
-    "testimonial2": {
-      "text": "Mnogo bolje od deljenja fotografija preko WhatsApp-a ili drugih društvenih mreža. Sve je na jednom mestu i privatno.",
-      "author": "Jelena i Stefan", 
-      "role": "Vjenčani maj 2023."
-    },
-    "testimonial3": {
-      "text": "Jednostavno za korišćenje i za nas i za naše goste. Dobili smo preko 500 fotografija sa našeg venčanja, što je bilo neverovatno!",
-      "author": "Ana i Marko",
-      "role": "Vjenčani avgust 2023."
-    }
+    "title": "Kako funkcioniše?",
+    "description": "Tri jednostavna koraka do svih vaših uspomena",
+    "step1Title": "Kreirajte događaj",
+    "step1Description": "Registrujte se i kreirajte svoj event za 2 minute",
+    "step2Title": "Podijelite QR kod",
+    "step2Description": "Gosti skeniraju kod ili otvore link i šalju fotografije",
+    "step3Title": "Uživajte u slikama",
+    "step3Description": "Sve slike su na jednom mjestu, spremne za preuzimanje"
   },
   "faq": {
-    "title": "Često postavljana pitanja",
-    "subtitle": "Često postavljana pitanja",
-    "question1": "Da li je aplikacija besplatna?",
-    "answer1": "Da, osnovna verzija aplikacije je potpuno besplatna za korištenje.",
-    "question2": "Koliko fotografija mogu uploadovati gosti?",
-    "answer2": "Svaki gost može uploadovati do 10 fotografija.",
-    "question3": "Koliko dugo se čuvaju fotografije?",
-    "answer3": "Fotografije se čuvaju 1 mjesec nakon vjenčanja.",
-    "question4": "Da li gosti moraju kreirati nalog?",
-    "answer4": "Ne, gosti se prijavljuju samo sa svojim imenom i email adresom."
+    "title": "Česta pitanja",
+    "subtitle": "Sve što trebate znati o DodajUspomenu",
+    "question1": "Kako funkcioniše DodajUspomenu?",
+    "answer1": "Kreirate event, podijelite link ili QR kod gostima, oni uploaduju slike direktno sa telefona. Vi sve preuzimate na jednom mjestu.",
+    "question2": "Da li je zaista 100% besplatno?",
+    "answer2": "Da, potpuno besplatno. Bez skrivenih troškova, bez pretplate, bez kartice.",
+    "question3": "Koliko fotografija gosti mogu poslati?",
+    "answer3": "Svaki gost može poslati do 10 fotografija u punoj rezoluciji.",
+    "question4": "Da li su fotografije privatne i sigurne?",
+    "answer4": "Da, samo vi i vaši registrovani gosti imaju pristup fotografijama. Svaki event ima jedinstveni privatni link.",
+    "question5": "Koliko dugo se čuvaju fotografije?",
+    "answer5": "Fotografije se čuvaju trajno u oblaku. Možete ih preuzeti kad god poželite.",
+    "question6": "Može li se koristiti i za druge događaje osim vjenčanja?",
+    "answer6": "Apsolutno! DodajUspomenu je savršen za krštenja, rođendane, team building i sve događaje gdje želite prikupiti fotografije.",
+    "question7": "Trebaju li gosti instalirati aplikaciju?",
+    "answer7": "Ne, sve radi direktno u web browseru. Gosti samo otvore link ili skeniraju QR kod — nema instalacije."
   },
   "footer": {
+    "description": "Najjednostavniji način za prikupljanje fotografija sa vjenčanja.",
     "copyright": "Sva prava zadržana.",
-    "title": "Sačuvajte sve uspomene sa vašeg vjenčanja",
-    "subtitle": "Jednostavan način da prikupite sve fotografije koje su vaši gosti napravili tokom vjenčanja na jednom mjestu, bez komplikacija.",
-    "button": "Kreirajte besplatno događaj",
-    "privacyPolicy": "Politika privatnosti",
-    "termsOfService": "Uslovi korištenja",
+    "privacyPolicy": "Privatnost",
+    "termsOfService": "Uslovi korišćenja",
     "contact": "Kontakt"
   },
-    "common": {
-      "title": "Ako imate pitanja ili prijedloge, javite nam se.",
-      "subtitle": "Vaše mišljenje nam je važno. Sve komentare i prijedloge čitamo i koristimo kako bismo unaprijedili aplikaciju.",
-      "success": "Uspješno",
-      "submit": "Pošalji",
-      "comment": "Komentar",
-      "email": "Email (nije obavezno)",
-      "loading": "Učitavanje...",
-      "error": "Greška prilikom slanja komentara",
-      "cancel": "Otkaži",
-      "select": "Odaberi",
-      "downloadAll": "Preuzmi sve",
-      "unselectAll": "Poništi sve",
-      "selectAll": "Odaberi sve"
+  "common": {
+    "title": "Ako imate pitanja ili prijedloge, javite nam se.",
+    "subtitle": "Vaše mišljenje nam je važno. Sve komentare i prijedloge čitamo i koristimo kako bismo unaprijedili aplikaciju.",
+    "success": "Uspješno",
+    "submit": "Pošalji",
+    "comment": "Komentar",
+    "email": "Email (nije obavezno)",
+    "loading": "Učitavanje...",
+    "error": "Greška prilikom slanja komentara",
+    "cancel": "Otkaži",
+    "select": "Odaberi",
+    "downloadAll": "Preuzmi sve",
+    "unselectAll": "Poništi sve",
+    "selectAll": "Odaberi sve"
+  },
+  "guest": {
+    "message": {
+      "yourMessageToCouple": "Vaša poruka mladencima",
+      "noMessage": "Niste ostavili poruku"
     },
-    "guest": {
-      "message": {
-        "yourMessageToCouple": "Vaša poruka mladencima",
-        "noMessage": "Niste ostavili poruku"
-      },
-      "weddingInfo": {
-        "location": "Lokacija",
-        "date": "Datum",
-        "messageForGuests": "Poruka za goste"
-      },
-      "imageUpload": {
-        "dropHere": "Pustite slike ovde...",
-        "maxReached": "Dostigli ste maksimalan broj slika",
-        "dragOrClick": "Prevucite slike ovde ili kliknite za odabir",
-        "errors": {
-          "heicNotSupported": "HEIC/HEIF slike nisu podržane. Molimo vas da konvertujete sliku u JPG ili PNG format.",
-          "unsupportedFormat": "Nepodržan format slike: {format}",
-          "fileTooLarge": "Slika {fileName} je veća od {maxSize}MB. Molimo vas da smanjite rezoluciju ili veličinu slike."
-        }
-      },
-      "uploadForm": {
-        "addImages": "Dodaj slike",
-        "imagesMax10": "Slike (max 10)",
-        "a11yInstructions": "Prvo izaberite slike, zatim kliknite na dugme Potvrdi upload. Sve akcije su dostupne tastaturom. Status slanja će biti automatski najavljen.",
-        "messageOptional": "Poruka (opciono)",
-        "messagePlaceholder": "Napišite poruku ili čestitku mladencima...",
-        "maxChars": "Maksimalno 500 karaktera",
-        "a11ySubmitButton": "Pošalji slike i poruku mladencima",
-        "sending": "Slanje...",
-        "confirmUpload": "Potvrdi upload",
-        "uploadStatus": {
-          "waiting": "Čeka na upload...",
-          "uploading": "Slanje u toku...",
-          "success": "Uspješno uploadovano",
-          "error": "Greška pri uploadu",
-          "retry": "Pokušaj ponovo",
-          "pleaseWait": "Molimo sačekajte dok se slike uploaduju...",
-          "someFailedUpload": "Neke slike nisu uspješno uploadovane.",
-          "uploadStatus": "Status uploada slika",
-          "retryAllFailed": "Pokušaj ponovno sve neuspjele"
-        }
-      },
-      "imageGallery": {
-        "noImages": "Nema uploadovanih slika",
-        "deleteImage": "Obriši sliku",
-        "guestImage": "Slika gosta",
-        "imageError": "Greška: Slika nije dostupna ili nije validan URL"
-      },
-      "uploadLimit": {
-        "maxReached": "Dostigli ste maksimalan broj slika",
-        "thankYou": "Hvala na vašem doprinosu!"
-      },
-      "imageSlotBar": {
-        "images": "Slike",
-        "canAddMore": "Možete dodati još {{count}} {{imageText}}",
-        "maxReached": "Dostigli ste maksimalan broj slika"
-      },
-      "userGallery": {
-        "addMorePhotos": "Dodaj još slika",
-        "youCanAdd": "Možete dodati još {{count}} {{imageText}}"
-      },
+    "weddingInfo": {
+      "location": "Lokacija",
+      "date": "Datum",
+      "messageForGuests": "Poruka za goste"
+    },
+    "imageUpload": {
+      "dropHere": "Pustite slike ovde...",
+      "maxReached": "Dostigli ste maksimalan broj slika",
+      "dragOrClick": "Prevucite slike ovde ili kliknite za odabir",
+      "errors": {
+        "heicNotSupported": "HEIC/HEIF slike nisu podržane. Molimo vas da konvertujete sliku u JPG ili PNG format.",
+        "unsupportedFormat": "Nepodržan format slike: {format}",
+        "fileTooLarge": "Slika {fileName} je veća od {maxSize}MB. Molimo vas da smanjite rezoluciju ili veličinu slike."
+      }
+    },
+    "uploadForm": {
+      "addImages": "Dodaj slike",
+      "imagesMax10": "Slike (max 10)",
+      "a11yInstructions": "Prvo izaberite slike, zatim kliknite na dugme Potvrdi upload. Sve akcije su dostupne tastaturom. Status slanja će biti automatski najavljen.",
+      "messageOptional": "Poruka (opciono)",
+      "messagePlaceholder": "Napišite poruku ili čestitku mladencima...",
+      "maxChars": "Maksimalno 500 karaktera",
+      "a11ySubmitButton": "Pošalji slike i poruku mladencima",
+      "sending": "Slanje...",
+      "confirmUpload": "Potvrdi upload",
       "uploadStatus": {
-        "title": "Status uploada slika",
-        "imagePreview": "Pregled slike",
         "waiting": "Čeka na upload...",
         "uploading": "Slanje u toku...",
         "success": "Uspješno uploadovano",
@@ -187,266 +100,336 @@
         "pleaseWait": "Molimo sačekajte dok se slike uploaduju...",
         "someFailedUpload": "Neke slike nisu uspješno uploadovane.",
         "uploadStatus": "Status uploada slika",
-        "retryAllFailed": "Pokušaj ponovno sve neuspjele",
-        "imagesNotUploaded": "{{count}} od {{total}} slika uploadovano"
-      },
-      "dashboard": {
-        "uploadPhotos": "Dodaj fotografije"
-      },
-      "success": {
-        "thankYou": "Hvala!",
-        "imagesAndMessageSent": "Vaše slike i poruka su uspješno poslate.",
-        "coupleWillBeDelighted": " će biti oduševljeni vašim iznenađenjem!"
-      },
-      "survey": {
-        "thankYou": "Hvala na doprinosu!",
-        "redirectSoon": "Za par sekundi bićete prebačeni na kratak formular za povratnu informaciju.",
-        "redirectIn": "Preusmeravanje za:",
-        "seconds": "sekundi...",
-        "fillSurvey": "Popuni anketu",
-        "openFormNow": "Otvori formular odmah"
-      },
-      "login": {
-        "title": "Dobrodošli na vjenčanje",
-        "firstName": "Ime",
-        "lastName": "Prezime",
-        "email": "Email adresa",
-        "submitButton": "Prijavi se",
-        "loading": "Učitavanje...",
-        "firstNamePlaceholder": "Unesite vaše ime",
-        "lastNamePlaceholder": "Unesite vaše prezime",
-        "emailPlaceholder": "vasa.email@primjer.com",
-        "errors": {
-          "firstNameMin": "Ime mora imati najmanje 2 karaktera.",
-          "lastNameMin": "Prezime mora imati najmanje 2 karaktera.",
-          "invalidEmail": "Unesite validnu email adresu.",
-          "missingEvent": "Nedostaje ID događaja. Molimo koristite validan link sa pozivnice.",
-          "genericError": "Došlo je do greške. Molimo pokušajte ponovo.",
-          "sessionExpired": "Vaša sesija je istekla. Molimo pokušajte ponovo."
-        },
-        "success": {
-          "title": "Uspješna prijava",
-          "description": "Uspješno ste se prijavili. Preusmjeravamo vas na vašu stranicu."
-        },
-        "accessDenied": {
-          "title": "Nedozvoljen pristup",
-          "description": "Za pristup ovoj stranici morate koristiti validan link sa QR koda ili pozivnicu od mladenaca."
-        }
+        "retryAllFailed": "Pokušaj ponovno sve neuspjele"
       }
     },
-    "admin": {
-      "imageGallery": {
-        "loadingGuestData": "Učitavanje podataka o gostu...",
-        "guestNotFound": "Gost nije pronađen",
-        "error": "Greška",
-        "backToDashboard": "Povratak na kontrolnu tablu",
-        "guestMessage": "Poruka gosta",
-        "noMessage": "Gost nije ostavio poruku.",
-        "noPhotos": "Gost nije postavio nijednu fotografiju.",
-        "downloadSelected": "Preuzmi odabrano",
-        "allPhotos": "Sve fotografije",
-        "favorites": "Omiljene",
-        "noFavorites": "Još uvijek nemate omiljenih fotografija",
-        "clickHeartToFavorite": "Kliknite na ikonu srca na fotografijama koje želite označiti kao omiljene",
-        "selected": "odabrano",
-        "of": "od"
+    "imageGallery": {
+      "noImages": "Nema uploadovanih slika",
+      "deleteImage": "Obriši sliku",
+      "guestImage": "Slika gosta",
+      "imageError": "Greška: Slika nije dostupna ili nije validan URL"
+    },
+    "uploadLimit": {
+      "maxReached": "Dostigli ste maksimalan broj slika",
+      "thankYou": "Hvala na vašem doprinosu!"
+    },
+    "imageSlotBar": {
+      "images": "Slike",
+      "canAddMore": "Možete dodati još {{count}} {{imageText}}",
+      "maxReached": "Dostigli ste maksimalan broj slika"
+    },
+    "userGallery": {
+      "addMorePhotos": "Dodaj još slika",
+      "youCanAdd": "Možete dodati još {{count}} {{imageText}}"
+    },
+    "uploadStatus": {
+      "title": "Status uploada slika",
+      "imagePreview": "Pregled slike",
+      "waiting": "Čeka na upload...",
+      "uploading": "Slanje u toku...",
+      "success": "Uspješno uploadovano",
+      "error": "Greška pri uploadu",
+      "retry": "Pokušaj ponovo",
+      "pleaseWait": "Molimo sačekajte dok se slike uploaduju...",
+      "someFailedUpload": "Neke slike nisu uspješno uploadovane.",
+      "uploadStatus": "Status uploada slika",
+      "retryAllFailed": "Pokušaj ponovno sve neuspjele",
+      "imagesNotUploaded": "{{count}} od {{total}} slika uploadovano"
+    },
+    "dashboard": {
+      "uploadPhotos": "Dodaj fotografije"
+    },
+    "success": {
+      "thankYou": "Hvala!",
+      "imagesAndMessageSent": "Vaše slike i poruka su uspješno poslate.",
+      "coupleWillBeDelighted": " će biti oduševljeni vašim iznenađenjem!"
+    },
+    "survey": {
+      "thankYou": "Hvala na doprinosu!",
+      "redirectSoon": "Za par sekundi bićete prebačeni na kratak formular za povratnu informaciju.",
+      "redirectIn": "Preusmeravanje za:",
+      "seconds": "sekundi...",
+      "fillSurvey": "Popuni anketu",
+      "openFormNow": "Otvori formular odmah"
+    },
+    "login": {
+      "title": "Dobrodošli na vjenčanje",
+      "firstName": "Ime",
+      "lastName": "Prezime",
+      "email": "Email adresa",
+      "submitButton": "Prijavi se",
+      "loading": "Učitavanje...",
+      "firstNamePlaceholder": "Unesite vaše ime",
+      "lastNamePlaceholder": "Unesite vaše prezime",
+      "emailPlaceholder": "vasa.email@primjer.com",
+      "errors": {
+        "firstNameMin": "Ime mora imati najmanje 2 karaktera.",
+        "lastNameMin": "Prezime mora imati najmanje 2 karaktera.",
+        "invalidEmail": "Unesite validnu email adresu.",
+        "missingEvent": "Nedostaje ID događaja. Molimo koristite validan link sa pozivnice.",
+        "genericError": "Došlo je do greške. Molimo pokušajte ponovo.",
+        "sessionExpired": "Vaša sesija je istekla. Molimo pokušajte ponovo."
       },
-      "event": {
-        "title": "Unesite detalje događaja",
-        "description": "Unesite detalje događaja koje ćete koristiti za kreiranje vaše svadbe.",
-        "coupleName": "Ime para (npr. Marko i Ana)",
-        "coupleNamePlaceholder": "Ime mladoženje i mlade",
-        "coupleNameDescription": "Unesite puno ime oba partnera.",
-        "location": "Lokacija",
-        "locationPlaceholder": "Grad, naziv mesta",
-        "locationDescription": "Gdje će se svadba održavati?",
-        "date": "Datum svadbe",
-        "datePlaceholder": "Odaberite datum",
-        "dateDescription": "Datum svadbe",
-        "slug": "URL koji ćete dijeliti sa gostima",
-        "slugPlaceholder": "marko-i-ana-svadba",
-        "slugSuggestion": "Predlog: {suggestion}",
-        "slugDescription": "ime-mladozenje-ime-mlade (jedna od mogućnosti)",
-        "slugRules": "Mora imati najmanje 3 karaktera, može sadržati samo mala slova, brojeve i crtice (ne na početku/kraju, ne duple crtice).",
-        "guestMessage": "Poruka za goste (fun fact, dobrodošlica...)",
-        "guestMessagePlaceholder": "Npr: Dobrodošli na našu svadbu! Očekuje vas puno iznenađenja...",
-        "guestMessageDescription": "Ova poruka će biti prikazana gostima na njihovom dashboardu.",
-        "coupleNameCounter": "{{count}}/100 znakova",
-        "guestMessageCounter": "{{count}}/500 znakova",
-        "pricing": {
-          "title": "Izaberite plan",
-          "description": "Odaberite koliko slika po gostu želite da dozvolite",
-          "imagesPerGuest": "{{count}} slika po gostu",
-          "free": "Besplatno",
-          "selectTier": "Izaberi {{tier}}",
-          "currentTier": "Trenutni plan",
-          "recommended": "Preporučeno"
-        },
-        "submitButton": "Kreiraj događaj",
-        "submittingButton": "Kreiram događaj...",
-        "requiredFields": "Sva polja su obavezna",
-        "errors": {
-          "coupleNameMin": "Ime para mora imati najmanje 2 karaktera.",
-          "locationMin": "Lokacija mora imati najmanje 2 karaktera.",
-          "dateRequired": "Molimo izaberite datum vjenčanja.",
-          "invalidDate": "Neispravan datum. Molimo izaberite ispravan datum.",
-          "slugMin": "URL mora imati najmanje 2 karaktera.",
-          "slugInvalid": "URL može sadržati samo mala slova, brojeve i crtice.",
-          "guestMessageMax": "Poruka za goste može imati najviše 500 karaktera.",
-          "slugExists": "URL koji ste odabrali već postoji. Molimo izaberite drugi.",
-          "slugChecking": "Provjeravam dostupnost...",
-          "slugAvailable": "URL je dostupan",
-          "slugTaken": "URL je već zauzet",
-          "pastDate": "Datum mora biti u budućnosti",
-          "createError": "Greška prilikom kreiranja događaja. Pokušajte ponovo.",
-          "csrfTokenFetch": "Neuspješno dobijanje CSRF tokena. Osvježite stranicu.",
-          "csrfTokenMissing": "CSRF token nije dostupan. Osvježite stranicu."
-        },
-        "success": {
-          "title": "Događaj kreiran",
-          "description": "Događaj je uspešno kreiran."
-        }
+      "success": {
+        "title": "Uspješna prijava",
+        "description": "Uspješno ste se prijavili. Preusmjeravamo vas na vašu stranicu."
       },
-      "login": {
-        "title": "Administratorska prijava",
-        "subtitle": "Unesite vaše podatke za pristup admin panelu",
-        "email": "Email",
-        "emailPlaceholder": "admin@example.com",
-        "password": "Lozinka",
-        "loginButton": "Prijavite se",
-        "dontHaveAccount": "Nemate nalog?",
-        "needAccountPrompt": "Nemate administratorski nalog?",
-        "createAccount": "Kreirajte besplatan nalog",
-        "register": "Registrujte se",
-        "backToHome": "Nazad na početnu",
-        "showPassword": "Prikaži lozinku",
-        "hidePassword": "Sakrij lozinku",
-        "loading": "Prijava u toku...",
-        "errors": {
-          "invalidCredentials": "Pogrešan email ili lozinka.",
-          "sessionExpired": "Vaša sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.",
-          "networkError": "Došlo je do greške na mreži ili serveru.",
-          "allFieldsRequired": "Sva polja su obavezna."
-        }
-      },
-      "register": {
-        "title": "Registracija",
-        "firstName": "Ime",
-        "lastName": "Prezime",
-        "email": "Email adresa",
-        "password": "Lozinka",
-        "confirmPassword": "Potvrdite lozinku",
-        "registerButton": "Registrujte se",
-        "alreadyHaveAccount": "Već imate nalog?",
-        "alreadyHaveAccountPrompt": "Već imate administratorski nalog?",
-        "loginPrompt": "Prijavite se na vaš nalog",
-        "login": "Prijavite se",
-        "passwordStrength": "Jačina lozinke",
-        "weak": "Slaba",
-        "weakMinChars": "Slaba (min 6 znakova)",
-        "medium": "Srednja",
-        "strong": "Jaka",
-        "passwordsMatch": "Lozinke se poklapaju",
-        "passwordsDontMatch": "Lozinke se ne poklapaju",
-        "showPassword": "Prikaži lozinku",
-        "hidePassword": "Sakrij lozinku",
-        "loading": "Registracija u toku...",
-        "errors": {
-          "allFieldsRequired": "Sva polja su obavezna.",
-          "passwordsDontMatch": "Lozinke se ne poklapaju.",
-          "sessionExpired": "Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.",
-          "networkError": "Došlo je do greške na mreži."
-        }
-      },
-      "dashboard": {
-        "tabs": {
-          "guests": "Gosti",
-          "analytics": "Analitika",
-          "gallery": "Galerija",
-          "messages": "Poruke",
-          "download": "Preuzimanje",
-          "help": "Pomoć"
-        },
-        "help": {
-          "title": "Vaš vjenčani album",
-          "subtitle": "Upravljajte uspomenama s vašeg posebnog dana",
-          "gallery": {
-            "title": "Galerija uspomena",
-            "description": "Pregledajte sve fotografije koje su vaši gosti podijelili. Svaka slika je dragocjena uspomena s vašeg posebnog dana.",
-            "feature": "Sve slike možete preuzeti i sačuvati zauvijek"
-          },
-          "messages": {
-            "title": "Čestitke i poruke",
-            "description": "Čitajte tople želje i čestitke vaših najmilijih. Svaka poruka je jedinstvena i odražava ljubav koju vam šalju.",
-            "feature": "Kreirajte knjigu čestitki u PDF formatu"
-          },
-          "qrCode": {
-            "title": "QR kod za goste",
-            "description": "Podijelite QR kod s vašim gostima kako bi lako pristupili aplikaciji i podijelili svoje fotografije.",
-            "feature": "Isprintajte QR kod za stolove na vjenčanju"
-          },
-          "link": {
-            "title": "Vaša jedinstvena poveznica",
-            "description": "Kopirajte i podijelite vašu personaliziranu poveznicu putem društvenih mreža ili poruka s vašim gostima.",
-            "feature": "www.dodajuspomenu.com/vas-event"
-          },
-          "contact": {
-            "title": "Trebate pomoć?",
-            "description": "Tu smo za vas u svakom trenutku. Ako imate pitanja ili trebate podršku, slobodno nas kontaktirajte.",
-            "contactButton": "Kontaktirajte nas"
-          },
-          "security": "Vaše uspomene su sigurne i privatne"
-        },
-        "qr": {
-          "chooseColor": "Izaberi boju QR koda:",
-          "colorPickerLabel": "Izbor boje QR koda",
-          "downloadButton": "Preuzmi QR kod",
-          "linkTitle": "Link za goste",
-          "copyButton": "Kopiraj",
-          "copiedMessage": "Kopirano!",
-          "instructionTitle": "Kako podijeliti sa gostima",
-          "instruction1": "Podijelite ovaj link ili QR kod sa vašim gostima",
-          "instruction2": "Gosti će moći uploadovati slike i ostaviti poruke",
-          "instruction3": "Sve slike i poruke ćete vidjeti ovdje na vašem dashboardu",
-          "scanQR": "Skenirajte QR kod za direktan pristup stranici za goste.",
-          "previewTemplate": "Pregled QR koda na predlošku",
-          "selectTemplate": "Izaberi predložak",
-          "downloadTemplate": "Preuzmi predložak",
-          "downloaded": "Preuzeto",
-          "generatingPreview": "Generisanje pregleda...",
-          "templateAlt": "QR kod na predlošku",
-          "template1": "Elegantni predložak",
-          "template2": "Rustični predložak",
-          "template3": "Moderni predložak",
-          "template4": "Minimalni predložak",
-          "hiddenQrCode": "Skriveni QR kod za generisanje",
-          "templateSelection": "Izbor predloška (samo sličice)",
-          "generatedResult": "Prikaz generisanog rezultata",
-          "hiddenCanvas": "Platno za generisanje slike (skriveno)",
-          "templateTitle": "Predlošci za QR kod",
-          "templateDescription": "Odaberite predložak za vaš QR kod i prilagodite boju prema vašim željama.",
-          "selectColor": "Odaberi boju",
-          "customColor": "Prilagođena boja",
-          "colorPalette": "Paleta boja",
-          "basicQr": "Osnovni QR kod",
-          "templateQr": "Predlošci za QR kod",
-          "download": "Preuzmi",
-          "useTemplate": "Koristi besplatan predložak"
-        },
-        "guestList": {
-          "guestsWithPhotos": "Gosti sa slikama",
-          "guestsWithoutPhotos": "Gosti bez slika",
-          "viewAllPhotos": "Pregledaj sve slike",
-          "registeredOn": "Prijavljeno",
-          "noMessageLeft": "Gost nije ostavio poruku"
-        },
-        "noGuests": "Nema prijavljenih gostiju.",
-        "noGuestsDescription": "Kada se gosti registruju za ovaj event, ovdje će se pojaviti njihovi profili i slike.",
-        "welcome": {
-          "enjoyPhotos": "uživajte u vašim sličicama",
-          "welcomeMessage": "Dobrodošli na vaš dashboard"
-        }
+      "accessDenied": {
+        "title": "Nedozvoljen pristup",
+        "description": "Za pristup ovoj stranici morate koristiti validan link sa QR koda ili pozivnicu od mladenaca."
       }
     }
+  },
+  "admin": {
+    "imageGallery": {
+      "loadingGuestData": "Učitavanje podataka o gostu...",
+      "guestNotFound": "Gost nije pronađen",
+      "error": "Greška",
+      "backToDashboard": "Povratak na kontrolnu tablu",
+      "guestMessage": "Poruka gosta",
+      "noMessage": "Gost nije ostavio poruku.",
+      "noPhotos": "Gost nije postavio nijednu fotografiju.",
+      "downloadSelected": "Preuzmi odabrano",
+      "allPhotos": "Sve fotografije",
+      "favorites": "Omiljene",
+      "noFavorites": "Još uvijek nemate omiljenih fotografija",
+      "clickHeartToFavorite": "Kliknite na ikonu srca na fotografijama koje želite označiti kao omiljene",
+      "selected": "odabrano",
+      "of": "od"
+    },
+    "event": {
+      "title": "Unesite detalje događaja",
+      "description": "Unesite detalje događaja koje ćete koristiti za kreiranje vaše svadbe.",
+      "coupleName": "Ime para (npr. Marko i Ana)",
+      "coupleNamePlaceholder": "Ime mladoženje i mlade",
+      "coupleNameDescription": "Unesite puno ime oba partnera.",
+      "location": "Lokacija",
+      "locationPlaceholder": "Grad, naziv mesta",
+      "locationDescription": "Gdje će se svadba održavati?",
+      "date": "Datum svadbe",
+      "datePlaceholder": "Odaberite datum",
+      "dateDescription": "Datum svadbe",
+      "slug": "URL koji ćete dijeliti sa gostima",
+      "slugPlaceholder": "marko-i-ana-svadba",
+      "slugSuggestion": "Predlog: {suggestion}",
+      "slugDescription": "ime-mladozenje-ime-mlade (jedna od mogućnosti)",
+      "slugRules": "Mora imati najmanje 3 karaktera, može sadržati samo mala slova, brojeve i crtice (ne na početku/kraju, ne duple crtice).",
+      "guestMessage": "Poruka za goste (fun fact, dobrodošlica...)",
+      "guestMessagePlaceholder": "Npr: Dobrodošli na našu svadbu! Očekuje vas puno iznenađenja...",
+      "guestMessageDescription": "Ova poruka će biti prikazana gostima na njihovom dashboardu.",
+      "coupleNameCounter": "{{count}}/100 znakova",
+      "guestMessageCounter": "{{count}}/500 znakova",
+      "pricing": {
+        "title": "Izaberite plan",
+        "description": "Odaberite koliko slika po gostu želite da dozvolite",
+        "imagesPerGuest": "{{count}} slika po gostu",
+        "free": "Besplatno",
+        "selectTier": "Izaberi {{tier}}",
+        "currentTier": "Trenutni plan",
+        "recommended": "Preporučeno"
+      },
+      "submitButton": "Kreiraj događaj",
+      "submittingButton": "Kreiram događaj...",
+      "requiredFields": "Sva polja su obavezna",
+      "errors": {
+        "coupleNameMin": "Ime para mora imati najmanje 2 karaktera.",
+        "locationMin": "Lokacija mora imati najmanje 2 karaktera.",
+        "dateRequired": "Molimo izaberite datum vjenčanja.",
+        "invalidDate": "Neispravan datum. Molimo izaberite ispravan datum.",
+        "slugMin": "URL mora imati najmanje 2 karaktera.",
+        "slugInvalid": "URL može sadržati samo mala slova, brojeve i crtice.",
+        "guestMessageMax": "Poruka za goste može imati najviše 500 karaktera.",
+        "slugExists": "URL koji ste odabrali već postoji. Molimo izaberite drugi.",
+        "slugChecking": "Provjeravam dostupnost...",
+        "slugAvailable": "URL je dostupan",
+        "slugTaken": "URL je već zauzet",
+        "pastDate": "Datum mora biti u budućnosti",
+        "createError": "Greška prilikom kreiranja događaja. Pokušajte ponovo.",
+        "csrfTokenFetch": "Neuspješno dobijanje CSRF tokena. Osvježite stranicu.",
+        "csrfTokenMissing": "CSRF token nije dostupan. Osvježite stranicu."
+      },
+      "success": {
+        "title": "Događaj kreiran",
+        "description": "Događaj je uspešno kreiran."
+      }
+    },
+    "login": {
+      "title": "Administratorska prijava",
+      "subtitle": "Unesite vaše podatke za pristup admin panelu",
+      "email": "Email",
+      "emailPlaceholder": "admin@example.com",
+      "password": "Lozinka",
+      "loginButton": "Prijavite se",
+      "dontHaveAccount": "Nemate nalog?",
+      "needAccountPrompt": "Nemate administratorski nalog?",
+      "createAccount": "Kreirajte besplatan nalog",
+      "register": "Registrujte se",
+      "backToHome": "Nazad na početnu",
+      "showPassword": "Prikaži lozinku",
+      "hidePassword": "Sakrij lozinku",
+      "loading": "Prijava u toku...",
+      "errors": {
+        "invalidCredentials": "Pogrešan email ili lozinka.",
+        "sessionExpired": "Vaša sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.",
+        "networkError": "Došlo je do greške na mreži ili serveru.",
+        "allFieldsRequired": "Sva polja su obavezna."
+      }
+    },
+    "register": {
+      "title": "Registracija",
+      "firstName": "Ime",
+      "lastName": "Prezime",
+      "email": "Email adresa",
+      "password": "Lozinka",
+      "confirmPassword": "Potvrdite lozinku",
+      "registerButton": "Registrujte se",
+      "alreadyHaveAccount": "Već imate nalog?",
+      "alreadyHaveAccountPrompt": "Već imate administratorski nalog?",
+      "loginPrompt": "Prijavite se na vaš nalog",
+      "login": "Prijavite se",
+      "passwordStrength": "Jačina lozinke",
+      "weak": "Slaba",
+      "weakMinChars": "Slaba (min 6 znakova)",
+      "medium": "Srednja",
+      "strong": "Jaka",
+      "passwordsMatch": "Lozinke se poklapaju",
+      "passwordsDontMatch": "Lozinke se ne poklapaju",
+      "showPassword": "Prikaži lozinku",
+      "hidePassword": "Sakrij lozinku",
+      "loading": "Registracija u toku...",
+      "errors": {
+        "allFieldsRequired": "Sva polja su obavezna.",
+        "passwordsDontMatch": "Lozinke se ne poklapaju.",
+        "sessionExpired": "Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.",
+        "networkError": "Došlo je do greške na mreži."
+      }
+    },
+    "dashboard": {
+      "tabs": {
+        "guests": "Gosti",
+        "analytics": "Analitika",
+        "gallery": "Galerija",
+        "messages": "Poruke",
+        "download": "Preuzimanje",
+        "help": "Pomoć"
+      },
+      "help": {
+        "title": "Vaš vjenčani album",
+        "subtitle": "Upravljajte uspomenama s vašeg posebnog dana",
+        "gallery": {
+          "title": "Galerija uspomena",
+          "description": "Pregledajte sve fotografije koje su vaši gosti podijelili. Svaka slika je dragocjena uspomena s vašeg posebnog dana.",
+          "feature": "Sve slike možete preuzeti i sačuvati zauvijek"
+        },
+        "messages": {
+          "title": "Čestitke i poruke",
+          "description": "Čitajte tople želje i čestitke vaših najmilijih. Svaka poruka je jedinstvena i odražava ljubav koju vam šalju.",
+          "feature": "Kreirajte knjigu čestitki u PDF formatu"
+        },
+        "qrCode": {
+          "title": "QR kod za goste",
+          "description": "Podijelite QR kod s vašim gostima kako bi lako pristupili aplikaciji i podijelili svoje fotografije.",
+          "feature": "Isprintajte QR kod za stolove na vjenčanju"
+        },
+        "link": {
+          "title": "Vaša jedinstvena poveznica",
+          "description": "Kopirajte i podijelite vašu personaliziranu poveznicu putem društvenih mreža ili poruka s vašim gostima.",
+          "feature": "www.dodajuspomenu.com/vas-event"
+        },
+        "contact": {
+          "title": "Trebate pomoć?",
+          "description": "Tu smo za vas u svakom trenutku. Ako imate pitanja ili trebate podršku, slobodno nas kontaktirajte.",
+          "contactButton": "Kontaktirajte nas"
+        },
+        "security": "Vaše uspomene su sigurne i privatne"
+      },
+      "qr": {
+        "chooseColor": "Izaberi boju QR koda:",
+        "colorPickerLabel": "Izbor boje QR koda",
+        "downloadButton": "Preuzmi QR kod",
+        "linkTitle": "Link za goste",
+        "copyButton": "Kopiraj",
+        "copiedMessage": "Kopirano!",
+        "instructionTitle": "Kako podijeliti sa gostima",
+        "instruction1": "Podijelite ovaj link ili QR kod sa vašim gostima",
+        "instruction2": "Gosti će moći uploadovati slike i ostaviti poruke",
+        "instruction3": "Sve slike i poruke ćete vidjeti ovdje na vašem dashboardu",
+        "scanQR": "Skenirajte QR kod za direktan pristup stranici za goste.",
+        "previewTemplate": "Pregled QR koda na predlošku",
+        "selectTemplate": "Izaberi predložak",
+        "downloadTemplate": "Preuzmi predložak",
+        "downloaded": "Preuzeto",
+        "generatingPreview": "Generisanje pregleda...",
+        "templateAlt": "QR kod na predlošku",
+        "template1": "Elegantni predložak",
+        "template2": "Rustični predložak",
+        "template3": "Moderni predložak",
+        "template4": "Minimalni predložak",
+        "hiddenQrCode": "Skriveni QR kod za generisanje",
+        "templateSelection": "Izbor predloška (samo sličice)",
+        "generatedResult": "Prikaz generisanog rezultata",
+        "hiddenCanvas": "Platno za generisanje slike (skriveno)",
+        "templateTitle": "Predlošci za QR kod",
+        "templateDescription": "Odaberite predložak za vaš QR kod i prilagodite boju prema vašim željama.",
+        "selectColor": "Odaberi boju",
+        "customColor": "Prilagođena boja",
+        "colorPalette": "Paleta boja",
+        "basicQr": "Osnovni QR kod",
+        "templateQr": "Predlošci za QR kod",
+        "download": "Preuzmi",
+        "useTemplate": "Koristi besplatan predložak"
+      },
+      "guestList": {
+        "guestsWithPhotos": "Gosti sa slikama",
+        "guestsWithoutPhotos": "Gosti bez slika",
+        "viewAllPhotos": "Pregledaj sve slike",
+        "registeredOn": "Prijavljeno",
+        "noMessageLeft": "Gost nije ostavio poruku"
+      },
+      "noGuests": "Nema prijavljenih gostiju.",
+      "noGuestsDescription": "Kada se gosti registruju za ovaj event, ovdje će se pojaviti njihovi profili i slike.",
+      "welcome": {
+        "enjoyPhotos": "uživajte u vašim sličicama",
+        "welcomeMessage": "Dobrodošli na vaš dashboard"
+      }
+    }
+  },
+  "navbar": {
+    "howItWorks": "Kako radi",
+    "faq": "FAQ",
+    "cta": "Počnite za 2 min",
+    "menuOpen": "Otvori meni",
+    "menuClose": "Zatvori meni"
+  },
+  "painPoints": {
+    "title": "Poznato vam je?",
+    "point1": "Fotografije razbacane po telefonima 50+ gostiju",
+    "point2": "Gosti obećaju da će poslati slike — nikad ne pošalju",
+    "point3": "WhatsApp uništava kvalitet fotografija",
+    "point4": "Nema jednog mjesta za sve uspomene"
+  },
+  "solution": {
+    "title": "DodajUspomenu rješava sve.",
+    "subtitle": "Jedan link. Svi gosti. Sve fotografije.",
+    "imageAlt": "Prikaz aplikacije DodajUspomenu"
+  },
+  "socialProof": {
+    "title": "Parovi nam vjeruju",
+    "statCouples": "parova koristilo",
+    "statGuests": "gostiju registrovano",
+    "statCountries": "zemlje",
+    "countriesList": "Srbija, Hrvatska, BiH, SAD"
+  },
+  "whyUs": {
+    "title": "Zašto DodajUspomenu?",
+    "benefit1Title": "Privatno",
+    "benefit1Description": "Samo vaši gosti imaju pristup vašim fotografijama",
+    "benefit2Title": "Brzo",
+    "benefit2Description": "Setup za 2 minuta, bez instalacije, bez komplikacija",
+    "benefit3Title": "Sigurno",
+    "benefit3Description": "Slike se čuvaju u oblaku, dostupne kad god poželite",
+    "ctaTitle": "Spremni za najljepši dan?",
+    "ctaButton": "Počnite za 2 minuta",
+    "ctaSubtext": "Besplatno. Bez kartice. Bez obaveza."
   }
-
+}
