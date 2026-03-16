@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const admin = await getAuthenticatedAdmin();
+  if (!admin || !admin.event) {
+    return NextResponse.json({ error: "Nemate pristup" }, { status: 401 });
+  }
+
   try {
-    // Pronađi sve poruke iz baze
     const messages = await prisma.message.findMany({
+      where: { guest: { eventId: admin.event.id } },
       select: { id: true, text: true, createdAt: true, guest: { select: { firstName: true, lastName: true } } },
     });
     if (!messages.length) {
