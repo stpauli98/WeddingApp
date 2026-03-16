@@ -123,10 +123,7 @@ export async function POST(request: Request) {
         where: { id: existingGuest.id },
         data: {
           firstName,
-          lastName,
-          verified: true,
-          code: null,
-          codeExpires: null
+          lastName
         }
       });
       guestId = updatedGuest.id;
@@ -137,8 +134,7 @@ export async function POST(request: Request) {
           eventId: event.id,
           firstName,
           lastName,
-          email,
-          verified: true
+          email
         }
       });
       guestId = newGuest.id;
@@ -147,7 +143,6 @@ export async function POST(request: Request) {
     // Postavi session cookie i vrati odgovor
     const response = NextResponse.json({ 
       success: true, 
-      verified: true,
       guestId,
       eventId: event.id
     });

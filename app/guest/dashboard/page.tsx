@@ -125,8 +125,7 @@ export default async function DashboardPage(props: any) {
         eventId: eventId,
         firstName: baseGuest.firstName,
         lastName: baseGuest.lastName,
-        email: baseGuest.email,
-        verified: true
+        email: baseGuest.email
       }
     });
     

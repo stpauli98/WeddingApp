@@ -5,11 +5,6 @@ export interface User {
   email: string
 }
 
-// Tipovi za verifikaciju
-export interface VerificationData {
-  code: string
-}
-
 // Tipovi za upload
 export interface UploadData {
   message?: string

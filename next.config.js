@@ -6,7 +6,7 @@ const withPWA = require('next-pwa')({
   dest: 'public',
   register: true,
   skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
+  disable: true, // TODO: next-pwa@5.6.0 je nekompatibilan sa Next.js 15.3.9+ - migrirati na @serwist/next
   sw: '/service-worker.js',
   fallbacks: {
     document: '/offline.html',
