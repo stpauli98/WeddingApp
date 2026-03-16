@@ -52,7 +52,7 @@ export default function HeroSection() {
               </Link>
               <a
                 href="#kako-radi"
-                className="inline-flex items-center justify-center px-7 py-3.5 text-base font-semibold text-lp-primary bg-white border border-lp-border rounded-xl shadow-sm hover:shadow-md hover:bg-lp-muted transition-all"
+                className="inline-flex items-center justify-center px-7 py-3.5 text-base font-semibold text-lp-text bg-white border border-lp-border rounded-xl shadow-sm hover:shadow-md hover:bg-lp-muted transition-all"
               >
                 {t("hero.secondaryCta")}
               </a>
@@ -63,7 +63,7 @@ export default function HeroSection() {
                 const Icon = indicator.icon
                 return (
                   <div key={index} className="flex items-center gap-2 text-lp-muted-foreground">
-                    <Icon className="w-4 h-4 text-lp-primary" />
+                    <Icon className="w-4 h-4 text-lp-accent" />
                     <span className="text-sm font-medium">{indicator.text}</span>
                   </div>
                 )
@@ -71,25 +71,37 @@ export default function HeroSection() {
             </div>
           </motion.div>
 
-          {/* Right: Phone mockup */}
+          {/* Right: Phone mockup with register screenshot */}
           <motion.div
             className="flex justify-center"
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            <div className="relative w-[280px] h-[560px] bg-gray-900 rounded-[3rem] p-3 shadow-2xl">
+            {/* Desktop: show phone mockup */}
+            <div className="hidden md:block relative w-[300px] h-[600px] bg-gray-900 rounded-[3rem] p-3 shadow-2xl">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-10" />
               <div className="relative w-full h-full rounded-[2.25rem] overflow-hidden bg-white">
                 <Image
-                  src="/slider_pictures/1.png"
+                  src="/dodajuspomenu-register-mobile.png"
                   alt={t("hero.titleLine1")}
                   fill
-                  className="object-cover"
+                  className="object-cover object-top"
                   priority
-                  sizes="280px"
+                  sizes="300px"
                 />
               </div>
+            </div>
+            {/* Mobile: show mobile hero image */}
+            <div className="block md:hidden w-full max-w-sm">
+              <Image
+                src="/dodajuspomenu-hero-mobile.png"
+                alt={t("hero.titleLine1")}
+                width={390}
+                height={844}
+                className="w-full h-auto rounded-2xl shadow-xl"
+                priority
+              />
             </div>
           </motion.div>
         </div>

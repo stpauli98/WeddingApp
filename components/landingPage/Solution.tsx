@@ -9,7 +9,7 @@ export default function Solution() {
 
   return (
     <section className="py-16 sm:py-20 bg-white" aria-labelledby="solution-heading">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
         <motion.h2
           id="solution-heading"
           className="font-playfair text-3xl md:text-4xl lg:text-5xl font-bold text-lp-text mb-4"
@@ -32,18 +32,18 @@ export default function Solution() {
         </motion.p>
 
         <motion.div
-          className="relative max-w-2xl mx-auto rounded-2xl overflow-hidden shadow-xl border border-lp-border"
+          className="relative max-w-4xl mx-auto"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <Image
-            src="/slider_pictures/6.png"
+            src="/dodajuspomenu-app-mockup.png"
             alt={t("solution.imageAlt")}
-            width={800}
-            height={500}
-            className="w-full h-auto"
+            width={1200}
+            height={617}
+            className="w-full h-auto rounded-2xl shadow-xl"
           />
         </motion.div>
       </div>

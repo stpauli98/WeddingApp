@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useTranslation } from "react-i18next"
 import { motion } from "framer-motion"
 import { UserPlus, QrCode, Download } from "lucide-react"
@@ -31,7 +32,7 @@ export default function HowItWorks() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           {steps.map((step, index) => {
             const Icon = step.icon
             return (
@@ -55,6 +56,23 @@ export default function HowItWorks() {
             )
           })}
         </div>
+
+        {/* Visual: App screenshot showing the process */}
+        <motion.div
+          className="max-w-4xl mx-auto"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <Image
+            src="/dodajuspomenu-how-it-works.png"
+            alt="Kako DodajUspomenu funkcioniše"
+            width={1200}
+            height={617}
+            className="w-full h-auto rounded-2xl shadow-lg"
+          />
+        </motion.div>
       </div>
     </section>
   )
