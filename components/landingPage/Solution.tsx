@@ -8,7 +8,7 @@ export default function Solution() {
   const { t } = useTranslation()
 
   return (
-    <section className="py-16 sm:py-20 bg-lp-bg" aria-labelledby="solution-heading">
+    <section className="py-16 sm:py-20 bg-white" aria-labelledby="solution-heading">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
         <motion.h2
           id="solution-heading"
@@ -39,7 +39,7 @@ export default function Solution() {
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <Image
-            src="/slider_pictures/3.png"
+            src="/slider_pictures/6.png"
             alt={t("solution.imageAlt")}
             width={800}
             height={500}

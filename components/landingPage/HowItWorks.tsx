@@ -14,7 +14,7 @@ export default function HowItWorks() {
   ]
 
   return (
-    <section id="kako-radi" className="py-16 sm:py-20 bg-lp-bg" aria-labelledby="how-it-works-heading">
+    <section id="kako-radi" className="py-16 sm:py-20 bg-lp-muted" aria-labelledby="how-it-works-heading">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <motion.div
           className="text-center mb-14"

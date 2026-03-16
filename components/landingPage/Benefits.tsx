@@ -16,7 +16,7 @@ export default function Benefits() {
   ]
 
   return (
-    <section className="py-16 sm:py-20 bg-lp-bg" aria-labelledby="why-us-heading">
+    <section className="py-16 sm:py-20 bg-lp-muted" aria-labelledby="why-us-heading">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <motion.h2
           id="why-us-heading"

@@ -54,7 +54,7 @@ export default function SocialProof() {
   ]
 
   return (
-    <section className="py-16 sm:py-20 bg-lp-muted" aria-labelledby="social-proof-heading">
+    <section className="py-16 sm:py-20 bg-white" aria-labelledby="social-proof-heading">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <motion.h2
           id="social-proof-heading"

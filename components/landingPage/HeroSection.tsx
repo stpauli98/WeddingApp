@@ -34,7 +34,7 @@ export default function HeroSection() {
 
             <h1 id="hero-heading" className="font-playfair text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-lp-text">
               {t("hero.titleLine1")}{" "}
-              <span className="text-lp-accent">{t("hero.titleLine2")}</span>{" "}
+              <span className="text-[hsl(340,25%,55%)]">{t("hero.titleLine2")}</span>{" "}
               {t("hero.titleLine3")}
             </h1>
 

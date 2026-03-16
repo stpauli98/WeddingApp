@@ -13,7 +13,7 @@ export default function FAQ() {
   }))
 
   return (
-    <section id="faq" className="py-16 sm:py-20 bg-lp-bg" aria-labelledby="faq-heading">
+    <section id="faq" className="py-16 sm:py-20 bg-white" aria-labelledby="faq-heading">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
         <motion.div
           className="text-center mb-10"
