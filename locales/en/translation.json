@@ -1,102 +1,48 @@
 {
-  "imageSlider": {
-    "step": "Step {{number}}",
-    "previousImage": "Previous image",
-    "nextImage": "Next image",
-    "goToImage": "Go to image {{number}}"
-  },
   "hero": {
-    "title": "Save all memories from your <accent>wedding</accent>",
-    "description": "A simple way to collect all the photos your guests took during the wedding in one place, without complications.",
-    "createEvent": "Create a free event",
-    "howItWorks": "How it works",
-    "imagesCollected": "Images collected",
-    "adminTitle": "Admin",
-    "guestTitle": "Guest",
-    "adminScreenshot": "Admin application screenshot",
-    "guestScreenshot": "Guest application screenshot",
-    "appScreenshotsDescription": "Application screenshot showing wedding photo collection features",
-    "eyebrow": "The fastest way to collect wedding photos",
-    "titleLine1": "Save all your",
+    "eyebrow": "The simplest way to collect wedding photos",
+    "titleLine1": "All your wedding",
     "titleLine2": "memories",
-    "titleLine3": "from wedding",
-    "statsImages": "Photos collected",
-    "statsUsers": "Couples using",
-    "statsEvents": "Events created",
-    "trustSetup": "2 min setup",
-    "trustFree": "100% Free",
-    "trustPrivacy": "Private & Secure",
-    "scrollDown": "Scroll to see more",
-    "demoTitle": "See how it works",
-    "liveBadge": "Live",
-    "freeLabel": "Free",
-    "foreverLabel": "Forever"
+    "titleLine3": "in one place",
+    "description": "Your guests take photos, you enjoy them. No WhatsApp groups, no compression, no hassle.",
+    "primaryCta": "Get started in 2 minutes",
+    "secondaryCta": "How it works",
+    "trustPrivacy": "Private & secure",
+    "trustSpeed": "2 min setup",
+    "trustFree": "100% Free"
   },
   "howItWorks": {
-    "title": "How it works",
-    "description": "A simple way to collect all the photos your guests took during the wedding in one place, without complications.",
-    "step1Title": "Register",
-    "step1Description": "Create your event in a few simple steps",
-    "step2Title": "Share the code",
-    "step2Description": "Share a unique QR code with your guests",
-    "step3Title": "Collect photos",
-    "step3Description": "Guests upload photos directly from their phones",
-    "step4Title": "Download memories",
-    "step4Description": "Access all photos in one place",
-    "qrCodeText": "Simple scanning"
-  },
-  "benefits": {
-    "title": "Why use our application",
-    "subtitle": "Benefits you get",
-    "benefit1Title": "Easy to use",
-    "benefit1Description": "Intuitive interface for you and your guests",
-    "benefit2Title": "No app installation",
-    "benefit2Description": "Guests can upload photos directly through a web browser",
-    "benefit3Title": "Privacy",
-    "benefit3Description": "Only you have access to the photos",
-    "benefit4Title": "High quality",
-    "benefit4Description": "Photos are stored in their original resolution",
-    "benefit5Title": "Easy to use",
-    "benefit5Description": "Intuitive interface for you and your guests",
-    "benefit6Title": "No app installation",
-    "benefit6Description": "Guests can upload photos directly through a web browser"
-  },
-  "testimonials": {
-    "title": "What our users say",
-    "testimonial1": {
-      "text": "The application was perfect for our wedding. Guests easily shared their photos, and we got beautiful memories we would have otherwise missed!",
-      "author": "Maria and Nicholas",
-      "role": "Married June 2023"
-    },
-    "testimonial2": {
-      "text": "Much better than sharing photos via WhatsApp or other social networks. Everything is in one place and private.",
-      "author": "Helen and Stephen",
-      "role": "Married May 2023"
-    },
-    "testimonial3": {
-      "text": "Easy to use for both us and our guests. We received over 500 photos from our wedding, which was incredible!",
-      "author": "Anna and Mark",
-      "role": "Married August 2023"
-    }
+    "title": "How does it work?",
+    "description": "Three simple steps to all your memories",
+    "step1Title": "Create an event",
+    "step1Description": "Register and create your event in 2 minutes",
+    "step2Title": "Share the QR code",
+    "step2Description": "Guests scan the code or open the link and upload photos",
+    "step3Title": "Enjoy your photos",
+    "step3Description": "All photos in one place, ready to download"
   },
   "faq": {
     "title": "Frequently Asked Questions",
-    "subtitle": "Frequently Asked Questions",
-    "question1": "Is the application free?",
-    "answer1": "Yes, the basic version of the application is completely free to use.",
-    "question2": "How many photos can guests upload?",
-    "answer2": "Each guest can upload up to 10 photos.",
-    "question3": "How long are the photos stored?",
-    "answer3": "Photos are stored for 1 months after the wedding.",
-    "question4": "Do guests need to create an account?",
-    "answer4": "No, guests sign in only with their name and email address."
+    "subtitle": "Everything you need to know about AddMemories",
+    "question1": "How does AddMemories work?",
+    "answer1": "Create an event, share the link or QR code with guests, they upload photos directly from their phones. You download everything in one place.",
+    "question2": "Is it really 100% free?",
+    "answer2": "Yes, completely free. No hidden costs, no subscription, no credit card required.",
+    "question3": "How many photos can guests upload?",
+    "answer3": "Each guest can upload up to 10 photos in full resolution.",
+    "question4": "Are the photos private and secure?",
+    "answer4": "Yes, only you and your registered guests have access to the photos. Each event has a unique private link.",
+    "question5": "How long are photos stored?",
+    "answer5": "Photos are stored permanently in the cloud. You can download them whenever you want.",
+    "question6": "Can it be used for events other than weddings?",
+    "answer6": "Absolutely! AddMemories is perfect for christenings, birthdays, team building, and any event where you want to collect photos.",
+    "question7": "Do guests need to install an app?",
+    "answer7": "No, everything works directly in the web browser. Guests just open the link or scan the QR code — no installation needed."
   },
   "footer": {
+    "description": "The simplest way to collect wedding photos.",
     "copyright": "All rights reserved.",
-    "title": "Save all memories from your wedding",
-    "subtitle": "A simple way to collect all the photos your guests took during the wedding in one place, without complications.",
-    "button": "Start for free",
-    "privacyPolicy": "Privacy Policy",
+    "privacyPolicy": "Privacy",
     "termsOfService": "Terms of Service",
     "contact": "Contact"
   },
@@ -115,7 +61,6 @@
     "unselectAll": "Unselect all",
     "selectAll": "Select all"
   },
-
   "guest": {
     "message": {
       "yourMessageToCouple": "Your message to the couple",
@@ -235,7 +180,6 @@
       }
     }
   },
-
   "admin": {
     "imageGallery": {
       "loadingGuestData": "Loading guest data...",
@@ -448,5 +392,43 @@
         "welcomeMessage": "Welcome to your dashboard"
       }
     }
+  },
+  "navbar": {
+    "howItWorks": "How it works",
+    "faq": "FAQ",
+    "cta": "Get started",
+    "menuOpen": "Open menu",
+    "menuClose": "Close menu"
+  },
+  "painPoints": {
+    "title": "Sound familiar?",
+    "point1": "Photos scattered across 50+ guest phones",
+    "point2": "Guests promise to send photos — they never do",
+    "point3": "WhatsApp destroys photo quality",
+    "point4": "No single place for all your memories"
+  },
+  "solution": {
+    "title": "AddMemories solves everything.",
+    "subtitle": "One link. All guests. All photos.",
+    "imageAlt": "AddMemories app preview"
+  },
+  "socialProof": {
+    "title": "Couples trust us",
+    "statCouples": "couples have used it",
+    "statGuests": "guests registered",
+    "statCountries": "countries",
+    "countriesList": "Serbia, Croatia, Bosnia, USA"
+  },
+  "whyUs": {
+    "title": "Why AddMemories?",
+    "benefit1Title": "Private",
+    "benefit1Description": "Only your guests have access to your photos",
+    "benefit2Title": "Fast",
+    "benefit2Description": "2-minute setup, no installation needed",
+    "benefit3Title": "Secure",
+    "benefit3Description": "Photos stored in the cloud, available anytime",
+    "ctaTitle": "Ready for your special day?",
+    "ctaButton": "Get started in 2 minutes",
+    "ctaSubtext": "Free. No credit card. No obligations."
   }
 }
