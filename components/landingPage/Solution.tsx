@@ -2,10 +2,12 @@
 
 import Image from "next/image"
 import { useTranslation } from "react-i18next"
+import { getCurrentLanguageFromPath } from "@/lib/utils/language"
 import { motion } from "framer-motion"
 
 export default function Solution() {
   const { t } = useTranslation()
+  const lang = getCurrentLanguageFromPath()
 
   return (
     <section className="py-16 sm:py-20 bg-white" aria-labelledby="solution-heading">
@@ -39,7 +41,7 @@ export default function Solution() {
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <Image
-            src="/images/dodajuspomenu-gallery-desktop.png"
+            src={`/images/${lang}/gallery-desktop.png`}
             alt={t("solution.imageAlt")}
             width={1200}
             height={617}

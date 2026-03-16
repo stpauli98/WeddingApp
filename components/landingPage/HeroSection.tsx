@@ -9,6 +9,7 @@ import { ArrowRight, Shield, Clock, CheckCircle, Sparkles } from "lucide-react"
 
 export default function HeroSection() {
   const { t } = useTranslation()
+  const lang = getCurrentLanguageFromPath()
 
   const trustIndicators = [
     { icon: Shield, text: t("hero.trustPrivacy") },
@@ -44,7 +45,7 @@ export default function HeroSection() {
 
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                href={`/${getCurrentLanguageFromPath()}/admin/register`}
+                href={`/${lang}/admin/register`}
                 className="group inline-flex items-center justify-center px-7 py-3.5 text-base font-semibold text-white bg-lp-primary rounded-xl shadow-lg hover:shadow-xl hover:bg-lp-primary/90 transition-all"
               >
                 {t("hero.primaryCta")}
@@ -71,19 +72,18 @@ export default function HeroSection() {
             </div>
           </motion.div>
 
-          {/* Right: Phone mockup with register screenshot */}
+          {/* Right: Phone mockup */}
           <motion.div
             className="flex justify-center"
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            {/* Desktop: show phone mockup */}
             <div className="hidden md:block relative w-[300px] h-[600px] bg-gray-900 rounded-[3rem] p-3 shadow-2xl">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-10" />
               <div className="relative w-full h-full rounded-[2.25rem] overflow-hidden bg-white">
                 <Image
-                  src="/images/dodajuspomenu-guest-login-filled.png"
+                  src={`/images/${lang}/guest-login-filled.png`}
                   alt={t("hero.titleLine1")}
                   fill
                   className="object-cover object-top"
@@ -92,10 +92,9 @@ export default function HeroSection() {
                 />
               </div>
             </div>
-            {/* Mobile: show mobile hero image */}
             <div className="block md:hidden w-full max-w-sm">
               <Image
-                src="/images/dodajuspomenu-gallery-mobile.png"
+                src={`/images/${lang}/hero-mobile.png`}
                 alt={t("hero.titleLine1")}
                 width={390}
                 height={844}

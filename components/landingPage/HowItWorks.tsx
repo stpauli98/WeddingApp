@@ -2,11 +2,13 @@
 
 import Image from "next/image"
 import { useTranslation } from "react-i18next"
+import { getCurrentLanguageFromPath } from "@/lib/utils/language"
 import { motion } from "framer-motion"
 import { UserPlus, QrCode, Download } from "lucide-react"
 
 export default function HowItWorks() {
   const { t } = useTranslation()
+  const lang = getCurrentLanguageFromPath()
 
   const steps = [
     { icon: UserPlus, title: t("howItWorks.step1Title"), description: t("howItWorks.step1Description"), num: "1" },
@@ -57,7 +59,6 @@ export default function HowItWorks() {
           })}
         </div>
 
-        {/* Visual: App screenshot showing the process */}
         <motion.div
           className="max-w-4xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
@@ -66,8 +67,8 @@ export default function HowItWorks() {
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <Image
-            src="/images/dodajuspomenu-dashboard-desktop.png"
-            alt="Kako DodajUspomenu funkcioniše"
+            src={`/images/${lang}/dashboard-desktop.png`}
+            alt={t("howItWorks.title")}
             width={1200}
             height={617}
             className="w-full h-auto rounded-2xl shadow-lg"
