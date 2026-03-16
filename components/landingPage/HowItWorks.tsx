@@ -66,7 +66,7 @@ export default function HowItWorks() {
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <Image
-            src="/images/dodajuspomenu-how-it-works.png"
+            src="/images/dodajuspomenu-dashboard-desktop.png"
             alt="Kako DodajUspomenu funkcioniše"
             width={1200}
             height={617}

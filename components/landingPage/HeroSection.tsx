@@ -83,7 +83,7 @@ export default function HeroSection() {
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-10" />
               <div className="relative w-full h-full rounded-[2.25rem] overflow-hidden bg-white">
                 <Image
-                  src="/images/dodajuspomenu-register-mobile.png"
+                  src="/images/dodajuspomenu-guest-login-filled.png"
                   alt={t("hero.titleLine1")}
                   fill
                   className="object-cover object-top"
@@ -95,7 +95,7 @@ export default function HeroSection() {
             {/* Mobile: show mobile hero image */}
             <div className="block md:hidden w-full max-w-sm">
               <Image
-                src="/images/dodajuspomenu-hero-mobile.png"
+                src="/images/dodajuspomenu-gallery-mobile.png"
                 alt={t("hero.titleLine1")}
                 width={390}
                 height={844}

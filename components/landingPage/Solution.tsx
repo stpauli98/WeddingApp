@@ -39,7 +39,7 @@ export default function Solution() {
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <Image
-            src="/images/dodajuspomenu-app-mockup.png"
+            src="/images/dodajuspomenu-gallery-desktop.png"
             alt={t("solution.imageAlt")}
             width={1200}
             height={617}
