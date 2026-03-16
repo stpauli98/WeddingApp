@@ -25,7 +25,7 @@ export async function GET() {
 }
 
 import { prisma } from '@/lib/prisma';
-import { getGuestById } from '@/lib/auth';
+import { getAuthenticatedGuest } from '@/lib/guest-auth';
 import sharp from 'sharp';
 import cloudinary from '@/lib/cloudinary';
 import type { UploadApiResponse, UploadApiErrorResponse } from "cloudinary";
@@ -45,29 +45,17 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadRes
     return NextResponse.json({ error: "Neispravan CSRF token. Osvežite stranicu i pokušajte ponovo." }, { status: 403 });
   }
   try {
-    // --- Validacija korisnika ---
-    const url = new URL(request.url);
-    const guestId: string | null = url.searchParams.get('guestId');
-    if (!guestId) return NextResponse.json({ error: "Niste prijavljeni" }, { status: 401 });
+    // --- Validacija korisnika putem session tokena ---
+    const guestSession = await getAuthenticatedGuest();
+    if (!guestSession) return NextResponse.json({ error: "Niste prijavljeni" }, { status: 401 });
+    const guestId = guestSession.id;
 
     // --- Parsiranje forme ---
     const formData = await request.formData();
     const images: File[] = formData.getAll("images").filter(Boolean) as File[];
     const message: string = (formData.get("message") as string | null) || "";
 
-    // Dohvati gosta i event za provjeru limita
-    const guest = await getGuestById(guestId);
-    if (!guest) return NextResponse.json({ error: "Gost nije pronađen ili nije verifikovan" }, { status: 404 });
-
-    // Dohvati event da bi uzeo imageLimit
-    const event = await prisma.event.findUnique({
-      where: { id: guest.eventId },
-      select: { imageLimit: true }
-    });
-
-    if (!event) return NextResponse.json({ error: "Event nije pronađen" }, { status: 404 });
-
-    const MAX_IMAGES = event.imageLimit || 10; // Default to 10 if not set
+    const MAX_IMAGES = guestSession.event.imageLimit || 10;
 
     // Ako imamo samo poruku, obradi je i vrati odgovor
     if (message.trim() && images.length === 0) {

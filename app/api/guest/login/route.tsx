@@ -140,27 +140,26 @@ export async function POST(request: Request) {
       guestId = newGuest.id;
     }
 
-    // Postavi session cookie i vrati odgovor
+    // Generiši siguran session token i sačuvaj u bazi
+    const sessionToken = crypto.randomBytes(32).toString("hex");
+    const sessionExpires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 dana
+
+    await prisma.guest.update({
+      where: { id: guestId },
+      data: { sessionToken, sessionExpires }
+    });
+
     const response = NextResponse.json({ 
       success: true, 
       guestId,
       eventId: event.id
     });
     
-    // Postavi guest_session cookie sa ID-om gosta
-    response.cookies.set("guest_session", guestId, {
+    // Postavi guest_session cookie sa opaque tokenom (NE guestId)
+    response.cookies.set("guest_session", sessionToken, {
       httpOnly: true,
       path: "/",
-      maxAge: 60 * 60 * 24, // 24h
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    });
-    
-    // Postavi guest_event cookie sa ID-om eventa
-    response.cookies.set("guest_event", event.id, {
-      httpOnly: true,
-      path: "/",
-      maxAge: 60 * 60 * 24, // 24h
+      maxAge: 60 * 60 * 24 * 30, // 30 dana
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
     });

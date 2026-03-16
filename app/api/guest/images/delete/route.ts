@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from '@/lib/prisma'
+import { getAuthenticatedGuest } from '@/lib/guest-auth'
 import crypto from 'crypto';
 import { cookies } from 'next/headers';
 import cloudinary from '@/lib/cloudinary';
@@ -36,14 +37,15 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: 'Neispravan CSRF token. Osvežite stranicu i pokušajte ponovo.' }, { status: 403 });
   }
   try {
-    // Dobavi parametre iz URL-a (guestId za autentifikaciju i imageId za brisanje)
-    const { searchParams } = new URL(request.url);
-    const guestId = searchParams.get('guestId');
-    const imageId = searchParams.get('id');
-    
-    if (!guestId) {
+    // Validiraj guest sesiju
+    const guest = await getAuthenticatedGuest();
+    if (!guest) {
       return NextResponse.json({ error: "Niste prijavljeni" }, { status: 401 });
     }
+    const guestId = guest.id;
+
+    const { searchParams } = new URL(request.url);
+    const imageId = searchParams.get('id');
 
     if (!imageId) {
       return NextResponse.json({ error: "ID slike nije naveden" }, { status: 400 });

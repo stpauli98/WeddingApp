@@ -56,7 +56,7 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
     
         return;
       }
-      const url = `/api/guest/images/delete?id=${imageId}&guestId=${guestId}`;
+      const url = `/api/guest/images/delete?id=${imageId}`;
   
       const res = await fetch(url, {
         method: "DELETE",

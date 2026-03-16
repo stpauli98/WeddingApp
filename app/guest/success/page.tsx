@@ -31,9 +31,11 @@ export default async function SuccessPage(props: any) {
   // U Next.js 15, searchParams mora biti awaited
   const searchParams = await props.searchParams;
   
-  // Dohvati guestId iz session cookie-ja
+  // Validiraj guest sesiju
   const cookieStore = await cookies();
-  const guestId = cookieStore.get("guest_session")?.value || "";
+  const { getAuthenticatedGuest } = await import('@/lib/guest-auth');
+  const authenticatedGuest = await getAuthenticatedGuest();
+  const guestId = authenticatedGuest?.id || "";
   
   // Dohvati jezik iz kolačića
   const languageCookie = cookieStore.get("i18nextLng");
