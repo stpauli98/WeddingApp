@@ -22,7 +22,7 @@ export default function Footer() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <div className="flex flex-col md:flex-row justify-between gap-8 mb-8">
           <div>
-            <span className="font-playfair text-xl font-bold text-lp-primary">DodajUspomenu</span>
+            <span className="font-playfair text-xl font-bold text-lp-text">DodajUspomenu</span>
             <p className="text-sm text-lp-muted-foreground mt-2 max-w-xs">{t("footer.description")}</p>
           </div>
 

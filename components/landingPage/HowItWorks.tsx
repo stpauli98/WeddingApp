@@ -23,7 +23,7 @@ export default function HowItWorks() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 id="how-it-works-heading" className="font-playfair text-3xl md:text-4xl font-bold text-lp-primary mb-3">
+          <h2 id="how-it-works-heading" className="font-playfair text-3xl md:text-4xl font-bold text-lp-text mb-3">
             {t("howItWorks.title")}
           </h2>
           <p className="text-lg text-lp-muted-foreground max-w-2xl mx-auto">
@@ -49,7 +49,7 @@ export default function HowItWorks() {
                 <div className="w-12 h-12 rounded-lg bg-lp-accent/10 flex items-center justify-center mx-auto mb-4">
                   <Icon className="w-6 h-6 text-lp-accent" />
                 </div>
-                <h3 className="text-xl font-bold text-lp-primary mb-2">{step.title}</h3>
+                <h3 className="text-xl font-bold text-lp-text mb-2">{step.title}</h3>
                 <p className="text-lp-muted-foreground">{step.description}</p>
               </motion.div>
             )

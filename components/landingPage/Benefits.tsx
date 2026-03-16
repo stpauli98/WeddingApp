@@ -20,7 +20,7 @@ export default function Benefits() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <motion.h2
           id="why-us-heading"
-          className="font-playfair text-3xl md:text-4xl font-bold text-lp-primary text-center mb-12"
+          className="font-playfair text-3xl md:text-4xl font-bold text-lp-text text-center mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -45,7 +45,7 @@ export default function Benefits() {
                 <div className="w-14 h-14 rounded-xl bg-lp-accent/10 flex items-center justify-center mx-auto mb-4">
                   <Icon className="w-7 h-7 text-lp-accent" />
                 </div>
-                <h3 className="text-lg font-bold text-lp-primary mb-2">{benefit.title}</h3>
+                <h3 className="text-lg font-bold text-lp-text mb-2">{benefit.title}</h3>
                 <p className="text-sm text-lp-muted-foreground">{benefit.description}</p>
               </motion.div>
             )
@@ -59,7 +59,7 @@ export default function Benefits() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h3 className="font-playfair text-2xl md:text-3xl font-bold text-lp-primary mb-4">
+          <h3 className="font-playfair text-2xl md:text-3xl font-bold text-lp-text mb-4">
             {t("whyUs.ctaTitle")}
           </h3>
           <Link

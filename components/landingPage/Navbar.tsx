@@ -35,7 +35,7 @@ export default function Navbar() {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="font-playfair text-xl font-bold text-lp-primary">
+          <Link href="/" className="font-playfair text-xl font-bold text-lp-text">
             DodajUspomenu
           </Link>
 

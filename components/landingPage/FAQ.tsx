@@ -22,7 +22,7 @@ export default function FAQ() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 id="faq-heading" className="font-playfair text-3xl md:text-4xl font-bold text-lp-primary mb-3">
+          <h2 id="faq-heading" className="font-playfair text-3xl md:text-4xl font-bold text-lp-text mb-3">
             {t("faq.title")}
           </h2>
           <p className="text-lg text-lp-muted-foreground">{t("faq.subtitle")}</p>
@@ -37,7 +37,7 @@ export default function FAQ() {
           <Accordion type="single" collapsible className="w-full bg-white border border-lp-border rounded-xl shadow-sm p-2 md:p-4">
             {faqItems.map((item, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left text-base font-semibold text-lp-primary hover:text-lp-accent transition-colors">
+                <AccordionTrigger className="text-left text-base font-semibold text-lp-text hover:text-lp-accent transition-colors">
                   {item.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-lp-muted-foreground">

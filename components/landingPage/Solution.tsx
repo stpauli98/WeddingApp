@@ -12,7 +12,7 @@ export default function Solution() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
         <motion.h2
           id="solution-heading"
-          className="font-playfair text-3xl md:text-4xl lg:text-5xl font-bold text-lp-primary mb-4"
+          className="font-playfair text-3xl md:text-4xl lg:text-5xl font-bold text-lp-text mb-4"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

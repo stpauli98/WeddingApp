@@ -58,7 +58,7 @@ export default function SocialProof() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <motion.h2
           id="social-proof-heading"
-          className="font-playfair text-3xl md:text-4xl font-bold text-lp-primary text-center mb-12"
+          className="font-playfair text-3xl md:text-4xl font-bold text-lp-text text-center mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -81,7 +81,7 @@ export default function SocialProof() {
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
                 <Icon className="w-8 h-8 text-lp-accent mx-auto mb-3" />
-                <div className="text-3xl md:text-4xl font-bold text-lp-primary mb-1">
+                <div className="text-3xl md:text-4xl font-bold text-lp-text mb-1">
                   {stat.value}{stat.suffix}
                 </div>
                 <div className="text-sm text-lp-muted-foreground">{stat.label}</div>
