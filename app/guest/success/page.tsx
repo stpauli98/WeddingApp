@@ -82,12 +82,13 @@ export default async function SuccessPage(props: any) {
     where: { guestId: guestId }
   });
 
-  // Dohvatanje imena brudova iz baze, slug-a i jezika admina
+  // Dohvatanje imena brudova iz baze, slug-a, jezika admina i imageLimit
   const event = await prisma.event.findFirst({
     where: { id: guest?.eventId },
-    select: { 
-      coupleName: true, 
+    select: {
+      coupleName: true,
       slug: true,
+      imageLimit: true,
       admin: {
         select: {
           language: true
@@ -102,11 +103,12 @@ export default async function SuccessPage(props: any) {
   // Ako imamo eventSlug iz URL-a, koristimo ga, inače koristimo slug iz baze
   const finalEventSlug = eventSlug || event?.slug;
 
-  return <ClientSuccess 
-    guest={guest} 
-    coupleName={event?.coupleName} 
+  return <ClientSuccess
+    guest={guest}
+    coupleName={event?.coupleName}
     message={message ? { text: message.text } : undefined}
     eventSlug={finalEventSlug}
     language={urlLanguage || language || eventLanguage}
+    imageLimit={event?.imageLimit || 10}
   />;
 }

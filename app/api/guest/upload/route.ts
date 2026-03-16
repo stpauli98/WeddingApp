@@ -55,10 +55,20 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadRes
     const images: File[] = formData.getAll("images").filter(Boolean) as File[];
     const message: string = (formData.get("message") as string | null) || "";
 
-    // Dohvati gosta za provjeru
+    // Dohvati gosta i event za provjeru limita
     const guest = await getGuestById(guestId);
     if (!guest) return NextResponse.json({ error: "Gost nije pronađen ili nije verifikovan" }, { status: 404 });
-    
+
+    // Dohvati event da bi uzeo imageLimit
+    const event = await prisma.event.findUnique({
+      where: { id: guest.eventId },
+      select: { imageLimit: true }
+    });
+
+    if (!event) return NextResponse.json({ error: "Event nije pronađen" }, { status: 404 });
+
+    const MAX_IMAGES = event.imageLimit || 10; // Default to 10 if not set
+
     // Ako imamo samo poruku, obradi je i vrati odgovor
     if (message.trim() && images.length === 0) {
       await prisma.message.upsert({
@@ -70,15 +80,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadRes
     }
 
     // --- Validacija broja slika ---
-    if (images.length > 10) {
-      return NextResponse.json({ error: "Možete poslati najviše 10 slika" }, { status: 400 });
+    if (images.length > MAX_IMAGES) {
+      return NextResponse.json({ error: `Možete poslati najviše ${MAX_IMAGES} slika` }, { status: 400 });
     }
 
     // Provjeri ukupan broj slika (postojeće + nove)
     const currentImagesCount = await prisma.image.count({ where: { guestId } });
-    if (currentImagesCount + images.length > 10) {
-      return NextResponse.json({ 
-        error: `Ukupno možete imati najviše 10 slika. Trenutno imate ${currentImagesCount}, a pokušavate dodati ${images.length} novih.` 
+    if (currentImagesCount + images.length > MAX_IMAGES) {
+      return NextResponse.json({
+        error: `Ukupno možete imati najviše ${MAX_IMAGES} slika. Trenutno imate ${currentImagesCount}, a pokušavate dodati ${images.length} novih.`
       }, { status: 400 });
     }
 

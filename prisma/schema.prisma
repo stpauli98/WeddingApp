@@ -15,7 +15,7 @@ model Admin {
   eventId      String?        @unique
   firstName    String
   lastName     String
-  language     String         @default("sr")
+  language     String         @default("sr") // Defaultni jezik je srpski
   sessions     AdminSession[]
   event        Event?         @relation("AdminEvent")
 }
@@ -29,16 +29,16 @@ model Event {
   createdAt    DateTime @default(now())
   adminId      String?  @unique
   guestMessage String?
-  language     String   @default("sr")
-  imageLimit   Int      @default(10)
-  pricingTier  String   @default("free")
+  language     String   @default("sr") // Jezik događaja (sr ili en)
+  imageLimit   Int      @default(10) // Maximum broj slika po gostu
+  pricingTier  String   @default("free") // free, basic, premium, unlimited
   admin        Admin?   @relation("AdminEvent", fields: [adminId], references: [id])
   guests       Guest[]
 }
 
 model Guest {
   id             String    @id @default(uuid())
-  email          String
+  email          String    
   code           String?
   verified       Boolean   @default(false)
   codeExpires    DateTime?
@@ -51,10 +51,6 @@ model Guest {
   event          Event     @relation(fields: [eventId], references: [id])
   images         Image[]
   message        Message?
-
-  @@index([eventId])
-  @@index([email, eventId])
-  @@index([sessionToken])
 }
 
 model Image {
@@ -64,9 +60,6 @@ model Image {
   createdAt   DateTime @default(now())
   storagePath String?
   guest       Guest    @relation(fields: [guestId], references: [id])
-
-  @@index([guestId])
-  @@index([createdAt])
 }
 
 model Message {
@@ -84,12 +77,9 @@ model AdminSession {
   expiresAt    DateTime
   createdAt    DateTime @default(now())
   admin        Admin    @relation(fields: [adminId], references: [id])
-
-  @@index([adminId])
-  @@index([expiresAt])
 }
 
 model Stats {
-  id                  Int @id @default(1)
-  totalUploadedImages Int @default(0)
+  id                    Int    @id @default(1)
+  totalUploadedImages   Int    @default(0)
 }

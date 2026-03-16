@@ -27,10 +27,18 @@ export async function POST(request: Request) {
   }
   try {
     const body = await request.json();
-    const { coupleName, location, date, slug, guestMessage } = body;
+    const { coupleName, location, date, slug, guestMessage, pricingTier, imageLimit } = body;
 
     if (!coupleName || !location || !date || !slug) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    // Validate imageLimit if provided
+    if (imageLimit !== undefined) {
+      const limit = parseInt(imageLimit);
+      if (isNaN(limit) || limit < 10 || limit > 999) {
+        return NextResponse.json({ error: "Image limit must be between 10 and 999" }, { status: 400 });
+      }
     }
 
     // 1. Pronađi admina preko session cookie-ja
@@ -75,6 +83,8 @@ export async function POST(request: Request) {
         slug,
         guestMessage: guestMessage || null,
         language: admin?.language || "sr", // Koristi jezik admina ili default
+        pricingTier: pricingTier || "free", // Default to free tier
+        imageLimit: imageLimit ? parseInt(imageLimit) : 10, // Default to 10 images
         admin: { connect: { id: adminId } },
       },
     });
