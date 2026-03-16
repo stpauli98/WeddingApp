@@ -117,11 +117,15 @@ export async function middleware(request: NextRequest) {
       return response;
     }
     
-    // Provjera sessiona i protected ruta
-    const isProtected = path.includes('/dashboard') || path.includes('/success');
+    // Zaštita admin ruta - provjera admin sesije
+    if (path.includes('/admin/dashboard') && !request.cookies.has('admin_session')) {
+      return NextResponse.redirect(new URL(`/${language}/admin/login`, request.url));
+    }
+
+    // Zaštita guest ruta - provjera guest sesije
+    const isProtected = path.includes('/guest/dashboard') || path.includes('/guest/success');
     if (isProtected && !request.cookies.has('guest_session')) {
-      const redirect = `/${language}`;
-      return NextResponse.redirect(new URL(redirect, request.url));
+      return NextResponse.redirect(new URL(`/${language}/guest/login`, request.url));
     }
 
     // Za ostale rute s jezičnim prefiksom, samo postavi kolačić i nastavi
@@ -133,9 +137,13 @@ export async function middleware(request: NextRequest) {
     return nextResponse;
   }
   
-  // Zaštićene rute - provjera sesije
-  const isProtectedRoute = path.includes("/dashboard") || path.includes("/success");
-  const hasSession = request.cookies.has("guest_session");
+  // Zaštićene rute - provjera sesija
+  if (path.includes('/admin/dashboard') && !request.cookies.has('admin_session')) {
+    return NextResponse.redirect(new URL(`/${defaultLanguage}/admin/login`, request.url));
+  }
+  
+  const isProtectedRoute = path.includes('/guest/dashboard') || path.includes('/guest/success');
+  const hasSession = request.cookies.has('guest_session');
 
   if (isProtectedRoute && !hasSession) {
     // Ako ruta ima jezični prefiks, preusmjeri na odgovarajuću početnu stranicu s tim jezikom
