@@ -8,79 +8,36 @@ datasource db {
   directUrl = env("DIRECT_DATABASE_URL")
 }
 
+// ──────────────────────────────────────
+// Enums
+// ──────────────────────────────────────
+
+/// Paketi za eventi — određuju maksimalan broj slika po gostu
 enum PricingTier {
-  free
-  basic
-  premium
-  unlimited
+  free       // 10 slika
+  basic      // 25 slika
+  premium    // 50 slika
+  unlimited  // 999 slika
 }
 
+// ──────────────────────────────────────
+// Admin & Autentifikacija
+// ──────────────────────────────────────
+
+/// Admin (mladenci) — kreira event i pregledava slike/poruke gostiju
 model Admin {
   id           String         @id @default(uuid())
   email        String         @unique
   passwordHash String
-  createdAt    DateTime       @default(now())
   firstName    String
   lastName     String
   language     String         @default("sr")
+  createdAt    DateTime       @default(now())
   sessions     AdminSession[]
   event        Event?         @relation("AdminEvent")
 }
 
-model Event {
-  id           String      @id @default(uuid())
-  coupleName   String
-  location     String
-  date         DateTime
-  slug         String      @unique
-  createdAt    DateTime    @default(now())
-  adminId      String?     @unique
-  guestMessage String?
-  language     String      @default("sr")
-  imageLimit   Int         @default(10)
-  pricingTier  PricingTier @default(free)
-  admin        Admin?      @relation("AdminEvent", fields: [adminId], references: [id])
-  guests       Guest[]
-}
-
-model Guest {
-  id             String    @id @default(uuid())
-  email          String
-  createdAt      DateTime  @default(now())
-  eventId        String
-  firstName      String
-  lastName       String
-  sessionExpires DateTime?
-  sessionToken   String?
-  event          Event     @relation(fields: [eventId], references: [id])
-  images         Image[]
-  message        Message?
-
-  @@unique([email, eventId])
-  @@index([eventId])
-  @@index([sessionToken])
-}
-
-model Image {
-  id          String   @id @default(uuid())
-  guestId     String
-  imageUrl    String
-  createdAt   DateTime @default(now())
-  storagePath String?
-  guest       Guest    @relation(fields: [guestId], references: [id])
-
-  @@index([guestId])
-  @@index([createdAt])
-}
-
-model Message {
-  id        String   @id @default(uuid())
-  guestId   String   @unique
-  text      String
-  createdAt DateTime @default(now())
-  guest     Guest    @relation(fields: [guestId], references: [id])
-}
-
+/// Admin sesija — httpOnly cookie, traje 7 dana
 model AdminSession {
   id           String   @id @default(uuid())
   adminId      String
@@ -91,4 +48,72 @@ model AdminSession {
 
   @@index([adminId])
   @@index([expiresAt])
+}
+
+// ──────────────────────────────────────
+// Event
+// ──────────────────────────────────────
+
+/// Svadbeni event — identifikuje se po slug-u (npr. /guest/login?event=marko-i-ana)
+/// Jedan admin ima tačno jedan event (1:1 relacija preko adminId)
+model Event {
+  id           String      @id @default(uuid())
+  slug         String      @unique
+  coupleName   String
+  location     String
+  date         DateTime
+  guestMessage String?
+  language     String      @default("sr")
+  imageLimit   Int         @default(10)
+  pricingTier  PricingTier @default(free)
+  createdAt    DateTime    @default(now())
+  adminId      String?     @unique
+  admin        Admin?      @relation("AdminEvent", fields: [adminId], references: [id])
+  guests       Guest[]
+}
+
+// ──────────────────────────────────────
+// Gost & Sadržaj
+// ──────────────────────────────────────
+
+/// Gost — registruje se imenom i emailom, auto-verifikovan (bez email kodova)
+/// Isti email može biti gost na više evenata, ali samo jednom po eventu
+model Guest {
+  id             String    @id @default(uuid())
+  email          String
+  firstName      String
+  lastName       String
+  eventId        String
+  sessionToken   String?
+  sessionExpires DateTime?
+  createdAt      DateTime  @default(now())
+  event          Event     @relation(fields: [eventId], references: [id])
+  images         Image[]
+  message        Message?
+
+  @@unique([email, eventId])
+  @@index([eventId])
+  @@index([sessionToken])
+}
+
+/// Slika — upload na Cloudinary, storagePath = Cloudinary public_id za brisanje
+model Image {
+  id          String   @id @default(uuid())
+  guestId     String
+  imageUrl    String
+  storagePath String?
+  createdAt   DateTime @default(now())
+  guest       Guest    @relation(fields: [guestId], references: [id])
+
+  @@index([guestId])
+  @@index([createdAt])
+}
+
+/// Poruka — čestitka gosta, max jedna po gostu (1:1)
+model Message {
+  id        String   @id @default(uuid())
+  guestId   String   @unique
+  text      String
+  createdAt DateTime @default(now())
+  guest     Guest    @relation(fields: [guestId], references: [id])
 }
