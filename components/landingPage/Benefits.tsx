@@ -1,151 +1,79 @@
-import { Lock, Smartphone, Zap, Cloud, Camera, Star } from "lucide-react"
+"use client"
+
+import Link from "next/link"
 import { useTranslation } from "react-i18next"
 import { motion } from "framer-motion"
-import { useRef } from "react"
+import { getCurrentLanguageFromPath } from "@/lib/utils/language"
+import { Lock, Zap, Cloud, ArrowRight } from "lucide-react"
 
 export default function Benefits() {
-  const { t } = useTranslation();
-  const sectionRef = useRef<HTMLElement>(null);
-  
-  // Jednostavne animacijske varijante za naslov
-  const titleVariants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.6 }
-    }
-  };
-  
-  // Jednostavne animacijske varijante za grid container
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  };
-  
-  // Pojednostavljene animacije za benefite
-  const benefitVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        duration: 0.5
-      }
-    }
-  };
-  
-  // Definiramo benefite unutar komponente kako bismo mogli koristiti t funkciju
-  const benefits = [
-    {
-      icon: <Lock className="w-6 h-6 text-lp-accent" />,
-      title: t("benefits.benefit1Title"),
-      description: t("benefits.benefit1Description"),
-    },
-    {
-      icon: <Zap className="w-6 h-6 text-lp-accent" />,
-      title: t("benefits.benefit2Title"),
-      description: t("benefits.benefit2Description"),
-    },
-    {
-      icon: <Smartphone className="w-6 h-6 text-lp-accent" />,
-      title: t("benefits.benefit3Title"),
-      description: t("benefits.benefit3Description"),
-    },
-    {
-      icon: <Cloud className="w-6 h-6 text-lp-accent" />,
-      title: t("benefits.benefit4Title"),
-      description: t("benefits.benefit4Description"),
-    }
-  ];
-  
-  return (
-    <section 
-      className="py-20 relative overflow-hidden" 
-      ref={sectionRef}
-      aria-labelledby="benefits-heading"
-      role="region"
-    >
-      {/* Pojednostavljeni dekorativni elementi */}
-      <motion.div 
-        className="absolute -top-20 -right-20 text-lp-accent opacity-5 pointer-events-none"
-        animate={{ 
-          rotate: [0, -10, 0],
-          scale: [1, 1.05, 1],
-        }}
-        transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
-        aria-hidden="true"
-      >
-        <Camera size={160} />
-      </motion.div>
-      
-      <motion.div 
-        className="absolute -bottom-20 -left-20 text-lp-accent opacity-5 pointer-events-none"
-        animate={{ 
-          rotate: [0, 10, 0],
-          scale: [1, 1.05, 1],
-        }}
-        transition={{ duration: 25, repeat: Infinity, repeatType: "reverse" }}
-        aria-hidden="true"
-      >
-        <Star size={140} />
-      </motion.div>
-      
-      <div className="container px-6 mx-auto">
-        <motion.div 
-          className="text-center mb-14"
-          variants={titleVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-        >
-          <h2 id="benefits-heading" className="text-3xl md:text-4xl font-bold text-lp-primary mb-3">{t('benefits.title')}</h2>
-        </motion.div>
+  const { t } = useTranslation()
 
-        {/* Pojednostavljen grid bez AnimatePresence */}
-        <motion.div 
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
+  const benefits = [
+    { icon: Lock, title: t("whyUs.benefit1Title"), description: t("whyUs.benefit1Description") },
+    { icon: Zap, title: t("whyUs.benefit2Title"), description: t("whyUs.benefit2Description") },
+    { icon: Cloud, title: t("whyUs.benefit3Title"), description: t("whyUs.benefit3Description") },
+  ]
+
+  return (
+    <section className="py-16 sm:py-20 bg-lp-bg" aria-labelledby="why-us-heading">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        <motion.h2
+          id="why-us-heading"
+          className="font-playfair text-3xl md:text-4xl font-bold text-lp-primary text-center mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
         >
-          {benefits.map((benefit, index) => (
-            <motion.div
-              key={index}
-              className="bg-lp-card p-6 rounded-xl shadow-md border border-lp-accent hover:border-lp-primary hover:shadow-lg transition-all flex flex-col items-center text-center"
-              variants={benefitVariants}
-              whileHover={{ 
-                scale: 1.02, 
-                y: -3
-              }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 300, 
-                damping: 25
-              }}
-            >
-              <motion.div 
-                className="w-16 h-16 rounded-lg bg-lp-muted flex items-center justify-center mb-4"
-                whileHover={{ scale: 1.1 }}
-                transition={{ duration: 0.2 }}
+          {t("whyUs.title")}
+        </motion.h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
+          {benefits.map((benefit, index) => {
+            const Icon = benefit.icon
+            return (
+              <motion.div
+                key={index}
+                className="bg-white p-6 rounded-xl shadow-sm border border-lp-border text-center hover:shadow-lg transition-shadow"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                whileHover={{ y: -4 }}
               >
-                {benefit.icon}
+                <div className="w-14 h-14 rounded-xl bg-lp-accent/10 flex items-center justify-center mx-auto mb-4">
+                  <Icon className="w-7 h-7 text-lp-accent" />
+                </div>
+                <h3 className="text-lg font-bold text-lp-primary mb-2">{benefit.title}</h3>
+                <p className="text-sm text-lp-muted-foreground">{benefit.description}</p>
               </motion.div>
-              <h3 className="text-lg font-semibold text-lp-primary mb-2">{benefit.title}</h3>
-              <p className="text-lp-text text-sm">{benefit.description}</p>
-            </motion.div>
-          ))}
+            )
+          })}
+        </div>
+
+        <motion.div
+          className="text-center bg-lp-muted rounded-2xl p-8 sm:p-12"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <h3 className="font-playfair text-2xl md:text-3xl font-bold text-lp-primary mb-4">
+            {t("whyUs.ctaTitle")}
+          </h3>
+          <Link
+            href={`/${getCurrentLanguageFromPath()}/admin/register`}
+            className="group inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-lp-primary rounded-xl shadow-lg hover:shadow-xl hover:bg-lp-primary/90 transition-all"
+          >
+            {t("whyUs.ctaButton")}
+            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+          </Link>
+          <p className="text-sm text-lp-muted-foreground mt-3">
+            {t("whyUs.ctaSubtext")}
+          </p>
         </motion.div>
       </div>
     </section>
   )
 }
-
-
