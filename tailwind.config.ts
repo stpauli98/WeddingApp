@@ -19,6 +19,9 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        playfair: ['var(--font-playfair)', 'Georgia', 'serif'],
+      },
       colors: {
         /* Osnovne boje */
         "lp-primary": "hsl(var(--lp-primary))",
