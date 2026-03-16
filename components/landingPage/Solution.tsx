@@ -6,8 +6,8 @@ import { getCurrentLanguageFromPath } from "@/lib/utils/language"
 import { motion } from "framer-motion"
 
 export default function Solution() {
-  const { t } = useTranslation()
-  const lang = getCurrentLanguageFromPath()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language || "sr"
 
   return (
     <section className="py-16 sm:py-20 bg-white" aria-labelledby="solution-heading">

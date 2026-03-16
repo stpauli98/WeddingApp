@@ -8,8 +8,9 @@ import { motion } from "framer-motion"
 import { ArrowRight, Shield, Clock, CheckCircle, Sparkles } from "lucide-react"
 
 export default function HeroSection() {
-  const { t } = useTranslation()
-  const lang = getCurrentLanguageFromPath()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language || "sr"
+  
 
   const trustIndicators = [
     { icon: Shield, text: t("hero.trustPrivacy") },

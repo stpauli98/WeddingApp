@@ -7,8 +7,8 @@ import { motion } from "framer-motion"
 import { UserPlus, QrCode, Download } from "lucide-react"
 
 export default function HowItWorks() {
-  const { t } = useTranslation()
-  const lang = getCurrentLanguageFromPath()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language || "sr"
 
   const steps = [
     { icon: UserPlus, title: t("howItWorks.step1Title"), description: t("howItWorks.step1Description"), num: "1" },
