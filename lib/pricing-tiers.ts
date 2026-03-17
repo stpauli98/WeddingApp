@@ -1,8 +1,6 @@
 // Pricing Tiers Configuration
 // Reads from database (PricingPlan table) with hardcoded fallback
 
-import { PricingTier as PrismaPricingTier } from '@prisma/client';
-
 export type PricingTier = 'free' | 'basic' | 'premium' | 'unlimited';
 
 export interface TierFeature {
@@ -78,40 +76,7 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
   },
 };
 
-/**
- * Fetch pricing tiers from database
- * Falls back to hardcoded PRICING_TIERS if DB is unavailable
- */
-export async function getPricingTiersFromDB(): Promise<Record<PricingTier, TierConfig>> {
-  try {
-    // Dynamic import to avoid issues during build
-    const { prisma } = await import('@/lib/prisma');
 
-    const plans = await prisma.pricingPlan.findMany({
-      where: { active: true },
-      include: { features: { orderBy: { sortOrder: 'asc' } } },
-      orderBy: { sortOrder: 'asc' },
-    });
-
-    if (plans.length === 0) return PRICING_TIERS;
-
-    const result: Record<string, TierConfig> = {};
-    for (const plan of plans) {
-      result[plan.tier] = {
-        name: { sr: plan.nameSr, en: plan.nameEn },
-        imageLimit: plan.imageLimit,
-        price: plan.price,
-        features: plan.features.map((f: { textSr: string; textEn: string }) => ({ sr: f.textSr, en: f.textEn })),
-        recommended: plan.recommended,
-      };
-    }
-
-    return result as Record<PricingTier, TierConfig>;
-  } catch {
-    // Fallback to hardcoded if DB is unavailable (build time, etc.)
-    return PRICING_TIERS;
-  }
-}
 
 /**
  * Get pricing tier configuration by tier name
