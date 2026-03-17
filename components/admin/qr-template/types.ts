@@ -1,8 +1,3 @@
-export interface TextPosition {
-  x: number;       // percentage of width (center point)
-  y: number;       // percentage of height (center point)
-  fontSize: number; // percentage of canvas width (auto-scaled)
-}
 
 export interface QrPosition {
   x: number;       // percentage of width (center point)
@@ -16,16 +11,12 @@ export interface TemplateOption {
   name: string;
   imageSrc: string;
   qrPosition: QrPosition;
-  namePosition: TextPosition;
-  urlPosition: TextPosition;
-  textColor: string;  // hex color for name and URL text
 }
 
 export interface QrTemplateSelectorProps {
   qrValue: string;
   qrColor: string;
   eventSlug: string;
-  coupleName: string;
   onQrColorChange?: (color: string) => void;
 }
 
@@ -33,8 +24,6 @@ export interface CanvasRendererProps {
   templateImage: HTMLImageElement;
   template: TemplateOption;
   qrDataUrl: string;
-  coupleName: string;
-  guestUrl: string;
   qrColor: string;
   onRendered: (dataUrl: string) => void;
   onError: (error: string) => void;

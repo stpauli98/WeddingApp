@@ -263,7 +263,6 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
             qrValue={guestUrl} 
             qrColor={qrColor} 
             eventSlug={event?.slug || 'wedding'} 
-            coupleName={event?.coupleName || ''}
             onQrColorChange={(color) => setQrColor(color)}
           />
         </div>

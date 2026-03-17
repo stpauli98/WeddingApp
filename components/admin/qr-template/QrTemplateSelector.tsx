@@ -20,7 +20,6 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({
   qrValue,
   qrColor,
   eventSlug,
-  coupleName: initialCoupleName,
   onQrColorChange,
 }) => {
   const { t, i18n } = useTranslation();
@@ -31,9 +30,7 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateOption>(templates[0]);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
-  const [coupleName, setCoupleName] = useState(initialCoupleName || '');
   const [templateImage, setTemplateImage] = useState<HTMLImageElement | null>(null);
   const [templateLoadError, setTemplateLoadError] = useState(false);
 
@@ -45,9 +42,6 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({
       i18n.changeLanguage(currentLanguage);
     }
   }, [currentLanguage, i18n]);
-
-  // Display URL for template (visual only, not functional)
-  const displayUrl = `dodajuspomenu.com/guest/${eventSlug}`;
 
   // Get QR data URL from hidden QRCodeCanvas
   const getQrDataUrl = useCallback((): string | null => {
@@ -80,12 +74,10 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({
   // Canvas render callbacks (memoized)
   const handleRendered = useCallback((dataUrl: string) => {
     setGeneratedImage(dataUrl);
-    setError(null);
     setIsGenerating(false);
   }, []);
 
   const handleRenderError = useCallback((errorMsg: string) => {
-    setError(errorMsg);
     setIsGenerating(false);
     toast({ variant: "destructive", description: t('admin.dashboard.qr.generationError') });
   }, [t]);
@@ -105,7 +97,6 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({
     }
   };
 
-  // Get fresh QR data URL for canvas renderer
   const qrDataUrl = getQrDataUrl();
 
   return (
@@ -113,22 +104,6 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({
       {/* Hidden QR code for generation */}
       <div className="hidden" ref={qrRef}>
         <QRCodeCanvas value={qrValue} size={500} bgColor="#FFFFFF" fgColor={qrColor} />
-      </div>
-
-      {/* Couple name input */}
-      <div className="mb-2">
-        <label htmlFor="couple-name-input" className="text-sm font-medium mb-1 block">
-          {t('admin.dashboard.qr.coupleName')}
-        </label>
-        <input
-          id="couple-name-input"
-          type="text"
-          value={coupleName}
-          onChange={(e) => setCoupleName(e.target.value)}
-          placeholder={t('admin.dashboard.qr.coupleNamePlaceholder')}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--lp-primary))] focus:border-[hsl(var(--lp-primary))]"
-          aria-label={t('admin.dashboard.qr.coupleName')}
-        />
       </div>
 
       {/* Color picker */}
@@ -209,8 +184,6 @@ const QrTemplateSelector: React.FC<QrTemplateSelectorProps> = ({
           templateImage={templateImage}
           template={selectedTemplate}
           qrDataUrl={qrDataUrl}
-          coupleName={coupleName}
-          guestUrl={displayUrl}
           qrColor={qrColor}
           onRendered={handleRendered}
           onError={handleRenderError}
