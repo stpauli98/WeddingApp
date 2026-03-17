@@ -4,6 +4,15 @@ import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 export async function GET() {
   const admin = await getAuthenticatedAdmin();
   if (!admin || !admin.event) {
@@ -20,9 +29,9 @@ export async function GET() {
     }
     // Pripremi HTML za download
     const htmlRows = messages.map((msg: any) => {
-      const ime = msg.guest?.firstName ? msg.guest.firstName : '';
-      const prezime = msg.guest?.lastName ? msg.guest.lastName : '';
-      const poruka = (msg.text || '').replace(/\r?\n/g, '<br>');
+      const ime = escapeHtml(msg.guest?.firstName ? msg.guest.firstName : '');
+      const prezime = escapeHtml(msg.guest?.lastName ? msg.guest.lastName : '');
+      const poruka = escapeHtml(msg.text || '').replace(/\r?\n/g, '<br>');
       const datum = msg.createdAt ? new Date(msg.createdAt).toLocaleString('sr-RS') : '';
       return `
         <div class="card">
@@ -123,10 +132,12 @@ export async function GET() {
       headers: {
         "Content-Type": "text/html; charset=utf-8",
         "Content-Disposition": `attachment; filename=poruke.html`,
+        "X-Content-Type-Options": "nosniff",
+        "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'",
       },
     });
   } catch (err) {
     console.error('Greška pri generisanju CSV-a:', err);
-    return NextResponse.json({ error: "Greška pri generisanju CSV-a", details: err instanceof Error ? err.message : String(err) }, { status: 500 });
+    return NextResponse.json({ error: "Greska pri generisanju fajla" }, { status: 500 });
   }
 }
