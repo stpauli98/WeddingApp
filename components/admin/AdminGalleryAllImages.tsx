@@ -22,6 +22,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
   const [currentIdx, setCurrentIdx] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [modalImageLoading, setModalImageLoading] = useState(false);
   
   // Optimizacija sortiranja - samo jednom sortiramo slike pomoću useMemo
   const sortedImages = useMemo(() => {
@@ -30,6 +31,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
 
   const openModal = (idx: number) => {
     setCurrentIdx(idx);
+    setModalImageLoading(true);
     setModalOpen(true);
     // Preload susjedne slike za bolje iskustvo
     const preloadIndices = [
@@ -45,8 +47,8 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
   };
 
   const closeModal = () => setModalOpen(false);
-  const prevImage = useCallback(() => setCurrentIdx(idx => (idx === 0 ? sortedImages.length - 1 : idx - 1)), [sortedImages.length]);
-  const nextImage = useCallback(() => setCurrentIdx(idx => (idx === sortedImages.length - 1 ? 0 : idx + 1)), [sortedImages.length]);
+  const prevImage = useCallback(() => { setModalImageLoading(true); setCurrentIdx(idx => (idx === 0 ? sortedImages.length - 1 : idx - 1)); }, [sortedImages.length]);
+  const nextImage = useCallback(() => { setModalImageLoading(true); setCurrentIdx(idx => (idx === sortedImages.length - 1 ? 0 : idx + 1)); }, [sortedImages.length]);
 
   useEffect(() => {
     if (modalOpen) {
@@ -154,6 +156,11 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
             <div className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--lp-text))]/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
               <div className="text-[hsl(var(--lp-text))] text-sm font-medium">{img.guestName || "Nepoznat gost"}</div>
             </div>
+            {!loadedImages.has(idx) && (
+              <div className="absolute inset-0 flex items-center justify-center bg-[hsl(var(--lp-muted))] z-10">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[hsl(var(--lp-primary))]"></div>
+              </div>
+            )}
             <Image
               src={img.imageUrl && img.imageUrl.trim() !== "" ? img.imageUrl : "/placeholder.png"}
               alt={img.guestName ? `Slika gosta: ${img.guestName}` : "Slika gosta"}
@@ -163,7 +170,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
               loading={idx < 4 ? "eager" : "lazy"}
               onLoad={() => handleImageLoad(idx)}
               title={img.guestName ? `Gost: ${img.guestName}` : undefined}
-              className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+              className={`object-cover w-full h-full transition-all duration-500 group-hover:scale-105 ${!loadedImages.has(idx) ? "opacity-0" : "opacity-100"}`}
             />
             <div className="absolute bottom-0 left-0 w-full p-3 z-20">
               {img.guestName && (
@@ -241,6 +248,11 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
               </motion.button>
               <div className="flex items-center justify-center p-4">
                 <div className="relative overflow-hidden rounded-lg">
+                  {modalImageLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center z-20">
+                      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[hsl(var(--lp-primary))]"></div>
+                    </div>
+                  )}
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={currentIdx}
@@ -258,6 +270,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
                         className="object-contain rounded-lg shadow-2xl max-h-[80vh]"
                         style={{ width: 'auto', height: 'auto', maxWidth: '90vw', maxHeight: '80vh' }}
                         onLoad={() => {
+                          setModalImageLoading(false);
                           if (currentIdx < sortedImages.length - 1) {
                             const nextImg = new window.Image();
                             nextImg.src = sortedImages[(currentIdx + 1) % sortedImages.length].imageUrl;
