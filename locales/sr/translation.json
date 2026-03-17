@@ -379,7 +379,13 @@
         "basicQr": "Osnovni QR kod",
         "templateQr": "Predlošci za QR kod",
         "download": "Preuzmi",
-        "useTemplate": "Koristi besplatan predložak"
+        "useTemplate": "Koristi besplatan predložak",
+        "coupleName": "Ime para na predlošku",
+        "coupleNamePlaceholder": "npr. Marko & Ana",
+        "templateLoadError": "Predložak nije dostupan",
+        "retryLoad": "Pokušaj ponovo",
+        "generationError": "Greška pri generisanju predloška",
+        "downloadError": "Greška pri preuzimanju"
       },
       "guestList": {
         "guestsWithPhotos": "Gosti sa slikama",

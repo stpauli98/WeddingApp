@@ -378,7 +378,13 @@
         "template4": "Minimal template",
         "selectColor": "Select color",
         "customColor": "Custom color",
-        "colorPalette": "Color palette"
+        "colorPalette": "Color palette",
+        "coupleName": "Couple name on template",
+        "coupleNamePlaceholder": "e.g. Mark & Anna",
+        "templateLoadError": "Template unavailable",
+        "retryLoad": "Try again",
+        "generationError": "Error generating template",
+        "downloadError": "Error downloading"
       },
       "guestList": {
         "guestsWithPhotos": "Guests with photos",
