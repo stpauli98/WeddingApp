@@ -41,7 +41,7 @@ function createPrismaClient() {
   }
 
   // Prisma Optimize extension za query monitoring
-  if (process.env.OPTIMIZE_API_KEY) {
+  if (process.env.OPTIMIZE_API_KEY && process.env.NODE_ENV !== 'production') {
     return baseClient.$extends(
       withOptimize({ apiKey: process.env.OPTIMIZE_API_KEY })
     );
