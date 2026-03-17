@@ -21,6 +21,38 @@ enum PricingTier {
 }
 
 // ──────────────────────────────────────
+// Pricing Plans (dinamičke cijene iz baze)
+// ──────────────────────────────────────
+
+/// Plan — definicija paketa sa cijenama i limitima
+model PricingPlan {
+  id           String      @id @default(uuid())
+  tier         PricingTier @unique
+  nameSr       String
+  nameEn       String
+  imageLimit   Int
+  price        Int         @default(0)    // cijena u centima (0 = besplatno)
+  recommended  Boolean     @default(false)
+  sortOrder    Int         @default(0)
+  active       Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  features     PricingFeature[]
+}
+
+/// Feature — feature lista za svaki plan
+model PricingFeature {
+  id           String      @id @default(uuid())
+  planId       String
+  textSr       String
+  textEn       String
+  sortOrder    Int         @default(0)
+  plan         PricingPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+}
+
+// ──────────────────────────────────────
 // Admin & Autentifikacija
 // ──────────────────────────────────────
 
