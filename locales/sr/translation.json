@@ -436,9 +436,14 @@
     "title": "Izaberite plan",
     "subtitle": "Započnite besplatno, nadogradite kad budete spremni",
     "free": "Besplatno",
-    "perEvent": "po eventu",
-    "recommended": "Preporučeno",
+    "oneTime": "jednokratna cijena",
+    "mostPopular": "Najpopularniji",
     "startFree": "Započnite besplatno",
-    "choosePlan": "Izaberite plan"
+    "choosePlan": "Izaberite plan",
+    "guarantee": "Probajte besplatno, nadogradite kad želite. Bez rizika.",
+    "photosPerGuest": "slika po gostu",
+    "upToGuests": "do {{count}} gostiju",
+    "storageDays": "čuvanje {{count}} dana",
+    "storageYear": "čuvanje 1 godinu"
   }
 }

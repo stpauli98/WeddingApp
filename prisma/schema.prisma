@@ -17,7 +17,7 @@ enum PricingTier {
   free       // 10 slika
   basic      // 25 slika
   premium    // 50 slika
-  unlimited  // 999 slika
+
 }
 
 // ──────────────────────────────────────

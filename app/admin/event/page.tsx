@@ -42,7 +42,7 @@ const formSchema = z.object({
       message: "Slug može sadržati samo mala slova, brojeve i crtica.",
     }),
   guestMessage: z.string().max(500, { message: "Poruka za goste može imati najviše 500 karaktera." }).optional(),
-  pricingTier: z.enum(["free", "basic", "premium", "unlimited"]).default("free"),
+  pricingTier: z.enum(["free", "basic", "premium"]).default("free"),
 });
 
 type FormSchemaType = z.infer<typeof formSchema>;

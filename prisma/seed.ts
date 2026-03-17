@@ -9,15 +9,17 @@ async function seedPricingPlans() {
       tier: PricingTier.free,
       nameSr: 'Besplatno',
       nameEn: 'Free',
-      imageLimit: 10,
+      imageLimit: 3,
       price: 0,
       recommended: false,
       sortOrder: 0,
       features: [
-        { textSr: 'Do 10 slika po gostu', textEn: 'Up to 10 images per guest', sortOrder: 0 },
-        { textSr: 'QR kod za pristup', textEn: 'QR code access', sortOrder: 1 },
-        { textSr: 'Galerija fotografija', textEn: 'Photo gallery', sortOrder: 2 },
-        { textSr: 'Preuzimanje svih slika', textEn: 'Download all images', sortOrder: 3 },
+        { textSr: 'Do 3 slike po gostu', textEn: 'Up to 3 images per guest', sortOrder: 0 },
+        { textSr: 'Maksimalno 20 gostiju', textEn: 'Up to 20 guests', sortOrder: 1 },
+        { textSr: 'Slike se čuvaju 10 dana', textEn: 'Photos stored for 10 days', sortOrder: 2 },
+        { textSr: 'Standardni QR kod', textEn: 'Standard QR code', sortOrder: 3 },
+        { textSr: 'Galerija fotografija', textEn: 'Photo gallery', sortOrder: 4 },
+        { textSr: 'Preuzimanje svih slika', textEn: 'Download all images', sortOrder: 5 },
       ],
     },
     {
@@ -25,14 +27,14 @@ async function seedPricingPlans() {
       nameSr: 'Osnovno',
       nameEn: 'Basic',
       imageLimit: 25,
-      price: 1999,
+      price: 1499,
       recommended: false,
       sortOrder: 1,
       features: [
         { textSr: 'Do 25 slika po gostu', textEn: 'Up to 25 images per guest', sortOrder: 0 },
-        { textSr: 'Prilagođen QR kod', textEn: 'Custom QR code', sortOrder: 1 },
-        { textSr: 'Galerija fotografija', textEn: 'Photo gallery', sortOrder: 2 },
-        { textSr: 'Preuzimanje svih slika', textEn: 'Download all images', sortOrder: 3 },
+        { textSr: 'Do 100 gostiju', textEn: 'Up to 100 guests', sortOrder: 1 },
+        { textSr: 'Slike se čuvaju 30 dana', textEn: 'Photos stored for 30 days', sortOrder: 2 },
+        { textSr: 'Prilagođen QR kod', textEn: 'Custom QR code', sortOrder: 3 },
         { textSr: 'Prioritetna podrška', textEn: 'Priority support', sortOrder: 4 },
       ],
     },
@@ -46,29 +48,12 @@ async function seedPricingPlans() {
       sortOrder: 2,
       features: [
         { textSr: 'Do 50 slika po gostu', textEn: 'Up to 50 images per guest', sortOrder: 0 },
-        { textSr: 'Prilagođen brending', textEn: 'Custom branding', sortOrder: 1 },
-        { textSr: 'Napredni QR kod', textEn: 'Advanced QR code', sortOrder: 2 },
-        { textSr: 'Galerija fotografija', textEn: 'Photo gallery', sortOrder: 3 },
-        { textSr: 'Preuzimanje svih slika', textEn: 'Download all images', sortOrder: 4 },
-        { textSr: 'Prioritetna podrška', textEn: 'Priority support', sortOrder: 5 },
-        { textSr: 'Prilagođene poruke', textEn: 'Custom messages', sortOrder: 6 },
-      ],
-    },
-    {
-      tier: PricingTier.unlimited,
-      nameSr: 'Neograničeno',
-      nameEn: 'Unlimited',
-      imageLimit: 999,
-      price: 5999,
-      recommended: false,
-      sortOrder: 3,
-      features: [
-        { textSr: 'Neograničeno slika po gostu', textEn: 'Unlimited images per guest', sortOrder: 0 },
-        { textSr: 'Potpuna prilagodljivost', textEn: 'Full customization', sortOrder: 1 },
-        { textSr: 'White-label opcija', textEn: 'White-label option', sortOrder: 2 },
-        { textSr: 'Sve premium funkcije', textEn: 'All premium features', sortOrder: 3 },
-        { textSr: 'Dedicirana podrška', textEn: 'Dedicated support', sortOrder: 4 },
-        { textSr: 'Napredna analitika', textEn: 'Advanced analytics', sortOrder: 5 },
+        { textSr: 'Do 300 gostiju', textEn: 'Up to 300 guests', sortOrder: 1 },
+        { textSr: 'Slike se čuvaju 1 godinu', textEn: 'Photos stored for 1 year', sortOrder: 2 },
+        { textSr: 'Napredni QR kod', textEn: 'Advanced QR code', sortOrder: 3 },
+        { textSr: 'Prilagođen brending', textEn: 'Custom branding', sortOrder: 4 },
+        { textSr: 'Prilagođene poruke', textEn: 'Custom messages', sortOrder: 5 },
+        { textSr: 'Dedicirana podrška', textEn: 'Dedicated support', sortOrder: 6 },
       ],
     },
   ];
@@ -91,8 +76,11 @@ async function seedPricingPlans() {
         },
       },
     });
-    console.log(`Plan '${plan.tier}' seeded`);
+    console.log('Plan seeded:', plan.tier);
   }
+
+  // Delete unlimited plan if it exists
+  await prisma.pricingPlan.deleteMany({ where: { tier: 'unlimited' as any } }).catch(() => {});
 }
 
 async function seedTestAdmin() {
@@ -103,16 +91,11 @@ async function seedTestAdmin() {
   const existing = await prisma.admin.findUnique({ where: { email } });
   if (!existing) {
     await prisma.admin.create({
-      data: {
-        email,
-        passwordHash,
-        firstName: 'Admin',
-        lastName: 'Test',
-      },
+      data: { email, passwordHash, firstName: 'Admin', lastName: 'Test' },
     });
     console.log('Test admin kreiran:', email);
   } else {
-    console.log('Test admin već postoji:', email);
+    console.log('Test admin postoji:', email);
   }
 }
 
@@ -122,10 +105,5 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .catch((e) => { console.error(e); process.exit(1); })
+  .finally(async () => { await prisma.$disconnect(); });

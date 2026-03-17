@@ -435,9 +435,14 @@
     "title": "Choose your plan",
     "subtitle": "Start free, upgrade when you're ready",
     "free": "Free",
-    "perEvent": "per event",
-    "recommended": "Recommended",
+    "oneTime": "one-time payment",
+    "mostPopular": "Most popular",
     "startFree": "Start for free",
-    "choosePlan": "Choose plan"
+    "choosePlan": "Choose plan",
+    "guarantee": "Try free, upgrade anytime. No risk.",
+    "photosPerGuest": "photos per guest",
+    "upToGuests": "up to {{count}} guests",
+    "storageDays": "stored for {{count}} days",
+    "storageYear": "stored for 1 year"
   }
 }
