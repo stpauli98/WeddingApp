@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import AdminGalleryAllImages from "@/components/admin/AdminGalleryAllImages";
 import AdminAllMessages from "@/components/admin/AdminAllMessages";
 import AdminHelpContact from "@/components/admin/AdminHelpContact";
-import QrTemplateSelector from "@/components/admin/QrTemplateSelector";
+import QrTemplateSelector from "@/components/admin/qr-template/QrTemplateSelector";
 import { useTranslation } from "react-i18next";
 import { getCurrentLanguageFromPath } from "@/lib/utils/language";
 
@@ -263,6 +263,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
             qrValue={guestUrl} 
             qrColor={qrColor} 
             eventSlug={event?.slug || 'wedding'} 
+            coupleName={event?.coupleName || ''}
             onQrColorChange={(color) => setQrColor(color)}
           />
         </div>
