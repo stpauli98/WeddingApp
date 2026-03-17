@@ -52,7 +52,7 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
       { sr: 'Prilagođen QR kod', en: 'Custom QR code' },
       { sr: 'Prioritetna podrška', en: 'Priority support' },
     ],
-    recommended: false,
+    recommended: true,
   },
   premium: {
     name: { sr: 'Premium', en: 'Premium' },
@@ -69,7 +69,7 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
       { sr: 'Prilagođene poruke', en: 'Custom messages' },
       { sr: 'Dedicirana podrška', en: 'Dedicated support' },
     ],
-    recommended: true,
+    recommended: false,
   },
 };
 

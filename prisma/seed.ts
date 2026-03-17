@@ -28,7 +28,7 @@ async function seedPricingPlans() {
       nameEn: 'Basic',
       imageLimit: 25,
       price: 1499,
-      recommended: false,
+      recommended: true,
       sortOrder: 1,
       features: [
         { textSr: 'Do 25 slika po gostu', textEn: 'Up to 25 images per guest', sortOrder: 0 },
@@ -44,7 +44,7 @@ async function seedPricingPlans() {
       nameEn: 'Premium',
       imageLimit: 50,
       price: 3999,
-      recommended: true,
+      recommended: false,
       sortOrder: 2,
       features: [
         { textSr: 'Do 50 slika po gostu', textEn: 'Up to 50 images per guest', sortOrder: 0 },
