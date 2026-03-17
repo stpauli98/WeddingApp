@@ -14,13 +14,13 @@ export const metadata = {
     "wedding guests",
     "wedding app"
   ],
-  authors: [{ name: "DodajUspomenu Team", url: "https://mojasvadbaa.com" }],
+  authors: [{ name: "DodajUspomenu Team", url: "https://www.dodajuspomenu.com" }],
   openGraph: {
     title: "DodajUspomenu – Digitalni svadbeni album i razmena slika",
     description: "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene.",
     images: ["/seo-cover.png"],
     type: "website",
-    url: "https://mojasvadbaa.com/",
+    url: "https://www.dodajuspomenu.com/",
     siteName: "DodajUspomenu"
   },
   twitter: {
@@ -31,7 +31,7 @@ export const metadata = {
     site: "@dodajuspomenu"
   },
   alternates: {
-    canonical: "https://mojasvadbaa.com/",
+    canonical: "https://www.dodajuspomenu.com/",
   }
 };
 
