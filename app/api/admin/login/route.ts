@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { generateCsrfToken, validateCsrfToken } from '@/lib/csrf';
 
-const prisma = new PrismaClient();
 
 export async function GET() {
   // Generiši i pošalji CSRF token

@@ -1,7 +1,12 @@
 import { createSecret, createToken, verifyToken, utoa, atou } from '@edge-csrf/core';
 
 // Secret mora biti stabilan i privatan! Generiši ga JEDNOM i čuvaj u .env kao base64 string.
-const base64Secret = process.env.CSRF_SECRET || utoa(createSecret(32));
+const base64Secret = process.env.CSRF_SECRET || (() => {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('CSRF_SECRET environment variable is required in production');
+  }
+  return utoa(createSecret(32));
+})();
 const secret = atou(base64Secret);
 
 // Generiši CSRF token i cookie

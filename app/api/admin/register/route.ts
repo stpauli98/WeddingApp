@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { generateCsrfToken, validateCsrfToken } from '@/lib/csrf';
 
-const prisma = new PrismaClient();
 
 export async function GET() {
   // Generiši i pošalji CSRF token
@@ -85,8 +84,8 @@ export async function POST(req: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7 dana
     });
     return response;
-  } catch (e: any) {
-    console.error("Admin register error:", e?.message, e?.stack, e);
-    return NextResponse.json({ error: e?.message || 'Greška na serveru.' }, { status: 500 });
+  } catch (e: unknown) {
+    console.error("Admin register error:", e);
+    return NextResponse.json({ error: 'Greska na serveru.' }, { status: 500 });
   }
 }
