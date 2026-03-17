@@ -10,7 +10,6 @@ import { ArrowRight, Shield, Clock, CheckCircle, Sparkles } from "lucide-react"
 export default function HeroSection() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language || "sr"
-  
 
   const trustIndicators = [
     { icon: Shield, text: t("hero.trustPrivacy") },
@@ -19,34 +18,34 @@ export default function HeroSection() {
   ]
 
   return (
-    <section className="relative min-h-screen flex items-center bg-lp-bg pt-16" aria-labelledby="hero-heading">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 items-center">
+    <section className="relative min-h-[90vh] md:min-h-screen flex items-center bg-lp-bg pt-20 md:pt-16" aria-labelledby="hero-heading">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Left: Text */}
           <motion.div
-            className="space-y-6"
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
+            className="space-y-5 md:space-y-6 text-center md:text-left"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lp-accent/10 border border-lp-accent/20">
               <Sparkles className="w-4 h-4 text-lp-accent" />
-              <span className="text-sm font-semibold text-lp-accent">{t("hero.eyebrow")}</span>
+              <span className="text-xs sm:text-sm font-semibold text-lp-accent">{t("hero.eyebrow")}</span>
             </div>
 
-            <h1 id="hero-heading" className="font-playfair text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-lp-text">
+            <h1 id="hero-heading" className="font-playfair text-3xl sm:text-4xl lg:text-6xl xl:text-7xl font-bold leading-tight text-lp-text">
               {t("hero.titleLine1")}{" "}
               <span className="text-[hsl(340,25%,55%)]">{t("hero.titleLine2")}</span>{" "}
               {t("hero.titleLine3")}
             </h1>
 
-            <p className="text-lg text-lp-muted-foreground max-w-lg leading-relaxed">
+            <p className="text-base sm:text-lg text-lp-muted-foreground max-w-lg mx-auto md:mx-0 leading-relaxed">
               {t("hero.description")}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 sm:justify-start justify-center">
               <Link
-                href={`/${lang}/admin/register`}
+                href={`/${getCurrentLanguageFromPath()}/admin/register`}
                 className="group inline-flex items-center justify-center px-7 py-3.5 text-base font-semibold text-white bg-lp-primary rounded-xl shadow-lg hover:shadow-xl hover:bg-lp-primary/90 transition-all"
               >
                 {t("hero.primaryCta")}
@@ -60,48 +59,38 @@ export default function HeroSection() {
               </a>
             </div>
 
-            <div className="flex flex-wrap gap-5 pt-2">
+            <div className="flex flex-wrap gap-4 sm:gap-5 pt-2 justify-center md:justify-start">
               {trustIndicators.map((indicator, index) => {
                 const Icon = indicator.icon
                 return (
-                  <div key={index} className="flex items-center gap-2 text-lp-muted-foreground">
+                  <div key={index} className="flex items-center gap-1.5 text-lp-muted-foreground">
                     <Icon className="w-4 h-4 text-lp-accent" />
-                    <span className="text-sm font-medium">{indicator.text}</span>
+                    <span className="text-xs sm:text-sm font-medium">{indicator.text}</span>
                   </div>
                 )
               })}
             </div>
           </motion.div>
 
-          {/* Right: Phone mockup */}
+          {/* Right: Phone mockup - visible on all sizes */}
           <motion.div
-            className="flex justify-center"
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
+            className="flex justify-center mt-4 md:mt-0"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            <div className="hidden md:block relative w-[300px] h-[600px] bg-gray-900 rounded-[3rem] p-3 shadow-2xl">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-10" />
-              <div className="relative w-full h-full rounded-[2.25rem] overflow-hidden bg-white">
+            <div className="relative w-[200px] h-[400px] sm:w-[240px] sm:h-[480px] md:w-[280px] md:h-[560px] lg:w-[300px] lg:h-[600px] bg-gray-900 rounded-[2rem] sm:rounded-[2.5rem] md:rounded-[3rem] p-2 sm:p-3 shadow-2xl">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 sm:w-28 md:w-32 h-5 sm:h-6 bg-gray-900 rounded-b-xl sm:rounded-b-2xl z-10" />
+              <div className="relative w-full h-full rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[2.25rem] overflow-hidden bg-white">
                 <Image
                   src={`/images/${lang}/guest-login-filled.png`}
                   alt={t("hero.titleLine1")}
                   fill
                   className="object-cover object-top"
                   priority
-                  sizes="300px"
+                  sizes="(max-width: 640px) 200px, (max-width: 768px) 240px, (max-width: 1024px) 280px, 300px"
                 />
               </div>
-            </div>
-            <div className="block md:hidden w-full max-w-sm">
-              <Image
-                src={`/images/${lang}/hero-mobile.png`}
-                alt={t("hero.titleLine1")}
-                width={390}
-                height={844}
-                className="w-full h-auto rounded-2xl shadow-xl"
-                priority
-              />
             </div>
           </motion.div>
         </div>

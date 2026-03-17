@@ -45,7 +45,7 @@ export default function Solution() {
             alt={t("solution.imageAlt")}
             width={1200}
             height={617}
-            className="w-full h-auto rounded-2xl shadow-xl"
+            className="w-full h-auto rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl"
           />
         </motion.div>
       </div>

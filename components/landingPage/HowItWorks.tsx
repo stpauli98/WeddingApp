@@ -71,7 +71,7 @@ export default function HowItWorks() {
             alt={t("howItWorks.title")}
             width={1200}
             height={617}
-            className="w-full h-auto rounded-2xl shadow-lg"
+            className="w-full h-auto rounded-xl sm:rounded-2xl shadow-md sm:shadow-lg max-h-[300px] sm:max-h-none object-cover object-top"
           />
         </motion.div>
       </div>
