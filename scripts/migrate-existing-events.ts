@@ -63,13 +63,11 @@ async function migrateExistingEvents() {
       free: allEvents.filter(e => e.pricingTier === 'free').length,
       basic: allEvents.filter(e => e.pricingTier === 'basic').length,
       premium: allEvents.filter(e => e.pricingTier === 'premium').length,
-      unlimited: allEvents.filter(e => e.pricingTier === 'unlimited').length
     };
 
     console.log(`  Free tier (10 images):      ${tierCounts.free}`);
     console.log(`  Basic tier (25 images):     ${tierCounts.basic}`);
     console.log(`  Premium tier (50 images):   ${tierCounts.premium}`);
-    console.log(`  Unlimited tier (999 images): ${tierCounts.unlimited}`);
     console.log('');
 
     console.log('✅ Verification completed successfully!\n');
