@@ -431,5 +431,14 @@
     "ctaTitle": "Spremni za najljepši dan?",
     "ctaButton": "Počnite za 2 minuta",
     "ctaSubtext": "Besplatno. Bez kartice. Bez obaveza."
+  },
+  "pricing": {
+    "title": "Izaberite plan",
+    "subtitle": "Započnite besplatno, nadogradite kad budete spremni",
+    "free": "Besplatno",
+    "perEvent": "po eventu",
+    "recommended": "Preporučeno",
+    "startFree": "Započnite besplatno",
+    "choosePlan": "Izaberite plan"
   }
 }

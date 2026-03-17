@@ -430,5 +430,14 @@
     "ctaTitle": "Ready for your special day?",
     "ctaButton": "Get started in 2 minutes",
     "ctaSubtext": "Free. No credit card. No obligations."
+  },
+  "pricing": {
+    "title": "Choose your plan",
+    "subtitle": "Start free, upgrade when you're ready",
+    "free": "Free",
+    "perEvent": "per event",
+    "recommended": "Recommended",
+    "startFree": "Start for free",
+    "choosePlan": "Choose plan"
   }
 }
