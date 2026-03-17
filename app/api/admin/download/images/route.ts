@@ -4,6 +4,16 @@ import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
+function isAllowedImageUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    const allowedHosts = ['res.cloudinary.com', 'cloudinary.com'];
+    return allowedHosts.some(host => parsed.hostname === host || parsed.hostname.endsWith('.' + host));
+  } catch {
+    return false;
+  }
+}
+
 export async function GET() {
   const admin = await getAuthenticatedAdmin();
   if (!admin || !admin.event) {
@@ -28,6 +38,10 @@ export async function GET() {
         const base64 = img.imageUrl.split(",")[1];
         zip.file(`slika_${img.id}.jpg`, base64, { base64: true });
       } else {
+        if (!isAllowedImageUrl(img.imageUrl)) {
+          console.warn(`Skipping non-allowed URL: ${img.imageUrl}`);
+          continue;
+        }
         try {
           const res = await fetch(img.imageUrl);
           if (res.ok) {
@@ -45,6 +59,7 @@ export async function GET() {
       headers: {
         "Content-Type": "application/zip",
         "Content-Disposition": `attachment; filename=slike.zip`,
+        "X-Content-Type-Options": "nosniff",
       },
     });
   } catch (err) {

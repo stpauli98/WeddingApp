@@ -5,43 +5,16 @@ import AdminDashboardTabs from "@/components/admin/AdminDashboardTabs";
 import AdminDashboardWelcome from "@/components/admin/AdminDashboardWelcome";
 import { EventTierBadge } from "@/components/admin/EventTierBadge";
 import { PricingTier } from "@/lib/pricing-tiers";
-import { SUPPORTED_LANGUAGES } from "@/lib/utils/language";
+import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 
-import { cookies } from "next/headers";
-
-// Funkcija koja detektira jezik iz URL segmenta
-function getLanguageFromPathSegments(path: string): string {
-  // Razdvoji URL na segmente
-  const segments = path.split('/');
-  
-  // Provjeri je li prvi segment nakon /admin/dashboard/ jedan od podržanih jezika
-  if (segments.length > 3) {
-    const potentialLang = segments[1]; // Prvi segment nakon /
-    if (SUPPORTED_LANGUAGES.includes(potentialLang)) {
-      return potentialLang;
-    }
-  }
-  
-  // Defaultni jezik ako nije pronađen u URL-u
-  return 'sr';
-}
-
-export default async function AdminDashboardEventPage({ params }: { 
+export default async function AdminDashboardEventPage({ params }: {
   params: Promise<{ eventId: string }>
 }) {
   const { eventId } = await params;
-  
 
-  // 1. Provera autentifikacije admina
-  const cookieStore = await cookies();
-  const sessionToken = cookieStore.get('admin_session')?.value;
-  if (!sessionToken) return notFound();
-
-  const adminSession = await prisma.adminSession.findUnique({
-    where: { sessionToken },
-    include: { admin: true },
-  });
-  if (!adminSession || !adminSession.admin) return notFound();
+  // 1. Provera autentifikacije admina (uklj. provjeru isteka sesije)
+  const admin = await getAuthenticatedAdmin();
+  if (!admin) return notFound();
 
   // 2. Dohvati event i proveri vlasništvo
   const event = await prisma.event.findUnique({
@@ -56,7 +29,7 @@ export default async function AdminDashboardEventPage({ params }: {
       imageLimit: true
     }
   });
-  if (!event || event.adminId !== adminSession.admin.id) return notFound();
+  if (!event || event.adminId !== admin.id) return notFound();
 
   // 3. Dohvati goste SAMO za ovaj event
   const guests = await prisma.guest.findMany({
