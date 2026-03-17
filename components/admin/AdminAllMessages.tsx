@@ -17,11 +17,29 @@ interface AdminAllMessagesProps {
 }
 
 async function generateMessagesPdf(messages: MessageData[]) {
-  const { PDFDocument, rgb, StandardFonts } = await import("pdf-lib");
+  const { PDFDocument, rgb } = await import("pdf-lib");
+  const fontkit = (await import("@pdf-lib/fontkit")).default;
 
   const pdf = await PDFDocument.create();
-  const font = await pdf.embedFont(StandardFonts.Helvetica);
-  const fontBold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  pdf.registerFontkit(fontkit);
+
+  // Fetch font that supports Serbian characters (Latin Extended)
+  const fontUrl = `${window.location.origin}/fonts/Inter-Regular.ttf`;
+  const fontBoldUrl = `${window.location.origin}/fonts/Inter-Bold.ttf`;
+
+  const [fontRes, fontBoldRes] = await Promise.all([
+    fetch(fontUrl),
+    fetch(fontBoldUrl),
+  ]);
+  if (!fontRes.ok || !fontBoldRes.ok) {
+    throw new Error(`Font fetch failed: ${fontRes.status}, ${fontBoldRes.status}`);
+  }
+  const [fontBytes, fontBoldBytes] = await Promise.all([
+    fontRes.arrayBuffer(),
+    fontBoldRes.arrayBuffer(),
+  ]);
+  const font = await pdf.embedFont(fontBytes, { subset: true });
+  const fontBold = await pdf.embedFont(fontBoldBytes, { subset: true });
 
   const pageWidth = 595; // A4
   const pageHeight = 842;
@@ -49,7 +67,7 @@ async function generateMessagesPdf(messages: MessageData[]) {
 
   // Subtitle
   const subtitleSize = 10;
-  const subtitleText = "Poruke i cestitke koje su gosti ostavili mladencima";
+  const subtitleText = "Poruke i \u010Destitke koje su gosti ostavili mladencima";
   const subtitleWidth = font.widthOfTextAtSize(subtitleText, subtitleSize);
   page.drawText(subtitleText, {
     x: (pageWidth - subtitleWidth) / 2,
@@ -75,27 +93,33 @@ async function generateMessagesPdf(messages: MessageData[]) {
       minute: "2-digit",
     });
 
-    // Word-wrap message text
-    const msgText = (msg.text || "").replace(/\r?\n/g, " ");
-    const words = msgText.split(" ");
+    // Word-wrap message text (preserve line breaks)
+    const msgLines = (msg.text || "").split(/\r?\n/);
     const lines: string[] = [];
-    let currentLine = "";
     const textSize = 10;
 
-    for (const word of words) {
-      const testLine = currentLine ? `${currentLine} ${word}` : word;
-      if (font.widthOfTextAtSize(testLine, textSize) > contentWidth - cardPadding * 2) {
-        if (currentLine) lines.push(currentLine);
-        currentLine = word;
-      } else {
-        currentLine = testLine;
+    for (const paragraph of msgLines) {
+      if (!paragraph.trim()) {
+        lines.push("");
+        continue;
       }
+      const words = paragraph.split(" ");
+      let currentLine = "";
+      for (const word of words) {
+        const testLine = currentLine ? `${currentLine} ${word}` : word;
+        if (font.widthOfTextAtSize(testLine, textSize) > contentWidth - cardPadding * 2 - 6) {
+          if (currentLine) lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      }
+      if (currentLine) lines.push(currentLine);
     }
-    if (currentLine) lines.push(currentLine);
 
     // Calculate card height
     const headerHeight = 18;
-    const textBlockHeight = lines.length * lineHeight;
+    const textBlockHeight = Math.max(lines.length, 1) * lineHeight;
     const cardHeight = cardPadding * 2 + headerHeight + textBlockHeight + 4;
 
     // New page if needed
@@ -147,13 +171,15 @@ async function generateMessagesPdf(messages: MessageData[]) {
     // Message lines
     let textY = nameY - headerHeight;
     for (const line of lines) {
-      page.drawText(line, {
-        x: margin + cardPadding + 6,
-        y: textY,
-        size: textSize,
-        font,
-        color: rgb(0.18, 0.13, 0.03),
-      });
+      if (line) {
+        page.drawText(line, {
+          x: margin + cardPadding + 6,
+          y: textY,
+          size: textSize,
+          font,
+          color: rgb(0.18, 0.13, 0.03),
+        });
+      }
       textY -= lineHeight;
     }
 

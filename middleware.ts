@@ -188,6 +188,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Hvataj sve rute osim onih koje su izuzete
-    '/((?!api|_next|favicon.ico|robots.txt|sitemap.xml|manifest.json|slider_pictures|\\.well-known).*)',
+    '/((?!api|_next|favicon.ico|robots.txt|sitemap.xml|manifest.json|slider_pictures|fonts|\\.well-known).*)',
   ],
 };
