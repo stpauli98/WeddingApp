@@ -16,6 +16,10 @@ interface AdminAllMessagesProps {
   messages: MessageData[];
 }
 
+function stripEmojis(text: string): string {
+  return text.replace(/[\u200d\ufe0f\u20e3\u{1f000}-\u{1ffff}\u{2600}-\u{27bf}\u{e0020}-\u{e007f}\u{fe00}-\u{fe0f}\u{1fa00}-\u{1faff}]/gu, "").trim();
+}
+
 async function generateMessagesPdf(messages: MessageData[]) {
   const { PDFDocument, rgb } = await import("pdf-lib");
   const fontkit = (await import("@pdf-lib/fontkit")).default;
@@ -84,7 +88,7 @@ async function generateMessagesPdf(messages: MessageData[]) {
   );
 
   for (const msg of sorted) {
-    const nameText = msg.guestName || "Nepoznat gost";
+    const nameText = stripEmojis(msg.guestName || "Nepoznat gost");
     const dateText = new Date(msg.createdAt).toLocaleDateString("sr-RS", {
       day: "2-digit",
       month: "2-digit",
@@ -94,7 +98,7 @@ async function generateMessagesPdf(messages: MessageData[]) {
     });
 
     // Word-wrap message text (preserve line breaks)
-    const msgLines = (msg.text || "").split(/\r?\n/);
+    const msgLines = stripEmojis(msg.text || "").split(/\r?\n/);
     const lines: string[] = [];
     const textSize = 10;
 
