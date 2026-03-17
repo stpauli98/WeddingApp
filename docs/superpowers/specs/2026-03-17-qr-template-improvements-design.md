@@ -61,6 +61,8 @@ components/admin/qr-template/
 - 10 predefined colors + custom color input
 - Same functionality as current, just extracted
 
+**Language sync:** The usePathname/i18n language sync from the current component is preserved in the refactored QrTemplateSelector.tsx.
+
 **TemplateGrid.tsx** (extracted)
 - Horizontal scrollable thumbnail grid
 - Lazy loaded images (no priority)
@@ -103,14 +105,37 @@ interface CanvasRendererProps {
 
 Each step in try/catch. Any failure calls onError with descriptive message.
 
+If coupleName is empty or whitespace-only, skip the name text layer entirely (no shadow artifacts).
+
 ### Font Loading Strategy
 
+Next.js loads fonts via next/font/google with hashed names, so document.fonts.load() will not work. Instead, use the FontFace API to load fonts directly from Google Fonts CDN for canvas rendering:
+
 ```typescript
-await document.fonts.load('bold 48px "Playfair Display"');
-await document.fonts.load('400 24px "Inter"');
+async function loadCanvasFonts(): Promise<{ nameFont: string; urlFont: string }> {
+  try {
+    const playfair = new FontFace(
+      'Playfair Canvas',
+      'url(https://fonts.gstatic.com/s/playfairdisplay/v37/nuFRD-vYSZviVYUb_rj3ij__anPXDTnCjmHKM4nYO7KN_qiTbtbK-F2rA0s.woff2)'
+    );
+    const inter = new FontFace(
+      'Inter Canvas',
+      'url(https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2)'
+    );
+    const results = await Promise.race([
+      Promise.all([playfair.load(), inter.load()]),
+      new Promise((_, reject) => setTimeout(() => reject('timeout'), 3000))
+    ]);
+    document.fonts.add(playfair);
+    document.fonts.add(inter);
+    return { nameFont: 'Playfair Canvas', urlFont: 'Inter Canvas' };
+  } catch {
+    return { nameFont: 'serif', urlFont: 'sans-serif' };
+  }
+}
 ```
 
-Fallback after 3s timeout: serif for name, sans-serif for URL.
+Fonts are registered under separate names (Playfair Canvas, Inter Canvas) to avoid conflicts with Next.js font optimization. Falls back to system serif/sans-serif after 3s timeout via Promise.race.
 
 ---
 
@@ -145,12 +170,15 @@ Positions calibrated visually per template during implementation.
 - Text input above color picker
 - Label: i18n key admin.dashboard.qr.coupleName
 - Auto-populated from event.coupleName prop
-- User can edit to customize
+- User can edit to customize (session-only override, resets on next modal open)
 
 ### URL Text
-- Auto-generated: dodajuspomenu.com/guest/{slug}
+- Display URL derived from the actual guest URL
+- The real guest URL is: https://www.dodajuspomenu.com/{lang}/guest/login?event={slug}
+- For display on template, shortened to: dodajuspomenu.com/guest/{slug} (visual only, not a functional URL)
 - No user input, display only on template
 - Inter font, smaller than couple name
+- Note: The QR code itself encodes the full functional URL. The display text is for visual reference only.
 
 ### Error States
 
@@ -205,6 +233,9 @@ Pass event.coupleName as new prop to QrTemplateSelector:
   coupleName={event.coupleName}  // NEW
 />
 ```
+
+### Hidden QRCodeCanvas
+The hidden QRCodeCanvas stays in QrTemplateSelector (not moved to CanvasRenderer). QrTemplateSelector extracts the data URL and passes it to CanvasRenderer as qrDataUrl prop.
 
 ### What Does NOT Change
 - AdminDashboardTabs.tsx - only adds coupleName prop
