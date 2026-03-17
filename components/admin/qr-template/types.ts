@@ -18,6 +18,7 @@ export interface TemplateOption {
   qrPosition: QrPosition;
   namePosition: TextPosition;
   urlPosition: TextPosition;
+  textColor: string;  // hex color for name and URL text
 }
 
 export interface QrTemplateSelectorProps {

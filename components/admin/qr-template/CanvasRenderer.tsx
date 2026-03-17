@@ -26,6 +26,17 @@ async function loadCanvasFonts(): Promise<{ nameFont: string; urlFont: string }>
   }
 }
 
+// Determine shadow color based on text color (light text gets dark shadow, dark text gets light shadow)
+function getShadowColor(textColor: string): string {
+  // Simple check: if text is light (white-ish), use dark shadow; otherwise use light shadow
+  const hex = textColor.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  const luminance = (r * 299 + g * 587 + b * 114) / 1000;
+  return luminance > 128 ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.4)';
+}
+
 export default function CanvasRenderer({
   templateImage,
   template,
@@ -59,7 +70,11 @@ export default function CanvasRenderer({
       // 3. Load fonts
       const fonts = await loadCanvasFonts();
 
-      // 4. Name layer - couple name above QR (skip if empty)
+      // Get text color and shadow from template config
+      const textColor = template.textColor || '#FFFFFF';
+      const shadowColor = getShadowColor(textColor);
+
+      // 4. Name layer - couple name (skip if empty)
       if (coupleName && coupleName.trim()) {
         const nameFontSize = (template.namePosition.fontSize / 100) * canvas.width;
         ctx.font = `bold ${nameFontSize}px ${fonts.nameFont}`;
@@ -69,13 +84,13 @@ export default function CanvasRenderer({
         const nameX = (template.namePosition.x / 100) * canvas.width;
         const nameY = (template.namePosition.y / 100) * canvas.height;
 
-        // Drop shadow for readability
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-        ctx.shadowBlur = nameFontSize * 0.15;
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 2;
+        // Shadow for readability
+        ctx.shadowColor = shadowColor;
+        ctx.shadowBlur = nameFontSize * 0.12;
+        ctx.shadowOffsetX = 1;
+        ctx.shadowOffsetY = 1;
 
-        ctx.fillStyle = '#FFFFFF';
+        ctx.fillStyle = textColor;
         ctx.fillText(coupleName.trim(), nameX, nameY);
 
         // Reset shadow
@@ -109,13 +124,12 @@ export default function CanvasRenderer({
         const urlX = (template.urlPosition.x / 100) * canvas.width;
         const urlY = (template.urlPosition.y / 100) * canvas.height;
 
-        // Subtle shadow for URL
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-        ctx.shadowBlur = urlFontSize * 0.1;
+        ctx.shadowColor = shadowColor;
+        ctx.shadowBlur = urlFontSize * 0.08;
         ctx.shadowOffsetX = 1;
         ctx.shadowOffsetY = 1;
 
-        ctx.fillStyle = '#FFFFFF';
+        ctx.fillStyle = textColor;
         ctx.fillText(guestUrl, urlX, urlY);
 
         ctx.shadowColor = 'transparent';
