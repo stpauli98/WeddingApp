@@ -24,7 +24,7 @@ const AdminAllMessages: React.FC<AdminAllMessagesProps> = ({ messages }) => {
   }
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {messages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(msg => (
+      {[...messages].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(msg => (
         <div key={msg.id} className="relative flex flex-col gap-2 bg-white/80 border border-[hsl(var(--lp-accent))]/20 rounded-2xl shadow-lg p-5 min-h-[120px]">
           <svg className="absolute -top-4 left-4 text-2xl" aria-label="Poruka gosta" role="img">💌</svg>
           <div className="text-base text-[hsl(var(--lp-text))] font-medium mb-1 mt-2 whitespace-pre-line">{msg.text}</div>

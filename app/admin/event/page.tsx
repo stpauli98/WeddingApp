@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
@@ -75,20 +75,6 @@ export default function CreateEventPage() {
     mode: 'onChange',
   });
   
-  // Debug: Log available namespaces and current language
-  useEffect(() => {
-    if (ready) {
-      console.log('Available namespaces:', i18n.options.ns);
-      console.log('Current language:', i18n.language);
-      console.log('Sample translation:', t('admin.event.title'));
-    }
-  }, [i18n, ready, t]);
-  
-  // Watch the date value for debugging
-  const selectedDate = form.watch('date');
-  useEffect(() => {
-    console.log('Selected date:', selectedDate);
-  }, [selectedDate]);
   
   // Fetch CSRF token on mount and load draft from localStorage
   useEffect(() => {
@@ -126,20 +112,27 @@ export default function CreateEventPage() {
 
   // Auto-save draft to localStorage
   useEffect(() => {
-    const values = form.getValues();
-    const draft = {
-      coupleName: values.coupleName,
-      location: values.location,
-      date: values.date ? format(values.date, 'yyyy-MM-dd') : undefined,
-      slug: values.slug,
-      guestMessage: values.guestMessage,
-    };
-    localStorage.setItem('eventDraft', JSON.stringify(draft));
-  }, [form.watch()]);
+    const subscription = form.watch((values) => {
+      try {
+        const draft = {
+          coupleName: values.coupleName,
+          location: values.location,
+          date: values.date ? format(values.date as Date, 'yyyy-MM-dd') : undefined,
+          slug: values.slug,
+          guestMessage: values.guestMessage,
+        };
+        localStorage.setItem('eventDraft', JSON.stringify(draft));
+      } catch (e) {
+        // localStorage full or unavailable
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
+  const watchedSlug = useWatch({ control: form.control, name: 'slug' });
   // Check slug availability with debounce
   useEffect(() => {
-    const slug = form.getValues('slug');
+    const slug = watchedSlug;
     if (!slug || slug.length < 3 || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
       setSlugAvailable(null);
       return;
@@ -159,7 +152,7 @@ export default function CreateEventPage() {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [form.watch('slug')]);
+  }, [watchedSlug]);
 
   // Show loading state while translations are being loaded
   if (!ready) {

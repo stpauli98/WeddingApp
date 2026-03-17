@@ -4,11 +4,10 @@ import { useEffect, useState, use } from "react";
 import { getGuestFromCache, setGuestInCache } from "@/lib/guestCache";
 import { useRouter } from "next/navigation";
 import { AdminImageGallery } from "@/components/admin/AdminImageGallery";
-import { formatDate } from "@/lib/formatDate";
 import { GuestMessage } from "@/components/guest/GuestMessage";
 import type { GuestDetail } from "@/components/ui/types";
-import { ArrowLeft, RefreshCw } from "lucide-react";
-import { getScrollPosition, restoreScrollPosition } from "@/lib/scrollPosition";
+
+import { restoreScrollPosition } from "@/lib/scrollPosition";
 import { useTranslation } from "react-i18next";
 import I18nProvider from "@/components/I18nProvider";
 import '@/lib/i18n/i18n'; // Osigurava da je i18n inicijaliziran

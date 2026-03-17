@@ -1,5 +1,6 @@
 "use client"
 import { useRouter } from "next/navigation"
+import { toast } from "@/hooks/use-toast"
 import { useState } from "react"
 import { getCurrentLanguageFromPath } from "@/lib/utils/language"
 
@@ -21,7 +22,7 @@ export default function AdminLogoutButton({ language }: AdminLogoutButtonProps =
         console.error("Logout API error:", response.status, text);
         // Koristimo prijevode za poruku o grešci
       const errorMessage = language === 'en' ? "Error logging out. Please try again." : "Greška pri odjavi. Pokušajte ponovo.";
-      alert(errorMessage);
+      toast({ variant: "destructive", description: errorMessage });
         setLoading(false);
         return;
       }
@@ -30,7 +31,7 @@ export default function AdminLogoutButton({ language }: AdminLogoutButtonProps =
       console.error("Logout fetch error:", error);
       // Koristimo prijevode za poruku o mrežnoj grešci
       const networkErrorMessage = language === 'en' ? "Failed to log out (network error)." : "Neuspela odjava (network greška).";
-      alert(networkErrorMessage);
+      toast({ variant: "destructive", description: networkErrorMessage });
     } finally {
       setLoading(false);
     }

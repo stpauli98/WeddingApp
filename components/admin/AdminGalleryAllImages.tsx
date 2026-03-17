@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -16,6 +17,7 @@ interface AdminGalleryAllImagesProps {
 
 
 const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images }) => {
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentIdx, setCurrentIdx] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -144,6 +146,10 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
             transition={{ duration: 0.2 }}
             className="relative rounded-lg overflow-hidden shadow-md bg-[hsl(var(--lp-muted))] group cursor-pointer h-64"
             onClick={() => openModal(idx)}
+            tabIndex={0}
+            role="button"
+            aria-label={`View photo by ${img.guestName || "guest"}`}
+            onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openModal(idx); } }}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--lp-text))]/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
               <div className="text-[hsl(var(--lp-text))] text-sm font-medium">{img.guestName || "Nepoznat gost"}</div>
@@ -182,6 +188,9 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--lp-muted))]/90 backdrop-blur-sm min-h-screen"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Image viewer"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -191,13 +200,13 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
               className="relative flex flex-col justify-center items-center h-full w-full"
               onTouchStart={(e: React.TouchEvent<HTMLDivElement>) => {
                 if (e.touches.length === 1) {
-                  (window as any)._touchStartX = e.touches[0].clientX;
-                  (window as any)._touchStartY = e.touches[0].clientY;
+                  touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
                 }
               }}
               onTouchEnd={(e: React.TouchEvent<HTMLDivElement>) => {
-                const touchStartX = (window as any)._touchStartX;
-                const touchStartY = (window as any)._touchStartY;
+                if (!touchStartRef.current) return;
+                const touchStartX = touchStartRef.current.x;
+                const touchStartY = touchStartRef.current.y;
                 if (typeof touchStartX !== "number" || typeof touchStartY !== "number") return;
                 const dx = e.changedTouches[0].clientX - touchStartX;
                 const dy = e.changedTouches[0].clientY - touchStartY;
@@ -205,8 +214,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
                   if (dx < 0) nextImage(); // swipe lijevo
                   else prevImage(); // swipe desno
                 }
-                (window as any)._touchStartX = undefined;
-                (window as any)._touchStartY = undefined;
+                touchStartRef.current = null;
               }}
             >
               <motion.button
@@ -295,7 +303,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
                     }, 200);
                   } catch (error) {
                     console.error('Greška pri preuzimanju:', error);
-                    alert('Došlo je do greške pri preuzimanju slike. Molimo pokušajte ponovo.');
+                    toast({ variant: "destructive", description: 'Greška pri preuzimanju slike.' });
                   }
                 }}
                 className="fixed md:absolute bottom-4 right-4 md:bottom-8 md:right-8 z-20 bg-[hsl(var(--lp-accent))] hover:bg-[hsl(var(--lp-accent))] text-[hsl(var(--lp-text))] rounded-full p-3 shadow-xl transition-all duration-300 flex items-center gap-2"

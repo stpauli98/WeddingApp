@@ -4,10 +4,9 @@ import { useEffect, useState, use } from "react";
 import { getGuestFromCache, setGuestInCache } from "@/lib/guestCache";
 import { useRouter } from "next/navigation";
 import { AdminImageGallery } from "../../../../../components/admin/AdminImageGallery";
-import { formatDate } from "@/lib/formatDate";
 import { GuestMessage } from "@/components/guest/GuestMessage";
 import type { GuestDetail } from "@/components/ui/types";
-import { ArrowLeft, RefreshCw } from "lucide-react";
+
 import { getScrollPosition, restoreScrollPosition } from "@/lib/scrollPosition";
 
 export default function GuestDetailPage({ params }: { params: Promise<{ id: string }> }) {

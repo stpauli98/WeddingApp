@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
-import { Download, CheckCircle, X, Filter } from "lucide-react";
+import { Download, CheckCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { GuestDetail } from "@/components/ui/types";
-import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
 import '@/lib/i18n/i18n'; // Osigurava da je i18n inicijaliziran
 
@@ -66,7 +66,7 @@ async function downloadImageHelper(imgUrl: string, fileName = "fotografija") {
     }, 100);
   } catch (error) {
     console.error('Greška pri preuzimanju slike:', error);
-    alert('Došlo je do greške pri preuzimanju slike. Molimo pokušajte ponovno.');
+    toast({ variant: "destructive", description: 'Došlo je do greške pri preuzimanju slike.' });
   }
 }
 
@@ -355,7 +355,7 @@ export function AdminImageGallery({
       }
       
       if (validCount === 0) {
-        window.alert('Nijedna selektovana slika nije validna za preuzimanje.');
+        toast({ variant: "destructive", description: 'Nijedna selektovana slika nije validna za preuzimanje.' });
         return;
       }
       
@@ -372,7 +372,7 @@ export function AdminImageGallery({
       }, 500);
     } catch (error) {
       console.error('Greška pri kreiranju ZIP fajla:', error);
-      window.alert('Došlo je do greške pri kreiranju ZIP fajla.');
+      toast({ variant: "destructive", description: 'Došlo je do greške pri kreiranju ZIP fajla.' });
     }
   };
 
@@ -415,7 +415,7 @@ export function AdminImageGallery({
       }
       
       if (validCount === 0) {
-        window.alert('Nijedna slika nije validna za preuzimanje.');
+        toast({ variant: "destructive", description: 'Nijedna slika nije validna za preuzimanje.' });
         return;
       }
       
@@ -432,7 +432,7 @@ export function AdminImageGallery({
       }, 500);
     } catch (error) {
       console.error('Greška pri kreiranju ZIP fajla:', error);
-      window.alert('Došlo je do greške pri kreiranju ZIP fajla.');
+      toast({ variant: "destructive", description: 'Došlo je do greške pri kreiranju ZIP fajla.' });
     }
   };
 

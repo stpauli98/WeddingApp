@@ -37,7 +37,6 @@ export default async function AdminDashboardEventPage({ params }: {
     include: {
       images: true,
       message: true,
-      event: true,
     },
     orderBy: { createdAt: 'desc' },
   });
