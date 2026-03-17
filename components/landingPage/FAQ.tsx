@@ -7,7 +7,7 @@ import { motion } from "framer-motion"
 export default function FAQ() {
   const { t } = useTranslation()
 
-  const faqItems = Array.from({ length: 7 }, (_, i) => ({
+  const faqItems = Array.from({ length: 8 }, (_, i) => ({
     question: t(`faq.question${i + 1}`),
     answer: t(`faq.answer${i + 1}`),
   }))
