@@ -16,6 +16,7 @@ jest.mock('@/lib/prisma', () => ({
     marketingContact: { upsert: jest.fn() },
     image: { deleteMany: jest.fn() },
     message: { deleteMany: jest.fn() },
+    payment: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
     $transaction: jest.fn(async (ops: Promise<unknown>[]) => Promise.all(ops)),
   },
 }));

@@ -67,6 +67,7 @@ export async function GET(request: Request) {
     at: now.toISOString(),
     guestSessionsCleared: 0,
     adminSessionsDeleted: 0,
+    stuckPaymentsMarked: 0,
     warningEmailsSent: 0,
     eventsDeleted: 0,
     errors: [] as string[],
@@ -90,6 +91,17 @@ export async function GET(request: Request) {
     result.adminSessionsDeleted = (
       await prisma.adminSession.deleteMany({
         where: { expiresAt: { lt: adminCutoff } },
+      })
+    ).count;
+
+    // 2b. Stuck pending Payment cleanup (LS checkout expiry ~60min, grace 2h).
+    // Payment rows themselves are NEVER deleted — BiH poreski zakon requires 10y retention.
+    // We only flip status so they stop blocking new checkouts for same admin.
+    const stuckPaymentCutoff = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+    result.stuckPaymentsMarked = (
+      await prisma.payment.updateMany({
+        where: { status: 'pending', createdAt: { lt: stuckPaymentCutoff } },
+        data: { status: 'failed' },
       })
     ).count;
 
