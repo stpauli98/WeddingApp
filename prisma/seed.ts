@@ -10,6 +10,12 @@ async function seedPricingPlans() {
   const sortOrder: Record<string, number> = { free: 0, basic: 1, premium: 2, unlimited: 3 };
 
   for (const [tier, config] of Object.entries(PRICING_TIERS)) {
+    const envVarName = `LS_VARIANT_ID_${tier.toUpperCase()}`;
+    const lsVariantId = process.env[envVarName] || null;
+    if (!lsVariantId && tier !== 'free') {
+      console.warn(`  ⚠ ${envVarName} not set — ${tier} plan won't accept payments`);
+    }
+
     const planData = {
       nameSr: config.name.sr,
       nameEn: config.name.en,
@@ -18,6 +24,7 @@ async function seedPricingPlans() {
       recommended: config.recommended ?? false,
       sortOrder: sortOrder[tier] ?? 99,
       active: true,
+      lsVariantId,
     };
 
     await prisma.pricingPlan.upsert({
@@ -45,7 +52,9 @@ async function seedPricingPlans() {
         },
       },
     });
-    console.log(`  ✓ ${tier}: imageLimit=${config.imageLimit}, price=${config.price}`);
+    console.log(
+      `  ✓ ${tier}: imageLimit=${config.imageLimit}, price=${config.price}, variant=${lsVariantId ?? '(none)'}`
+    );
   }
 }
 
