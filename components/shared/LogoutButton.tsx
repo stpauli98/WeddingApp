@@ -12,10 +12,20 @@ interface LogoutButtonProps {
 export function LogoutButton({ language = 'sr', eventSlug }: LogoutButtonProps = {}) {
   const router = useRouter();
 
-  const handleLogout = () => {
-    // Brisem session cookie
-    fetch("/api/guest/logout", { method: "POST" })
-    
+  const handleLogout = async () => {
+    // Dohvati CSRF token pre POST zahteva
+    try {
+      const csrfRes = await fetch("/api/guest/logout", { method: "GET", credentials: "include" });
+      const { csrfToken } = await csrfRes.json();
+      await fetch("/api/guest/logout", {
+        method: "POST",
+        credentials: "include",
+        headers: { "x-csrf-token": csrfToken },
+      });
+    } catch (e) {
+      console.error("Guest logout failed:", e);
+    }
+
     // Ako imamo eventSlug, preusmjeri na guest login stranicu s tim eventSlug parametrom
     if (eventSlug) {
       router.replace(`/${language}/guest/login?event=${eventSlug}`)
@@ -44,4 +54,4 @@ export function LogoutButton({ language = 'sr', eventSlug }: LogoutButtonProps =
       {translations[language as keyof typeof translations] || translations.sr}
     </Button>
   );
-} 
+}

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { generateCsrfToken, validateCsrfToken } from '@/lib/csrf';
+import { PRICING_TIERS, isValidTier, type PricingTier } from '@/lib/pricing-tiers';
 
 export async function GET() {
   const { token } = await generateCsrfToken();
@@ -25,18 +26,21 @@ export async function POST(request: Request) {
   }
   try {
     const body = await request.json();
-    const { coupleName, location, date, slug, guestMessage, pricingTier, imageLimit } = body;
+    const { coupleName, location, date, slug, guestMessage, pricingTier } = body;
 
     if (!coupleName || !location || !date || !slug) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    if (imageLimit !== undefined) {
-      const limit = parseInt(imageLimit);
-      if (isNaN(limit) || limit < 10 || limit > 999) {
-        return NextResponse.json({ error: "Image limit must be between 10 and 999" }, { status: 400 });
-      }
-    }
+    const selectedTier: PricingTier = isValidTier(pricingTier) ? pricingTier : 'free';
+
+    // imageLimit is derived server-side from the tier — client input is ignored.
+    // Authoritative source: PricingPlan table, with PRICING_TIERS as fallback.
+    const planRow = await prisma.pricingPlan.findUnique({
+      where: { tier: selectedTier },
+      select: { imageLimit: true },
+    });
+    const resolvedImageLimit = planRow?.imageLimit ?? PRICING_TIERS[selectedTier].imageLimit;
 
     const cookieStore = await cookies();
     const sessionToken = cookieStore.get("admin_session")?.value;
@@ -78,8 +82,8 @@ export async function POST(request: Request) {
         slug,
         guestMessage: guestMessage || null,
         language: admin?.language || "sr",
-        pricingTier: pricingTier || "free",
-        imageLimit: imageLimit ? parseInt(imageLimit) : 10,
+        pricingTier: selectedTier,
+        imageLimit: resolvedImageLimit,
         admin: { connect: { id: adminId } },
       },
     });

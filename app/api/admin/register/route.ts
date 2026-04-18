@@ -19,6 +19,15 @@ export async function GET() {
   return response;
 }
 
+// ─── Rate limiting (in-memory, per-IP) ──────────────────────────────
+declare global {
+  var __adminRegisterAttempts: Map<string, number[]> | undefined;
+}
+const registerAttempts: Map<string, number[]> = globalThis.__adminRegisterAttempts || new Map();
+globalThis.__adminRegisterAttempts = registerAttempts;
+const REGISTER_MAX = 5;
+const REGISTER_WINDOW_MS = 60 * 60 * 1000; // 1h
+
 export async function POST(req: NextRequest) {
   // Provera CSRF tokena
   const csrfToken = req.headers.get('x-csrf-token') || req.cookies.get('csrf_token_admin_register')?.value || '';
@@ -26,6 +35,16 @@ export async function POST(req: NextRequest) {
   if (!validCsrf) {
     return NextResponse.json({ error: 'Nevažeći CSRF token.' }, { status: 403 });
   }
+
+  // Rate limiting po IP (spreči spam registraciju i bcrypt CPU DoS)
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const now = Date.now();
+  const recent = (registerAttempts.get(ip) || []).filter(ts => now - ts < REGISTER_WINDOW_MS);
+  if (recent.length >= REGISTER_MAX) {
+    return NextResponse.json({ error: 'Previše pokušaja registracije. Pokušajte ponovo kasnije.' }, { status: 429 });
+  }
+  registerAttempts.set(ip, [...recent, now]);
+
   try {
     const body = await req.json();
     const { email, password, firstName, lastName, language } = body;

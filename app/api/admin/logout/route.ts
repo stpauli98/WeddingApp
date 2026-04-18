@@ -1,19 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { generateCsrfToken, validateCsrfToken } from '@/lib/csrf';
 
+// GET — izdaje CSRF token za logout
+export async function GET() {
+  const { token, cookie } = await generateCsrfToken();
+  const response = NextResponse.json({ csrfToken: token });
+  response.headers.set('set-cookie', cookie);
+  return response;
+}
 
 export async function POST(req: NextRequest) {
-  try {
-    // Dohvati session token iz cookie-ja
-    const cookieStore = await req.cookies;
-    const sessionToken = cookieStore.get('admin_session')?.value;
+  // CSRF zaštita — state-mutating endpoint
+  const csrfToken = req.headers.get('x-csrf-token') || req.cookies.get('csrf_token')?.value || '';
+  const validCsrf = await validateCsrfToken(csrfToken);
+  if (!validCsrf) {
+    return NextResponse.json({ error: 'Nevažeći CSRF token.' }, { status: 403 });
+  }
 
-    // Obriši session iz baze (opciono, za dodatnu sigurnost)
+  try {
+    const sessionToken = req.cookies.get('admin_session')?.value;
+
     if (sessionToken) {
       await prisma.adminSession.deleteMany({ where: { sessionToken } });
     }
 
-    // Obriši cookie na klijentu
     const response = NextResponse.json({ success: true });
     response.cookies.set('admin_session', '', {
       httpOnly: true,

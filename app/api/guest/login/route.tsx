@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { prisma } from '@/lib/prisma';
 import { getGuestByEmail } from '@/lib/auth';
 import nodemailer from 'nodemailer';
@@ -22,6 +22,15 @@ export async function GET() {
 
   return response;
 }
+
+// ─── Rate limiting (in-memory, per-IP) ──────────────────────────────
+declare global {
+  var __guestLoginAttempts: Map<string, number[]> | undefined;
+}
+const guestLoginAttempts: Map<string, number[]> = globalThis.__guestLoginAttempts || new Map();
+globalThis.__guestLoginAttempts = guestLoginAttempts;
+const GUEST_LOGIN_MAX = 10;
+const GUEST_LOGIN_WINDOW_MS = 15 * 60 * 1000; // 15 min
 
 // Funkcija za generisanje HTML emaila
 const getEmailHtml = (firstName: string, code: string) => `
@@ -81,7 +90,7 @@ const sendVerificationEmail = async (email: string, code: string, firstName: str
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     // 1. Provera CSRF tokena
     const reqCookies = await cookies();
@@ -91,11 +100,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Neispravan CSRF token. Osvežite stranicu i pokušajte ponovo." }, { status: 403 });
     }
 
+    // 2. Rate limiting po IP — spreči mass account creation
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const now = Date.now();
+    const recent = (guestLoginAttempts.get(ip) || []).filter(ts => now - ts < GUEST_LOGIN_WINDOW_MS);
+    if (recent.length >= GUEST_LOGIN_MAX) {
+      return NextResponse.json({ error: "Previše pokušaja prijave. Pokušajte ponovo kasnije." }, { status: 429 });
+    }
+    guestLoginAttempts.set(ip, [...recent, now]);
+
     const { firstName, lastName, email, eventSlug } = await request.json()
 
     // Validacija podataka
     if (!firstName || !lastName || !email) {
       return NextResponse.json({ error: "Sva polja su obavezna" }, { status: 400 })
+    }
+
+    // Dodatna validacija dužina i email formata
+    if (typeof firstName !== 'string' || typeof lastName !== 'string' || typeof email !== 'string') {
+      return NextResponse.json({ error: "Neispravni podaci." }, { status: 400 });
+    }
+    if (firstName.length < 1 || firstName.length > 64 || lastName.length < 1 || lastName.length > 64) {
+      return NextResponse.json({ error: "Ime/prezime mora biti između 1 i 64 znaka." }, { status: 400 });
+    }
+    if (email.length > 100 || !/^\S+@\S+\.\S+$/.test(email)) {
+      return NextResponse.json({ error: "Neispravan format email adrese." }, { status: 400 });
     }
 
     // Provera eventSlug i pronalazak eventa
@@ -109,14 +138,14 @@ export async function POST(request: Request) {
 
     // Provjera da li korisnik već postoji u bazi
     const existingGuest = await prisma.guest.findFirst({
-      where: { 
+      where: {
         email,
         eventId: event.id
       }
     });
-    
+
     let guestId;
-    
+
     if (existingGuest) {
       // Ažuriranje postojećeg korisnika i automatska verifikacija
       const updatedGuest = await prisma.guest.update({
@@ -149,12 +178,12 @@ export async function POST(request: Request) {
       data: { sessionToken, sessionExpires }
     });
 
-    const response = NextResponse.json({ 
-      success: true, 
+    const response = NextResponse.json({
+      success: true,
       guestId,
       eventId: event.id
     });
-    
+
     // Postavi guest_session cookie sa opaque tokenom (NE guestId)
     response.cookies.set("guest_session", sessionToken, {
       httpOnly: true,
@@ -163,11 +192,13 @@ export async function POST(request: Request) {
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
     });
-    
+
     return response
   } catch (error) {
-    return NextResponse.json({ 
-      error: error instanceof Error ? error.message : "Došlo je do greške prilikom prijave" 
+    // Ne otkrivaj internu poruku greške klijentu
+    console.error('Guest login error:', error);
+    return NextResponse.json({
+      error: "Došlo je do greške prilikom prijave"
     }, { status: 500 });
   }
 }

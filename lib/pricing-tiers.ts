@@ -1,7 +1,7 @@
 // Pricing Tiers Configuration
 // Reads from database (PricingPlan table) with hardcoded fallback
 
-export type PricingTier = 'free' | 'basic' | 'premium';
+export type PricingTier = 'free' | 'basic' | 'premium' | 'unlimited';
 
 export interface TierFeature {
   sr: string;
@@ -26,12 +26,12 @@ export interface TierConfig {
 export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
   free: {
     name: { sr: 'Besplatno', en: 'Free' },
-    imageLimit: 3,
+    imageLimit: 10,
     guestLimit: 20,
     storageDays: 10,
     price: 0,
     features: [
-      { sr: 'Do 3 slike po gostu', en: 'Up to 3 images per guest' },
+      { sr: 'Do 10 slika po gostu', en: 'Up to 10 images per guest' },
       { sr: 'Maksimalno 20 gostiju', en: 'Up to 20 guests' },
       { sr: 'Slike se čuvaju 10 dana', en: 'Photos stored for 10 days' },
       { sr: 'Standardni QR kod', en: 'Standard QR code' },
@@ -44,7 +44,7 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     imageLimit: 25,
     guestLimit: 100,
     storageDays: 30,
-    price: 1499,
+    price: 1999,
     features: [
       { sr: 'Do 25 slika po gostu', en: 'Up to 25 images per guest' },
       { sr: 'Do 100 gostiju', en: 'Up to 100 guests' },
@@ -67,6 +67,22 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
       { sr: 'Napredni QR kod', en: 'Advanced QR code' },
       { sr: 'Prilagođen brending', en: 'Custom branding' },
       { sr: 'Prilagođene poruke', en: 'Custom messages' },
+      { sr: 'Dedicirana podrška', en: 'Dedicated support' },
+    ],
+    recommended: false,
+  },
+  unlimited: {
+    name: { sr: 'Neograničeno', en: 'Unlimited' },
+    imageLimit: 999,
+    guestLimit: 9999,
+    storageDays: 365,
+    price: 5999,
+    features: [
+      { sr: 'Neograničen broj slika po gostu', en: 'Unlimited images per guest' },
+      { sr: 'Neograničen broj gostiju', en: 'Unlimited guests' },
+      { sr: 'Slike se čuvaju 1 godinu', en: 'Photos stored for 1 year' },
+      { sr: 'Napredni QR kod', en: 'Advanced QR code' },
+      { sr: 'Prilagođen brending', en: 'Custom branding' },
       { sr: 'Dedicirana podrška', en: 'Dedicated support' },
     ],
     recommended: false,

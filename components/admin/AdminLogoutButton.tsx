@@ -15,7 +15,14 @@ export default function AdminLogoutButton({ language }: AdminLogoutButtonProps =
   const handleLogout = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/admin/logout", { method: "POST", credentials: "include" });
+      // Dohvati CSRF token pre POST zahteva
+      const csrfRes = await fetch("/api/admin/logout", { method: "GET", credentials: "include" });
+      const { csrfToken } = await csrfRes.json();
+      const response = await fetch("/api/admin/logout", {
+        method: "POST",
+        credentials: "include",
+        headers: { "x-csrf-token": csrfToken },
+      });
       if (!response.ok) {
         // Loguj status i tekst greške za debug
         const text = await response.text();
@@ -42,11 +49,11 @@ export default function AdminLogoutButton({ language }: AdminLogoutButtonProps =
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
   const segments = pathname.split('/');
   const urlLanguage = segments.length > 1 && (segments[1] === 'en' || segments[1] === 'sr') ? segments[1] : 'sr';
-  
+
   // Prioritet: 1. URL jezik, 2. Event jezik
   // Ovo osigurava da će jezik iz URL-a uvijek imati prednost
   const currentLanguage = urlLanguage || language || 'sr';
-  
+
   // Prijevodi za gumb za odjavu
   const translations = {
     sr: {

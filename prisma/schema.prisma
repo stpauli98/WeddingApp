@@ -13,11 +13,12 @@ datasource db {
 // ──────────────────────────────────────
 
 /// Paketi za eventi — određuju maksimalan broj slika po gostu
+/// Izvor istine za imageLimit/price je DB tabela `PricingPlan` (ne komentari ovdje).
 enum PricingTier {
-  free       // 10 slika
-  basic      // 25 slika
-  premium    // 50 slika
-
+  free
+  basic
+  premium
+  unlimited
 }
 
 // ──────────────────────────────────────
@@ -137,7 +138,7 @@ model Image {
   createdAt   DateTime @default(now())
   guest       Guest    @relation(fields: [guestId], references: [id])
 
-  @@index([guestId])
+  @@index([guestId, createdAt(sort: Desc)])
   @@index([createdAt])
 }
 

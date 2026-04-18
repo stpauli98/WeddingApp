@@ -1,15 +1,24 @@
-// Ograničenje veličine za upload (povećano od 10MB koji je moj trenutni max zbog Cloudinary free plana)
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '100mb',
-    },
-  },
-};
-
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { cookies } from "next/headers";
+
+// Per-IP rate limit for uploads. App Router does not honour the legacy
+// `export const config = { api: { bodyParser: { sizeLimit } } }` — size is
+// enforced below via the Content-Length header.
+declare global {
+  var __guestUploadAttempts: Map<string, number[]> | undefined;
+}
+const uploadAttempts: Map<string, number[]> = globalThis.__guestUploadAttempts || new Map();
+globalThis.__guestUploadAttempts = uploadAttempts;
+const UPLOAD_MAX = 20;
+const UPLOAD_WINDOW_MS = 5 * 60 * 1000;
+
+// Hard ceiling on request body: 10 MB per image × max 50 (premium tier) + 2 MB
+// margin for form overhead. Finer per-image checks still run below.
+const MAX_BODY_BYTES = 10 * 1024 * 1024 * 50 + 2 * 1024 * 1024;
+
+// Authoritative MIME allowlist, checked against Sharp's decoded metadata.
+const ALLOWED_FORMATS = new Set(['jpeg', 'png', 'webp', 'gif', 'heic', 'heif']);
 
 export async function GET() {
   const csrfToken = crypto.randomBytes(32).toString("hex");
@@ -44,6 +53,28 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadRes
   if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
     return NextResponse.json({ error: "Neispravan CSRF token. Osvežite stranicu i pokušajte ponovo." }, { status: 403 });
   }
+
+  // Body size cap — reject oversized uploads before reading into memory.
+  const contentLength = Number(request.headers.get('content-length') || '0');
+  if (contentLength > MAX_BODY_BYTES) {
+    return NextResponse.json(
+      { error: "Zahtjev je prevelik." },
+      { status: 413 }
+    );
+  }
+
+  // Per-IP rate limiting.
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const now = Date.now();
+  const recent = (uploadAttempts.get(ip) || []).filter((ts) => now - ts < UPLOAD_WINDOW_MS);
+  if (recent.length >= UPLOAD_MAX) {
+    return NextResponse.json(
+      { error: "Previše upload zahtjeva. Pokušajte ponovo za nekoliko minuta." },
+      { status: 429 }
+    );
+  }
+  uploadAttempts.set(ip, [...recent, now]);
+
   try {
     // --- Validacija korisnika putem session tokena ---
     const guestSession = await getAuthenticatedGuest();
@@ -88,29 +119,32 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadRes
     // Obradi svaku sliku pojedinačno
     for (const image of images) {
       try {
-        // Validacija tipa slike
-        if (!image.type.startsWith('image/')) {
-          return NextResponse.json({ error: `Fajl ${image.name} nije slika.` }, { status: 400 });
-        }
-        
         // Validacija veličine slike
         if (image.size > maxSize) {
-          return NextResponse.json({ 
-            error: `Slika ${image.name} je veća od 10MB. Molimo vas da smanjite rezoluciju ili veličinu slike.` 
+          return NextResponse.json({
+            error: `Slika ${image.name} je veća od 10MB. Molimo vas da smanjite rezoluciju ili veličinu slike.`
           }, { status: 400 });
         }
-        
+
         // Konvertuj sliku za optimizaciju
         const buffer = Buffer.from(await image.arrayBuffer());
         let optimizedBuffer: Buffer;
         try {
-          // Koristimo sharp za osnovno procesiranje slike
+          // Sharp's metadata is the authoritative format check — `image.type`
+          // comes from the client and can be spoofed.
+          const meta = await sharp(buffer).metadata();
+          if (!meta.format || !ALLOWED_FORMATS.has(meta.format)) {
+            return NextResponse.json(
+              { error: `Fajl ${image.name} nije podržan format slike.` },
+              { status: 400 }
+            );
+          }
           optimizedBuffer = await sharp(buffer)
             .rotate() // Automatski ispravlja orijentaciju na osnovu EXIF podataka
             .toBuffer();
         } catch (err: any) {
-          return NextResponse.json({ 
-            error: `Greška pri optimizaciji slike ${image.name}: ${err?.message || "Nepoznata greška"}` 
+          return NextResponse.json({
+            error: `Greška pri optimizaciji slike ${image.name}: ${err?.message || "Nepoznata greška"}`
           }, { status: 400 });
         }
         
