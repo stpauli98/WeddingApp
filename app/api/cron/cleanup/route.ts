@@ -7,6 +7,7 @@
 //   3. Retention warnings + hard deletes for events past their tier's storageDays.
 
 import { NextResponse } from 'next/server';
+import { timingSafeEqual } from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { PRICING_TIERS, type PricingTier } from '@/lib/pricing-tiers';
 import { sendDeletionWarningEmail } from '@/lib/email';
@@ -27,10 +28,16 @@ function dashboardUrl(eventId: string, lang: string): string {
   return `${base}${prefix}/admin/dashboard/${eventId}`;
 }
 
+function safeCompareBearer(header: string, secret: string): boolean {
+  if (!secret) return false;
+  const expected = `Bearer ${secret}`;
+  if (header.length !== expected.length) return false;
+  return timingSafeEqual(Buffer.from(header), Buffer.from(expected));
+}
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization') || '';
-  const expected = `Bearer ${process.env.CRON_SECRET || ''}`;
-  if (!process.env.CRON_SECRET || authHeader !== expected) {
+  if (!safeCompareBearer(authHeader, process.env.CRON_SECRET || '')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
