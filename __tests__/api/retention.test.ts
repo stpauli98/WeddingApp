@@ -53,6 +53,8 @@ const WARNING_WINDOW_EVENT_DATE = new Date(Date.now() - 9 * 86400000); // 9d ago
 beforeEach(() => {
   jest.clearAllMocks();
   process.env.CRON_SECRET = 'test-secret';
+  // Reset per-IP rate-limit map (module captured reference — clear in place).
+  (globalThis as any).__cronCleanupAttempts?.clear();
   guestUpdateMany.mockResolvedValue({ count: 0 });
   adminSessionDeleteMany.mockResolvedValue({ count: 0 });
   eventFindMany.mockResolvedValue([]);
@@ -66,6 +68,15 @@ describe('cron cleanup — retention invariants', () => {
       new Request('http://localhost/api/cron/cleanup', { method: 'GET' })
     );
     expect(res.status).toBe(401);
+  });
+
+  it('returns 429 after exceeding per-IP rate limit (6/h)', async () => {
+    for (let i = 0; i < 6; i++) {
+      const r = await GET(buildReq());
+      expect(r.status).toBe(200);
+    }
+    const res = await GET(buildReq());
+    expect(res.status).toBe(429);
   });
 
   it('does NOT harvest non-consented guest email on expiry', async () => {

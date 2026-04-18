@@ -17,6 +17,16 @@ const GUEST_SESSION_GRACE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days after expiry
 const ADMIN_SESSION_GRACE_MS = 1 * 24 * 60 * 60 * 1000; // 1 day after expiry
 const WARNING_WINDOW_MS = 2 * 24 * 60 * 60 * 1000; // warn 2 days before expiry
 
+// Per-IP rate limit — defence-in-depth if CRON_SECRET ever leaks.
+// Vercel Cron retries + occasional manual curl comfortably fit under 6/h.
+declare global {
+  var __cronCleanupAttempts: Map<string, number[]> | undefined;
+}
+const cronAttempts: Map<string, number[]> = globalThis.__cronCleanupAttempts || new Map();
+globalThis.__cronCleanupAttempts = cronAttempts;
+const CRON_MAX = 6;
+const CRON_WINDOW_MS = 60 * 60 * 1000;
+
 function computeExpiry(eventDate: Date, tier: string): Date {
   const cfg = PRICING_TIERS[tier as PricingTier] ?? PRICING_TIERS.free;
   return new Date(eventDate.getTime() + cfg.storageDays * 24 * 60 * 60 * 1000);
@@ -40,6 +50,15 @@ export async function GET(request: Request) {
   if (!safeCompareBearer(authHeader, process.env.CRON_SECRET || '')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  // Rate limit by IP — protects against a leaked secret being used to spam.
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const nowMs = Date.now();
+  const recent = (cronAttempts.get(ip) || []).filter((ts) => nowMs - ts < CRON_WINDOW_MS);
+  if (recent.length >= CRON_MAX) {
+    return NextResponse.json({ error: 'Rate limit' }, { status: 429 });
+  }
+  cronAttempts.set(ip, [...recent, nowMs]);
 
   const now = new Date();
   const result = {
