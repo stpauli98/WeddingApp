@@ -180,6 +180,9 @@ model MarketingContact {
   consentedAt    DateTime
   harvestedAt    DateTime  @default(now())
   unsubscribedAt DateTime?
+  /// Opaque token issued at harvest time — embedded in marketing email links
+  /// so recipients can unsubscribe without authenticating.
+  unsubscribeToken String? @unique
 
   @@unique([email, source])
   @@index([source])

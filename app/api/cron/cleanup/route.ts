@@ -7,7 +7,7 @@
 //   3. Retention warnings + hard deletes for events past their tier's storageDays.
 
 import { NextResponse } from 'next/server';
-import { timingSafeEqual } from 'crypto';
+import { randomBytes, timingSafeEqual } from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { PRICING_TIERS, type PricingTier } from '@/lib/pricing-tiers';
 import { sendDeletionWarningEmail, sendGuestDeletionEmail } from '@/lib/email';
@@ -204,8 +204,15 @@ async function executeHardDelete(event: {
 
   const ops = [];
 
+  // Per-guest unsub token — generated BEFORE upsert so we can include it in
+  // the deletion email (only for consented guests). Token is set only on
+  // CREATE; existing contacts retain their original token via `update: {}`.
+  const guestTokens = new Map<string, string>();
+
   for (const g of event.guests) {
     if (!g.marketingConsent) continue;
+    const token = randomBytes(24).toString('hex');
+    guestTokens.set(g.email, token);
     ops.push(
       prisma.marketingContact.upsert({
         where: { email_source: { email: g.email, source: 'guest' } },
@@ -216,6 +223,7 @@ async function executeHardDelete(event: {
           coupleName: event.coupleName,
           weddingDate: event.date,
           consentedAt: g.createdAt,
+          unsubscribeToken: token,
         },
         update: {},
       })
@@ -225,6 +233,7 @@ async function executeHardDelete(event: {
   // Admin harvest — only when admin has explicitly opted in.
   // Prior design harvested all admins; GDPR requires explicit opt-in.
   if (event.admin?.email && event.admin.marketingConsent) {
+    const token = randomBytes(24).toString('hex');
     ops.push(
       prisma.marketingContact.upsert({
         where: { email_source: { email: event.admin.email, source: 'admin' } },
@@ -232,6 +241,7 @@ async function executeHardDelete(event: {
           email: event.admin.email,
           source: 'admin',
           consentedAt: event.admin.createdAt,
+          unsubscribeToken: token,
         },
         update: {},
       })
@@ -253,6 +263,7 @@ async function executeHardDelete(event: {
   const guestNotifications = event.guests.map((g) => ({
     email: g.email,
     consented: g.marketingConsent,
+    unsubscribeToken: guestTokens.get(g.email),
   }));
 
   await prisma.$transaction(ops);
@@ -273,6 +284,7 @@ async function executeHardDelete(event: {
         language: lang,
         coupleName: event.coupleName,
         consented: n.consented,
+        unsubscribeToken: n.unsubscribeToken,
       });
     } catch (err) {
       console.error(`Guest deletion email to ${n.email} failed:`, err);

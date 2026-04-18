@@ -173,6 +173,13 @@ interface GuestDeletionParams {
   language?: Lang;
   coupleName: string;
   consented: boolean;
+  /// Present only for consented guests — enables one-click unsubscribe.
+  unsubscribeToken?: string;
+}
+
+function unsubUrl(token: string): string {
+  const base = process.env.NEXT_PUBLIC_APP_URL || 'https://www.dodajuspomenu.com';
+  return `${base}/unsubscribe?token=${encodeURIComponent(token)}`;
 }
 
 export async function sendGuestDeletionEmail(params: GuestDeletionParams): Promise<void> {
@@ -187,16 +194,30 @@ export async function sendGuestDeletionEmail(params: GuestDeletionParams): Promi
   const footer =
     params.consented
       ? lang === 'en'
-        ? "Your email is kept so we can let you know about future weddings you're invited to. Reply UNSUBSCRIBE to opt out."
-        : 'Tvoj email je sačuvan da te obavijestimo o budućim svadbama. Odjavi se odgovorom UNSUBSCRIBE.'
+        ? "Your email is kept so we can let you know about future weddings you're invited to."
+        : 'Tvoj email je sačuvan da te obavijestimo o budućim svadbama.'
       : lang === 'en'
         ? 'Your data has been fully removed — no further emails will be sent.'
         : 'Svi tvoji podaci su uklonjeni — nećeš više dobijati poruke.';
 
+  const unsubText =
+    params.consented && params.unsubscribeToken
+      ? lang === 'en'
+        ? `\n\nUnsubscribe: ${unsubUrl(params.unsubscribeToken)}`
+        : `\n\nOdjavi se: ${unsubUrl(params.unsubscribeToken)}`
+      : '';
+
+  const unsubHtml =
+    params.consented && params.unsubscribeToken
+      ? lang === 'en'
+        ? `<p style="font-size:11px;color:#888;margin-top:18px">Don't want these? <a href="${escape(unsubUrl(params.unsubscribeToken))}">Unsubscribe</a></p>`
+        : `<p style="font-size:11px;color:#888;margin-top:18px">Ne želiš ovo? <a href="${escape(unsubUrl(params.unsubscribeToken))}">Odjavi se</a></p>`
+      : '';
+
   const text =
     lang === 'en'
-      ? `Hi,\n\nPer the storage plan of ${params.coupleName}'s wedding, the photos and message you uploaded have been deleted.\n\n${footer}\n\n— DodajUspomenu team`
-      : `Zdravo,\n\nPo planu čuvanja podataka za svadbu ${params.coupleName}, tvoje slike i poruka su obrisane.\n\n${footer}\n\n— DodajUspomenu tim`;
+      ? `Hi,\n\nPer the storage plan of ${params.coupleName}'s wedding, the photos and message you uploaded have been deleted.\n\n${footer}${unsubText}\n\n— DodajUspomenu team`
+      : `Zdravo,\n\nPo planu čuvanja podataka za svadbu ${params.coupleName}, tvoje slike i poruka su obrisane.\n\n${footer}${unsubText}\n\n— DodajUspomenu tim`;
 
   const heading =
     lang === 'en' ? 'Your wedding photos have been deleted' : 'Tvoje slike su obrisane';
@@ -211,6 +232,7 @@ export async function sendGuestDeletionEmail(params: GuestDeletionParams): Promi
     <h1 style="font-size:20px;margin:0 0 12px">${escape(heading)}</h1>
     <p style="line-height:1.5;margin:0 0 16px">${intro}</p>
     <p style="font-size:13px;color:#7a7a7a;margin:0">${escape(footer)}</p>
+    ${unsubHtml}
   </div>
 </body></html>`;
 
