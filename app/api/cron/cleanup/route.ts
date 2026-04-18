@@ -254,10 +254,23 @@ async function executeHardDelete(event: {
   // If this fails, assets become orphaned in Cloudinary (log + reap manually).
   // Never blocks retention semantics — DB is the source of truth for user-visible state.
   if (storagePaths.length) {
+    await deleteCloudinaryInChunks(storagePaths, event.slug);
+  }
+}
+
+// Cloudinary caps delete_resources at 100 public_ids per call.
+// Chunk + catch-per-batch so one failed batch doesn't abort the rest.
+async function deleteCloudinaryInChunks(publicIds: string[], contextLabel: string): Promise<void> {
+  const CHUNK = 100;
+  for (let i = 0; i < publicIds.length; i += CHUNK) {
+    const batch = publicIds.slice(i, i + CHUNK);
     try {
-      await cloudinary.api.delete_resources(storagePaths);
+      await cloudinary.api.delete_resources(batch);
     } catch (err) {
-      console.error(`Cloudinary orphaned for event ${event.slug}:`, err);
+      console.error(
+        `Cloudinary batch ${i}..${i + batch.length} failed for ${contextLabel}:`,
+        err
+      );
     }
   }
 }

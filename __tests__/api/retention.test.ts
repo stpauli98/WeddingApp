@@ -10,7 +10,7 @@
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
-    guest: { updateMany: jest.fn() },
+    guest: { updateMany: jest.fn(), deleteMany: jest.fn() },
     adminSession: { deleteMany: jest.fn() },
     event: { findMany: jest.fn(), update: jest.fn() },
     marketingContact: { upsert: jest.fn() },
@@ -226,5 +226,46 @@ describe('cron cleanup — retention invariants', () => {
     await GET(buildReq());
     const whereArg = eventFindMany.mock.calls[0]?.[0]?.where;
     expect(whereArg).toEqual(expect.objectContaining({ deletedAt: null }));
+  });
+
+  it('chunks Cloudinary delete into batches of 100', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const cloudinary = require('@/lib/cloudinary').default;
+    const mockDelete = cloudinary.api.delete_resources as jest.Mock;
+    mockDelete.mockClear();
+
+    const paths = Array.from({ length: 250 }, (_, i) => `p${i}`);
+    eventFindMany.mockResolvedValue([
+      {
+        id: 'e1',
+        slug: 's',
+        coupleName: 'C',
+        date: EXPIRED_FREE_EVENT_DATE,
+        pricingTier: 'free',
+        deletionWarningSentAt: null,
+        admin: {
+          email: 'a@x.com',
+          language: 'sr',
+          createdAt: new Date(),
+          marketingConsent: false,
+        },
+        guests: [
+          {
+            id: 'g',
+            email: 'g@x.com',
+            marketingConsent: false,
+            createdAt: new Date(),
+            images: paths.map((p, i) => ({ id: String(i), storagePath: p })),
+            message: null,
+          },
+        ],
+      },
+    ]);
+
+    await GET(buildReq());
+
+    expect(mockDelete).toHaveBeenCalledTimes(3); // 100 + 100 + 50
+    expect(mockDelete.mock.calls[0][0]).toHaveLength(100);
+    expect(mockDelete.mock.calls[2][0]).toHaveLength(50);
   });
 });
