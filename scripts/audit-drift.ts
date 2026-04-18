@@ -8,10 +8,12 @@
 //   4. Orphan Image (guest FK missing) — should be impossible with FK, defensive
 //   5. Orphan AdminSession (admin FK missing)
 //   6. Orphan Message (guest FK missing)
+//   7. Stuck retention: event past expiry by > 1 day but deletedAt still null
 //
 //   Run: npx tsx scripts/audit-drift.ts
 import { PrismaClient } from '@prisma/client';
 import { withAccelerate } from '@prisma/extension-accelerate';
+import { PRICING_TIERS, type PricingTier } from '../lib/pricing-tiers';
 
 const prisma = new PrismaClient().$extends(withAccelerate());
 
@@ -97,6 +99,26 @@ async function main() {
       check: 'Orphan Message (guest FK broken)',
       detail: `count=${orphanMessages[0].c}`,
     });
+  }
+
+  // 7. Stuck retention detection
+  const stuckGracePeriodMs = 24 * 60 * 60 * 1000; // 1 day
+  const nowMs = Date.now();
+  const activeEvents = await prisma.event.findMany({
+    where: { deletedAt: null },
+    select: { slug: true, pricingTier: true, date: true },
+  });
+  for (const e of activeEvents) {
+    const cfg = PRICING_TIERS[e.pricingTier as PricingTier] ?? PRICING_TIERS.free;
+    const expiryMs = e.date.getTime() + cfg.storageDays * 86400000;
+    if (nowMs - expiryMs > stuckGracePeriodMs) {
+      const overdueDays = Math.floor((nowMs - expiryMs) / 86400000);
+      findings.push({
+        severity: 'HIGH',
+        check: 'Stuck retention — cron has not deleted an expired event',
+        detail: `event=${e.slug} tier=${e.pricingTier} overdueDays=${overdueDays}`,
+      });
+    }
   }
 
   // Report

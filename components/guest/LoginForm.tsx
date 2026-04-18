@@ -9,6 +9,7 @@ import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { useTranslation } from "react-i18next"
@@ -25,6 +26,7 @@ const createFormSchema = (t: any) => z.object({
   email: z.string().email({
     message: t("guest.login.errors.invalidEmail"),
   }),
+  marketingConsent: z.boolean().default(false),
 })
 
 export function LoginForm() {
@@ -59,6 +61,7 @@ export function LoginForm() {
       firstName: "",
       lastName: "",
       email: "",
+      marketingConsent: false,
     },
   })
 
@@ -167,6 +170,23 @@ export function LoginForm() {
                     <Input type="email" placeholder={t("guest.login.emailPlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="marketingConsent"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start gap-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel className="text-sm font-normal leading-snug cursor-pointer">
+                    {t("guest.login.marketingConsent")}
+                  </FormLabel>
                 </FormItem>
               )}
             />

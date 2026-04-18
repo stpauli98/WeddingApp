@@ -164,6 +164,7 @@
       "firstNamePlaceholder": "Enter your first name",
       "lastNamePlaceholder": "Enter your last name",
       "emailPlaceholder": "your.email@example.com",
+      "marketingConsent": "I'd like to receive updates and promotions from DodajUspomenu.com",
       "errors": {
         "firstNameMin": "First name must be at least 2 characters.",
         "lastNameMin": "Last name must be at least 2 characters.",

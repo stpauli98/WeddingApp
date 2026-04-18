@@ -65,6 +65,9 @@ model Admin {
   firstName    String
   lastName     String
   language     String         @default("sr")
+  /// GDPR opt-in for product/marketing emails. Default false — opt-in UI
+  /// can be added in admin settings later. Cron only harvests when true.
+  marketingConsent Boolean    @default(false)
   createdAt    DateTime       @default(now())
   sessions     AdminSession[]
   event        Event?         @relation("AdminEvent")
@@ -90,19 +93,25 @@ model AdminSession {
 /// Svadbeni event — identifikuje se po slug-u (npr. /guest/login?event=marko-i-ana)
 /// Jedan admin ima tačno jedan event (1:1 relacija preko adminId)
 model Event {
-  id           String      @id @default(uuid())
-  slug         String      @unique
-  coupleName   String
-  location     String
-  date         DateTime
-  guestMessage String?
-  language     String      @default("sr")
-  imageLimit   Int         @default(10)
-  pricingTier  PricingTier @default(free)
-  createdAt    DateTime    @default(now())
-  adminId      String?     @unique
-  admin        Admin?      @relation("AdminEvent", fields: [adminId], references: [id])
-  guests       Guest[]
+  id                    String      @id @default(uuid())
+  slug                  String      @unique
+  coupleName            String
+  location              String
+  date                  DateTime
+  guestMessage          String?
+  language              String      @default("sr")
+  imageLimit            Int         @default(10)
+  pricingTier           PricingTier @default(free)
+  createdAt             DateTime    @default(now())
+  /// Set when the 2-day deletion warning email has been sent (idempotency guard).
+  deletionWarningSentAt DateTime?
+  /// Set when retention-based hard delete of guest data completed. Event row stays.
+  deletedAt             DateTime?
+  adminId               String?     @unique
+  admin                 Admin?      @relation("AdminEvent", fields: [adminId], references: [id])
+  guests                Guest[]
+
+  @@index([deletedAt])
 }
 
 // ──────────────────────────────────────
@@ -112,17 +121,20 @@ model Event {
 /// Gost — registruje se imenom i emailom, auto-verifikovan (bez email kodova)
 /// Isti email može biti gost na više evenata, ali samo jednom po eventu
 model Guest {
-  id             String    @id @default(uuid())
-  email          String
-  firstName      String
-  lastName       String
-  eventId        String
-  sessionToken   String?
-  sessionExpires DateTime?
-  createdAt      DateTime  @default(now())
-  event          Event     @relation(fields: [eventId], references: [id])
-  images         Image[]
-  message        Message?
+  id               String    @id @default(uuid())
+  email            String
+  firstName        String
+  lastName         String
+  eventId          String
+  sessionToken     String?
+  sessionExpires   DateTime?
+  /// GDPR opt-in at registration. When true, email is harvested into
+  /// MarketingContact at retention expiry.
+  marketingConsent Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  event            Event     @relation(fields: [eventId], references: [id])
+  images           Image[]
+  message          Message?
 
   @@unique([email, eventId])
   @@index([eventId])
@@ -149,4 +161,26 @@ model Message {
   text      String
   createdAt DateTime @default(now())
   guest     Guest    @relation(fields: [guestId], references: [id])
+}
+
+// ──────────────────────────────────────
+// Marketing
+// ──────────────────────────────────────
+
+/// Marketing contact — harvested at retention expiry for consented guests / admins.
+/// Separate from operational tables so GDPR unsubscribe + cleanup stay simple.
+model MarketingContact {
+  id             String    @id @default(uuid())
+  email          String
+  /// "guest" (harvested from Guest on event deletion) or "admin" (harvested once per admin)
+  source         String
+  eventSlug      String?
+  coupleName     String?
+  weddingDate    DateTime?
+  consentedAt    DateTime
+  harvestedAt    DateTime  @default(now())
+  unsubscribedAt DateTime?
+
+  @@unique([email, source])
+  @@index([source])
 }

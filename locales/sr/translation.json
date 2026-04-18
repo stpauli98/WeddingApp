@@ -164,6 +164,7 @@
       "firstNamePlaceholder": "Unesite vaše ime",
       "lastNamePlaceholder": "Unesite vaše prezime",
       "emailPlaceholder": "vasa.email@primjer.com",
+      "marketingConsent": "Želim da primam obavijesti i promotivne ponude od DodajUspomenu.com",
       "errors": {
         "firstNameMin": "Ime mora imati najmanje 2 karaktera.",
         "lastNameMin": "Prezime mora imati najmanje 2 karaktera.",
