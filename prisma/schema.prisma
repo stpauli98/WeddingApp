@@ -36,6 +36,9 @@ model PricingPlan {
   recommended  Boolean     @default(false)
   sortOrder    Int         @default(0)
   active       Boolean     @default(true)
+  /// LS variant ID — allowlist for webhook variant_id verification.
+  /// Null for free tier (not purchasable). Sync from env vars via seed.ts.
+  lsVariantId  String?     @unique
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   features     PricingFeature[]
@@ -113,8 +116,67 @@ model Event {
   adminId               String?     @unique
   admin                 Admin?      @relation("AdminEvent", fields: [adminId], references: [id])
   guests                Guest[]
+  payments              Payment[]
+  /// C3: Grandfather flag for events created before payment infrastructure.
+  /// Exempts event from "paid tier without Payment" audit invariant and
+  /// from maxRetentionOverrideDays cap.
+  legacyGrandfathered   Boolean     @default(false)
 
   @@index([deletedAt])
+}
+
+// ──────────────────────────────────────
+// Payments
+// ──────────────────────────────────────
+
+enum PaymentStatus {
+  pending
+  paid
+  refunded
+  partial
+  failed
+}
+
+/// Payment — immutable audit trail of a single transaction. Upgrades produce
+/// new rows. Refunds update the existing row (refundedAmountCents + status).
+model Payment {
+  id                  String        @id @default(uuid())
+  eventId             String
+  tier                PricingTier
+  amountCents         Int
+  currency            String        @default("EUR")
+  status              PaymentStatus
+  lsCheckoutId        String        @unique
+  lsOrderId           String?       @unique
+  lsEventId           String?       @unique
+  refundedAmountCents Int           @default(0)
+  refundedAt          DateTime?
+  customerEmail       String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  event               Event         @relation(fields: [eventId], references: [id], onDelete: Restrict)
+
+  @@index([eventId, status])
+  @@index([createdAt])
+}
+
+/// WebhookLog — forensic trail of every Lemon Squeezy webhook.
+/// signatureValid=false rows are likely attacks or misconfig.
+/// payload is PII-scrubbed via lib/webhook-scrub.ts (customer_name, billing_address removed).
+model WebhookLog {
+  id             String    @id @default(uuid())
+  lsEventId      String?   @unique
+  eventName      String?
+  signatureValid Boolean
+  payload        Json
+  error          String?
+  processedAt    DateTime?
+  sourceIp       String?
+  createdAt      DateTime  @default(now())
+
+  @@index([signatureValid, createdAt])
+  @@index([eventName])
 }
 
 // ──────────────────────────────────────
