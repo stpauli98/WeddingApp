@@ -22,6 +22,7 @@ jest.mock('@/lib/prisma', () => ({
 
 jest.mock('@/lib/email', () => ({
   sendDeletionWarningEmail: jest.fn().mockResolvedValue(undefined),
+  sendGuestDeletionEmail: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('@/lib/cloudinary', () => ({
@@ -31,7 +32,7 @@ jest.mock('@/lib/cloudinary', () => ({
 
 import { GET } from '@/app/api/cron/cleanup/route';
 import { prisma } from '@/lib/prisma';
-import { sendDeletionWarningEmail } from '@/lib/email';
+import { sendDeletionWarningEmail, sendGuestDeletionEmail } from '@/lib/email';
 
 const marketingUpsert = prisma.marketingContact.upsert as jest.MockedFunction<any>;
 const eventFindMany = prisma.event.findMany as jest.MockedFunction<any>;
@@ -39,6 +40,7 @@ const eventUpdate = prisma.event.update as jest.MockedFunction<any>;
 const guestUpdateMany = prisma.guest.updateMany as jest.MockedFunction<any>;
 const adminSessionDeleteMany = prisma.adminSession.deleteMany as jest.MockedFunction<any>;
 const sendWarning = sendDeletionWarningEmail as jest.MockedFunction<any>;
+const sendGuestDelete = sendGuestDeletionEmail as jest.MockedFunction<any>;
 
 function buildReq(): Request {
   return new Request('http://localhost/api/cron/cleanup', {
@@ -226,6 +228,55 @@ describe('cron cleanup — retention invariants', () => {
     await GET(buildReq());
     const whereArg = eventFindMany.mock.calls[0]?.[0]?.where;
     expect(whereArg).toEqual(expect.objectContaining({ deletedAt: null }));
+  });
+
+  it('sends deletion notification email to each guest on hard delete', async () => {
+    eventFindMany.mockResolvedValue([
+      {
+        id: 'e1',
+        slug: 'multi-guest',
+        coupleName: 'A & B',
+        date: EXPIRED_FREE_EVENT_DATE,
+        pricingTier: 'free',
+        deletionWarningSentAt: null,
+        admin: {
+          email: 'a@x.com',
+          language: 'sr',
+          createdAt: new Date(),
+          marketingConsent: false,
+        },
+        guests: [
+          {
+            id: 'g1',
+            email: 'g1@x.com',
+            marketingConsent: true,
+            createdAt: new Date(),
+            images: [],
+            message: null,
+          },
+          {
+            id: 'g2',
+            email: 'g2@x.com',
+            marketingConsent: false,
+            createdAt: new Date(),
+            images: [],
+            message: null,
+          },
+        ],
+      },
+    ]);
+
+    await GET(buildReq());
+
+    expect(sendGuestDelete).toHaveBeenCalledTimes(2);
+    const callEmails = sendGuestDelete.mock.calls.map((c: any) => c[0].to);
+    expect(callEmails).toEqual(expect.arrayContaining(['g1@x.com', 'g2@x.com']));
+    // consented flag passed through correctly
+    const consentMap = Object.fromEntries(
+      sendGuestDelete.mock.calls.map((c: any) => [c[0].to, c[0].consented])
+    );
+    expect(consentMap['g1@x.com']).toBe(true);
+    expect(consentMap['g2@x.com']).toBe(false);
   });
 
   it('chunks Cloudinary delete into batches of 100', async () => {

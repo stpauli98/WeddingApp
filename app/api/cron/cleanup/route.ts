@@ -10,7 +10,7 @@ import { NextResponse } from 'next/server';
 import { timingSafeEqual } from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { PRICING_TIERS, type PricingTier } from '@/lib/pricing-tiers';
-import { sendDeletionWarningEmail } from '@/lib/email';
+import { sendDeletionWarningEmail, sendGuestDeletionEmail } from '@/lib/email';
 import cloudinary from '@/lib/cloudinary';
 
 const GUEST_SESSION_GRACE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days after expiry
@@ -183,7 +183,7 @@ async function executeHardDelete(event: {
   coupleName: string;
   date: Date;
   admin:
-    | { email: string; createdAt: Date; marketingConsent: boolean }
+    | { email: string; createdAt: Date; marketingConsent: boolean; language: string }
     | null;
   guests: {
     id: string;
@@ -248,6 +248,13 @@ async function executeHardDelete(event: {
     })
   );
 
+  // Capture guest contact info BEFORE the transaction, because the rows are
+  // about to disappear and we still owe them a courtesy email.
+  const guestNotifications = event.guests.map((g) => ({
+    email: g.email,
+    consented: g.marketingConsent,
+  }));
+
   await prisma.$transaction(ops);
 
   // b) Best-effort Cloudinary cleanup AFTER DB commit.
@@ -255,6 +262,21 @@ async function executeHardDelete(event: {
   // Never blocks retention semantics — DB is the source of truth for user-visible state.
   if (storagePaths.length) {
     await deleteCloudinaryInChunks(storagePaths, event.slug);
+  }
+
+  // c) Fire-and-forget courtesy emails to each guest. GDPR transparency.
+  const lang: 'sr' | 'en' = event.admin?.language === 'en' ? 'en' : 'sr';
+  for (const n of guestNotifications) {
+    try {
+      await sendGuestDeletionEmail({
+        to: n.email,
+        language: lang,
+        coupleName: event.coupleName,
+        consented: n.consented,
+      });
+    } catch (err) {
+      console.error(`Guest deletion email to ${n.email} failed:`, err);
+    }
   }
 }
 

@@ -168,6 +168,61 @@ export async function sendDeletionWarningEmail(params: DeletionWarningParams): P
   });
 }
 
+interface GuestDeletionParams {
+  to: string;
+  language?: Lang;
+  coupleName: string;
+  consented: boolean;
+}
+
+export async function sendGuestDeletionEmail(params: GuestDeletionParams): Promise<void> {
+  const lang: Lang = params.language === 'en' ? 'en' : 'sr';
+  const couple = escape(params.coupleName);
+
+  const subject =
+    lang === 'en'
+      ? `Your photos from ${params.coupleName}'s wedding have been deleted`
+      : `Tvoje slike sa svadbe ${params.coupleName} su obrisane`;
+
+  const footer =
+    params.consented
+      ? lang === 'en'
+        ? "Your email is kept so we can let you know about future weddings you're invited to. Reply UNSUBSCRIBE to opt out."
+        : 'Tvoj email je sačuvan da te obavijestimo o budućim svadbama. Odjavi se odgovorom UNSUBSCRIBE.'
+      : lang === 'en'
+        ? 'Your data has been fully removed — no further emails will be sent.'
+        : 'Svi tvoji podaci su uklonjeni — nećeš više dobijati poruke.';
+
+  const text =
+    lang === 'en'
+      ? `Hi,\n\nPer the storage plan of ${params.coupleName}'s wedding, the photos and message you uploaded have been deleted.\n\n${footer}\n\n— DodajUspomenu team`
+      : `Zdravo,\n\nPo planu čuvanja podataka za svadbu ${params.coupleName}, tvoje slike i poruka su obrisane.\n\n${footer}\n\n— DodajUspomenu tim`;
+
+  const heading =
+    lang === 'en' ? 'Your wedding photos have been deleted' : 'Tvoje slike su obrisane';
+  const intro =
+    lang === 'en'
+      ? `Per the storage plan of <strong>${couple}</strong>'s wedding, the photos and message you uploaded have been deleted.`
+      : `Po planu čuvanja podataka za svadbu <strong>${couple}</strong>, tvoje slike i poruka su obrisane.`;
+
+  const html = `<!doctype html>
+<html><body style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#faf7f2;margin:0;padding:24px;color:#2a2a2a">
+  <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;padding:32px;border:1px solid #e8e2d6">
+    <h1 style="font-size:20px;margin:0 0 12px">${escape(heading)}</h1>
+    <p style="line-height:1.5;margin:0 0 16px">${intro}</p>
+    <p style="font-size:13px;color:#7a7a7a;margin:0">${escape(footer)}</p>
+  </div>
+</body></html>`;
+
+  await getTransporter().sendMail({
+    from: process.env.ADMIN_EMAIL,
+    to: params.to,
+    subject,
+    html,
+    text,
+  });
+}
+
 // Legacy stub kept for compatibility with any external callers. Does nothing.
 export async function sendVerificationEmail(_email: string, _code: string): Promise<void> {
   return Promise.resolve();
