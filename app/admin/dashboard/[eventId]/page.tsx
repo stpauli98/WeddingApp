@@ -26,7 +26,8 @@ export default async function AdminDashboardEventPage({ params }: {
       adminId: true,
       language: true,
       pricingTier: true,
-      imageLimit: true
+      imageLimit: true,
+      retentionOverrideDays: true,
     }
   });
   if (!event || event.adminId !== admin.id) return notFound();

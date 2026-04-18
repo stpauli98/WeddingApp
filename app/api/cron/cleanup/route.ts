@@ -27,9 +27,10 @@ globalThis.__cronCleanupAttempts = cronAttempts;
 const CRON_MAX = 6;
 const CRON_WINDOW_MS = 60 * 60 * 1000;
 
-function computeExpiry(eventDate: Date, tier: string): Date {
+function computeExpiry(eventDate: Date, tier: string, overrideDays = 0): Date {
   const cfg = PRICING_TIERS[tier as PricingTier] ?? PRICING_TIERS.free;
-  return new Date(eventDate.getTime() + cfg.storageDays * 24 * 60 * 60 * 1000);
+  const totalDays = cfg.storageDays + Math.max(0, overrideDays);
+  return new Date(eventDate.getTime() + totalDays * 24 * 60 * 60 * 1000);
 }
 
 function dashboardUrl(eventId: string, lang: string): string {
@@ -118,7 +119,7 @@ export async function GET(request: Request) {
     });
 
     for (const e of candidates) {
-      const expiresAt = computeExpiry(e.date, e.pricingTier);
+      const expiresAt = computeExpiry(e.date, e.pricingTier, e.retentionOverrideDays);
 
       // 3a. Hard delete: expiry reached.
       if (now >= expiresAt) {

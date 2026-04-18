@@ -8,13 +8,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import AdminGalleryAllImages from "@/components/admin/AdminGalleryAllImages";
 import AdminAllMessages from "@/components/admin/AdminAllMessages";
 import AdminHelpContact from "@/components/admin/AdminHelpContact";
+import { ExtendRetentionButton } from "@/components/admin/ExtendRetentionButton";
 import QrTemplateSelector from "@/components/admin/qr-template/QrTemplateSelector";
 import { useTranslation } from "react-i18next";
 import { getCurrentLanguageFromPath } from "@/lib/utils/language";
 
 interface AdminDashboardTabsProps {
   guests: any[];
-  event: { coupleName: string; slug?: string; language?: string } | null;
+  event: { coupleName: string; slug?: string; language?: string; retentionOverrideDays?: number } | null;
 }
 
 const TAB_KEYS = ["guests", "analytics", "gallery", "messages", "download", "help"];
@@ -240,7 +241,9 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
         </div>
       </TabsContent>
       <TabsContent value="help">
-        <div className="rounded-lg border border-[hsl(var(--lp-accent))]/20 p-6 bg-white/70">
+        <div className="rounded-lg border border-[hsl(var(--lp-accent))]/20 p-6 bg-white/70 space-y-6">
+          <ExtendRetentionButton currentOverrideDays={event?.retentionOverrideDays ?? 0} />
+          <hr className="border-[hsl(var(--lp-accent))]/20" />
           <AdminHelpContact />
         </div>
       </TabsContent>

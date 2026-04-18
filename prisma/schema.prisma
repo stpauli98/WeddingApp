@@ -102,6 +102,9 @@ model Event {
   language              String      @default("sr")
   imageLimit            Int         @default(10)
   pricingTier           PricingTier @default(free)
+  /// Additional days admin granted beyond tier's storageDays (0..365).
+  /// Used by retention cron when computing expiry.
+  retentionOverrideDays Int         @default(0)
   createdAt             DateTime    @default(now())
   /// Set when the 2-day deletion warning email has been sent (idempotency guard).
   deletionWarningSentAt DateTime?
