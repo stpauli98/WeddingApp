@@ -121,6 +121,75 @@ async function main() {
     }
   }
 
+  // 8. Event on paid tier without Payment row (grandfather exempt)
+  const paidEvents = await prisma.event.findMany({
+    where: {
+      pricingTier: { not: 'free' },
+      legacyGrandfathered: false,
+      deletedAt: null,
+    },
+    select: { id: true, slug: true, pricingTier: true },
+  });
+  if (paidEvents.length > 0) {
+    const paymentCounts = await prisma.payment.groupBy({
+      by: ['eventId'],
+      where: {
+        eventId: { in: paidEvents.map((e) => e.id) },
+        status: { in: ['paid', 'partial'] },
+      },
+      _count: true,
+    });
+    const hasPayment = new Set(paymentCounts.map((p) => p.eventId));
+    for (const e of paidEvents) {
+      if (!hasPayment.has(e.id)) {
+        findings.push({
+          severity: 'CRITICAL',
+          check: 'Event on paid tier without successful Payment',
+          detail: `event=${e.slug} tier=${e.pricingTier}`,
+        });
+      }
+    }
+  }
+
+  // 9. Stuck pending payments > 2h
+  const stuckCutoff = new Date(Date.now() - 2 * 60 * 60 * 1000);
+  const stuckCount = await prisma.payment.count({
+    where: { status: 'pending', createdAt: { lt: stuckCutoff } },
+  });
+  if (stuckCount > 0) {
+    findings.push({
+      severity: 'MEDIUM',
+      check: 'Stuck pending payments > 2h',
+      detail: `count=${stuckCount}`,
+    });
+  }
+
+  // 10. WebhookLog signature-fail spike > 10/24h (possible attack)
+  const last24h = new Date(Date.now() - 86400000);
+  const invalidWebhookCount = await prisma.webhookLog.count({
+    where: { signatureValid: false, createdAt: { gt: last24h } },
+  });
+  if (invalidWebhookCount > 10) {
+    findings.push({
+      severity: 'HIGH',
+      check: 'Webhook signature failures > 10 in 24h (possible attack)',
+      detail: `count=${invalidWebhookCount}`,
+    });
+  }
+
+  // 11. Event.pricingTier cache drift vs derivedEffectiveTier (H1 enforcement)
+  const { getEffectiveTier } = await import('../lib/entitlement');
+  for (const e of paidEvents) {
+    const derived = await getEffectiveTier(e.id);
+    if (derived !== e.pricingTier) {
+      findings.push({
+        severity: 'HIGH',
+        check: 'Event.pricingTier cache drift from derivedEffectiveTier',
+        detail: `event=${e.slug} stored=${e.pricingTier} derived=${derived}`,
+      });
+    }
+  }
+
   // Report
   if (findings.length === 0) {
     console.log(
