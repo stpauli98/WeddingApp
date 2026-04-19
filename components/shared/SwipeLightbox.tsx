@@ -84,8 +84,20 @@ export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLi
     [onClose]
   );
 
-  if (images.length === 0) return null;
-  const current = images[Math.min(index, images.length - 1)];
+  const current = images.length > 0 ? images[Math.min(index, images.length - 1)] : null;
+
+  const handleDeleteClick = useCallback(async () => {
+    if (!onDelete || !current) return;
+    if (!window.confirm("Obrisati ovu sliku?")) return;
+    try {
+      await onDelete(current.id);
+    } catch (err) {
+      // Parent controls error UX; we just swallow here so the lightbox stays usable.
+      console.error("[SwipeLightbox] delete failed", err);
+    }
+  }, [onDelete, current]);
+
+  if (images.length === 0 || !current) return null;
 
   return (
     <div
@@ -128,7 +140,7 @@ export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLi
           variant="destructive"
           size="icon"
           className="absolute top-4 left-4 z-10 bg-white/90 hover:bg-white text-black"
-          onClick={() => onDelete(current.id)}
+          onClick={handleDeleteClick}
           aria-label="Delete"
         >
           <Trash className="h-5 w-5" />

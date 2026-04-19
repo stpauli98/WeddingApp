@@ -44,4 +44,27 @@ describe("SwipeLightbox", () => {
     render(<SwipeLightbox images={IMAGES} startIndex={0} onClose={() => {}} />);
     expect(screen.queryByLabelText("Delete")).not.toBeInTheDocument();
   });
+
+  it("calls onDelete with current image id after confirm", async () => {
+    const onDelete = jest.fn().mockResolvedValue(undefined);
+    window.confirm = jest.fn(() => true);
+    render(
+      <SwipeLightbox images={IMAGES} startIndex={1} onClose={() => {}} onDelete={onDelete} />
+    );
+    fireEvent.click(screen.getByLabelText("Delete"));
+    expect(window.confirm).toHaveBeenCalled();
+    // Wait a tick for the async handler.
+    await Promise.resolve();
+    expect(onDelete).toHaveBeenCalledWith("b");
+  });
+
+  it("skips onDelete when confirm is dismissed", () => {
+    const onDelete = jest.fn().mockResolvedValue(undefined);
+    window.confirm = jest.fn(() => false);
+    render(
+      <SwipeLightbox images={IMAGES} startIndex={0} onClose={() => {}} onDelete={onDelete} />
+    );
+    fireEvent.click(screen.getByLabelText("Delete"));
+    expect(onDelete).not.toHaveBeenCalled();
+  });
 });
