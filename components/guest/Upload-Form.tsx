@@ -14,6 +14,7 @@ import { ImageSlotBar } from "@/components/guest/ImageSlotBar"
 import { useTranslation } from "react-i18next"
 import { UploadStatusList } from "./UploadStatusList";
 import { uploadWithCsrfRetry, fetchWithCsrfRetry } from "@/lib/csrf-client";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 
 // Note: formSchema će biti kreiran kao funkcija jer max limit je dinamičan
 
@@ -146,6 +147,10 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedImagesCount, setSelectedImagesCount] = useState(0);
   const [existingImagesCount, setExistingImagesCount] = useState(initialImagesCount || 0);
+
+  // Lock body scroll while the upload progress modal is visible.
+  useLockBodyScroll(showUploadStatus);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { message: message ?? "", images: [] },
