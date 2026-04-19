@@ -7,14 +7,60 @@ import { ClickableTierBadge } from "@/components/admin/ClickableTierBadge";
 import { PricingTier } from "@/lib/pricing-tiers";
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 
-export default async function AdminDashboardEventPage({ params }: {
-  params: Promise<{ eventId: string }>
+export default async function AdminDashboardEventPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ eventId: string }>;
+  searchParams: Promise<{ payment?: string; ck?: string }>;
 }) {
   const { eventId } = await params;
+  const { payment, ck } = await searchParams;
 
   // 1. Provera autentifikacije admina (uklj. provjeru isteka sesije)
   const admin = await getAuthenticatedAdmin();
   if (!admin) return notFound();
+
+  // Payment success redirect handling — wait for webhook before showing dashboard
+  if (payment === 'success' && ck) {
+    const pay = await prisma.payment.findUnique({
+      where: { lsCheckoutId: ck },
+      select: { status: true, eventId: true },
+    });
+    if (pay && pay.eventId === eventId) {
+      if (pay.status === 'pending') {
+        return (
+          <html>
+            <head>
+              <meta httpEquiv="refresh" content="3" />
+              <title>Obrada plaćanja…</title>
+            </head>
+            <body>
+              <main style={{ maxWidth: 520, margin: '48px auto', padding: 24, fontFamily: 'system-ui' }}>
+                <h1>Obrada plaćanja u toku…</h1>
+                <p>Stranica će se automatski osvježiti za 3 sekunde.</p>
+                <p style={{ marginTop: 20 }}>
+                  Ako se ne osvježi, <a href={`/sr/admin/dashboard/${eventId}`}>klikni ovdje</a>.
+                </p>
+              </main>
+            </body>
+          </html>
+        );
+      }
+      if (pay.status === 'failed') {
+        return (
+          <main style={{ maxWidth: 520, margin: '48px auto', padding: 24, fontFamily: 'system-ui' }}>
+            <h1>Plaćanje nije uspjelo</h1>
+            <p>Molimo pokušaj ponovo ili kontaktiraj podršku.</p>
+            <p style={{ marginTop: 20 }}>
+              <a href={`/sr/admin/dashboard/${eventId}`}>Nazad na dashboard</a>
+            </p>
+          </main>
+        );
+      }
+      // status 'paid', 'refunded', 'partial' — continue to normal dashboard
+    }
+  }
 
   // 2. Dohvati event i proveri vlasništvo
   const event = await prisma.event.findUnique({
