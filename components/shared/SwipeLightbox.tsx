@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { X, Trash } from "lucide-react";
+import { X, Trash, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ImageWithSpinner from "@/components/shared/ImageWithSpinner";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 
 export type SwipeLightboxImage = {
@@ -18,6 +17,36 @@ export type SwipeLightboxProps = {
   onClose: () => void;
   onDelete?: (id: string) => Promise<void>;
 };
+
+/**
+ * Render the uploaded image at its natural aspect ratio, constrained to the
+ * viewport. Uses a plain <img> tag because the stored Cloudinary URL already
+ * has upload-time quality/format optimization applied, and CldImage's
+ * transformations + ImageWithSpinner's hardcoded object-cover would crop
+ * portrait photos in the viewer.
+ */
+function LightboxImage({ src }: { src: string }) {
+  const [loading, setLoading] = useState(true);
+  return (
+    <>
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <Loader2 className="w-8 h-8 animate-spin text-white/80" />
+        </div>
+      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt=""
+        draggable={false}
+        onLoad={() => setLoading(false)}
+        onError={() => setLoading(false)}
+        className="max-w-full max-h-full object-contain select-none pointer-events-none"
+        style={{ visibility: loading ? "hidden" : "visible" }}
+      />
+    </>
+  );
+}
 
 export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLightboxProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -112,14 +141,11 @@ export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLi
       <div className="overflow-hidden w-full h-full" ref={emblaRef}>
         <div className="flex w-full h-full">
           {images.map((img) => (
-            <div key={img.id} className="relative shrink-0 grow-0 basis-full flex items-center justify-center p-4">
-              <ImageWithSpinner
-                src={img.imageUrl}
-                width={1600}
-                height={1200}
-                alt=""
-                className="max-w-full max-h-full object-contain pointer-events-none"
-              />
+            <div
+              key={img.id}
+              className="relative shrink-0 grow-0 basis-full flex items-center justify-center p-4"
+            >
+              <LightboxImage src={img.imageUrl} />
             </div>
           ))}
         </div>
