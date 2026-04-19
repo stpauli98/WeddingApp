@@ -16,8 +16,12 @@ declare global {
 }
 const uploadAttempts: Map<string, number[]> = globalThis.__guestUploadAttempts || new Map();
 globalThis.__guestUploadAttempts = uploadAttempts;
-const UPLOAD_MAX = 20;
+// Each image is its own POST, so the cap has to accommodate batch uploads +
+// retries. Premium tier allows 50 images → 50 POSTs in a batch, plus some
+// room for individual retries on transient failures. 100/5min fits.
+const UPLOAD_MAX = 100;
 const UPLOAD_WINDOW_MS = 5 * 60 * 1000;
+const UPLOAD_RATE_LIMIT_ENABLED = process.env.NODE_ENV !== 'development';
 
 // Hard ceiling on request body: 10 MB per image × max 50 (premium tier) + 2 MB
 // margin for form overhead. Finer per-image checks still run below.
@@ -139,17 +143,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Zahtjev je prevelik." }, { status: 413 });
   }
 
-  // Per-IP rate limit
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-  const now = Date.now();
-  const recent = (uploadAttempts.get(ip) || []).filter((ts) => now - ts < UPLOAD_WINDOW_MS);
-  if (recent.length >= UPLOAD_MAX) {
-    return NextResponse.json(
-      { error: "Previše upload zahtjeva. Pokušajte ponovo za nekoliko minuta." },
-      { status: 429 }
-    );
+  // Per-IP rate limit. Disabled in development so heavy local testing
+  // doesn't hit the cap; the in-memory state wouldn't survive a server
+  // restart there anyway, so a bypass is equivalent.
+  if (UPLOAD_RATE_LIMIT_ENABLED) {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const now = Date.now();
+    const recent = (uploadAttempts.get(ip) || []).filter((ts) => now - ts < UPLOAD_WINDOW_MS);
+    if (recent.length >= UPLOAD_MAX) {
+      return NextResponse.json(
+        { error: "Previše upload zahtjeva. Pokušajte ponovo za nekoliko minuta." },
+        { status: 429 }
+      );
+    }
+    uploadAttempts.set(ip, [...recent, now]);
   }
-  uploadAttempts.set(ip, [...recent, now]);
 
   // Auth
   const guestSession = await getAuthenticatedGuest();
