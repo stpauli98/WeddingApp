@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next"
 import { UploadStatusList } from "./UploadStatusList";
 import { uploadWithCsrfRetry, fetchWithCsrfRetry } from "@/lib/csrf-client";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
+import { ModalPortal } from "@/components/shared/ModalPortal";
 
 // Note: formSchema će biti kreiran kao funkcija jer max limit je dinamičan
 
@@ -368,8 +369,11 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
       )}
       
       {showUploadStatus && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4 md:p-6 overflow-y-auto"
+        <ModalPortal>
+        <div
+          className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4 md:p-6 overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
           aria-live="assertive"
           aria-label="Status uploada slika"
         >
@@ -399,7 +403,7 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
             </div>
             
             {/* Lista slika sa statusima */}
-            <UploadStatusList 
+            <UploadStatusList
               uploadStatuses={uploadStatuses}
               isLoading={isLoading}
               onRetryUpload={retryUpload}
@@ -408,6 +412,7 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
             />
           </div>
         </div>
+        </ModalPortal>
       )}
       <CardHeader>
         <CardTitle>{t('guest.uploadForm.addImages', 'Dodaj slike')}</CardTitle>

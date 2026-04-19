@@ -5,6 +5,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { X, Trash, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
+import { ModalPortal } from "@/components/shared/ModalPortal";
 
 export type SwipeLightboxImage = {
   id: string;
@@ -129,8 +130,9 @@ export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLi
   if (images.length === 0 || !current) return null;
 
   return (
+    <ModalPortal>
     <div
-      className="fixed inset-0 z-50 bg-black/95"
+      className="fixed inset-0 z-[100] bg-black/95"
       role="dialog"
       aria-modal="true"
       onClick={handleBackdropClick}
@@ -177,5 +179,6 @@ export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLi
         {index + 1} / {images.length}
       </div>
     </div>
+    </ModalPortal>
   );
 }
