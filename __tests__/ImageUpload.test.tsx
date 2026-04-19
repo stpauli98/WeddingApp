@@ -58,7 +58,7 @@ describe('ImageUpload', () => {
     expect(onChange).toHaveBeenCalledWith([file]);
   });
 
-  it('odbacuje HEIC/HEIF slike i prikazuje alert', async () => {
+  it('prihvata HEIC slike (iPhone default)', async () => {
     window.alert = jest.fn();
     const file = createFile('test.heic', 'image/heic', 1024);
     render(<ImageUpload value={[]} onChange={onChange} maxFiles={3} />);
@@ -66,8 +66,21 @@ describe('ImageUpload', () => {
     await waitFor(() => {
       fireEvent.change(input, { target: { files: [file] } });
     });
-    expect(window.alert).toHaveBeenCalledWith(expect.stringMatching(/HEIC\/HEIF slike nisu podržane/));
-    expect(onChange).toHaveBeenCalledWith([]);
+    expect(window.alert).not.toHaveBeenCalled();
+    expect(onChange).toHaveBeenCalledWith([file]);
+  });
+
+  it('prihvata HEIF sa praznim MIME-om kad se extension poklapa', async () => {
+    window.alert = jest.fn();
+    // iOS Safari sometimes drops the MIME type on drag-and-drop HEIC files.
+    const file = createFile('image.heif', '', 1024);
+    render(<ImageUpload value={[]} onChange={onChange} maxFiles={3} />);
+    const input = screen.getByTestId('file-input');
+    await waitFor(() => {
+      fireEvent.change(input, { target: { files: [file] } });
+    });
+    expect(window.alert).not.toHaveBeenCalled();
+    expect(onChange).toHaveBeenCalledWith([file]);
   });
 
   it('odbacuje prevelike slike', async () => {

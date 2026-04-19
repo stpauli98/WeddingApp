@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ImageSlotBar } from "@/components/guest/ImageSlotBar"
 import { useTranslation } from "react-i18next"
 import { UploadStatusList } from "./UploadStatusList";
+import { uploadWithCsrfRetry, fetchWithCsrfRetry } from "@/lib/csrf-client";
 
 // Note: formSchema će biti kreiran kao funkcija jer max limit je dinamičan
 
@@ -50,172 +51,94 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
       i18n.changeLanguage(language);
     }
   }, [language, i18n]);
-  // Funkcija za ponovno pokušavanje uploada neuspjelih slika
-  async function retryFailedUploads() {
-    // Filtriraj samo slike koje su označene kao retryable
-    const failedUploads = uploadStatuses.filter(status => status.status === 'error' && status.retryable);
-    
-    if (failedUploads.length === 0) return;
-    
-    setIsLoading(true);
-    
-    let retrySuccessCount = 0;
-    
-    for (const failedStatus of failedUploads) {
-      try {
-        // Pronađi indeks u trenutnom nizu statusa
-        const statusIndex = uploadStatuses.findIndex(s => s.id === failedStatus.id);
-        if (statusIndex === -1) continue;
-        
-        // Ažuriraj status da je slika u procesu ponovnog uploada
-        setUploadStatuses(prev => prev.map((status) => 
-          status.id === failedStatus.id ? { ...status, status: 'uploading', progress: 10, retryable: false } : status
-        ));
-        
-        // Resize slike
-        const resizedImg = await resizeImage(failedStatus.file);
-        
-        // Ažuriraj progress nakon resize-a
-        setUploadStatuses(prev => prev.map((status) => 
-          status.id === failedStatus.id ? { ...status, progress: 30 } : status
-        ));
-        
-        // Kreiraj formData za pojedinačnu sliku
-        const imageFormData = new FormData();
-        imageFormData.append("images", resizedImg);
-        
-        // Ažuriraj progress prije uploada
-        setUploadStatuses(prev => prev.map((status) => 
-          status.id === failedStatus.id ? { ...status, progress: 50 } : status
-        ));
-        
-        // Upload slike
-        const response = await fetch(`/api/guest/upload?guestId=${guestId}`, {
-          method: "POST",
-          body: imageFormData,
-          headers: {
-            "x-csrf-token": csrfToken || "",
-          },
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(data.error || "Došlo je do greške");
-        }
-        
-        // Ažuriraj status da je slika uspješno uploadovana
-        setUploadStatuses(prev => prev.map((status) => 
-          status.id === failedStatus.id ? { ...status, status: 'success', progress: 100 } : status
-        ));
-        
-        retrySuccessCount++;
-      } catch (error) {
-        // Ažuriraj status da je došlo do greške pri ponovnom uploadu slike
-        setUploadStatuses(prev => prev.map((status) => 
-          status.id === failedStatus.id ? { 
-            ...status, 
-            status: 'error', 
-            error: error instanceof Error ? error.message : "Greška pri ponovnom uploadu",
-            retryable: true // I dalje je retryable
-          } : status
-        ));
+  // Upload helper: pokreće resize → POST sa real progress-om → ažurira status.
+  // Dijeli se između batch submit-a i retry-ja jedne slike.
+  async function uploadSingleImage(statusId: string, file: File): Promise<boolean> {
+    const setProgress = (pct: number) =>
+      setUploadStatuses((prev) =>
+        prev.map((s) => (s.id === statusId ? { ...s, status: "uploading", progress: pct, retryable: false } : s))
+      );
+
+    try {
+      setProgress(0);
+      const resized = await resizeImage(file);
+      const formData = new FormData();
+      formData.append("images", resized);
+
+      const response = await uploadWithCsrfRetry("/api/guest/upload", formData, {
+        csrfEndpoint: "/api/guest/upload",
+        onProgress: setProgress,
+      });
+
+      const data = await response.json().catch(() => ({ error: "Neispravan odgovor servera" }));
+      if (!response.ok) {
+        throw new Error(data.error || "Došlo je do greške");
       }
+
+      setUploadStatuses((prev) =>
+        prev.map((s) => (s.id === statusId ? { ...s, status: "success", progress: 100 } : s))
+      );
+      return true;
+    } catch (error) {
+      setUploadStatuses((prev) =>
+        prev.map((s) =>
+          s.id === statusId
+            ? {
+                ...s,
+                status: "error",
+                error: error instanceof Error ? error.message : "Greška pri uploadu",
+                retryable: true,
+              }
+            : s
+        )
+      );
+      return false;
     }
-    
-    // Provjeri da li su sve slike uspješno uploadovane
-    const allSuccess = uploadStatuses.every(status => status.status === 'success');
-    
-    if (allSuccess) {
+  }
+
+  async function retryFailedUploads() {
+    const failed = uploadStatuses.filter((s) => s.status === "error" && s.retryable);
+    if (failed.length === 0) return;
+    setIsLoading(true);
+    for (const s of failed) {
+      await uploadSingleImage(s.id, s.file);
+    }
+    const refreshed = await new Promise<ImageUploadStatus[]>((resolve) => {
+      setUploadStatuses((prev) => {
+        resolve(prev);
+        return prev;
+      });
+    });
+    if (refreshed.every((s) => s.status === "success")) {
       setTimeout(() => {
-        const langPrefix = language === 'en' ? '/en' : '/sr';
+        const langPrefix = language === "en" ? "/en" : "/sr";
         window.location.href = `${langPrefix}/guest/success`;
       }, 1500);
     } else {
       setIsLoading(false);
     }
   }
-  
-  // Funkcija za ponovni pokušaj uploada jedne slike
+
   async function retryUpload(statusId: string) {
-    const statusIndex = uploadStatuses.findIndex(s => s.id === statusId);
-    if (statusIndex === -1) return;
-    
-    const failedStatus = uploadStatuses[statusIndex];
-    
+    const failed = uploadStatuses.find((s) => s.id === statusId);
+    if (!failed) return;
     setIsLoading(true);
-    
-    try {
-      // Ažuriraj status da je slika u procesu ponovnog uploada
-      setUploadStatuses(prev => prev.map((status) => 
-        status.id === statusId ? { ...status, status: 'uploading', progress: 10, retryable: false } : status
-      ));
-      
-      // Resize slike
-      const resizedImg = await resizeImage(failedStatus.file);
-      
-      // Ažuriraj progress nakon resize-a
-      setUploadStatuses(prev => prev.map((status) => 
-        status.id === statusId ? { ...status, progress: 30 } : status
-      ));
-      
-      // Kreiraj formData za pojedinačnu sliku
-      const imageFormData = new FormData();
-      imageFormData.append("images", resizedImg);
-      
-      // Ažuriraj progress prije uploada
-      setUploadStatuses(prev => prev.map((status) => 
-        status.id === statusId ? { ...status, progress: 50 } : status
-      ));
-      
-      // Upload slike
-      const response = await fetch(`/api/guest/upload?guestId=${guestId}`, {
-        method: "POST",
-        body: imageFormData,
-        headers: {
-          "x-csrf-token": csrfToken || "",
-        },
+    await uploadSingleImage(statusId, failed.file);
+    const refreshed = await new Promise<ImageUploadStatus[]>((resolve) => {
+      setUploadStatuses((prev) => {
+        resolve(prev);
+        return prev;
       });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || "Došlo je do greške");
-      }
-      
-      // Ažuriraj status da je slika uspješno uploadovana
-      setUploadStatuses(prev => prev.map((status) => 
-        status.id === statusId ? { ...status, status: 'success', progress: 100 } : status
-      ));
-      
-      // Provjeri da li su sve slike uspješno uploadovane
-      const allSuccess = uploadStatuses.every(status => 
-        status.status === 'success' || status.id === statusId
-      );
-      
-      if (allSuccess) {
-        setTimeout(() => {
-          const langPrefix = language === 'en' ? '/en' : '/sr';
-          window.location.href = `${langPrefix}/guest/success`;
-        }, 1500);
-      } else {
-        setIsLoading(false);
-      }
-    } catch (error) {
-      // Ažuriraj status da je došlo do greške pri ponovnom uploadu slike
-      setUploadStatuses(prev => prev.map((status) => 
-        status.id === statusId ? { 
-          ...status, 
-          status: 'error', 
-          error: error instanceof Error ? error.message : "Greška pri ponovnom uploadu",
-          retryable: true // I dalje je retryable
-        } : status
-      ));
-      
+    });
+    if (refreshed.every((s) => s.status === "success")) {
+      setTimeout(() => {
+        const langPrefix = language === "en" ? "/en" : "/sr";
+        window.location.href = `${langPrefix}/guest/success`;
+      }, 1500);
+    } else {
       setIsLoading(false);
     }
   }
-  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false)
   const [uploadStatuses, setUploadStatuses] = useState<ImageUploadStatus[]>([])
   const [showUploadStatus, setShowUploadStatus] = useState(false)
@@ -228,22 +151,15 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
     defaultValues: { message: message ?? "", images: [] },
   })
 
-  // Povuci CSRF token i broj postojećih slika na mount
+  // csrf-client helpers fetch their own token per request, so no need to
+  // prefetch here. Count is fetched lazily only if not provided by parent.
   React.useEffect(() => {
-    // Dohvati CSRF token
-    fetch("/api/guest/upload")
-      .then(res => res.json())
-      .then(data => setCsrfToken(data.csrfToken))
-      .catch(() => setCsrfToken(null)); // Token je sada csrf_token_guest_upload u kolačiću
-    
-    // Dohvati broj postojećih slika samo ako nije proslijeđen kroz props
     if (guestId && initialImagesCount === undefined) {
       fetch(`/api/guest/images/count?guestId=${guestId}`)
         .then(res => res.json())
         .then(data => {
           if (data.count !== undefined) {
             setExistingImagesCount(data.count);
-            console.log(`Broj postojećih slika: ${data.count}`);
           }
         })
         .catch(err => console.error("Greška pri dohvatanju broja slika:", err));
@@ -385,84 +301,26 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
       if (values.message) {
         const messageFormData = new FormData();
         messageFormData.append("message", values.message);
-        
-        const messageResponse = await fetch(`/api/guest/upload?guestId=${guestId}`, {
+
+        const messageResponse = await fetchWithCsrfRetry("/api/guest/upload", {
           method: "POST",
           body: messageFormData,
-          headers: {
-            "x-csrf-token": csrfToken || "",
-          },
+          csrfEndpoint: "/api/guest/upload",
         });
-        
+
         if (!messageResponse.ok) {
-          const data = await messageResponse.json();
+          const data = await messageResponse.json().catch(() => ({}));
           throw new Error(data.error || "Došlo je do greške prilikom slanja poruke");
         }
       }
 
-      // Paralelno uploaduj sve slike
-      const uploadPromises = values.images.map(async (img, i) => {
-        try {
-          // Ažuriraj status da je slika u procesu uploada
-          setUploadStatuses(prev => prev.map((status, idx) =>
-            idx === i ? { ...status, status: 'uploading', progress: 10 } : status
-          ));
+      // Paralelno uploaduj sve slike sa stvarnim progress-om
+      const uploadPromises = initialStatuses.map((status, i) =>
+        uploadSingleImage(status.id, values.images![i])
+      );
 
-          // Resize slike
-          const resizedImg = await resizeImage(img);
-
-          // Ažuriraj progress nakon resize-a
-          setUploadStatuses(prev => prev.map((status, idx) =>
-            idx === i ? { ...status, progress: 30 } : status
-          ));
-
-          // Kreiraj formData za pojedinačnu sliku
-          const imageFormData = new FormData();
-          imageFormData.append("images", resizedImg);
-
-          // Ažuriraj progress prije uploada
-          setUploadStatuses(prev => prev.map((status, idx) =>
-            idx === i ? { ...status, progress: 50 } : status
-          ));
-
-          // Upload slike
-          const response = await fetch(`/api/guest/upload?guestId=${guestId}`, {
-            method: "POST",
-            body: imageFormData,
-            headers: {
-              "x-csrf-token": csrfToken || "",
-            },
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            const errorMsg = data.error || data.errors?.[0]?.msg || "Došlo je do greške";
-            throw new Error(errorMsg);
-          }
-
-          // Ažuriraj status da je slika uspješno uploadovana
-          setUploadStatuses(prev => prev.map((status, idx) =>
-            idx === i ? { ...status, status: 'success', progress: 100 } : status
-          ));
-
-          return { success: true, index: i };
-        } catch (error) {
-          // Ažuriraj status da je došlo do greške pri uploadu slike
-          setUploadStatuses(prev => prev.map((status, idx) =>
-            idx === i ? {
-              ...status,
-              status: 'error',
-              error: error instanceof Error ? error.message : "Greška pri uploadu",
-              retryable: true // Označavamo da se ovaj upload može ponovno pokušati
-            } : status
-          ));
-          return { success: false, index: i };
-        }
-      });
-
-      const results = await Promise.allSettled(uploadPromises);
-      const uploadedCount = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+      const results = await Promise.all(uploadPromises);
+      const uploadedCount = results.filter(Boolean).length;
       
       // Ako su sve slike uspješno uploadovane, preusmjeri na success stranicu sa jezikom
       if (uploadedCount === values.images.length) {
