@@ -19,12 +19,15 @@ export async function getEffectiveTier(eventId: string): Promise<PricingTier> {
     where: { eventId, status: { in: ['paid', 'partial'] } },
     select: { tier: true, amountCents: true, refundedAmountCents: true },
   });
-  return payments
-    .filter((p) => p.amountCents - p.refundedAmountCents > 0)
-    .reduce<PricingTier>(
-      (max, p) => (TIER_ORDER[p.tier] > TIER_ORDER[max] ? p.tier : max),
-      'free'
-    );
+  const filtered = (
+    payments as Array<{ tier: PricingTier; amountCents: number; refundedAmountCents: number }>
+  ).filter((p) => p.amountCents - p.refundedAmountCents > 0);
+
+  let max: PricingTier = 'free';
+  for (const p of filtered) {
+    if (TIER_ORDER[p.tier] > TIER_ORDER[max]) max = p.tier;
+  }
+  return max;
 }
 
 export async function hasRetentionExtension(eventId: string): Promise<boolean> {

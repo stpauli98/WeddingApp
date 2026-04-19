@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
+import type { PrismaClient } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { verifyWebhookSignature } from '@/lib/lemon-squeezy';
 import { scrubPayload } from '@/lib/webhook-scrub';
 import { getEffectiveTier } from '@/lib/entitlement';
 import { PRICING_TIERS, type PricingTier } from '@/lib/pricing-tiers';
 import { sendTelegramAlert } from '@/lib/telegram';
+
+type TxClient = Parameters<Parameters<PrismaClient['$transaction']>[0]>[0];
 
 export const runtime = 'nodejs';
 
@@ -77,7 +80,11 @@ export async function POST(req: Request) {
     const plans = await prisma.pricingPlan.findMany({
       select: { lsVariantId: true },
     });
-    const allowed = new Set(plans.map((p) => p.lsVariantId).filter(Boolean));
+    const allowed = new Set(
+      (plans as Array<{ lsVariantId: string | null }>)
+        .map((p) => p.lsVariantId)
+        .filter((v): v is string => v !== null)
+    );
     if (!allowed.has(String(variantId))) {
       await sendTelegramAlert(`⚠️ Unknown variant_id in webhook: ${variantId}`);
       await prisma.webhookLog.create({
@@ -151,7 +158,7 @@ async function handleOrderCreated(event: Record<string, unknown>): Promise<void>
   const lsEventId = String(meta.event_id);
 
   await prisma.$transaction(
-    async (tx) => {
+    async (tx: TxClient) => {
       await tx.payment.update({
         where: { lsCheckoutId: checkoutInternalId },
         data: {
@@ -194,7 +201,7 @@ async function handleOrderRefunded(event: Record<string, unknown>): Promise<void
   const lsEventId = String(meta.event_id);
 
   await prisma.$transaction(
-    async (tx) => {
+    async (tx: TxClient) => {
       // H3: upsert handles out-of-order (refund before order_created)
       await tx.payment.upsert({
         where: { lsOrderId: orderId },

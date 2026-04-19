@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
 import AdminDashboardTabs from "@/components/admin/AdminDashboardTabs";
 import AdminDashboardWelcome from "@/components/admin/AdminDashboardWelcome";
-import { EventTierBadge } from "@/components/admin/EventTierBadge";
+import { ClickableTierBadge } from "@/components/admin/ClickableTierBadge";
 import { PricingTier } from "@/lib/pricing-tiers";
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 
@@ -54,13 +54,13 @@ export default async function AdminDashboardEventPage({ params }: {
           </span>
           <AdminDashboardWelcome eventLanguage={event.language} />
 
-          {/* Display current pricing tier */}
+          {/* Display current pricing tier — clickable opens upgrade modal */}
           <div className="mt-4 mb-2">
-            <EventTierBadge
+            <ClickableTierBadge
               tier={event.pricingTier as PricingTier}
               imageLimit={event.imageLimit || 10}
               language={event.language as 'sr' | 'en'}
-              variant="badge"
+              eventId={event.id}
             />
           </div>
 

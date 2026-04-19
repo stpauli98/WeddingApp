@@ -71,7 +71,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Event ne postoji.' }, { status: 404 });
   }
 
-  if (TIER_ORDER[target] <= TIER_ORDER[event.pricingTier]) {
+  if (TIER_ORDER[target] <= TIER_ORDER[event.pricingTier as PricingTier]) {
     return NextResponse.json(
       { error: 'Downgrade ili isti tier nije moguć.' },
       { status: 409 }
@@ -93,8 +93,8 @@ export async function POST(req: Request) {
     where: { eventId: event.id, status: { in: ['paid', 'partial'] } },
     select: { amountCents: true, refundedAmountCents: true },
   });
-  const netPaid = existingPayments.reduce(
-    (sum, p) => sum + (p.amountCents - p.refundedAmountCents),
+  const netPaid: number = (existingPayments as Array<{ amountCents: number; refundedAmountCents: number }>).reduce(
+    (sum: number, p) => sum + (p.amountCents - p.refundedAmountCents),
     0
   );
   const amountDue = plan.price - netPaid;
