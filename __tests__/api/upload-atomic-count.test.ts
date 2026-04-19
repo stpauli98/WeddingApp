@@ -17,6 +17,10 @@ jest.mock('@/lib/prisma', () => ({
       count: jest.fn(),
       create: jest.fn(),
     },
+    guest: {
+      findUnique: jest.fn(),
+      update: jest.fn(),
+    },
     message: {
       upsert: jest.fn(),
     },
@@ -64,6 +68,8 @@ const mocks = {
   transaction: prisma.$transaction as Mocked,
   imageCount: prisma.image.count as Mocked,
   imageCreate: prisma.image.create as Mocked,
+  guestFindUnique: prisma.guest.findUnique as Mocked,
+  guestUpdate: prisma.guest.update as Mocked,
   messageUpsert: prisma.message.upsert as Mocked,
   getGuest: getAuthenticatedGuest as Mocked,
   cloudinaryUploadStream: cloudinary.uploader.upload_stream as Mocked,
@@ -95,6 +101,9 @@ beforeEach(() => {
     event: { imageLimit: 3 },
   });
 
+  mocks.guestFindUnique.mockResolvedValue({ lifetimeUploadCount: 0 });
+  mocks.guestUpdate.mockResolvedValue({ id: 'guest-1' });
+
   // Cloudinary upload stream simulates success with a deterministic public_id.
   let counter = 0;
   mocks.cloudinaryUploadStream.mockImplementation((_opts: any, cb: any) => ({
@@ -111,6 +120,7 @@ beforeEach(() => {
   mocks.transaction.mockImplementation(async (fn: any) =>
     fn({
       image: { count: mocks.imageCount, create: mocks.imageCreate },
+      guest: { findUnique: mocks.guestFindUnique, update: mocks.guestUpdate },
     })
   );
 });

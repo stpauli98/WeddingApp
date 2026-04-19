@@ -134,6 +134,11 @@ model Guest {
   /// GDPR opt-in at registration. When true, email is harvested into
   /// MarketingContact at retention expiry.
   marketingConsent Boolean   @default(false)
+  /// Total images this guest has ever uploaded to this event. Monotonic:
+  /// never decreases, even when images are deleted. Anti-abuse cap:
+  /// lifetime <= event.imageLimit * 2 prevents unlimited upload/delete
+  /// cycles from draining Cloudinary bandwidth.
+  lifetimeUploadCount Int   @default(0)
   createdAt        DateTime  @default(now())
   event            Event     @relation(fields: [eventId], references: [id])
   images           Image[]

@@ -8,25 +8,20 @@ import sharp from 'sharp';
 import cloudinary from '@/lib/cloudinary';
 import type { UploadApiResponse, UploadApiErrorResponse } from "cloudinary";
 
-// Per-IP rate limit for uploads. App Router does not honour the legacy
-// `export const config = { api: { bodyParser: { sizeLimit } } }` — size is
-// enforced below via the Content-Length header.
-declare global {
-  var __guestUploadAttempts: Map<string, number[]> | undefined;
-}
-const uploadAttempts: Map<string, number[]> = globalThis.__guestUploadAttempts || new Map();
-globalThis.__guestUploadAttempts = uploadAttempts;
-// Each image is its own POST, so the cap has to accommodate batch uploads +
-// retries. Premium tier allows 50 images → 50 POSTs in a batch, plus some
-// room for individual retries on transient failures. 100/5min fits.
-const UPLOAD_MAX = 100;
-const UPLOAD_WINDOW_MS = 5 * 60 * 1000;
-const UPLOAD_RATE_LIMIT_ENABLED = process.env.NODE_ENV !== 'development';
+// Per-guest lifetime counter (Guest.lifetimeUploadCount) replaces the
+// former IP rate limit. Upload is an authenticated endpoint — throttling
+// the authenticated subject is both fairer and more effective than
+// bucketing by IP, and it survives the guest moving between Wi-Fi/mobile
+// networks during a single event.
 
 // Hard ceiling on request body: 10 MB per image × max 50 (premium tier) + 2 MB
 // margin for form overhead. Finer per-image checks still run below.
 const MAX_BODY_BYTES = 10 * 1024 * 1024 * 50 + 2 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+
+// Lifetime cap is 2× the tier's active image limit — a guest can re-upload
+// once after a full gallery wipe, but not loop forever.
+const LIFETIME_MULTIPLIER = 2;
 
 // Authoritative MIME allowlist, checked against Sharp's decoded metadata.
 const ALLOWED_FORMATS = new Set(['jpeg', 'png', 'webp', 'gif', 'heic', 'heif']);
@@ -35,6 +30,13 @@ class LimitExceededError extends Error {
   constructor(public existing: number, public attempted: number, public limit: number) {
     super(`Image limit exceeded: have ${existing}, adding ${attempted}, limit ${limit}`);
     this.name = 'LimitExceededError';
+  }
+}
+
+class LifetimeLimitError extends Error {
+  constructor(public lifetimeUsed: number, public attempted: number, public limit: number) {
+    super(`Lifetime upload limit: used ${lifetimeUsed}, adding ${attempted}, limit ${limit}`);
+    this.name = 'LifetimeLimitError';
   }
 }
 
@@ -143,22 +145,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Zahtjev je prevelik." }, { status: 413 });
   }
 
-  // Per-IP rate limit. Disabled in development so heavy local testing
-  // doesn't hit the cap; the in-memory state wouldn't survive a server
-  // restart there anyway, so a bypass is equivalent.
-  if (UPLOAD_RATE_LIMIT_ENABLED) {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    const now = Date.now();
-    const recent = (uploadAttempts.get(ip) || []).filter((ts) => now - ts < UPLOAD_WINDOW_MS);
-    if (recent.length >= UPLOAD_MAX) {
-      return NextResponse.json(
-        { error: "Previše upload zahtjeva. Pokušajte ponovo za nekoliko minuta." },
-        { status: 429 }
-      );
-    }
-    uploadAttempts.set(ip, [...recent, now]);
-  }
-
   // Auth
   const guestSession = await getAuthenticatedGuest();
   if (!guestSession) {
@@ -166,6 +152,7 @@ export async function POST(request: NextRequest) {
   }
   const guestId = guestSession.id;
   const MAX_IMAGES = guestSession.event.imageLimit || 10;
+  const LIFETIME_LIMIT = MAX_IMAGES * LIFETIME_MULTIPLIER;
 
   // Parse form
   const formData = await request.formData();
@@ -211,15 +198,34 @@ export async function POST(request: NextRequest) {
   // concurrent uploads for the same guest, so the limit cannot be exceeded.
   try {
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // Lifetime gate first: once you've burned through 2× the tier, no
+      // amount of deleting will free more slots.
+      const guestRow = await tx.guest.findUnique({
+        where: { id: guestId },
+        select: { lifetimeUploadCount: true },
+      });
+      const lifetimeUsed = guestRow?.lifetimeUploadCount ?? 0;
+      if (lifetimeUsed + processedUploads.length > LIFETIME_LIMIT) {
+        throw new LifetimeLimitError(lifetimeUsed, processedUploads.length, LIFETIME_LIMIT);
+      }
+
+      // Active gallery cap.
       const existing = await tx.image.count({ where: { guestId } });
       if (existing + processedUploads.length > MAX_IMAGES) {
         throw new LimitExceededError(existing, processedUploads.length, MAX_IMAGES);
       }
+
       for (const { imageUrl, publicId } of processedUploads) {
         await tx.image.create({
           data: { guestId, imageUrl, storagePath: publicId },
         });
       }
+
+      // Monotonic increment. Delete never decrements this.
+      await tx.guest.update({
+        where: { id: guestId },
+        data: { lifetimeUploadCount: { increment: processedUploads.length } },
+      });
     });
 
     // Persist message if present (separate from image TX by design — message flow
@@ -245,6 +251,16 @@ export async function POST(request: NextRequest) {
     // Anything that threw inside or around the TX means the images we uploaded
     // to Cloudinary have no matching DB rows. Clean them up.
     await rollbackCloudinary(processedUploads.map((u) => u.publicId));
+
+    if (err instanceof LifetimeLimitError) {
+      return NextResponse.json(
+        {
+          error: `Dosegli ste ukupan limit upload-a za ovaj event (${err.limit} slika). Već ste poslali ${err.lifetimeUsed}, a pokušavate dodati ${err.attempted} više. Brisanje postojećih slika ne vraća ovaj limit.`,
+          failed: failed.map((f) => ({ filename: f.filename, error: f.error })),
+        },
+        { status: 400 }
+      );
+    }
 
     if (err instanceof LimitExceededError) {
       return NextResponse.json(
