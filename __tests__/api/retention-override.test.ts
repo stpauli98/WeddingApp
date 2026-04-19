@@ -9,7 +9,8 @@
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
-    event: { update: jest.fn() },
+    event: { update: jest.fn(), findUnique: jest.fn() },
+    payment: { findMany: jest.fn() },
   },
 }));
 
@@ -44,6 +45,9 @@ beforeEach(() => {
   validateCsrf.mockResolvedValue(true);
   getAdmin.mockResolvedValue({ id: 'a1', event: { id: 'e1', slug: 's' } });
   updateEvent.mockResolvedValue({ retentionOverrideDays: 30 });
+  const { prisma } = require('@/lib/prisma');
+  prisma.event.findUnique.mockResolvedValue({ legacyGrandfathered: true });
+  prisma.payment.findMany.mockResolvedValue([]);
 });
 
 describe('POST /api/admin/events/extend-retention', () => {
