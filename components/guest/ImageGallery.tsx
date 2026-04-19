@@ -1,10 +1,11 @@
 "use client"
 
 import React, { useState, useEffect } from "react";
-import { X, Trash } from "lucide-react"
+import { Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import ImageWithSpinner from "@/components/shared/ImageWithSpinner"
+import { SwipeLightbox } from "@/components/shared/SwipeLightbox";
 import { useTranslation } from "react-i18next"
 
 interface Image {
@@ -34,7 +35,7 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
   const [images, setImages] = useState<Image[]>(initialImages);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
 
   // Funkcija za brisanje slike
@@ -85,11 +86,6 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
           onImagesChange(updatedImages);
         }
         
-        // Zatvori prikaz slike ako je trenutno otvorena slika koja je obrisana
-        if (selectedImage && images.find(img => img.id === imageId)?.imageUrl === selectedImage) {
-          setSelectedImage(null);
-        }
-    
       }
     } catch (e) {
       setError("Greška pri komunikaciji sa serverom.");
@@ -103,14 +99,10 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
 
 
   // Funkcija za otvaranje slike u punom prikazu
-  const openFullView = (imageUrl: string) => {
-    setSelectedImage(imageUrl)
-  }
+  const openFullView = (index: number) => setLightboxIndex(index);
 
   // Funkcija za zatvaranje punog prikaza
-  const closeFullView = () => {
-    setSelectedImage(null)
-  }
+  const closeFullView = () => setLightboxIndex(null);
 
   if (images.length === 0) {
     return (
@@ -144,7 +136,7 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
             )}
             <div 
               className="w-full h-full cursor-pointer"
-              onClick={() => openFullView(image.imageUrl)}
+              onClick={() => openFullView(images.findIndex((img) => img.id === image.id))}
             >
               {image.imageUrl && typeof image.imageUrl === 'string' ? (
                 <ImageWithSpinner
@@ -167,45 +159,19 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
 
       </div>
 
-      {/* Modal za prikaz slike u punoj veličini */}
-      {selectedImage && (
-  <div 
-    className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-    onClick={closeFullView}
-  >
-    <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
-      <div
-        className="mx-auto bg-white/90 border-4 border-[hsl(var(--lp-accent))] rounded-2xl shadow-2xl p-1 flex items-center justify-center relative"
-        style={{ maxWidth: '96vw', maxHeight: '90vh' }}
-      >
-        {selectedImage && typeof selectedImage === 'string' ? (
-          <ImageWithSpinner
-            src={selectedImage}
-            width={1200}
-            height={900}
-            crop="fit"
-            alt="Slika gosta"
-            className="w-full h-full object-contain transition-transform duration-200"
-            style={{ width: '80vw', height: '80vh' }}
-            rounded={true}
-          />
-        ) : (
-          <div className="flex items-center justify-center w-full h-full bg-[hsl(var(--lp-destructive))]/10 text-[hsl(var(--lp-destructive))] text-center text-sm p-4">
-            {t('guest.imageGallery.imageError', 'Greška: Slika nije dostupna ili nije validan URL')}
-          </div>
-        )}
-        <Button
-          variant="destructive"
-          size="icon"
-          className="absolute top-2 right-2 z-10"
-          onClick={closeFullView}
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
-  </div>
-)}
+      {lightboxIndex !== null && (
+        <SwipeLightbox
+          images={images}
+          startIndex={lightboxIndex}
+          onClose={closeFullView}
+          onDelete={readOnly ? undefined : async (id) => {
+            await handleDelete(id);
+            // If only 1 image was left, handleDelete empties images; SwipeLightbox
+            // internally calls onClose when images.length becomes 0.
+            // No additional action needed here.
+          }}
+        />
+      )}
     </>
   )
 }
