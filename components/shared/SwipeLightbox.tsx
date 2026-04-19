@@ -60,6 +60,23 @@ export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLi
     return () => window.removeEventListener("keydown", handler);
   }, [emblaApi, onClose, images.length]);
 
+  const [touchStartY, setTouchStartY] = useState<number | null>(null);
+  const SWIPE_DOWN_THRESHOLD = 80;
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    setTouchStartY(e.touches[0].clientY);
+  }, []);
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (touchStartY === null) return;
+      const delta = e.changedTouches[0].clientY - touchStartY;
+      setTouchStartY(null);
+      if (delta > SWIPE_DOWN_THRESHOLD) onClose();
+    },
+    [touchStartY, onClose]
+  );
+
   const handleBackdropClick = useCallback(
     (e: React.MouseEvent) => {
       if (e.target === e.currentTarget) onClose();
@@ -76,6 +93,8 @@ export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLi
       role="dialog"
       aria-modal="true"
       onClick={handleBackdropClick}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       {/* Embla viewport */}
       <div className="overflow-hidden w-full h-full" ref={emblaRef}>
