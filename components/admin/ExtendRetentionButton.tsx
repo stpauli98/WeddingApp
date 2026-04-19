@@ -4,24 +4,44 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
+type Tier = "free" | "basic" | "premium" | "unlimited";
+
 interface Props {
   currentOverrideDays?: number;
+  tier: Tier;
+  isGrandfathered?: boolean;
 }
 
-const PRESET_DAYS = [7, 30, 90, 180];
+const ALL_PRESETS = [7, 30, 90, 180, 365] as const;
 
-export function ExtendRetentionButton({ currentOverrideDays = 0 }: Props) {
+const TIER_CAPS: Record<Tier, number> = {
+  free: 0,
+  basic: 0,
+  premium: 180,
+  unlimited: 365,
+};
+
+export function ExtendRetentionButton({
+  currentOverrideDays = 0,
+  tier,
+  isGrandfathered = false,
+}: Props) {
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [overrideDays, setOverrideDays] = useState(currentOverrideDays);
   const { toast } = useToast();
 
+  // Grandfather override: allow all presets regardless of tier cap.
+  const maxDays = isGrandfathered ? 365 : TIER_CAPS[tier];
+  const presets = ALL_PRESETS.filter((d) => d <= maxDays);
+
   useEffect(() => {
+    if (maxDays === 0) return; // no need to fetch CSRF if panel is disabled
     fetch("/api/admin/events/extend-retention")
       .then((r) => r.json())
       .then((d) => setCsrfToken(d.csrfToken))
       .catch(() => setCsrfToken(null));
-  }, []);
+  }, [maxDays]);
 
   async function extend(days: number) {
     if (!csrfToken) return;
@@ -56,6 +76,17 @@ export function ExtendRetentionButton({ currentOverrideDays = 0 }: Props) {
     }
   }
 
+  if (maxDays === 0) {
+    return (
+      <div className="space-y-2 opacity-60">
+        <h3 className="font-semibold">Produži trajanje podataka</h3>
+        <p className="text-sm text-muted-foreground">
+          Dostupno od Premium tier-a. Upgrade-uj plan u dashboard badge-u.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       <div>
@@ -68,7 +99,7 @@ export function ExtendRetentionButton({ currentOverrideDays = 0 }: Props) {
         </p>
       </div>
       <div className="flex flex-wrap gap-2">
-        {PRESET_DAYS.map((d) => (
+        {presets.map((d) => (
           <Button
             key={d}
             size="sm"

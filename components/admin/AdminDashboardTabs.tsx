@@ -15,7 +15,14 @@ import { getCurrentLanguageFromPath } from "@/lib/utils/language";
 
 interface AdminDashboardTabsProps {
   guests: any[];
-  event: { coupleName: string; slug?: string; language?: string; retentionOverrideDays?: number } | null;
+  event: {
+    coupleName: string;
+    slug?: string;
+    language?: string;
+    retentionOverrideDays?: number;
+    pricingTier?: "free" | "basic" | "premium" | "unlimited";
+    legacyGrandfathered?: boolean;
+  } | null;
 }
 
 const TAB_KEYS = ["guests", "analytics", "gallery", "messages", "download", "help"];
@@ -242,7 +249,11 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
       </TabsContent>
       <TabsContent value="help">
         <div className="rounded-lg border border-[hsl(var(--lp-accent))]/20 p-6 bg-white/70 space-y-6">
-          <ExtendRetentionButton currentOverrideDays={event?.retentionOverrideDays ?? 0} />
+          <ExtendRetentionButton
+            currentOverrideDays={event?.retentionOverrideDays ?? 0}
+            tier={event?.pricingTier ?? "free"}
+            isGrandfathered={event?.legacyGrandfathered ?? false}
+          />
           <hr className="border-[hsl(var(--lp-accent))]/20" />
           <AdminHelpContact />
         </div>

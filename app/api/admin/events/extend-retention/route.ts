@@ -4,9 +4,14 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateCsrfToken, validateCsrfToken } from '@/lib/csrf';
 import { getAuthenticatedAdmin } from '@/lib/admin-auth';
+import {
+  getEffectiveTier,
+  maxRetentionOverrideDays,
+  isGrandfathered,
+} from '@/lib/entitlement';
 
 const MIN_DAYS = 0;
-const MAX_DAYS = 365;
+const ABSOLUTE_MAX_DAYS = 365;
 
 export async function GET() {
   const { token, cookie } = await generateCsrfToken();
@@ -34,10 +39,33 @@ export async function POST(req: Request) {
   }
 
   const days = (body as { days?: unknown })?.days;
-  if (!Number.isInteger(days) || (days as number) < MIN_DAYS || (days as number) > MAX_DAYS) {
+  if (
+    !Number.isInteger(days) ||
+    (days as number) < MIN_DAYS ||
+    (days as number) > ABSOLUTE_MAX_DAYS
+  ) {
     return NextResponse.json(
-      { error: `"days" mora biti cijeli broj između ${MIN_DAYS} i ${MAX_DAYS}.` },
+      { error: `"days" mora biti cijeli broj između ${MIN_DAYS} i ${ABSOLUTE_MAX_DAYS}.` },
       { status: 400 }
+    );
+  }
+
+  // Per-tier cap enforcement — derived from Payment history, not Event.pricingTier
+  const eventRow = await prisma.event.findUnique({
+    where: { id: admin.event.id },
+    select: { legacyGrandfathered: true },
+  });
+  if (!eventRow) {
+    return NextResponse.json({ error: 'Event ne postoji.' }, { status: 404 });
+  }
+  const effectiveTier = await getEffectiveTier(admin.event.id);
+  const cap = isGrandfathered(eventRow)
+    ? ABSOLUTE_MAX_DAYS
+    : maxRetentionOverrideDays(effectiveTier);
+  if ((days as number) > cap) {
+    return NextResponse.json(
+      { error: `Ovaj tier dozvoljava najviše ${cap} dodatnih dana.` },
+      { status: 403 }
     );
   }
 
