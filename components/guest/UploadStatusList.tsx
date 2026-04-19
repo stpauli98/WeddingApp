@@ -52,8 +52,10 @@ export function UploadStatusList({
       <div className="p-4">
         <h3 className="text-sm font-medium mb-3">{t('guest.uploadStatus.title', 'Status uploada slika')}</h3>
         
-        {/* Lista statusa */}
-        <div className="space-y-3 max-h-[300px] overflow-y-auto">
+        {/* Lista statusa. Scroll authority je outer modal card (max-h-[90vh]
+            overflow-y-auto u Upload-Form.tsx). Nested scroll ovdje je uzrokovao
+            chaining → footer se pomjerao kako je lista rasla. */}
+        <div className="space-y-3">
           {uploadStatuses.map((status) => (
             <div key={status.id} className="flex items-center justify-between p-2 bg-[hsl(var(--lp-muted))]/10 rounded-md">
               <div className="flex items-center space-x-3 overflow-hidden">

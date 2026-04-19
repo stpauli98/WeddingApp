@@ -368,7 +368,7 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
           aria-live="assertive"
           aria-label="Status uploada slika"
         >
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto overscroll-contain">
             {/* Header sa naslovom i brojem uploadovanih slika */}
             <div className="sticky top-0 bg-white p-4 border-b border-[hsl(var(--lp-accent))]/10 flex items-center justify-between z-10">
               <div>

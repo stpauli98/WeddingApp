@@ -2,12 +2,32 @@
 // once on a 403 (token expired), and work with either JSON fetch or XHR upload.
 import { uploadWithProgress, type UploadWithProgressOptions } from './upload-xhr';
 
+// The CSRF scheme is a single httpOnly cookie per endpoint whose value is the
+// token. Each GET on the endpoint generates a NEW token and overwrites that
+// cookie. If N parallel uploads each fetch their own token, the cookie ends
+// up holding only the last one, and the earlier XHRs send stale header tokens
+// → 403 mismatch. Dedupe: within a small window, parallel callers share the
+// same in-flight fetch and therefore the same token.
+const inflightTokenFetches = new Map<string, Promise<string>>();
+
 async function fetchCsrfToken(endpoint: string): Promise<string> {
-  const res = await fetch(endpoint, { credentials: 'same-origin' });
-  if (!res.ok) throw new Error(`CSRF token fetch failed: ${res.status}`);
-  const { csrfToken } = (await res.json()) as { csrfToken: string };
-  if (!csrfToken) throw new Error('CSRF token missing in response');
-  return csrfToken;
+  const existing = inflightTokenFetches.get(endpoint);
+  if (existing) return existing;
+
+  const promise = (async () => {
+    const res = await fetch(endpoint, { credentials: 'same-origin' });
+    if (!res.ok) throw new Error(`CSRF token fetch failed: ${res.status}`);
+    const { csrfToken } = (await res.json()) as { csrfToken: string };
+    if (!csrfToken) throw new Error('CSRF token missing in response');
+    return csrfToken;
+  })();
+
+  inflightTokenFetches.set(endpoint, promise);
+  try {
+    return await promise;
+  } finally {
+    inflightTokenFetches.delete(endpoint);
+  }
 }
 
 export type CsrfFetchOptions = RequestInit & {
