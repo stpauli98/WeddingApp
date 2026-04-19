@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import { X, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ImageWithSpinner from "@/components/shared/ImageWithSpinner";
@@ -19,61 +20,95 @@ export type SwipeLightboxProps = {
 };
 
 export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLightboxProps) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    startIndex,
+    loop: false,
+    containScroll: "trimSnaps",
+  });
   const [index, setIndex] = useState(startIndex);
   useLockBodyScroll(true);
 
-  // Keep index within bounds if the underlying array shrinks (e.g. after delete).
+  // Sync index from embla scroll events.
   useEffect(() => {
-    if (index >= images.length && images.length > 0) {
-      setIndex(images.length - 1);
-    }
-  }, [images.length, index]);
+    if (!emblaApi) return;
+    const onSelect = () => setIndex(emblaApi.selectedScrollSnap());
+    emblaApi.on("select", onSelect);
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi]);
 
-  if (images.length === 0) {
-    onClose();
-    return null;
-  }
+  // Collapse if underlying array empties (e.g. after delete of last image).
+  useEffect(() => {
+    if (images.length === 0) onClose();
+  }, [images.length, onClose]);
 
-  const current = images[index];
+  // Keyboard: arrows navigate, Escape closes.
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      } else if (e.key === "ArrowRight") {
+        emblaApi?.scrollNext();
+        setIndex((i) => Math.min(i + 1, images.length - 1));
+      } else if (e.key === "ArrowLeft") {
+        emblaApi?.scrollPrev();
+        setIndex((i) => Math.max(i - 1, 0));
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [emblaApi, onClose, images.length]);
+
+  const handleBackdropClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.target === e.currentTarget) onClose();
+    },
+    [onClose]
+  );
+
+  if (images.length === 0) return null;
+  const current = images[Math.min(index, images.length - 1)];
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+      className="fixed inset-0 z-50 bg-black/95"
       role="dialog"
       aria-modal="true"
-      onClick={(e) => {
-        // Tap on the black backdrop closes; taps on the image must not.
-        if (e.target === e.currentTarget) onClose();
-      }}
+      onClick={handleBackdropClick}
     >
-      {/* Image viewport */}
-      <div className="relative w-full h-full flex items-center justify-center p-4">
-        <ImageWithSpinner
-          src={current.imageUrl}
-          width={1600}
-          height={1200}
-          alt=""
-          className="max-w-full max-h-full object-contain"
-        />
+      {/* Embla viewport */}
+      <div className="overflow-hidden w-full h-full" ref={emblaRef}>
+        <div className="flex w-full h-full">
+          {images.map((img) => (
+            <div key={img.id} className="relative shrink-0 grow-0 basis-full flex items-center justify-center p-4">
+              <ImageWithSpinner
+                src={img.imageUrl}
+                width={1600}
+                height={1200}
+                alt=""
+                className="max-w-full max-h-full object-contain pointer-events-none"
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Close button */}
       <Button
         variant="destructive"
         size="icon"
-        className="absolute top-4 right-4 z-10 bg-white/90 hover:bg-white"
+        className="absolute top-4 right-4 z-10 bg-white/90 hover:bg-white text-black"
         onClick={onClose}
         aria-label="Close"
       >
         <X className="h-5 w-5" />
       </Button>
 
-      {/* Delete button (optional) */}
       {onDelete && (
         <Button
           variant="destructive"
           size="icon"
-          className="absolute top-4 left-4 z-10 bg-white/90 hover:bg-white"
+          className="absolute top-4 left-4 z-10 bg-white/90 hover:bg-white text-black"
           onClick={() => onDelete(current.id)}
           aria-label="Delete"
         >
@@ -81,7 +116,6 @@ export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLi
         </Button>
       )}
 
-      {/* Counter */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
         {index + 1} / {images.length}
       </div>
