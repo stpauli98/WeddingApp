@@ -245,6 +245,40 @@ export async function sendGuestDeletionEmail(params: GuestDeletionParams): Promi
   });
 }
 
+interface PaymentDigestParams {
+  to: string;
+  webhookTotal: number;
+  webhookInvalid: number;
+  webhookErrors: number;
+  stuckPending: number;
+  signatureFailFlood: boolean;
+}
+
+export async function sendPaymentDigestEmail(p: PaymentDigestParams): Promise<void> {
+  const alert = p.webhookInvalid > 10 || p.webhookErrors > 0 || p.signatureFailFlood;
+  const subject = alert
+    ? `⚠️ Payment digest — ${p.webhookInvalid} invalid, ${p.webhookErrors} errors`
+    : `Payment digest — ${p.webhookTotal} webhooks OK`;
+  const text = [
+    'Payment system daily digest:',
+    '',
+    'Webhooks last 24h:',
+    `  Total:          ${p.webhookTotal}`,
+    `  Invalid sig:    ${p.webhookInvalid}  ${p.signatureFailFlood ? '⚠️ SPIKE' : ''}`,
+    `  Errors:         ${p.webhookErrors}`,
+    `  Stuck pending:  ${p.stuckPending}`,
+    '',
+    '— WeddingApp payments cron',
+  ].join('\n');
+
+  await getTransporter().sendMail({
+    from: process.env.ADMIN_EMAIL,
+    to: p.to,
+    subject,
+    text,
+  });
+}
+
 // Legacy stub kept for compatibility with any external callers. Does nothing.
 export async function sendVerificationEmail(_email: string, _code: string): Promise<void> {
   return Promise.resolve();
