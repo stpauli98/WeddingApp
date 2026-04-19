@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import { withOptimize } from '@prisma/extension-optimize';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: ReturnType<typeof createPrismaClient>;
@@ -40,13 +39,9 @@ function createPrismaClient() {
     globalForPrisma.baseClient = baseClient;
   }
 
-  // Prisma Optimize extension za query monitoring
-  if (process.env.OPTIMIZE_API_KEY && process.env.NODE_ENV !== 'production') {
-    return baseClient.$extends(
-      withOptimize({ apiKey: process.env.OPTIMIZE_API_KEY })
-    );
-  }
-
+  // Prisma Optimize was sunset Apr 2026 (returns HTTP 410).
+  // Slow-query logging above uses Prisma's native $on('query') event —
+  // no Optimize extension needed.
   return baseClient;
 }
 
