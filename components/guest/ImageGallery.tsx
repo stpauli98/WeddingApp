@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import ImageWithSpinner from "@/components/shared/ImageWithSpinner"
 import { SwipeLightbox } from "@/components/shared/SwipeLightbox";
+import { fetchWithCsrfRetry } from "@/lib/csrf-client";
 import { useTranslation } from "react-i18next"
 
 interface Image {
@@ -47,52 +48,32 @@ export function ImageGallery({ images: initialImages, guestId, readOnly = false,
     setError(null);
 
     try {
-      // Uvek refetch CSRF token pre DELETE
-      const csrfRes = await fetch("/api/guest/images/delete");
-      const { csrfToken } = await csrfRes.json();
-  
-      if (!csrfToken) {
-        setError("Nije moguće dobiti CSRF token. Osvežite stranicu i pokušajte ponovo.");
-        setDeletingId(null);
-    
-        return;
-      }
-      const url = `/api/guest/images/delete?id=${imageId}`;
-  
-      const res = await fetch(url, {
-        method: "DELETE",
-        headers: {
-          "x-csrf-token": csrfToken,
-        },
-      });
-  
-      let data = null;
+      const res = await fetchWithCsrfRetry(
+        `/api/guest/images/delete?id=${imageId}`,
+        {
+          method: "DELETE",
+          csrfEndpoint: "/api/guest/images/delete",
+        }
+      );
+
+      let data: { success?: boolean; error?: string } | null = null;
       try {
         data = await res.json();
-    
-      } catch (jsonErr) {
-    
+      } catch {
+        // empty body is fine
       }
+
       if (!res.ok || !data?.success) {
         setError(data?.error || "Greška pri brisanju slike.");
-    
       } else {
-        // Filtriraj slike i ažuriraj lokalno stanje
-        const updatedImages = images.filter(img => img.id !== imageId);
+        const updatedImages = images.filter((img) => img.id !== imageId);
         setImages(updatedImages);
-        
-        // Obavijesti roditelja o promjeni broja slika ako postoji callback
-        if (onImagesChange) {
-          onImagesChange(updatedImages);
-        }
-        
+        if (onImagesChange) onImagesChange(updatedImages);
       }
     } catch (e) {
       setError("Greška pri komunikaciji sa serverom.");
-  
     } finally {
       setDeletingId(null);
-  
     }
   };
 
