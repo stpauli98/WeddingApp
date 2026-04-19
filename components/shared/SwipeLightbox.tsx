@@ -165,7 +165,7 @@ export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLi
         <Button
           variant="destructive"
           size="icon"
-          className="absolute top-4 left-4 z-10 bg-white/90 hover:bg-white text-black"
+          className="absolute bottom-4 right-4 z-10 bg-white/90 hover:bg-white text-black"
           onClick={handleDeleteClick}
           aria-label="Delete"
         >
