@@ -84,7 +84,7 @@ export default function RootLayout({
           `}
         </Script>
         <Script
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           src="https://www.googletagmanager.com/gtag/js?id=G-Y5LM1PHT8H"
         />
         {/* Inter font se učitava preko next/font/google, nije potreban preload */}
