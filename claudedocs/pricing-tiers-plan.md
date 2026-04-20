@@ -238,3 +238,21 @@ Ključni fajlovi:
 - `/api/pricing` — runtime REST endpoint za client components
 
 Ako admin dashboard u budućnosti dobije formu za uređivanje pricing-a, ova arhitektura već podržava trenutnu propagaciju promjena.
+
+---
+
+## Tier consolidation (2026-04-20)
+
+Konzolidacija 4 → 3 tiera bazirana na unit economics analizi:
+
+| Tier | Slika/gost | Gostiju | Retention | Cijena | Kvalitet |
+|---|---|---|---|---|---|
+| Free | 3 | 20 | 30 dana | €0 | Standard (1280px) |
+| Basic | 7 | 100 | 30 dana | €25 | High (1600px) |
+| Premium | 25 | 300 | 30 dana | €75 | Original (2560px+) |
+
+**Unlimited deprecated** — PricingPlan row postaje active:false. Enum value `unlimited` ostaje u schema-i za back-compat sa postojećim event-ima (oni bi bili grandfather-ovani sa retentionOverrideDays=335 — aktualno 0 event-a pri primjeni, pa je no-op).
+
+**Retention dropped to 30 days** za sve tier-ove. Add-on "extend retention by 30 days" (€10/mo) je followup feature — mehanizam već postoji preko `Event.retentionOverrideDays` polja.
+
+**Premium price €40 → €75** — dizanje cijene opravdano unit economics-om (original quality + storage cost) i premium positioning-om. Basic €20 → €25 je round-number + 1/3 Premium-a anchor.

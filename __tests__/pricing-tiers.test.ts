@@ -20,8 +20,8 @@ describe('getClientResizeParams', () => {
     expect(getClientResizeParams('premium')).toEqual({ maxWidth: 2560, quality: 0.95 });
   });
 
-  it('returns 0/1.0 for unlimited (no resize)', () => {
-    expect(getClientResizeParams('unlimited')).toEqual({ maxWidth: 0, quality: 1.0 });
+  it('returns 2560/0.95 for unlimited (deprecated, mirrors premium)', () => {
+    expect(getClientResizeParams('unlimited')).toEqual({ maxWidth: 2560, quality: 0.95 });
   });
 });
 

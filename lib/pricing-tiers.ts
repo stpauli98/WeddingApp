@@ -36,9 +36,9 @@ export interface TierConfig {
 export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
   free: {
     name: { sr: 'Besplatno', en: 'Free' },
-    imageLimit: 10,
+    imageLimit: 3,
     guestLimit: 20,
-    storageDays: 10,
+    storageDays: 30,
     price: 0,
     clientResizeMaxWidth: 1280,
     clientQuality: 0.85,
@@ -51,10 +51,10 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
   },
   basic: {
     name: { sr: 'Osnovno', en: 'Basic' },
-    imageLimit: 25,
+    imageLimit: 7,
     guestLimit: 100,
     storageDays: 30,
-    price: 1999,
+    price: 2500, // €25
     clientResizeMaxWidth: 1600,
     clientQuality: 0.9,
     storeOriginal: false,
@@ -66,10 +66,10 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
   },
   premium: {
     name: { sr: 'Premium', en: 'Premium' },
-    imageLimit: 50,
+    imageLimit: 25,
     guestLimit: 300,
-    storageDays: 365,
-    price: 3999,
+    storageDays: 30,
+    price: 7500, // €75
     clientResizeMaxWidth: 2560,
     clientQuality: 0.95,
     storeOriginal: true,
@@ -81,20 +81,21 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     ],
     recommended: false,
   },
+  // DEPRECATED 2026-04-20: konzolidacija 4→3 tiera. PricingPlan row postaje
+  // active:false u DB-u (seed radi Step 2 niže). Config entry zadržan radi
+  // Prisma enum compatibility + back-compat sa postojećim event-ima na
+  // 'unlimited' tier-u (oni su grandfather-ovani u Task 2). NE pojavljuje
+  // se na landing-u ili admin selector-u jer /api/pricing filtrira po active:true.
   unlimited: {
-    name: { sr: 'Neograničeno', en: 'Unlimited' },
-    imageLimit: 999,
-    guestLimit: 9999,
-    storageDays: 365,
-    price: 5999,
-    clientResizeMaxWidth: 0,
-    clientQuality: 1.0,
+    name: { sr: 'Neograničeno (deprecated)', en: 'Unlimited (deprecated)' },
+    imageLimit: 25, // matches premium — legacy events get treated as premium for new features
+    guestLimit: 300,
+    storageDays: 30,
+    price: 7500,
+    clientResizeMaxWidth: 2560,
+    clientQuality: 0.95,
     storeOriginal: true,
-    features: [
-      { sr: 'Napredni QR kod', en: 'Advanced QR code' },
-      { sr: 'Prilagođen brending', en: 'Custom branding' },
-      { sr: 'Dedicirana podrška', en: 'Dedicated support' },
-    ],
+    features: [],
     recommended: false,
   },
 };

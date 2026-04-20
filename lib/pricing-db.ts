@@ -54,8 +54,9 @@ export async function getPricingPlansFromDb(): Promise<PricingPlanRow[]> {
 }
 
 function hardcodedFallback(): PricingPlanRow[] {
-  return (Object.entries(PRICING_TIERS) as [PricingTier, TierConfig][]).map(
-    ([tier, config]) => ({
+  return (Object.entries(PRICING_TIERS) as [PricingTier, TierConfig][])
+    .filter(([tier]) => tier !== 'unlimited') // deprecated
+    .map(([tier, config]) => ({
       tier,
       name: config.name,
       imageLimit: config.imageLimit,
@@ -67,6 +68,5 @@ function hardcodedFallback(): PricingPlanRow[] {
       clientQuality: config.clientQuality,
       storeOriginal: config.storeOriginal,
       features: config.features,
-    })
-  );
+    }));
 }

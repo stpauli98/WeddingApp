@@ -25,10 +25,12 @@ export async function GET() {
   } catch {
     // Fallback to hardcoded if DB fails
     const { PRICING_TIERS } = await import('@/lib/pricing-tiers');
-    const result = Object.entries(PRICING_TIERS).map(([tier, config]) => ({
-      tier,
-      ...config,
-    }));
+    const result = Object.entries(PRICING_TIERS)
+      .filter(([tier]) => tier !== 'unlimited') // deprecated
+      .map(([tier, config]) => ({
+        tier,
+        ...config,
+      }));
     return NextResponse.json(result);
   }
 }

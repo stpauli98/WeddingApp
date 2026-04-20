@@ -106,7 +106,7 @@ describe('POST /api/admin/events — tier↔imageLimit invariant', () => {
     expect(createArg.data.imageLimit).toBe(25);
   });
 
-  it('falls back to free tier when pricingTier is invalid; uses fallback imageLimit=10', async () => {
+  it('falls back to free tier when pricingTier is invalid; uses fallback imageLimit=3', async () => {
     mocks.pricingPlanFindUnique.mockResolvedValue(null);
 
     const res = await POST(
@@ -116,7 +116,7 @@ describe('POST /api/admin/events — tier↔imageLimit invariant', () => {
     expect(res.status).toBe(200);
     const createArg = mocks.eventCreate.mock.calls[0][0];
     expect(createArg.data.pricingTier).toBe('free');
-    expect(createArg.data.imageLimit).toBe(10);
+    expect(createArg.data.imageLimit).toBe(3);
   });
 
   it('uses PricingPlan value when present, not the hardcoded fallback', async () => {

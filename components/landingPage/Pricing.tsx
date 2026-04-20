@@ -35,7 +35,7 @@ export default function Pricing({ tiers }: PricingProps) {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
           {tiers.map((plan, index) => {
             const isRecommended = plan.recommended
             const features = buildDynamicFeatures(plan, lang, t)

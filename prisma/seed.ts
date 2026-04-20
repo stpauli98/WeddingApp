@@ -20,7 +20,10 @@ async function seedPricingPlans() {
       price: config.price,
       recommended: config.recommended ?? false,
       sortOrder: sortOrder[tier] ?? 99,
-      active: true,
+      // Unlimited je deprecated (2026-04-20). Row ostaje u DB-u za
+      // back-compat sa postojećim event-ima koji koriste taj enum value,
+      // ali ne pojavljuje se na landing/admin zbog active:false.
+      active: tier !== 'unlimited',
     };
 
     await prisma.pricingPlan.upsert({
