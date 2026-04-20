@@ -6,8 +6,8 @@ import { getCurrentLanguageFromPath } from "@/lib/utils/language"
 import { motion, useReducedMotion } from "framer-motion"
 
 export default function Solution() {
-  const { t, i18n } = useTranslation()
-  const lang = i18n.language || "sr"
+  const { t } = useTranslation()
+  const lang = getCurrentLanguageFromPath()
   const reduce = useReducedMotion()
 
   return (
