@@ -1,4 +1,17 @@
 {
+  "consent": {
+    "title": "Cookies",
+    "body": "We use Google Analytics to understand how the site is used. No marketing cookies are set. You may accept or decline.",
+    "readMore": "Learn more",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
+  "a11y": {
+    "mainNav": "Main navigation",
+    "scrollTop": "Back to top",
+    "productHunt": "DodajUspomenu on Product Hunt",
+    "skipToMain": "Skip to main content"
+  },
   "hero": {
     "eyebrow": "The simplest way to collect wedding photos",
     "titleLine1": "All your wedding",

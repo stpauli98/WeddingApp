@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import I18nProvider from "@/components/I18nProvider"
+import { CookieConsent } from "@/components/CookieConsent"
 
 const inter = Inter({ subsets: ["latin"] })
 const playfair = Playfair_Display({
@@ -66,19 +67,26 @@ export default function RootLayout({
   return (
     <html lang="sr" dir="ltr" className="light" style={{ colorScheme: "light" }}>
       <head>
-        {/* Google Analytics */}
+        {/* Google Analytics with Consent Mode v2 (denied by default) */}
+        <Script id="gtag-consent-default" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag('consent', 'default', {
+              analytics_storage: 'denied',
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+            });
+            gtag('js', new Date());
+            gtag('config', 'G-Y5LM1PHT8H', { anonymize_ip: true });
+          `}
+        </Script>
         <Script
           strategy="afterInteractive"
           src="https://www.googletagmanager.com/gtag/js?id=G-Y5LM1PHT8H"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-Y5LM1PHT8H');
-          `}
-        </Script>
         {/* Inter font se učitava preko next/font/google, nije potreban preload */}
         {/* Favicon (dodaćeš public/favicon.ico po želji) */}
         <link rel="icon" href="/favicon.ico" />
@@ -248,6 +256,7 @@ export default function RootLayout({
             <div aria-live="polite" aria-atomic="true">
               <Toaster />
             </div>
+            <CookieConsent />
             <Analytics />
             <SpeedInsights />
           </ThemeProvider>

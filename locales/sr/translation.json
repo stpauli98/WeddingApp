@@ -1,4 +1,17 @@
 {
+  "consent": {
+    "title": "Kolačići",
+    "body": "Koristimo Google Analytics da razumijemo kako se sajt koristi. Nikakvi marketinški cookie-i se ne koriste. Možete prihvatiti ili odbiti.",
+    "readMore": "Saznajte više",
+    "accept": "Prihvatam",
+    "decline": "Odbijam"
+  },
+  "a11y": {
+    "mainNav": "Glavna navigacija",
+    "scrollTop": "Povratak na vrh",
+    "productHunt": "DodajUspomenu na Product Hunt-u",
+    "skipToMain": "Preskoči na glavni sadržaj"
+  },
   "hero": {
     "eyebrow": "Najjednostavniji način za prikupljanje fotografija",
     "titleLine1": "Sve uspomene",
