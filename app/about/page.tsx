@@ -42,9 +42,8 @@ export default function AboutPage() {
         </h2>
 
         <ol className="list-decimal list-inside mb-4 text-gray-700 space-y-1">
-          <li>Gost unosi svoje ime, prezime i email adresu.</li>
-          <li>Na email dobija verifikacioni kod.</li>
-          <li>Nakon potvrde, pristupa svom ličnom panelu gde može uploadovati do 10 slika i ostaviti poruku mladencima.</li>
+          <li>Gosti se prijavljuju kroz svoje ime i email — bez registracije, bez lozinki, bez aplikacije.</li>
+          <li>Nakon prijave, pristupaju svom ličnom panelu gde mogu uploadovati slike i ostaviti poruku mladencima.</li>
           <li>Mladenci kasnije pregledaju sve slike i poruke podeljene po gostima.</li>
         </ol>
 

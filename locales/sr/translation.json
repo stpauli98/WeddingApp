@@ -1,4 +1,17 @@
 {
+  "consent": {
+    "title": "Kolačići",
+    "body": "Koristimo Google Analytics da razumijemo kako se sajt koristi. Nikakvi marketinški cookie-i se ne koriste. Možete prihvatiti ili odbiti.",
+    "readMore": "Saznajte više",
+    "accept": "Prihvatam",
+    "decline": "Odbijam"
+  },
+  "a11y": {
+    "mainNav": "Glavna navigacija",
+    "scrollTop": "Povratak na vrh",
+    "productHunt": "DodajUspomenu na Product Hunt-u",
+    "skipToMain": "Preskoči na glavni sadržaj"
+  },
   "hero": {
     "eyebrow": "Najjednostavniji način za prikupljanje fotografija",
     "titleLine1": "Sve uspomene",
@@ -27,13 +40,13 @@
     "question1": "Kako funkcioniše DodajUspomenu?",
     "answer1": "Kreirate event, podijelite link ili QR kod gostima, oni uploaduju slike direktno sa telefona. Vi sve preuzimate na jednom mjestu.",
     "question2": "Da li mogu početi besplatno?",
-    "answer2": "Da! Besplatni plan uključuje do 3 slike po gostu, 20 gostiju i čuvanje slika 10 dana. Savršeno za probanje. Nadogradite kad budete spremni.",
+    "answer2": "Da! Besplatni plan (€0) uključuje do 3 slike po gostu, 20 gostiju i čuvanje slika 30 dana. Savršeno za probanje. Nadogradite kad budete spremni.",
     "question3": "Koliko fotografija gosti mogu poslati?",
-    "answer3": "Zavisi od plana: besplatni plan omogućava 3 slike po gostu, Osnovno do 25, a Premium do 50 slika po gostu.",
+    "answer3": "Zavisi od plana: Besplatno 3 slike po gostu, Osnovno 7 slika po gostu, Premium 25 slika po gostu.",
     "question4": "Da li su fotografije privatne i sigurne?",
     "answer4": "Da, samo vi i vaši registrovani gosti imaju pristup fotografijama. Svaki event ima jedinstveni privatni link.",
     "question5": "Koliko dugo se čuvaju fotografije?",
-    "answer5": "Besplatni plan čuva slike 10 dana, Osnovno 30 dana, a Premium čuva vaše slike cijelu godinu.",
+    "answer5": "Slike se čuvaju 30 dana u svim paketima (Besplatno, Osnovno €25, Premium €75). Za to vreme preuzimate sve slike u ZIP-u.",
     "question6": "Može li se koristiti i za druge događaje osim vjenčanja?",
     "answer6": "Apsolutno! DodajUspomenu je savršen za krštenja, rođendane, team building i sve događaje gdje želite prikupiti fotografije.",
     "question7": "Trebaju li gosti instalirati aplikaciju?",

@@ -1,19 +1,6 @@
 export const metadata = {
   title: "DodajUspomenu – Digitalni svadbeni album i razmena slika",
   description: "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene. Brza i sigurna razmena fotografija sa venčanja.",
-  keywords: [
-    "svadbeni album",
-    "slike sa venčanja",
-    "upload slika",
-    "mladenci",
-    "gosti",
-    "digitalni album",
-    "čestitke",
-    "uspomene",
-    "wedding photo album",
-    "wedding guests",
-    "wedding app"
-  ],
   authors: [{ name: "DodajUspomenu Team", url: "https://www.dodajuspomenu.com" }],
   openGraph: {
     title: "DodajUspomenu – Digitalni svadbeni album i razmena slika",

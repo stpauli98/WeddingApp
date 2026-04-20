@@ -1,4 +1,17 @@
 {
+  "consent": {
+    "title": "Cookies",
+    "body": "We use Google Analytics to understand how the site is used. No marketing cookies are set. You may accept or decline.",
+    "readMore": "Learn more",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
+  "a11y": {
+    "mainNav": "Main navigation",
+    "scrollTop": "Back to top",
+    "productHunt": "DodajUspomenu on Product Hunt",
+    "skipToMain": "Skip to main content"
+  },
   "hero": {
     "eyebrow": "The simplest way to collect wedding photos",
     "titleLine1": "All your wedding",
@@ -27,13 +40,13 @@
     "question1": "How does AddMemories work?",
     "answer1": "Create an event, share the link or QR code with guests, they upload photos directly from their phones. You download everything in one place.",
     "question2": "Can I start for free?",
-    "answer2": "Yes! The free plan includes up to 3 photos per guest, 20 guests, and 10 days of photo storage. Perfect for trying it out. Upgrade when you're ready.",
+    "answer2": "Yes! The Free plan (€0) includes up to 3 photos per guest, 20 guests, and 30 days of photo storage. Perfect for trying it out. Upgrade when you're ready.",
     "question3": "How many photos can guests upload?",
-    "answer3": "It depends on your plan: Free allows 3 photos per guest, Basic up to 25, and Premium up to 50 photos per guest.",
+    "answer3": "It depends on your plan: Free 3 per guest, Basic 7 per guest, Premium 25 per guest.",
     "question4": "Are the photos private and secure?",
     "answer4": "Yes, only you and your registered guests have access to the photos. Each event has a unique private link.",
     "question5": "How long are photos stored?",
-    "answer5": "Free plan stores photos for 10 days, Basic for 30 days, and Premium keeps your photos for a full year.",
+    "answer5": "All plans store photos for 30 days (Free €0, Basic €25, Premium €75). You download everything as a ZIP during that window.",
     "question6": "Can it be used for events other than weddings?",
     "answer6": "Absolutely! AddMemories is perfect for christenings, birthdays, team building, and any event where you want to collect photos.",
     "question7": "Do guests need to install an app?",
