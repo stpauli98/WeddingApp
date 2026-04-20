@@ -11,11 +11,10 @@ import Benefits from "@/components/landingPage/Benefits"
 import Pricing from "@/components/landingPage/Pricing"
 import FAQ from "@/components/landingPage/FAQ"
 import Footer from "@/components/landingPage/Footer"
-import I18nProvider from "@/components/I18nProvider"
 
 export default function ClientPage({ tiers }: { tiers: PricingPlanRow[] }) {
   return (
-    <I18nProvider>
+    <>
       <Navbar />
       <HeroSection />
       <PainPoints />
@@ -26,6 +25,6 @@ export default function ClientPage({ tiers }: { tiers: PricingPlanRow[] }) {
       <Pricing tiers={tiers} />
       <FAQ />
       <Footer />
-    </I18nProvider>
+    </>
   )
 }

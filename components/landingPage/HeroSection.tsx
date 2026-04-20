@@ -84,7 +84,7 @@ export default function HeroSection() {
               <div className="relative w-full h-full rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[2.25rem] overflow-hidden bg-white">
                 <Image
                   src={`/images/${lang}/guest-login-filled.png`}
-                  alt={t("hero.titleLine1")}
+                  alt={t("hero.mockupAlt")}
                   fill
                   className="object-cover object-top"
                   priority

@@ -31,7 +31,7 @@ export default function Navbar() {
         isScrolled ? "bg-white/95 backdrop-blur-sm shadow-md" : "bg-transparent"
       }`}
       role="navigation"
-      aria-label="Glavna navigacija"
+      aria-label={t("a11y.mainNav")}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
