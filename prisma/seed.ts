@@ -7,13 +7,23 @@ import { PRICING_TIERS } from '../lib/pricing-tiers';
 const prisma = new PrismaClient();
 
 async function seedPricingPlans() {
-  const sortOrder: Record<string, number> = { free: 0, basic: 1, premium: 2, unlimited: 3 };
+  const sortOrder: Record<string, number> = { free: 0, basic: 1, premium: 2 };
 
   for (const [tier, config] of Object.entries(PRICING_TIERS)) {
+    // Unlimited je deprecated (2026-04-20). Row je obrisan iz DB-a;
+    // seed ga eksplicitno preskače da ga slučajno ne re-kreiramo.
+    // Config entry ostaje samo kao TypeScript fallback — PricingTier
+    // enum value je i dalje prisutan u Prisma schemi zbog back-compat
+    // sa legacy event-ima.
+    if (tier === 'unlimited') continue;
+
     const planData = {
       nameSr: config.name.sr,
       nameEn: config.name.en,
       imageLimit: config.imageLimit,
+      clientResizeMaxWidth: config.clientResizeMaxWidth,
+      clientQuality: config.clientQuality,
+      storeOriginal: config.storeOriginal,
       price: config.price,
       recommended: config.recommended ?? false,
       sortOrder: sortOrder[tier] ?? 99,

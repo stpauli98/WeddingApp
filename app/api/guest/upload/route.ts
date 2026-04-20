@@ -6,23 +6,23 @@ import { prisma } from '@/lib/prisma';
 import { getAuthenticatedGuest } from '@/lib/guest-auth';
 import sharp from 'sharp';
 import cloudinary from '@/lib/cloudinary';
-import type { UploadApiResponse, UploadApiErrorResponse } from "cloudinary";
+import type { UploadApiResponse, UploadApiErrorResponse, UploadApiOptions } from "cloudinary";
+import type { PricingTier } from '@/lib/pricing-tiers';
 
-// Per-IP rate limit for uploads. App Router does not honour the legacy
-// `export const config = { api: { bodyParser: { sizeLimit } } }` — size is
-// enforced below via the Content-Length header.
-declare global {
-  var __guestUploadAttempts: Map<string, number[]> | undefined;
-}
-const uploadAttempts: Map<string, number[]> = globalThis.__guestUploadAttempts || new Map();
-globalThis.__guestUploadAttempts = uploadAttempts;
-const UPLOAD_MAX = 20;
-const UPLOAD_WINDOW_MS = 5 * 60 * 1000;
+// Per-guest lifetime counter (Guest.lifetimeUploadCount) replaces the
+// former IP rate limit. Upload is an authenticated endpoint — throttling
+// the authenticated subject is both fairer and more effective than
+// bucketing by IP, and it survives the guest moving between Wi-Fi/mobile
+// networks during a single event.
 
 // Hard ceiling on request body: 10 MB per image × max 50 (premium tier) + 2 MB
 // margin for form overhead. Finer per-image checks still run below.
 const MAX_BODY_BYTES = 10 * 1024 * 1024 * 50 + 2 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+
+// Lifetime cap is 2× the tier's active image limit — a guest can re-upload
+// once after a full gallery wipe, but not loop forever.
+const LIFETIME_MULTIPLIER = 2;
 
 // Authoritative MIME allowlist, checked against Sharp's decoded metadata.
 const ALLOWED_FORMATS = new Set(['jpeg', 'png', 'webp', 'gif', 'heic', 'heif']);
@@ -31,6 +31,13 @@ class LimitExceededError extends Error {
   constructor(public existing: number, public attempted: number, public limit: number) {
     super(`Image limit exceeded: have ${existing}, adding ${attempted}, limit ${limit}`);
     this.name = 'LimitExceededError';
+  }
+}
+
+class LifetimeLimitError extends Error {
+  constructor(public lifetimeUsed: number, public attempted: number, public limit: number) {
+    super(`Lifetime upload limit: used ${lifetimeUsed}, adding ${attempted}, limit ${limit}`);
+    this.name = 'LifetimeLimitError';
   }
 }
 
@@ -57,18 +64,33 @@ export async function GET() {
   return response;
 }
 
-async function uploadToCloudinary(buffer: Buffer): Promise<{ url: string; publicId: string }> {
+async function uploadToCloudinary(
+  buffer: Buffer,
+  tier: PricingTier
+): Promise<{ url: string; publicId: string }> {
+  const { PRICING_TIERS } = await import('@/lib/pricing-tiers');
+  const config = PRICING_TIERS[tier] ?? PRICING_TIERS.free;
+
+  const uploadOptions: UploadApiOptions = {
+    folder: 'wedding-app',
+    resource_type: 'image',
+    tags: ['wedding-app', 'guest-upload'],
+  };
+
+  // Apply q_auto + f_auto ONLY when the tier wants a compressed stored
+  // derivative. Premium/unlimited skip this so the stored asset is the
+  // original; admin ZIP download fetches the same URL and therefore
+  // receives the original back.
+  if (!config.storeOriginal) {
+    uploadOptions.transformation = [
+      { quality: "auto" },
+      { fetch_format: "auto" },
+    ];
+  }
+
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      {
-        folder: 'wedding-app',
-        resource_type: 'image',
-        transformation: [
-          { quality: "auto" },
-          { fetch_format: "auto" },
-        ],
-        tags: ['wedding-app', 'guest-upload'],
-      },
+      uploadOptions,
       (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
         if (error || !result) return reject(error || new Error('Cloudinary upload failed'));
         resolve({ url: result.secure_url, publicId: result.public_id });
@@ -78,7 +100,7 @@ async function uploadToCloudinary(buffer: Buffer): Promise<{ url: string; public
   });
 }
 
-async function processImage(image: File): Promise<ProcessResult> {
+async function processImage(image: File, tier: PricingTier): Promise<ProcessResult> {
   const filename = image.name;
   try {
     if (image.size > MAX_IMAGE_BYTES) {
@@ -97,7 +119,7 @@ async function processImage(image: File): Promise<ProcessResult> {
     // where browser canvas can't decode for client-side stripping).
     const optimized = await sharp(buffer).rotate().toBuffer();
 
-    const { url, publicId } = await uploadToCloudinary(optimized);
+    const { url, publicId } = await uploadToCloudinary(optimized, tier);
     return { ok: true, upload: { filename, imageUrl: url, publicId } };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Nepoznata greška';
@@ -139,18 +161,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Zahtjev je prevelik." }, { status: 413 });
   }
 
-  // Per-IP rate limit
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-  const now = Date.now();
-  const recent = (uploadAttempts.get(ip) || []).filter((ts) => now - ts < UPLOAD_WINDOW_MS);
-  if (recent.length >= UPLOAD_MAX) {
-    return NextResponse.json(
-      { error: "Previše upload zahtjeva. Pokušajte ponovo za nekoliko minuta." },
-      { status: 429 }
-    );
-  }
-  uploadAttempts.set(ip, [...recent, now]);
-
   // Auth
   const guestSession = await getAuthenticatedGuest();
   if (!guestSession) {
@@ -158,6 +168,7 @@ export async function POST(request: NextRequest) {
   }
   const guestId = guestSession.id;
   const MAX_IMAGES = guestSession.event.imageLimit || 10;
+  const LIFETIME_LIMIT = MAX_IMAGES * LIFETIME_MULTIPLIER;
 
   // Parse form
   const formData = await request.formData();
@@ -187,7 +198,8 @@ export async function POST(request: NextRequest) {
   }
 
   // Phase 1: process each image independently. One bad file isolates to that file.
-  const results = await Promise.all(images.map(processImage));
+  const tier = guestSession.event.pricingTier;
+  const results = await Promise.all(images.map((img) => processImage(img, tier)));
   const processedUploads = results.filter((r): r is Extract<ProcessResult, { ok: true }> => r.ok).map((r) => r.upload);
   const failed = results.filter((r): r is Extract<ProcessResult, { ok: false }> => !r.ok);
 
@@ -203,15 +215,34 @@ export async function POST(request: NextRequest) {
   // concurrent uploads for the same guest, so the limit cannot be exceeded.
   try {
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // Lifetime gate first: once you've burned through 2× the tier, no
+      // amount of deleting will free more slots.
+      const guestRow = await tx.guest.findUnique({
+        where: { id: guestId },
+        select: { lifetimeUploadCount: true },
+      });
+      const lifetimeUsed = guestRow?.lifetimeUploadCount ?? 0;
+      if (lifetimeUsed + processedUploads.length > LIFETIME_LIMIT) {
+        throw new LifetimeLimitError(lifetimeUsed, processedUploads.length, LIFETIME_LIMIT);
+      }
+
+      // Active gallery cap.
       const existing = await tx.image.count({ where: { guestId } });
       if (existing + processedUploads.length > MAX_IMAGES) {
         throw new LimitExceededError(existing, processedUploads.length, MAX_IMAGES);
       }
+
       for (const { imageUrl, publicId } of processedUploads) {
         await tx.image.create({
-          data: { guestId, imageUrl, storagePath: publicId },
+          data: { guestId, imageUrl, storagePath: publicId, tier },
         });
       }
+
+      // Monotonic increment. Delete never decrements this.
+      await tx.guest.update({
+        where: { id: guestId },
+        data: { lifetimeUploadCount: { increment: processedUploads.length } },
+      });
     });
 
     // Persist message if present (separate from image TX by design — message flow
@@ -237,6 +268,16 @@ export async function POST(request: NextRequest) {
     // Anything that threw inside or around the TX means the images we uploaded
     // to Cloudinary have no matching DB rows. Clean them up.
     await rollbackCloudinary(processedUploads.map((u) => u.publicId));
+
+    if (err instanceof LifetimeLimitError) {
+      return NextResponse.json(
+        {
+          error: `Dosegli ste ukupan limit upload-a za ovaj event (${err.limit} slika). Već ste poslali ${err.lifetimeUsed}, a pokušavate dodati ${err.attempted} više. Brisanje postojećih slika ne vraća ovaj limit.`,
+          failed: failed.map((f) => ({ filename: f.filename, error: f.error })),
+        },
+        { status: 400 }
+      );
+    }
 
     if (err instanceof LimitExceededError) {
       return NextResponse.json(

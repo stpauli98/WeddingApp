@@ -78,7 +78,19 @@ ANALYZE=true pnpm build                     # Bundle analyzer
 - **Pattern:** GET the endpoint to receive a token, then POST/DELETE with the token in headers. Every state-changing route follows this.
 
 ### Photo upload pipeline (guest)
-`Upload-Form.tsx` → client validates MIME/size (max 10 MB, rejects HEIC/HEIF, allows JPEG/PNG/WebP/GIF) → optional EXIF strip (`/utils/removeExif.ts`) → POST FormData to `/api/guest/upload` → server re-auths via cookie, enforces `event.imageLimit` (tier-based: free=3, basic=25, premium=50 per `/lib/pricing-tiers.ts`) → **Sharp** rotates per EXIF + encodes → **Cloudinary** upload (`folder: wedding-app`, `quality: auto`, `fetch_format: auto`) → `prisma.image.create({ imageUrl, storagePath })`. `storagePath` holds the Cloudinary `public_id` and is required for deletion.
+`Upload-Form.tsx` → client validates MIME/size (max 10 MB, allows JPEG/PNG/WebP/GIF/HEIC/HEIF) → **tier-aware canvas resize** (free=1280px @ 0.85q, basic=1600px @ 0.9q, premium=2560px @ 0.95q; unlimited deprecated 2026-04-20, existing events mirror premium) → optional EXIF strip (`/utils/removeExif.ts`) → POST FormData to `/api/guest/upload` → server re-auths via cookie, enforces `event.imageLimit` (tier-based per `/lib/pricing-tiers.ts`: free=3, basic=7, premium=25 images/guest) AND `guest.lifetimeUploadCount` (2× imageLimit hard cap) → **Sharp** rotates per EXIF + strips metadata → **Cloudinary** upload: free/basic apply `{quality:auto}{fetch_format:auto}` incoming transformation (stored as compressed derivative); premium uploads WITHOUT transformation so the original is stored → `prisma.image.create({ imageUrl, storagePath, tier })`. The `tier` column snapshots the event's `pricingTier` at upload time so admin ZIP download logic can reason about each image's storage shape even if the tier later changes. Retention is 30 days for all new events; existing premium/unlimited events are grandfathered via `Event.retentionOverrideDays` to preserve the original 1-year promise.
+
+Admin ZIP download (`/api/admin/download/images`) fetches `imageUrl` directly: for free/basic events the URL returns the compressed derivative (fast, album-thumb-grade); for premium/unlimited events the URL returns the original (album-print-grade). No two-URL storage, no post-hoc transforms.
+
+### Pricing data flow (DB-first)
+
+`lib/pricing-tiers.ts` is the **build-time fallback** config + seed source. **Runtime source of truth** is the `PricingPlan` + `PricingFeature` DB tables.
+
+- Landing page (`app/page.tsx` server component) → `getPricingPlansFromDb()` helper → `<Pricing tiers={...}>`
+- Admin components (`PricingTierSelector`, `EventTierBadge`) → client fetch from `/api/pricing` with skeleton loading + fallback to hardcoded on error
+- Feature bullet list is composed by `lib/pricing-features.ts` `buildDynamicFeatures()`: numeric bullets (imageLimit, guestLimit, storageDays, quality) from DB fields + i18n templates, plus non-numeric tier-specific features from `PricingFeature` DB rows
+
+**Editing pricing values:** changing `PricingPlan.imageLimit` via Prisma Studio or SQL is reflected on the landing page without a rebuild (server component re-fetches on the next request). Non-numeric features (e.g. "Custom QR code") are edited via the `PricingFeature` table. `lib/pricing-tiers.ts` is only touched when adding a new tier or extending the schema — then `npx tsx prisma/seed.ts` pushes the new values to the DB.
 
 Messages are separate: upserted via `prisma.message.upsert({ where: { guestId } })` in the same POST. A message can be submitted without images and vice versa.
 

@@ -107,7 +107,8 @@
         "someFailedUpload": "Some images failed to upload.",
         "uploadStatus": "Upload status",
         "retryAllFailed": "Retry all failed uploads"
-      }
+      },
+      "premiumQualityNote": "Photos are stored at full quality — great for album printing."
     },
     "imageGallery": {
       "noImages": "No uploaded images",
@@ -452,6 +453,13 @@
     "photosPerGuest": "photos per guest",
     "upToGuests": "up to {{count}} guests",
     "storageDays": "stored for {{count}} days",
-    "storageYear": "stored for 1 year"
+    "storageYear": "stored for 1 year",
+    "qualityLabel": "Image quality",
+    "feature": {
+      "imagesPerGuest": "Up to {{count}} images per guest",
+      "upToGuests": "Up to {{count}} guests",
+      "storageDays": "Photos stored for {{count}} days",
+      "storageYear": "Photos stored for 1 year"
+    }
   }
 }
