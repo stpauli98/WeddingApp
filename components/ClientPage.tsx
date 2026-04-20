@@ -1,9 +1,4 @@
-// components/ClientPage.tsx
-// NO 'use client'. This is now a server component orchestrator.
-// Interactive sections (Navbar, SocialProof, FAQ) remain client components
-// and continue to use useTranslation() through the I18nProvider wired in
-// app/layout.tsx. ISLAND sections (Hero, PainPoints, Solution, HowItWorks,
-// Benefits, Pricing, Footer) are RSC and receive pre-resolved t + lang.
+// components/ClientPage.tsx — NO 'use client' — RSC orchestrator
 import type { TFunction } from 'i18next';
 import type { PricingPlanRow } from '@/lib/pricing-db';
 
@@ -27,15 +22,15 @@ interface ClientPageProps {
 export default function ClientPage({ t, lang, tiers }: ClientPageProps) {
   return (
     <>
-      <Navbar />
+      <Navbar t={t} lang={lang} />
       <HeroSection t={t} lang={lang} />
       <PainPoints t={t} />
       <Solution t={t} lang={lang} />
       <HowItWorks t={t} lang={lang} />
-      <SocialProof />
+      <SocialProof t={t} />
       <Benefits t={t} lang={lang} />
       <Pricing t={t} lang={lang} tiers={tiers} />
-      <FAQ />
+      <FAQ t={t} />
       <Footer t={t} lang={lang} />
     </>
   );

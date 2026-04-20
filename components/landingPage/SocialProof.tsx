@@ -9,21 +9,22 @@ interface SocialProofProps {
 }
 
 export default function SocialProof({ t }: SocialProofProps) {
+  const iconClass = 'w-8 h-8 text-lp-accent mx-auto mb-3';
   const stats = [
     {
-      icon: Heart,
+      icon: <Heart aria-hidden="true" className={iconClass} />,
       target: 20,
       suffix: '+',
       label: t('socialProof.statCouples'),
     },
     {
-      icon: Users,
+      icon: <Users aria-hidden="true" className={iconClass} />,
       target: 100,
       suffix: '+',
       label: t('socialProof.statGuests'),
     },
     {
-      icon: Globe,
+      icon: <Globe aria-hidden="true" className={iconClass} />,
       target: 4,
       suffix: '',
       label: t('socialProof.statCountries'),

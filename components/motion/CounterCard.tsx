@@ -1,10 +1,10 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { useEffect, useRef, useState, type ComponentType } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 interface CounterCardProps {
-  icon: ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' | 'false' }>;
+  icon: ReactNode;
   target: number;
   suffix?: string;
   label: string;
@@ -14,7 +14,7 @@ interface CounterCardProps {
 }
 
 export function CounterCard({
-  icon: Icon,
+  icon,
   target,
   suffix = '',
   label,
@@ -70,7 +70,7 @@ export function CounterCard({
       transition={{ duration: 0.4, delay }}
       className={className}
     >
-      <Icon aria-hidden="true" className="w-8 h-8 text-lp-accent mx-auto mb-3" />
+      {icon}
       <div className="text-3xl md:text-4xl font-bold text-lp-text mb-1">
         {count}{suffix}
       </div>
