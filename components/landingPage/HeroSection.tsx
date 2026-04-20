@@ -1,17 +1,16 @@
-"use client"
-
+// NO 'use client' - RSC.
 import Link from "next/link"
 import Image from "next/image"
-import { useTranslation } from "react-i18next"
-import { getCurrentLanguageFromPath } from "@/lib/utils/language"
-import { motion, useReducedMotion } from "framer-motion"
 import { ArrowRight, Shield, Clock, CheckCircle, Sparkles } from "lucide-react"
+import type { TFunction } from "i18next"
+import { FadeInUpOnMount } from "@/components/motion/FadeInUpOnMount"
 
-export default function HeroSection() {
-  const { t } = useTranslation()
-  const lang = getCurrentLanguageFromPath()
-  const reduce = useReducedMotion()
+interface HeroSectionProps {
+  t: TFunction
+  lang: "sr" | "en"
+}
 
+export default function HeroSection({ t, lang }: HeroSectionProps) {
   const trustIndicators = [
     { icon: Shield, text: t("hero.trustPrivacy") },
     { icon: Clock, text: t("hero.trustSpeed") },
@@ -23,12 +22,7 @@ export default function HeroSection() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Left: Text */}
-          <motion.div
-            className="space-y-5 md:space-y-6 text-center md:text-left"
-            initial={false}
-            animate={reduce ? undefined : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
+          <FadeInUpOnMount className="space-y-5 md:space-y-6 text-center md:text-left">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lp-accent/10 border border-lp-accent/20">
               <Sparkles className="w-4 h-4 text-lp-accent" aria-hidden="true" />
               <span className="text-xs sm:text-sm font-semibold text-lp-accent">{t("hero.eyebrow")}</span>
@@ -46,7 +40,7 @@ export default function HeroSection() {
 
             <div className="flex flex-col sm:flex-row gap-3 sm:justify-start justify-center">
               <Link
-                href={`/${getCurrentLanguageFromPath()}/admin/register`}
+                href={`/${lang}/admin/register`}
                 className="group inline-flex items-center justify-center px-7 py-3.5 text-base font-semibold text-white bg-lp-primary rounded-xl shadow-lg hover:shadow-xl hover:bg-lp-primary/90 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary"
               >
                 {t("hero.primaryCta")}
@@ -71,15 +65,10 @@ export default function HeroSection() {
                 )
               })}
             </div>
-          </motion.div>
+          </FadeInUpOnMount>
 
           {/* Right: Phone mockup - visible on all sizes */}
-          <motion.div
-            className="flex justify-center mt-4 md:mt-0"
-            initial={false}
-            animate={reduce ? undefined : { opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-          >
+          <FadeInUpOnMount delay={0.2} className="flex justify-center mt-4 md:mt-0">
             <div className="relative w-[200px] h-[400px] sm:w-[240px] sm:h-[480px] md:w-[280px] md:h-[560px] lg:w-[300px] lg:h-[600px] bg-gray-900 rounded-[2rem] sm:rounded-[2.5rem] md:rounded-[3rem] p-2 sm:p-3 shadow-2xl">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 sm:w-28 md:w-32 h-5 sm:h-6 bg-gray-900 rounded-b-xl sm:rounded-b-2xl z-10" />
               <div className="relative w-full h-full rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[2.25rem] overflow-hidden bg-white">
@@ -93,7 +82,7 @@ export default function HeroSection() {
                 />
               </div>
             </div>
-          </motion.div>
+          </FadeInUpOnMount>
         </div>
       </div>
     </section>
