@@ -21,7 +21,6 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "DodajUspomenu",
   description: "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene.",
-  generator: 'v0.dev',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://dodajuspomenu.com"),
   verification: {
     google: "MsLpENmJbTy5jvgQo2Jk1H31j7VqnVCxNJlip5IHPs8",
@@ -90,7 +89,7 @@ export default function RootLayout({
         {/* Inter font se učitava preko next/font/google, nije potreban preload */}
         {/* Favicon (dodaćeš public/favicon.ico po želji) */}
         <link rel="icon" href="/favicon.ico" />
-        {/* JSON-LD structured data for WebSite and Event */}
+        {/* JSON-LD: WebSite schema */}
         <Script id="jsonld-website" type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -98,20 +97,6 @@ export default function RootLayout({
             "name": "DodajUspomenu",
             "url": "https://www.dodajuspomenu.com/",
             "description": "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene. Brza i sigurna razmena fotografija sa venčanja."
-          })}
-        </Script>
-        <Script id="jsonld-event" type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Event",
-            "name": "DodajUspomenu – Digitalni svadbeni album",
-            "startDate": "2025-05-04",
-            "location": {
-              "@type": "Place",
-              "name": "Online platforma",
-              "url": "https://www.dodajuspomenu.com/"
-            },
-            "description": "Aplikacija za digitalno prikupljanje i deljenje slika i čestitki sa svadbi."
           })}
         </Script>
         {/* Organization schema */}
@@ -167,28 +152,6 @@ export default function RootLayout({
             ]
           })}
         </Script>
-        {/* Example Review schema for homepage */}
-        <Script id="jsonld-review" type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Review",
-            "itemReviewed": {
-              "@type": "WebSite",
-              "name": "DodajUspomenu",
-              "url": "https://www.dodajuspomenu.com/"
-            },
-            "reviewRating": {
-              "@type": "Rating",
-              "ratingValue": "5",
-              "bestRating": "5"
-            },
-            "author": {
-              "@type": "Person",
-              "name": "Ana M."
-            },
-            "reviewBody": "Predivna aplikacija! Svi gosti su lako uploadovali slike i mladenci su oduševljeni. Preporuka za svaku svadbu!"
-          })}
-        </Script>
         <Script id="jsonld-faq" type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -199,7 +162,7 @@ export default function RootLayout({
                 "name": "Zašto bih koristio ovu aplikaciju umesto društvenih mreža?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Za razliku od društvenih mreža, naša aplikacija omogućava privatno deljenje fotografija samo sa osobama kojima vi dozvolite pristup. Takođe, sve fotografije su organizovane na jednom mestu, u visokoj rezoluciji i lako ih je preuzeti."
+                  "text": "Za razliku od društvenih mreža, naša aplikacija omogućava privatno deljenje fotografija samo sa osobama kojima vi dozvolite pristup. Sve fotografije su organizovane na jednom mestu, u visokoj rezoluciji, i lako ih je preuzeti."
                 }
               },
               {
@@ -207,15 +170,7 @@ export default function RootLayout({
                 "name": "Koje su prednosti korišćenja ove aplikacije?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Glavne prednosti su jednostavnost korišćenja, privatnost, mogućnost prikupljanja fotografija od svih gostiju na jednom mestu, bez potrebe za instalacijom aplikacije, i mogućnost preuzimanja svih fotografija u originalnoj rezoluciji."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Nije li jednostavnije koristiti WhatsApp ili Viber grupu?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "WhatsApp i Viber grupe imaju ograničenja u pogledu kvaliteta fotografija (kompresija), ograničenog prostora za skladištenje i organizacije. Naša aplikacija čuva fotografije u originalnoj rezoluciji, nema ograničenja u broju fotografija i sve je organizovano na jednom mestu."
+                  "text": "Jednostavnost korišćenja, privatnost, prikupljanje fotografija od svih gostiju na jednom mestu, bez instalacije aplikacije, i mogućnost preuzimanja svih slika odjednom."
                 }
               },
               {
@@ -223,7 +178,7 @@ export default function RootLayout({
                 "name": "Koliko košta korišćenje aplikacije?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Nudimo besplatni osnovni paket koji uključuje do 500 fotografija. Za veća venčanja, imamo premium pakete koji počinju od 29€ sa neograničenim brojem fotografija i dodatnim funkcionalnostima."
+                  "text": "Besplatan paket nudi do 3 slike po gostu za do 20 gostiju. Osnovni paket je €25 (7 slika po gostu, do 100 gostiju). Premium je €75 (25 slika po gostu, do 300 gostiju, originalni kvalitet)."
                 }
               },
               {
@@ -231,7 +186,7 @@ export default function RootLayout({
                 "name": "Da li gosti moraju da kreiraju naloge?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Ne, to je jedna od glavnih prednosti naše aplikacije. Gosti jednostavno skeniraju QR kod i mogu odmah da otpremaju fotografije bez registracije ili instaliranja bilo čega."
+                  "text": "Ne. Gosti skeniraju QR kod i mogu odmah da otpremaju fotografije bez registracije i bez instalacije aplikacije."
                 }
               },
               {
@@ -239,7 +194,7 @@ export default function RootLayout({
                 "name": "Koliko dugo se čuvaju fotografije?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "U osnovnom paketu, fotografije se čuvaju 6 meseci. U premium paketima, fotografije se čuvaju neograničeno vreme."
+                  "text": "Slike se čuvaju 30 dana od datuma venčanja u svim paketima. Mladenci u tom roku preuzimaju ZIP sa svim fotografijama."
                 }
               }
             ]
