@@ -19,7 +19,7 @@ export default function Pricing({ tiers }: PricingProps) {
 
   return (
     <section className="py-16 sm:py-20 bg-white" aria-labelledby="pricing-heading">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div
           className="text-center mb-12"
           initial={{ opacity: 0, y: 20 }}
@@ -35,7 +35,7 @@ export default function Pricing({ tiers }: PricingProps) {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-5">
           {tiers.map((plan, index) => {
             const isRecommended = plan.recommended
             const features = buildDynamicFeatures(plan, lang, t)
@@ -170,12 +170,12 @@ function Metric({
   inverted: boolean;
 }) {
   return (
-    <div className="flex flex-col items-center text-center">
+    <div className="flex flex-col items-center text-center min-w-0">
       <Icon className={`w-5 h-5 mb-1 ${inverted ? "text-white/90" : "text-lp-accent"}`} />
-      <span className={`text-sm font-semibold truncate max-w-full ${inverted ? "text-white" : "text-lp-text"}`}>
+      <span className={`text-xs font-semibold leading-tight break-words ${inverted ? "text-white" : "text-lp-text"}`}>
         {label}
       </span>
-      <span className={`text-[10px] uppercase tracking-wide mt-0.5 truncate max-w-full ${inverted ? "text-white/70" : "text-lp-muted-foreground"}`}>
+      <span className={`text-[10px] uppercase tracking-wide mt-0.5 leading-tight break-words ${inverted ? "text-white/70" : "text-lp-muted-foreground"}`}>
         {hint}
       </span>
     </div>
