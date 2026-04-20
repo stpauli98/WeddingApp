@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LegalLocaleNotice } from '@/components/LegalLocaleNotice';
 
 export const metadata = {
   title: 'Politika kolačića | DodajUspomenu',
@@ -10,6 +11,7 @@ export default function CookiesPage() {
   return (
     <main className="max-w-3xl mx-auto px-4 py-12">
       <article className="prose prose-slate max-w-none">
+        <LegalLocaleNotice />
         <h1>Politika kolačića</h1>
         <p><strong>Poslednje ažurirano:</strong> 20. april 2026.</p>
 

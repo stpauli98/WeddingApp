@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LegalLocaleNotice } from '@/components/LegalLocaleNotice';
 
 export const metadata = {
   title: 'Politika privatnosti | DodajUspomenu',
@@ -10,11 +11,20 @@ export default function PrivacyPage() {
   return (
     <main className="max-w-3xl mx-auto px-4 py-12">
       <article className="prose prose-slate max-w-none">
+        <LegalLocaleNotice />
         <h1>Politika privatnosti</h1>
         <p><strong>Poslednje ažurirano:</strong> 20. april 2026.</p>
 
         <h2>1. Ko je kontrolor podataka</h2>
-        <p>DodajUspomenu je SaaS platforma. Kontakt: <a href="mailto:kontakt@dodajuspomenu.com">kontakt@dodajuspomenu.com</a>.</p>
+        <p>
+          <strong>Next Pixel s.p.</strong><br />
+          Jovana Dučića 15, 78400 Gradiška, Bosna i Hercegovina<br />
+          JIB: 4513996760008<br />
+          Email: <a href="mailto:kontakt@dodajuspomenu.com">kontakt@dodajuspomenu.com</a>
+        </p>
+        <p className="text-sm text-gray-600">
+          Punu Impressum informaciju vidi na <Link href="/kontakt">/kontakt</Link>.
+        </p>
 
         <h2>2. Koje podatke prikupljamo</h2>
         <ul>

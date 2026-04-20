@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LegalLocaleNotice } from '@/components/LegalLocaleNotice';
 
 export const metadata = {
   title: 'Kontakt | DodajUspomenu',
@@ -10,6 +11,7 @@ export default function KontaktPage() {
   return (
     <main className="max-w-2xl mx-auto px-4 py-12">
       <article className="prose prose-slate max-w-none">
+        <LegalLocaleNotice />
         <h1>Kontakt</h1>
         <p>Pitanja, podrška, GDPR zahtevi: <a href="mailto:kontakt@dodajuspomenu.com">kontakt@dodajuspomenu.com</a></p>
         <p>Odgovaramo u 1-2 radna dana.</p>

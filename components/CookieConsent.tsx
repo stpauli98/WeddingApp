@@ -4,25 +4,24 @@ import { useConsent } from '@/hooks/useConsent';
 import Link from 'next/link';
 
 export function CookieConsent() {
-  const { consent, accept, decline } = useConsent();
+  const { consent, accept, decline, mounted } = useConsent();
   const { t, i18n } = useTranslation();
 
-  if (consent !== null) return null;
+  if (!mounted || consent !== null) return null;
   const lang = i18n.language === 'en' ? 'en' : 'sr';
 
   return (
     <div
-      role="dialog"
-      aria-labelledby="cookie-consent-title"
-      aria-describedby="cookie-consent-desc"
+      role="region"
+      aria-label={t('consent.title')}
       className="fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-gray-200 shadow-lg p-4 md:p-6"
     >
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center gap-4">
         <div className="flex-1">
-          <h2 id="cookie-consent-title" className="font-semibold mb-1">
+          <h2 className="font-semibold mb-1">
             {t('consent.title')}
           </h2>
-          <p id="cookie-consent-desc" className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600">
             {t('consent.body')}{' '}
             <Link href={`/${lang}/cookies`} className="underline">
               {t('consent.readMore')}
