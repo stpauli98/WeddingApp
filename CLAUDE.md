@@ -82,6 +82,16 @@ ANALYZE=true pnpm build                     # Bundle analyzer
 
 Admin ZIP download (`/api/admin/download/images`) fetches `imageUrl` directly: for free/basic events the URL returns the compressed derivative (fast, album-thumb-grade); for premium/unlimited events the URL returns the original (album-print-grade). No two-URL storage, no post-hoc transforms.
 
+### Pricing data flow (DB-first)
+
+`lib/pricing-tiers.ts` is the **build-time fallback** config + seed source. **Runtime source of truth** is the `PricingPlan` + `PricingFeature` DB tables.
+
+- Landing page (`app/page.tsx` server component) → `getPricingPlansFromDb()` helper → `<Pricing tiers={...}>`
+- Admin components (`PricingTierSelector`, `EventTierBadge`) → client fetch from `/api/pricing` with skeleton loading + fallback to hardcoded on error
+- Feature bullet list is composed by `lib/pricing-features.ts` `buildDynamicFeatures()`: numeric bullets (imageLimit, guestLimit, storageDays, quality) from DB fields + i18n templates, plus non-numeric tier-specific features from `PricingFeature` DB rows
+
+**Editing pricing values:** changing `PricingPlan.imageLimit` via Prisma Studio or SQL is reflected on the landing page without a rebuild (server component re-fetches on the next request). Non-numeric features (e.g. "Custom QR code") are edited via the `PricingFeature` table. `lib/pricing-tiers.ts` is only touched when adding a new tier or extending the schema — then `npx tsx prisma/seed.ts` pushes the new values to the DB.
+
 Messages are separate: upserted via `prisma.message.upsert({ where: { guestId } })` in the same POST. A message can be submitted without images and vice versa.
 
 ### Admin download endpoints

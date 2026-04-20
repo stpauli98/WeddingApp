@@ -455,6 +455,12 @@
     "upToGuests": "do {{count}} gostiju",
     "storageDays": "čuvanje {{count}} dana",
     "storageYear": "čuvanje 1 godinu",
-    "qualityLabel": "Kvalitet slike"
+    "qualityLabel": "Kvalitet slike",
+    "feature": {
+      "imagesPerGuest": "Do {{count}} slika po gostu",
+      "upToGuests": "Do {{count}} gostiju",
+      "storageDays": "Slike se čuvaju {{count}} dana",
+      "storageYear": "Slike se čuvaju 1 godinu"
+    }
   }
 }

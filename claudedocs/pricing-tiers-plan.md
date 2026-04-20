@@ -224,3 +224,17 @@ Each tier gets a distinct image pipeline beyond just `imageLimit`:
 **Schema:** `PricingPlan.{clientResizeMaxWidth,clientQuality,storeOriginal}` + `Image.tier` snapshot. See migration `20260419_add_tier_quality_fields`.
 
 **Implementation:** See [plans/2026-04-19-tier-based-image-quality-gradient.md](../docs/superpowers/plans/2026-04-19-tier-based-image-quality-gradient.md) and [specs/2026-04-19-tier-based-image-quality-gradient-design.md](../docs/superpowers/specs/2026-04-19-tier-based-image-quality-gradient-design.md).
+
+---
+
+## DB-first pricing refactor (2026-04-19)
+
+Prije: `PRICING_TIERS` const je bio single source of truth; UI čitao hardcoded.
+Poslije: DB (`PricingPlan` + `PricingFeature`) je runtime source of truth. `PRICING_TIERS` ostaje build-time fallback + seed source.
+
+Ključni fajlovi:
+- `lib/pricing-db.ts` — `getPricingPlansFromDb()` za server components
+- `lib/pricing-features.ts` — `buildDynamicFeatures()` za template-based bullet rendering
+- `/api/pricing` — runtime REST endpoint za client components
+
+Ako admin dashboard u budućnosti dobije formu za uređivanje pricing-a, ova arhitektura već podržava trenutnu propagaciju promjena.

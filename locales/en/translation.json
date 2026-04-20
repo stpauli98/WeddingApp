@@ -454,6 +454,12 @@
     "upToGuests": "up to {{count}} guests",
     "storageDays": "stored for {{count}} days",
     "storageYear": "stored for 1 year",
-    "qualityLabel": "Image quality"
+    "qualityLabel": "Image quality",
+    "feature": {
+      "imagesPerGuest": "Up to {{count}} images per guest",
+      "upToGuests": "Up to {{count}} guests",
+      "storageDays": "Photos stored for {{count}} days",
+      "storageYear": "Photos stored for 1 year"
+    }
   }
 }

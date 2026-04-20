@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PRICING_TIERS, PricingTier, getTierName, getQualityLabel } from '@/lib/pricing-tiers';
 import { Label } from '@/components/ui/label';
@@ -12,8 +13,43 @@ interface PricingTierSelectorProps {
   language?: 'sr' | 'en';
 }
 
+type TierListItem = {
+  tier: PricingTier;
+  imageLimit: number;
+  price: number;
+  recommended: boolean;
+  name: { sr: string; en: string };
+};
+
 export function PricingTierSelector({ selectedTier, onTierChange, language = 'sr' }: PricingTierSelectorProps) {
   const { t } = useTranslation();
+  const [tiers, setTiers] = useState<TierListItem[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/pricing')
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled) setTiers(data);
+      })
+      .catch((err) => {
+        console.error('[pricing-selector] fallback to hardcoded:', err);
+        if (!cancelled) {
+          setTiers(
+            (Object.keys(PRICING_TIERS) as PricingTier[]).map((tier) => ({
+              tier,
+              imageLimit: PRICING_TIERS[tier].imageLimit,
+              price: PRICING_TIERS[tier].price,
+              recommended: PRICING_TIERS[tier].recommended ?? false,
+              name: PRICING_TIERS[tier].name,
+            }))
+          );
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="space-y-3">
@@ -26,91 +62,98 @@ export function PricingTierSelector({ selectedTier, onTierChange, language = 'sr
         </p>
       </div>
 
-      <RadioGroup
-        value={selectedTier}
-        onValueChange={(value) => onTierChange(value as PricingTier)}
-        className="grid gap-3"
-      >
-        {(Object.keys(PRICING_TIERS) as PricingTier[]).map((tier) => {
-          const config = PRICING_TIERS[tier];
-          const isSelected = selectedTier === tier;
-          const isRecommended = config.recommended;
+      {tiers === null ? (
+        <div className="space-y-3">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="h-[72px] rounded-lg bg-[hsl(var(--lp-muted))] animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <RadioGroup
+          value={selectedTier}
+          onValueChange={(value) => onTierChange(value as PricingTier)}
+          className="grid gap-3"
+        >
+          {tiers.map(({ tier, imageLimit, price, recommended, name }) => {
+            const isSelected = selectedTier === tier;
+            const isRecommended = recommended;
 
-          return (
-            <div key={tier} className="relative">
-              <RadioGroupItem
-                value={tier}
-                id={`tier-${tier}`}
-                className="peer sr-only"
-              />
-              <Label
-                htmlFor={`tier-${tier}`}
-                className={`flex items-center justify-between p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                  isSelected
-                    ? 'border-[hsl(var(--lp-primary))] bg-[hsl(var(--lp-primary))]/10 shadow-sm'
-                    : 'border-[hsl(var(--lp-border))] bg-[hsl(var(--lp-card))] hover:border-[hsl(var(--lp-accent))] hover:bg-[hsl(var(--lp-muted))]/30'
-                }`}
-              >
-                <div className="flex items-center gap-3 flex-1">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
+            return (
+              <div key={tier} className="relative">
+                <RadioGroupItem
+                  value={tier}
+                  id={`tier-${tier}`}
+                  className="peer sr-only"
+                />
+                <Label
+                  htmlFor={`tier-${tier}`}
+                  className={`flex items-center justify-between p-4 rounded-lg border-2 cursor-pointer transition-all ${
                     isSelected
-                      ? 'bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))]'
-                      : 'bg-[hsl(var(--lp-muted))] text-[hsl(var(--lp-accent))]'
-                  }`}>
-                    <ImageIcon className="h-5 w-5" />
+                      ? 'border-[hsl(var(--lp-primary))] bg-[hsl(var(--lp-primary))]/10 shadow-sm'
+                      : 'border-[hsl(var(--lp-border))] bg-[hsl(var(--lp-card))] hover:border-[hsl(var(--lp-accent))] hover:bg-[hsl(var(--lp-muted))]/30'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
+                      isSelected
+                        ? 'bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))]'
+                        : 'bg-[hsl(var(--lp-muted))] text-[hsl(var(--lp-accent))]'
+                    }`}>
+                      <ImageIcon className="h-5 w-5" />
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-[hsl(var(--lp-text))]">
+                          {name[language] ?? getTierName(tier, language)}
+                        </span>
+                        {isRecommended && (
+                          <span className="text-xs bg-[hsl(var(--lp-accent))]/20 text-[hsl(var(--lp-accent))] px-2 py-0.5 rounded-full font-medium border border-[hsl(var(--lp-accent))]/30">
+                            {t('admin.event.pricing.recommended', 'Preporučeno')}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-[hsl(var(--lp-muted-foreground))] mt-0.5">
+                        {t('admin.event.pricing.imagesPerGuest', '{{count}} slika po gostu', { count: imageLimit })}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-[hsl(var(--lp-muted-foreground))] mt-0.5">
+                        <Sparkles className="w-4 h-4" />
+                        <span>{getQualityLabel(tier, language as 'sr' | 'en')}</span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-[hsl(var(--lp-text))]">
-                        {getTierName(tier, language)}
-                      </span>
-                      {isRecommended && (
-                        <span className="text-xs bg-[hsl(var(--lp-accent))]/20 text-[hsl(var(--lp-accent))] px-2 py-0.5 rounded-full font-medium border border-[hsl(var(--lp-accent))]/30">
-                          {t('admin.event.pricing.recommended', 'Preporučeno')}
-                        </span>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="font-bold text-lg">
+                        {price === 0 ? (
+                          <span className="text-[hsl(var(--lp-success))]">
+                            {t('admin.event.pricing.free', 'Besplatno')}
+                          </span>
+                        ) : (
+                          <span className="text-[hsl(var(--lp-text))]">
+                            {(price / 100).toFixed(2)} EUR
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className={`flex h-5 w-5 items-center justify-center rounded-full border-2 transition-all ${
+                      isSelected
+                        ? 'border-[hsl(var(--lp-primary))] bg-[hsl(var(--lp-primary))]'
+                        : 'border-[hsl(var(--lp-accent))]/40'
+                    }`}>
+                      {isSelected && (
+                        <Check className="h-3 w-3 text-[hsl(var(--lp-primary-foreground))]" />
                       )}
                     </div>
-                    <div className="text-sm text-[hsl(var(--lp-muted-foreground))] mt-0.5">
-                      {t('admin.event.pricing.imagesPerGuest', '{{count}} slika po gostu', { count: config.imageLimit })}
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-[hsl(var(--lp-muted-foreground))] mt-0.5">
-                      <Sparkles className="w-4 h-4" />
-                      <span>{getQualityLabel(tier, language as 'sr' | 'en')}</span>
-                    </div>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <div className="font-bold text-lg">
-                      {config.price === 0 ? (
-                        <span className="text-[hsl(var(--lp-success))]">
-                          {t('admin.event.pricing.free', 'Besplatno')}
-                        </span>
-                      ) : (
-                        <span className="text-[hsl(var(--lp-text))]">
-                          {(config.price / 100).toFixed(2)} EUR
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className={`flex h-5 w-5 items-center justify-center rounded-full border-2 transition-all ${
-                    isSelected
-                      ? 'border-[hsl(var(--lp-primary))] bg-[hsl(var(--lp-primary))]'
-                      : 'border-[hsl(var(--lp-accent))]/40'
-                  }`}>
-                    {isSelected && (
-                      <Check className="h-3 w-3 text-[hsl(var(--lp-primary-foreground))]" />
-                    )}
-                  </div>
-                </div>
-              </Label>
-            </div>
-          );
-        })}
-      </RadioGroup>
+                </Label>
+              </div>
+            );
+          })}
+        </RadioGroup>
+      )}
     </div>
   );
 }

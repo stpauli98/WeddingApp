@@ -44,10 +44,6 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     clientQuality: 0.85,
     storeOriginal: false,
     features: [
-      { sr: 'Do 10 slika po gostu', en: 'Up to 10 images per guest' },
-      { sr: 'Maksimalno 20 gostiju', en: 'Up to 20 guests' },
-      { sr: 'Slike se čuvaju 10 dana', en: 'Photos stored for 10 days' },
-      { sr: 'Standardni kvalitet (do 1280px)', en: 'Standard quality (up to 1280px)' },
       { sr: 'Standardni QR kod', en: 'Standard QR code' },
       { sr: 'Galerija fotografija', en: 'Photo gallery' },
       { sr: 'Preuzimanje svih slika', en: 'Download all images' },
@@ -63,10 +59,6 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     clientQuality: 0.9,
     storeOriginal: false,
     features: [
-      { sr: 'Do 25 slika po gostu', en: 'Up to 25 images per guest' },
-      { sr: 'Do 100 gostiju', en: 'Up to 100 guests' },
-      { sr: 'Slike se čuvaju 30 dana', en: 'Photos stored for 30 days' },
-      { sr: 'Visok kvalitet (do 1600px)', en: 'High quality (up to 1600px)' },
       { sr: 'Prilagođen QR kod', en: 'Custom QR code' },
       { sr: 'Prioritetna podrška', en: 'Priority support' },
     ],
@@ -82,10 +74,6 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     clientQuality: 0.95,
     storeOriginal: true,
     features: [
-      { sr: 'Do 50 slika po gostu', en: 'Up to 50 images per guest' },
-      { sr: 'Do 300 gostiju', en: 'Up to 300 guests' },
-      { sr: 'Slike se čuvaju 1 godinu', en: 'Photos stored for 1 year' },
-      { sr: 'Vrlo visok kvalitet (do 2560px, idealno za A4 štampu)', en: 'Very high quality (up to 2560px, great for A4 print)' },
       { sr: 'Napredni QR kod', en: 'Advanced QR code' },
       { sr: 'Prilagođen brending', en: 'Custom branding' },
       { sr: 'Prilagođene poruke', en: 'Custom messages' },
@@ -103,10 +91,6 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     clientQuality: 1.0,
     storeOriginal: true,
     features: [
-      { sr: 'Neograničen broj slika po gostu', en: 'Unlimited images per guest' },
-      { sr: 'Neograničen broj gostiju', en: 'Unlimited guests' },
-      { sr: 'Slike se čuvaju 1 godinu', en: 'Photos stored for 1 year' },
-      { sr: 'Originalan kvalitet i rezolucija (arhiva, štampa do A3)', en: 'Original quality and resolution (archive, A3 print)' },
       { sr: 'Napredni QR kod', en: 'Advanced QR code' },
       { sr: 'Prilagođen brending', en: 'Custom branding' },
       { sr: 'Dedicirana podrška', en: 'Dedicated support' },
