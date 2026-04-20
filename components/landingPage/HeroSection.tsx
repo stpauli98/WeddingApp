@@ -8,8 +8,8 @@ import { motion, useReducedMotion } from "framer-motion"
 import { ArrowRight, Shield, Clock, CheckCircle, Sparkles } from "lucide-react"
 
 export default function HeroSection() {
-  const { t, i18n } = useTranslation()
-  const lang = i18n.language || "sr"
+  const { t } = useTranslation()
+  const lang = getCurrentLanguageFromPath()
   const reduce = useReducedMotion()
 
   const trustIndicators = [

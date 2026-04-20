@@ -7,8 +7,8 @@ import { motion, useReducedMotion } from "framer-motion"
 import { UserPlus, QrCode, Download } from "lucide-react"
 
 export default function HowItWorks() {
-  const { t, i18n } = useTranslation()
-  const lang = i18n.language || "sr"
+  const { t } = useTranslation()
+  const lang = getCurrentLanguageFromPath()
   const reduce = useReducedMotion()
 
   const steps = [
