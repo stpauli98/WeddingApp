@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 import { getCurrentLanguageFromPath } from "@/lib/utils/language"
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import { Check, ArrowRight, Crown, Camera, Users, Clock, Sparkles } from "lucide-react"
 import type { PricingPlanRow } from "@/lib/pricing-db"
 import { buildDynamicFeatures } from "@/lib/pricing-features"
@@ -16,14 +16,19 @@ interface PricingProps {
 export default function Pricing({ tiers }: PricingProps) {
   const { t, i18n } = useTranslation()
   const lang = (i18n.language || "sr") as "sr" | "en"
+  const reduce = useReducedMotion()
+  const currencyFormatter = new Intl.NumberFormat(lang === "sr" ? "sr-RS" : "en-US", {
+    style: "currency",
+    currency: "EUR",
+  })
 
   return (
     <section className="py-16 sm:py-20 bg-white" aria-labelledby="pricing-heading">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div
           className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={reduce ? false : { opacity: 0, y: 20 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
@@ -47,15 +52,15 @@ export default function Pricing({ tiers }: PricingProps) {
                     ? "bg-lp-primary text-white shadow-xl ring-2 ring-lp-primary ring-offset-2 scale-[1.03]"
                     : "bg-white border border-lp-border shadow-sm"
                 }`}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={reduce ? false : { opacity: 0, y: 20 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
-                whileHover={{ y: -4 }}
+                whileHover={reduce ? undefined : { y: -4 }}
               >
                 {isRecommended && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-4 py-1 bg-lp-accent text-white text-xs font-bold uppercase tracking-wide rounded-full shadow-md">
-                    <Crown className="w-3 h-3" />
+                    <Crown className="w-3 h-3" aria-hidden="true" />
                     {t("pricing.mostPopular")}
                   </div>
                 )}
@@ -70,13 +75,8 @@ export default function Pricing({ tiers }: PricingProps) {
                       {t("pricing.free")}
                     </div>
                   ) : (
-                    <div className="flex items-baseline gap-1">
-                      <span className={`text-4xl font-bold ${isRecommended ? "text-white" : "text-lp-text"}`}>
-                        {(plan.price / 100).toFixed(2)}
-                      </span>
-                      <span className={`text-base ${isRecommended ? "text-white/80" : "text-lp-muted-foreground"}`}>
-                        EUR
-                      </span>
+                    <div className={`text-4xl font-bold ${isRecommended ? "text-white" : "text-lp-text"}`}>
+                      {currencyFormatter.format(plan.price / 100)}
                     </div>
                   )}
                   <p className={`text-sm mt-1 ${isRecommended ? "text-white/70" : "text-lp-muted-foreground"}`}>
@@ -98,19 +98,21 @@ export default function Pricing({ tiers }: PricingProps) {
                     <Metric
                       icon={Users}
                       label={String(plan.guestLimit)}
-                      hint={lang === "sr" ? "gostiju" : "guests"}
+                      hint={t("pricing.labels.guests")}
                       inverted={!!isRecommended}
                     />
                     <Metric
                       icon={Clock}
-                      label={plan.storageDays >= 365 ? (lang === "sr" ? "1 god." : "1 yr") : `${plan.storageDays}d`}
-                      hint={lang === "sr" ? "čuvanje" : "storage"}
+                      label={plan.storageDays >= 365
+                        ? t("pricing.labels.oneYear")
+                        : t("pricing.labels.daysStored", { count: plan.storageDays })}
+                      hint={t("pricing.labels.storage")}
                       inverted={!!isRecommended}
                     />
                     <Metric
                       icon={Sparkles}
                       label={getQualityLabel(plan.tier, lang).split("(")[0].trim()}
-                      hint={lang === "sr" ? "kvalitet" : "quality"}
+                      hint={t("pricing.labels.quality")}
                       inverted={!!isRecommended}
                     />
                   </div>
@@ -120,7 +122,7 @@ export default function Pricing({ tiers }: PricingProps) {
                 <ul className="space-y-2.5 mb-6 flex-1">
                   {features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isRecommended ? "text-white/90" : "text-lp-accent"}`} />
+                      <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isRecommended ? "text-white/90" : "text-lp-accent"}`} aria-hidden="true" />
                       <span className={`text-sm ${isRecommended ? "text-white/90" : "text-lp-muted-foreground"}`}>
                         {feature}
                       </span>
@@ -130,14 +132,14 @@ export default function Pricing({ tiers }: PricingProps) {
 
                 <Link
                   href={`/${getCurrentLanguageFromPath()}/admin/register?tier=${plan.tier}`}
-                  className={`group inline-flex items-center justify-center w-full px-4 py-3 text-sm font-semibold rounded-xl transition-all ${
+                  className={`group inline-flex items-center justify-center w-full px-4 py-3 text-sm font-semibold rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary ${
                     isRecommended
                       ? "bg-white text-lp-primary hover:bg-white/90 shadow-md"
                       : "bg-lp-primary text-white hover:bg-lp-primary/90"
                   }`}
                 >
                   {plan.price === 0 ? t("pricing.startFree") : t("pricing.choosePlan")}
-                  <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
                 </Link>
               </motion.div>
             )
@@ -146,8 +148,8 @@ export default function Pricing({ tiers }: PricingProps) {
 
         <motion.p
           className="text-center text-sm text-lp-muted-foreground mt-8"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          initial={reduce ? false : { opacity: 0 }}
+          whileInView={reduce ? undefined : { opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
@@ -164,14 +166,14 @@ function Metric({
   hint,
   inverted,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" | "false" }>;
   label: string;
   hint: string;
   inverted: boolean;
 }) {
   return (
     <div className="flex flex-col items-center text-center min-w-0">
-      <Icon className={`w-5 h-5 mb-1 ${inverted ? "text-white/90" : "text-lp-accent"}`} />
+      <Icon className={`w-5 h-5 mb-1 ${inverted ? "text-white/90" : "text-lp-accent"}`} aria-hidden="true" />
       <span className={`text-xs font-semibold leading-tight break-words ${inverted ? "text-white" : "text-lp-text"}`}>
         {label}
       </span>

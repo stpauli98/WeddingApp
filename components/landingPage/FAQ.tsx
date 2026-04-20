@@ -2,10 +2,11 @@
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { useTranslation } from "react-i18next"
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 
 export default function FAQ() {
   const { t } = useTranslation()
+  const reduce = useReducedMotion()
 
   const faqItems = Array.from({ length: 8 }, (_, i) => ({
     question: t(`faq.question${i + 1}`),
@@ -17,8 +18,8 @@ export default function FAQ() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
         <motion.div
           className="text-center mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={reduce ? false : { opacity: 0, y: 20 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
@@ -29,8 +30,8 @@ export default function FAQ() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={reduce ? false : { opacity: 0, y: 20 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >

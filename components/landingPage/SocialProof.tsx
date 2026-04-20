@@ -2,16 +2,20 @@
 
 import Image from "next/image"
 import { useTranslation } from "react-i18next"
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import { Heart, Users, Globe } from "lucide-react"
 import { useEffect, useState, useRef } from "react"
 
-function useCounterAnimation(target: number, duration = 2000) {
-  const [count, setCount] = useState(0)
+function useCounterAnimation(target: number, duration = 2000, reduce = false) {
+  const [count, setCount] = useState(reduce ? target : 0)
   const [hasAnimated, setHasAnimated] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    if (reduce) {
+      setCount(target)
+      return
+    }
     if (hasAnimated || !ref.current) return
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -36,16 +40,17 @@ function useCounterAnimation(target: number, duration = 2000) {
     )
     observer.observe(ref.current)
     return () => observer.disconnect()
-  }, [target, duration, hasAnimated])
+  }, [target, duration, hasAnimated, reduce])
 
   return { count, ref }
 }
 
 export default function SocialProof() {
   const { t } = useTranslation()
-  const couples = useCounterAnimation(20)
-  const guests = useCounterAnimation(100)
-  const countries = useCounterAnimation(4)
+  const reduce = useReducedMotion() ?? false
+  const couples = useCounterAnimation(20, 2000, reduce)
+  const guests = useCounterAnimation(100, 2000, reduce)
+  const countries = useCounterAnimation(4, 2000, reduce)
 
   const stats = [
     { icon: Heart, value: couples.count, ref: couples.ref, suffix: "+", label: t("socialProof.statCouples") },
@@ -59,8 +64,8 @@ export default function SocialProof() {
         <motion.h2
           id="social-proof-heading"
           className="font-playfair text-3xl md:text-4xl font-bold text-lp-text text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={reduce ? false : { opacity: 0, y: 20 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
@@ -75,12 +80,12 @@ export default function SocialProof() {
                 key={index}
                 ref={stat.ref}
                 className="bg-white rounded-xl p-6 text-center shadow-sm border border-lp-border"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={reduce ? false : { opacity: 0, y: 20 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
-                <Icon className="w-8 h-8 text-lp-accent mx-auto mb-3" />
+                <Icon className="w-8 h-8 text-lp-accent mx-auto mb-3" aria-hidden="true" />
                 <div className="text-3xl md:text-4xl font-bold text-lp-text mb-1">
                   {stat.value}{stat.suffix}
                 </div>
@@ -95,8 +100,8 @@ export default function SocialProof() {
 
         <motion.div
           className="flex justify-center mt-8"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          initial={reduce ? false : { opacity: 0 }}
+          whileInView={reduce ? undefined : { opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >

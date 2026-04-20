@@ -3,12 +3,13 @@
 import Image from "next/image"
 import { useTranslation } from "react-i18next"
 import { getCurrentLanguageFromPath } from "@/lib/utils/language"
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import { UserPlus, QrCode, Download } from "lucide-react"
 
 export default function HowItWorks() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language || "sr"
+  const reduce = useReducedMotion()
 
   const steps = [
     { icon: UserPlus, title: t("howItWorks.step1Title"), description: t("howItWorks.step1Description"), num: "1" },
@@ -21,8 +22,8 @@ export default function HowItWorks() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <motion.div
           className="text-center mb-14"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={reduce ? false : { opacity: 0, y: 20 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
@@ -41,8 +42,8 @@ export default function HowItWorks() {
               <motion.div
                 key={index}
                 className="text-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={reduce ? false : { opacity: 0, y: 20 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index * 0.15 }}
               >
@@ -50,7 +51,7 @@ export default function HowItWorks() {
                   {step.num}
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-lp-accent/10 flex items-center justify-center mx-auto mb-4">
-                  <Icon className="w-6 h-6 text-lp-accent" />
+                  <Icon className="w-6 h-6 text-lp-accent" aria-hidden="true" />
                 </div>
                 <h3 className="text-xl font-bold text-lp-text mb-2">{step.title}</h3>
                 <p className="text-lp-muted-foreground">{step.description}</p>
@@ -61,8 +62,8 @@ export default function HowItWorks() {
 
         <motion.div
           className="max-w-4xl mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={reduce ? false : { opacity: 0, y: 20 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
