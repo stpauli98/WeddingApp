@@ -9,6 +9,8 @@ const defaultLanguage = 'sr';
 const exemptPaths = [
   '/api',             // API rute
   '/_next',           // Next.js interne rute
+  '/images',          // Static images (Vercel image optimizer fetches these internally)
+  '/templates',       // Static QR templates
   '/favicon.ico',     // Favicon
   '/robots.txt',      // Robots.txt
   '/sitemap.xml',     // Sitemap
