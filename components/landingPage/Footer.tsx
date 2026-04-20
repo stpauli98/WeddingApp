@@ -30,7 +30,7 @@ export default function Footer() {
             <div className="flex flex-col gap-2">
               <Link href="/privacy" className="text-sm text-lp-muted-foreground hover:text-lp-primary transition-colors">{t("footer.privacyPolicy")}</Link>
               <Link href="/terms" className="text-sm text-lp-muted-foreground hover:text-lp-primary transition-colors">{t("footer.termsOfService")}</Link>
-              <Link href="/contact" className="text-sm text-lp-muted-foreground hover:text-lp-primary transition-colors">{t("footer.contact")}</Link>
+              <Link href="/kontakt" className="text-sm text-lp-muted-foreground hover:text-lp-primary transition-colors">{t("footer.contact")}</Link>
             </div>
             <div className="flex gap-4 items-start">
               <a href="https://www.instagram.com/pixelnext9/" target="_blank" rel="noopener noreferrer" className="text-lp-muted-foreground hover:text-lp-accent transition-colors" aria-label="Instagram">

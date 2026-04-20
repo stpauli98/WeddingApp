@@ -38,7 +38,7 @@ export default function TermsPage() {
         <p>Korisnici zadržavaju autorska prava. Dajete ograničenu licencu za hosting/isporuku tokom retention-a.</p>
 
         <h2>6. Ograničenje odgovornosti</h2>
-        <p>Usluga "kako jeste". Maksimalna odgovornost ograničena na cenu paketa.</p>
+        <p>Usluga &quot;kako jeste&quot;. Maksimalna odgovornost ograničena na cenu paketa.</p>
 
         <h2>7. Prekid</h2>
         <p>Nalog brišete iz admin panela ili emailom na <a href="mailto:kontakt@dodajuspomenu.com">kontakt@dodajuspomenu.com</a>.</p>
