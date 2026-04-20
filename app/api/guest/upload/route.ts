@@ -6,7 +6,8 @@ import { prisma } from '@/lib/prisma';
 import { getAuthenticatedGuest } from '@/lib/guest-auth';
 import sharp from 'sharp';
 import cloudinary from '@/lib/cloudinary';
-import type { UploadApiResponse, UploadApiErrorResponse } from "cloudinary";
+import type { UploadApiResponse, UploadApiErrorResponse, UploadApiOptions } from "cloudinary";
+import type { PricingTier } from '@/lib/pricing-tiers';
 
 // Per-guest lifetime counter (Guest.lifetimeUploadCount) replaces the
 // former IP rate limit. Upload is an authenticated endpoint — throttling
@@ -63,18 +64,33 @@ export async function GET() {
   return response;
 }
 
-async function uploadToCloudinary(buffer: Buffer): Promise<{ url: string; publicId: string }> {
+async function uploadToCloudinary(
+  buffer: Buffer,
+  tier: PricingTier
+): Promise<{ url: string; publicId: string }> {
+  const { PRICING_TIERS } = await import('@/lib/pricing-tiers');
+  const config = PRICING_TIERS[tier] ?? PRICING_TIERS.free;
+
+  const uploadOptions: UploadApiOptions = {
+    folder: 'wedding-app',
+    resource_type: 'image',
+    tags: ['wedding-app', 'guest-upload'],
+  };
+
+  // Apply q_auto + f_auto ONLY when the tier wants a compressed stored
+  // derivative. Premium/unlimited skip this so the stored asset is the
+  // original; admin ZIP download fetches the same URL and therefore
+  // receives the original back.
+  if (!config.storeOriginal) {
+    uploadOptions.transformation = [
+      { quality: "auto" },
+      { fetch_format: "auto" },
+    ];
+  }
+
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      {
-        folder: 'wedding-app',
-        resource_type: 'image',
-        transformation: [
-          { quality: "auto" },
-          { fetch_format: "auto" },
-        ],
-        tags: ['wedding-app', 'guest-upload'],
-      },
+      uploadOptions,
       (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
         if (error || !result) return reject(error || new Error('Cloudinary upload failed'));
         resolve({ url: result.secure_url, publicId: result.public_id });
@@ -84,7 +100,7 @@ async function uploadToCloudinary(buffer: Buffer): Promise<{ url: string; public
   });
 }
 
-async function processImage(image: File): Promise<ProcessResult> {
+async function processImage(image: File, tier: PricingTier): Promise<ProcessResult> {
   const filename = image.name;
   try {
     if (image.size > MAX_IMAGE_BYTES) {
@@ -103,7 +119,7 @@ async function processImage(image: File): Promise<ProcessResult> {
     // where browser canvas can't decode for client-side stripping).
     const optimized = await sharp(buffer).rotate().toBuffer();
 
-    const { url, publicId } = await uploadToCloudinary(optimized);
+    const { url, publicId } = await uploadToCloudinary(optimized, tier);
     return { ok: true, upload: { filename, imageUrl: url, publicId } };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Nepoznata greška';
@@ -182,7 +198,8 @@ export async function POST(request: NextRequest) {
   }
 
   // Phase 1: process each image independently. One bad file isolates to that file.
-  const results = await Promise.all(images.map(processImage));
+  const tier = guestSession.event.pricingTier;
+  const results = await Promise.all(images.map((img) => processImage(img, tier)));
   const processedUploads = results.filter((r): r is Extract<ProcessResult, { ok: true }> => r.ok).map((r) => r.upload);
   const failed = results.filter((r): r is Extract<ProcessResult, { ok: false }> => !r.ok);
 
@@ -217,7 +234,7 @@ export async function POST(request: NextRequest) {
 
       for (const { imageUrl, publicId } of processedUploads) {
         await tx.image.create({
-          data: { guestId, imageUrl, storagePath: publicId },
+          data: { guestId, imageUrl, storagePath: publicId, tier },
         });
       }
 

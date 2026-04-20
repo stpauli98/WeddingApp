@@ -98,7 +98,7 @@ beforeEach(() => {
 
   mocks.getGuest.mockResolvedValue({
     id: 'guest-1',
-    event: { imageLimit: 3 },
+    event: { imageLimit: 3, pricingTier: 'free' },
   });
 
   mocks.guestFindUnique.mockResolvedValue({ lifetimeUploadCount: 0 });

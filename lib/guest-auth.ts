@@ -13,7 +13,7 @@ export async function getAuthenticatedGuest() {
   const guest = await prisma.guest.findFirst({
     where: { sessionToken },
     include: {
-      event: { select: { id: true, slug: true, imageLimit: true } }
+      event: { select: { id: true, slug: true, imageLimit: true, pricingTier: true } }
     }
   });
 

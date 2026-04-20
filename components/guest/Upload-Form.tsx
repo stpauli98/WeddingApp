@@ -16,6 +16,8 @@ import { UploadStatusList } from "./UploadStatusList";
 import { uploadWithCsrfRetry, fetchWithCsrfRetry } from "@/lib/csrf-client";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 import { ModalPortal } from "@/components/shared/ModalPortal";
+import type { PricingTier } from "@/lib/pricing-tiers";
+import { getClientResizeParams } from "@/lib/pricing-tiers";
 
 // Note: formSchema će biti kreiran kao funkcija jer max limit je dinamičan
 
@@ -36,9 +38,10 @@ interface UploadFormProps {
   existingImagesCount?: number; // Dodajemo opcioni prop za broj postojećih slika
   language?: string; // Dodajemo prop za jezik
   imageLimit?: number; // Dodajemo opcioni prop za maksimalan broj slika
+  tier?: PricingTier;
 }
 
-export function UploadForm({ guestId, message, existingImagesCount: initialImagesCount = 0, language = 'sr', imageLimit = 10 }: UploadFormProps) {
+export function UploadForm({ guestId, message, existingImagesCount: initialImagesCount = 0, language = 'sr', imageLimit = 10, tier = 'free' }: UploadFormProps) {
   const { t, i18n } = useTranslation();
 
   // Dinamička validacija forme sa promjenljivim limitom slika
@@ -63,7 +66,8 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
 
     try {
       setProgress(0);
-      const resized = await resizeImage(file);
+      const { maxWidth, quality } = getClientResizeParams(tier);
+      const resized = await resizeImage(file, maxWidth, quality);
       const formData = new FormData();
       formData.append("images", resized);
 
@@ -181,19 +185,23 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
     }
   }, [initialImagesCount]);
 
-  // Funkcija za resize i optimizaciju slike za Cloudinary
-  async function resizeImage(file: File, maxWidth = 1280): Promise<File> {
+  // Funkcija za resize i optimizaciju slike za Cloudinary (tier-aware)
+  async function resizeImage(file: File, maxWidth: number, quality: number): Promise<File> {
     return new Promise((resolve, reject) => {
-      // Ako je slika manja od 1MB, ne radimo resize
+      // No resize za unlimited tier — original fajl prolazi kako je.
+      if (maxWidth === 0) {
+        resolve(file);
+        return;
+      }
+      // < 1MB i manji od target maxWidth → ne diraj.
       if (file.size < 1024 * 1024) {
-        console.log(`Slika ${file.name} je manja od 1MB, preskačemo resize`);
         resolve(file);
         return;
       }
 
       const img = new window.Image();
       const reader = new FileReader();
-      
+
       reader.onload = (e) => {
         img.src = e.target?.result as string;
       };
@@ -201,64 +209,45 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
       img.onload = () => {
         let width = img.width;
         let height = img.height;
-        
-        // Računamo novi width i height za resize
+
         if (width > maxWidth) {
           height = Math.round((height * maxWidth) / width);
           width = maxWidth;
         }
-        
-        // Ako je slika već manja od maxWidth, samo optimiziramo kvalitetu
-        // Cloudinary će se pobrinuti za dodatnu optimizaciju
+
         if (img.width <= maxWidth && file.size < 2 * 1024 * 1024) {
           resolve(file);
           return;
         }
-        
+
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
-        if (!ctx) return reject("Canvas not supported");
-        
-        // Crtamo sliku na canvas
+        if (!ctx) return reject('Canvas not supported');
+
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Određujemo kvalitetu kompresije na osnovu veličine slike
-        let quality = 0.85; // Osnovna kvaliteta
-        
-        // Ako je slika veća od 5MB, dodatno smanjujemo kvalitetu
-        if (file.size > 5 * 1024 * 1024) {
-          quality = 0.75;
-        }
-        
-        // Za JPEG i JPG slike koristimo JPEG format za bolju kompresiju
-        const outputType = file.type.includes('jpeg') || file.type.includes('jpg') 
-          ? 'image/jpeg' 
-          : file.type;
+        const outputType =
+          file.type.includes('jpeg') || file.type.includes('jpg')
+            ? 'image/jpeg'
+            : file.type;
 
-        // Konvertujemo u blob
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              // Kreiramo novi File objekat sa optimiziranim blob-om
               const newFile = new File([blob], file.name, { type: outputType });
-              console.log(`Slika ${file.name} optimizirana: ${(file.size / (1024 * 1024)).toFixed(2)}MB -> ${(newFile.size / (1024 * 1024)).toFixed(2)}MB`);
               resolve(newFile);
             } else {
-              // Ako toBlob ne uspije, vrati originalnu sliku
-              console.warn(`Nije moguće optimizirati sliku ${file.name}, koristimo originalnu`);
               resolve(file);
             }
           },
           outputType,
-          quality // Prilagođena kvaliteta
+          quality
         );
       };
-      
-      reader.onerror = (e) => {
-        // U slučaju greške, vrati originalnu sliku
-        console.error(`Greška pri optimizaciji slike ${file.name}:`, e);
+
+      reader.onerror = () => {
         resolve(file);
       };
       reader.readAsDataURL(file);
@@ -469,6 +458,14 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
                 'aria-label': `Izaberite slike za upload (maksimalno ${imageLimit})`,
               }}
             />
+            {(tier === 'premium' || tier === 'unlimited') && (
+              <p className="text-xs text-[hsl(var(--lp-muted-foreground))] mt-2 text-center">
+                {t(
+                  'guest.uploadForm.premiumQualityNote',
+                  'Slike se čuvaju u punoj kvaliteti — idealno za album štampu.'
+                )}
+              </p>
+            )}
           </div>
           <div>
             <label className="block font-medium mb-1">{t('guest.uploadForm.messageOptional', 'Poruka (opciono)')}</label>

@@ -93,7 +93,7 @@ beforeEach(() => {
   // Tier limit = 25 → lifetime cap = 50.
   mocks.getGuest.mockResolvedValue({
     id: 'guest-1',
-    event: { imageLimit: 25 },
+    event: { imageLimit: 25, pricingTier: 'basic' },
   });
 
   let counter = 0;

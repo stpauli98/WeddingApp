@@ -27,18 +27,25 @@ enum PricingTier {
 
 /// Plan — definicija paketa sa cijenama i limitima
 model PricingPlan {
-  id           String      @id @default(uuid())
-  tier         PricingTier @unique
-  nameSr       String
-  nameEn       String
-  imageLimit   Int
-  price        Int         @default(0)    // cijena u centima (0 = besplatno)
-  recommended  Boolean     @default(false)
-  sortOrder    Int         @default(0)
-  active       Boolean     @default(true)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  features     PricingFeature[]
+  id                   String      @id @default(uuid())
+  tier                 PricingTier @unique
+  nameSr               String
+  nameEn               String
+  imageLimit           Int
+  price                Int         @default(0)    // cijena u centima (0 = besplatno)
+  /// Max width for client-side canvas resize. 0 = no resize (unlimited tier).
+  clientResizeMaxWidth Int         @default(1280)
+  /// Canvas.toBlob quality parameter (0.0–1.0).
+  clientQuality        Float       @default(0.85)
+  /// If true, Cloudinary upload runs WITHOUT transformation so the
+  /// original is stored. Admin ZIP download returns the original.
+  storeOriginal        Boolean     @default(false)
+  recommended          Boolean     @default(false)
+  sortOrder            Int         @default(0)
+  active               Boolean     @default(true)
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  features             PricingFeature[]
 }
 
 /// Feature — feature lista za svaki plan
@@ -151,12 +158,16 @@ model Guest {
 
 /// Slika — upload na Cloudinary, storagePath = Cloudinary public_id za brisanje
 model Image {
-  id          String   @id @default(uuid())
+  id          String       @id @default(uuid())
   guestId     String
   imageUrl    String
   storagePath String?
-  createdAt   DateTime @default(now())
-  guest       Guest    @relation(fields: [guestId], references: [id])
+  /// Snapshot of event.pricingTier at upload time. Captures whether this
+  /// image was stored as a compressed derivative (free/basic) or original
+  /// (premium/unlimited). Null for pre-migration legacy rows.
+  tier        PricingTier?
+  createdAt   DateTime     @default(now())
+  guest       Guest        @relation(fields: [guestId], references: [id])
 
   @@index([guestId, createdAt(sort: Desc)])
   @@index([createdAt])

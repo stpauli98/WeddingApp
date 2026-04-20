@@ -5,6 +5,7 @@ import { UploadForm } from '@/components/guest/Upload-Form'
 import { UploadLimitReachedCelebration } from '@/components/guest/UploadLimitReachedCelebration'
 import { ImageGallery } from '@/components/guest/ImageGallery'
 import { useTranslation } from 'react-i18next'
+import type { PricingTier } from '@/lib/pricing-tiers'
 
 interface Image {
   id: string
@@ -18,11 +19,12 @@ interface DashboardClientProps {
   message?: string
   language?: string
   imageLimit?: number
+  tier?: PricingTier
 }
 
 import AddToHomeScreenPrompt from "@/components/AddToHomeScreenPrompt";
 
-export function DashboardClient({ initialImages, guestId, message, language = 'sr', imageLimit = 10 }: DashboardClientProps) {
+export function DashboardClient({ initialImages, guestId, message, language = 'sr', imageLimit = 10, tier = 'free' }: DashboardClientProps) {
   const { t, i18n } = useTranslation();
   
   // Postavi jezik ako je različit od trenutnog
@@ -66,6 +68,7 @@ export function DashboardClient({ initialImages, guestId, message, language = 's
             existingImagesCount={images.length}
             language={language}
             imageLimit={imageLimit}
+            tier={tier}
           />
         )}
       </div>

@@ -205,3 +205,22 @@ await prisma.event.updateMany({
 
 **Total Time (Phase 1 - without payment): ~7-8 hours**
 **Total Time (Phase 2 - with payment): ~11-14 hours**
+
+---
+
+## Image quality gradient (2026-04-19)
+
+Each tier gets a distinct image pipeline beyond just `imageLimit`:
+
+| Tier | Client resize | Client quality | Cloudinary storage |
+|---|---|---|---|
+| free | 1280px | 0.85 | q_auto compressed derivative |
+| basic | 1600px | 0.9 | q_auto compressed derivative |
+| premium | 2560px | 0.95 | original (no upload transform) |
+| unlimited | no resize | 1.0 | original |
+
+**Why:** 1280px is web-grade but unusable for album print (max ~A5 @ 300dpi). Premium/Unlimited tiers justify their price by delivering album-quality originals the admin can actually print. Free stays cheap on Cloudinary storage.
+
+**Schema:** `PricingPlan.{clientResizeMaxWidth,clientQuality,storeOriginal}` + `Image.tier` snapshot. See migration `20260419_add_tier_quality_fields`.
+
+**Implementation:** See [plans/2026-04-19-tier-based-image-quality-gradient.md](../docs/superpowers/plans/2026-04-19-tier-based-image-quality-gradient.md) and [specs/2026-04-19-tier-based-image-quality-gradient-design.md](../docs/superpowers/specs/2026-04-19-tier-based-image-quality-gradient-design.md).

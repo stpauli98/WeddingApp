@@ -4,8 +4,8 @@ import Link from "next/link"
 import { useTranslation } from "react-i18next"
 import { getCurrentLanguageFromPath } from "@/lib/utils/language"
 import { motion } from "framer-motion"
-import { PRICING_TIERS, PricingTier, TierConfig } from "@/lib/pricing-tiers"
-import { Check, ArrowRight, Crown, Camera, Users, Clock } from "lucide-react"
+import { PRICING_TIERS, PricingTier, TierConfig, getQualityLabel } from "@/lib/pricing-tiers"
+import { Check, ArrowRight, Crown, Camera, Users, Clock, Sparkles } from "lucide-react"
 
 export default function Pricing() {
   const { t, i18n } = useTranslation()
@@ -104,6 +104,12 @@ export default function Pricing() {
                       {config.storageDays <= 30
                         ? t("pricing.storageDays", { count: config.storageDays })
                         : t("pricing.storageYear")}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Sparkles className={`w-4 h-4 flex-shrink-0 ${isRecommended ? "text-white/80" : "text-lp-accent"}`} />
+                    <span className={`text-sm font-medium ${isRecommended ? "text-white" : "text-lp-text"}`}>
+                      {getQualityLabel(tier, lang)}
                     </span>
                   </div>
                 </div>

@@ -1,10 +1,10 @@
 "use client";
 
 import { useTranslation } from 'react-i18next';
-import { PRICING_TIERS, PricingTier, getTierName } from '@/lib/pricing-tiers';
+import { PRICING_TIERS, PricingTier, getTierName, getQualityLabel } from '@/lib/pricing-tiers';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Check, ImageIcon } from 'lucide-react';
+import { Check, ImageIcon, Sparkles } from 'lucide-react';
 
 interface PricingTierSelectorProps {
   selectedTier: PricingTier;
@@ -73,6 +73,10 @@ export function PricingTierSelector({ selectedTier, onTierChange, language = 'sr
                     </div>
                     <div className="text-sm text-[hsl(var(--lp-muted-foreground))] mt-0.5">
                       {t('admin.event.pricing.imagesPerGuest', '{{count}} slika po gostu', { count: config.imageLimit })}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-[hsl(var(--lp-muted-foreground))] mt-0.5">
+                      <Sparkles className="w-4 h-4" />
+                      <span>{getQualityLabel(tier, language as 'sr' | 'en')}</span>
                     </div>
                   </div>
                 </div>

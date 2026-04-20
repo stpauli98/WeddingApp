@@ -103,7 +103,8 @@
         "someFailedUpload": "Neke slike nisu uspješno uploadovane.",
         "uploadStatus": "Status uploada slika",
         "retryAllFailed": "Pokušaj ponovno sve neuspjele"
-      }
+      },
+      "premiumQualityNote": "Slike se čuvaju u punoj kvaliteti — idealno za album štampu."
     },
     "imageGallery": {
       "noImages": "Nema uploadovanih slika",
@@ -453,6 +454,7 @@
     "photosPerGuest": "slika po gostu",
     "upToGuests": "do {{count}} gostiju",
     "storageDays": "čuvanje {{count}} dana",
-    "storageYear": "čuvanje 1 godinu"
+    "storageYear": "čuvanje 1 godinu",
+    "qualityLabel": "Kvalitet slike"
   }
 }
