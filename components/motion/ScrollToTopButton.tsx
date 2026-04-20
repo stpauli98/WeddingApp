@@ -29,7 +29,7 @@ export function ScrollToTopButton({ label }: ScrollToTopButtonProps) {
           initial={reduce ? false : { opacity: 0, y: 8 }}
           animate={reduce ? undefined : { opacity: 1, y: 0 }}
           exit={reduce ? undefined : { opacity: 0, y: 8 }}
-          className="fixed bottom-6 right-6 z-40 p-3 bg-primary text-white rounded-full shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+          className="fixed bottom-6 right-6 z-40 p-3 bg-lp-primary text-white rounded-full shadow-lg hover:bg-lp-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary"
         >
           <ChevronUp aria-hidden="true" className="w-5 h-5" />
         </motion.button>
