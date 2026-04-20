@@ -22,11 +22,13 @@
     "secondaryCta": "How it works",
     "trustPrivacy": "Private & secure",
     "trustSpeed": "2 min setup",
-    "trustFree": "100% Free"
+    "trustFree": "100% Free",
+    "mockupAlt": "Screenshot of guest login screen on mobile device"
   },
   "howItWorks": {
     "title": "How does it work?",
     "description": "Three simple steps to all your memories",
+    "imageAlt": "Couple dashboard showing photo gallery",
     "step1Title": "Create an event",
     "step1Description": "Register and create your event in 2 minutes",
     "step2Title": "Share the QR code",

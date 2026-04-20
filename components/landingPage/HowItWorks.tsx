@@ -68,7 +68,7 @@ export default function HowItWorks() {
         >
           <Image
             src={`/images/${lang}/dashboard-desktop.png`}
-            alt={t("howItWorks.title")}
+            alt={t("howItWorks.imageAlt")}
             width={1200}
             height={617}
             className="w-full h-auto rounded-xl sm:rounded-2xl shadow-md sm:shadow-lg max-h-[300px] sm:max-h-none object-cover object-top"

@@ -9,6 +9,8 @@ import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import I18nProvider from "@/components/I18nProvider"
 import { CookieConsent } from "@/components/CookieConsent"
+import { HtmlLangSync } from "@/components/HtmlLangSync"
+import { SkipLink } from "@/components/SkipLink"
 
 const inter = Inter({ subsets: ["latin"] })
 const playfair = Playfair_Display({
@@ -21,7 +23,7 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "DodajUspomenu",
   description: "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://dodajuspomenu.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.dodajuspomenu.com"),
   verification: {
     google: "MsLpENmJbTy5jvgQo2Jk1H31j7VqnVCxNJlip5IHPs8",
   },
@@ -46,7 +48,6 @@ export const metadata: Metadata = {
     title: "DodajUspomenu - Digitalni svadbeni album",
     description: "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene.",
     images: ["/seo-cover.png"],
-    creator: "@nextpixel98",
   },
   icons: {
     icon: "/favicon.ico",
@@ -119,39 +120,6 @@ export default function RootLayout({
             }]
           })}
         </Script>
-        {/* BreadcrumbList schema */}
-        <Script id="jsonld-breadcrumb" type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-              {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Početna",
-                "item": "https://www.dodajuspomenu.com/"
-              },
-              {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "Registracija",
-                "item": "https://www.dodajuspomenu.com/admin/register"
-              },
-              {
-                "@type": "ListItem",
-                "position": 3,
-                "name": "Prijava",
-                "item": "https://www.dodajuspomenu.com/admin/login"
-              },
-              {
-                "@type": "ListItem",
-                "position": 4,
-                "name": "Dashboard",
-                "item": "https://www.dodajuspomenu.com/admin/dashboard"
-              }
-            ]
-          })}
-        </Script>
         <Script id="jsonld-faq" type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -202,9 +170,9 @@ export default function RootLayout({
         </Script>
       </head>
       <body className={`${inter.className} ${playfair.variable}`}>
-        {/* Skip to main content link for a11y */}
-        <a href="#main-content" className="sr-only focus:not-sr-only absolute top-2 left-2 bg-primary text-white px-4 py-2 rounded z-50">Preskoči na glavni sadržaj</a>
         <I18nProvider>
+          <HtmlLangSync />
+          <SkipLink />
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
             <main id="main-content" className="min-h-screen bg-background" role="main" tabIndex={-1}>{children}</main>
             {/* Toaster koristi aria-live za pristupačnost */}

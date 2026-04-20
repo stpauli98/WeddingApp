@@ -22,11 +22,13 @@
     "secondaryCta": "Kako funkcioniše",
     "trustPrivacy": "Privatno i sigurno",
     "trustSpeed": "Setup za 2 min",
-    "trustFree": "100% Besplatno"
+    "trustFree": "100% Besplatno",
+    "mockupAlt": "Prikaz ekrana prijave gosta na mobilnom uređaju"
   },
   "howItWorks": {
     "title": "Kako funkcioniše?",
     "description": "Tri jednostavna koraka do svih vaših uspomena",
+    "imageAlt": "Dashboard mladenaca sa galerijom fotografija",
     "step1Title": "Kreirajte događaj",
     "step1Description": "Registrujte se i kreirajte svoj event za 2 minute",
     "step2Title": "Podijelite QR kod",

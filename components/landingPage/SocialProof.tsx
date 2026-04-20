@@ -104,7 +104,7 @@ export default function SocialProof() {
             href="https://www.producthunt.com/products/addmemories?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-addmemories"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="AddMemories na Product Hunt"
+            aria-label={t("a11y.productHunt")}
           >
             <Image
               src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=979471&theme=light&t=1750169940818"

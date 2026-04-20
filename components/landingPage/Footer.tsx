@@ -52,7 +52,7 @@ export default function Footer() {
             <a href="https://www.nextpixel.dev/" target="_blank" rel="noopener noreferrer" className="text-lp-accent font-semibold hover:underline">Next Pixel</a>.{" "}
             {t("footer.copyright")}
           </div>
-          <a href="https://www.producthunt.com/products/addmemories?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-addmemories" target="_blank" rel="noopener noreferrer" aria-label="AddMemories na Product Hunt">
+          <a href="https://www.producthunt.com/products/addmemories?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-addmemories" target="_blank" rel="noopener noreferrer" aria-label={t("a11y.productHunt")}>
             <Image src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=979471&theme=light&t=1750169940818" alt="AddMemories on Product Hunt" width={120} height={26} style={{ width: "120px", height: "26px" }} unoptimized />
           </a>
         </div>
@@ -63,7 +63,7 @@ export default function Footer() {
           <motion.button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="fixed bottom-6 right-6 p-3 rounded-full bg-lp-primary text-white shadow-lg hover:bg-lp-primary/90 z-40"
-            aria-label="Povratak na vrh"
+            aria-label={t("a11y.scrollTop")}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
