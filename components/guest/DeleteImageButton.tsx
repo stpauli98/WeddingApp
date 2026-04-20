@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
+import { fetchWithCsrfRetry } from "@/lib/csrf-client"
 
 interface DeleteImageButtonProps {
   imageId: string
@@ -21,9 +22,10 @@ export function DeleteImageButton({ imageId, onSuccess }: DeleteImageButtonProps
     try {
       setIsDeleting(true)
       
-      const response = await fetch(`/api/guest/images/delete?id=${imageId}`, {
-        method: "DELETE",
-      })
+      const response = await fetchWithCsrfRetry(
+        `/api/guest/images/delete?id=${imageId}`,
+        { method: "DELETE", csrfEndpoint: "/api/guest/images/delete" }
+      )
 
       if (!response.ok) {
         const data = await response.json()

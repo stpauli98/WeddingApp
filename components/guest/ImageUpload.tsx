@@ -16,25 +16,32 @@ interface ImageUploadProps {
 }
 
 const DEFAULT_MAX_SIZE_MB = 10;
-const DEFAULT_ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const DEFAULT_ALLOWED_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/heic",
+  "image/heif",
+];
 
-// Definiramo fallback poruke za greške
 const errorFallbacks = {
-  heicNotSupported: "HEIC/HEIF slike nisu podržane. Molimo vas da konvertujete sliku u JPG ili PNG format.",
   unsupportedFormat: "Nepodržan format slike: {format}",
   fileTooLarge: "Slika {fileName} je veća od {maxSize}MB. Molimo vas da smanjite rezoluciju ili veličinu slike."
 };
 
+function isAllowedType(file: File, allowedTypes: string[]): boolean {
+  if (allowedTypes.includes(file.type)) return true;
+  // iOS/Android sometimes report HEIC files with an empty MIME type; fall back
+  // to the extension in that case so HEIC uploads don't bounce off the client.
+  const name = file.name.toLowerCase();
+  if (name.endsWith('.heic') && allowedTypes.includes('image/heic')) return true;
+  if (name.endsWith('.heif') && allowedTypes.includes('image/heif')) return true;
+  return false;
+}
+
 function validateImage(file: File, allowedTypes: string[], maxSize: number, t: any, getTranslation?: (key: string, fallback: string) => string): string | null {
-  if (
-    file.type === "image/heic" || file.type === "image/heif" ||
-    file.name.toLowerCase().endsWith(".heic") || file.name.toLowerCase().endsWith(".heif")
-  ) {
-    return getTranslation ? 
-      getTranslation('guest.imageUpload.errors.heicNotSupported', errorFallbacks.heicNotSupported) : 
-      t('guest.imageUpload.errors.heicNotSupported');
-  }
-  if (!allowedTypes.includes(file.type)) {
+  if (!isAllowedType(file, allowedTypes)) {
     const message = getTranslation ? 
       getTranslation('guest.imageUpload.errors.unsupportedFormat', errorFallbacks.unsupportedFormat) : 
       t('guest.imageUpload.errors.unsupportedFormat', { format: file.type || file.name });
@@ -153,7 +160,7 @@ export function ImageUpload({ value = [], onChange, maxFiles = 10, inputProps, a
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".jpeg", ".jpg", ".png", ".gif"],
+      "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp", ".heic", ".heif"],
     },
     maxFiles: maxFiles - value.length,
     disabled: value.length >= maxFiles,
