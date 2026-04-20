@@ -185,5 +185,6 @@ export function getQualityLabel(tier: PricingTier, language: 'sr' | 'en' = 'sr')
       en: 'Original (full resolution)',
     },
   };
-  return (labels[tier] ?? labels.free)[language];
+  const entry = labels[tier] ?? labels.free;
+  return entry[language] ?? entry.sr;
 }

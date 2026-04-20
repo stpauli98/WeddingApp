@@ -25,7 +25,7 @@ export default function HeroSection() {
           {/* Left: Text */}
           <motion.div
             className="space-y-5 md:space-y-6 text-center md:text-left"
-            initial={reduce ? false : { opacity: 0, y: 20 }}
+            initial={false}
             animate={reduce ? undefined : { opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
@@ -76,7 +76,7 @@ export default function HeroSection() {
           {/* Right: Phone mockup - visible on all sizes */}
           <motion.div
             className="flex justify-center mt-4 md:mt-0"
-            initial={reduce ? false : { opacity: 0, y: 20 }}
+            initial={false}
             animate={reduce ? undefined : { opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
