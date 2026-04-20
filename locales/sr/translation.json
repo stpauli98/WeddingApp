@@ -22,7 +22,7 @@
     "secondaryCta": "Kako funkcioniše",
     "trustPrivacy": "Privatno i sigurno",
     "trustSpeed": "Setup za 2 min",
-    "trustFree": "100% Besplatno",
+    "trustFree": "Besplatan paket dostupan",
     "mockupAlt": "Prikaz ekrana prijave gosta na mobilnom uređaju"
   },
   "howItWorks": {
@@ -476,6 +476,15 @@
       "upToGuests": "Do {{count}} gostiju",
       "storageDays": "Slike se čuvaju {{count}} dana",
       "storageYear": "Slike se čuvaju 1 godinu"
+    },
+    "labels": {
+      "guests": "gostiju",
+      "storage": "čuvanje",
+      "quality": "kvalitet",
+      "daysStored_one": "{{count}} dan",
+      "daysStored_few": "{{count}} dana",
+      "daysStored_other": "{{count}} dana",
+      "oneYear": "1 god."
     }
   }
 }

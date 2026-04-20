@@ -4,14 +4,16 @@ import Link from "next/link"
 import { useTranslation } from "react-i18next"
 import { getCurrentLanguageFromPath } from "@/lib/utils/language"
 import LanguageSelector from "@/components/LanguageSelector"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Menu, X } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 
 export default function Navbar() {
   const { t } = useTranslation()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const navContainerRef = useRef<HTMLDivElement>(null)
+  const reduce = useReducedMotion()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 60)
@@ -19,6 +21,26 @@ export default function Navbar() {
     handleScroll()
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // Escape + click-outside to close mobile menu. Ref wraps BOTH toggle button
+  // and menu panel so clicking the toggle isn't treated as "outside".
+  useEffect(() => {
+    if (!isMobileMenuOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsMobileMenuOpen(false)
+    }
+    const onClick = (e: MouseEvent) => {
+      if (!navContainerRef.current?.contains(e.target as Node)) {
+        setIsMobileMenuOpen(false)
+      }
+    }
+    window.addEventListener("keydown", onKey)
+    document.addEventListener("mousedown", onClick)
+    return () => {
+      window.removeEventListener("keydown", onKey)
+      document.removeEventListener("mousedown", onClick)
+    }
+  }, [isMobileMenuOpen])
 
   const navLinks = [
     { label: t("navbar.howItWorks"), href: "#kako-radi" },
@@ -33,65 +55,65 @@ export default function Navbar() {
       role="navigation"
       aria-label={t("a11y.mainNav")}
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6" ref={navContainerRef}>
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="font-playfair text-xl font-bold text-lp-text">
+          <Link href="/" className="font-playfair text-xl font-bold text-lp-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary rounded">
             DodajUspomenu
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a key={link.href} href={link.href} className="text-sm font-medium text-lp-text hover:text-lp-primary transition-colors">
+              <a key={link.href} href={link.href} className="text-sm font-medium text-lp-text hover:text-lp-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary rounded">
                 {link.label}
               </a>
             ))}
             <LanguageSelector className="text-sm" />
             <Link
               href={`/${getCurrentLanguageFromPath()}/admin/register`}
-              className="px-5 py-2 text-sm font-semibold text-white bg-lp-primary rounded-lg hover:bg-lp-primary/90 transition-colors"
+              className="px-5 py-2 text-sm font-semibold text-white bg-lp-primary rounded-lg hover:bg-lp-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary"
             >
               {t("navbar.cta")}
             </Link>
           </div>
 
           <button
-            className="md:hidden p-2 text-lp-text"
+            className="md:hidden p-2 text-lp-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary rounded"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? t("navbar.menuClose") : t("navbar.menuOpen")}
             aria-expanded={isMobileMenuOpen}
           >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMobileMenuOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
           </button>
         </div>
-      </div>
 
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            className="md:hidden bg-white border-t border-lp-border shadow-lg"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="px-4 py-4 space-y-3">
-              {navLinks.map((link) => (
-                <a key={link.href} href={link.href} className="block py-2 text-lp-text hover:text-lp-primary transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
-                  {link.label}
-                </a>
-              ))}
-              <LanguageSelector className="text-sm w-full" />
-              <Link
-                href={`/${getCurrentLanguageFromPath()}/admin/register`}
-                className="block w-full text-center px-5 py-3 text-sm font-semibold text-white bg-lp-primary rounded-lg"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {t("navbar.cta")}
-              </Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              className="md:hidden bg-white border-t border-lp-border shadow-lg"
+              initial={reduce ? false : { opacity: 0, height: 0 }}
+              animate={reduce ? undefined : { opacity: 1, height: "auto" }}
+              exit={reduce ? undefined : { opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="px-4 py-4 space-y-3">
+                {navLinks.map((link) => (
+                  <a key={link.href} href={link.href} className="block py-2 text-lp-text hover:text-lp-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary rounded" onClick={() => setIsMobileMenuOpen(false)}>
+                    {link.label}
+                  </a>
+                ))}
+                <LanguageSelector className="text-sm w-full" />
+                <Link
+                  href={`/${getCurrentLanguageFromPath()}/admin/register`}
+                  className="block w-full text-center px-5 py-3 text-sm font-semibold text-white bg-lp-primary rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {t("navbar.cta")}
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </nav>
   )
 }

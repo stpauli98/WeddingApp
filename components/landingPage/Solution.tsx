@@ -3,11 +3,12 @@
 import Image from "next/image"
 import { useTranslation } from "react-i18next"
 import { getCurrentLanguageFromPath } from "@/lib/utils/language"
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 
 export default function Solution() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language || "sr"
+  const reduce = useReducedMotion()
 
   return (
     <section className="py-16 sm:py-20 bg-white" aria-labelledby="solution-heading">
@@ -15,8 +16,8 @@ export default function Solution() {
         <motion.h2
           id="solution-heading"
           className="font-playfair text-3xl md:text-4xl lg:text-5xl font-bold text-lp-text mb-4"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={reduce ? false : { opacity: 0, y: 20 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
@@ -25,8 +26,8 @@ export default function Solution() {
 
         <motion.p
           className="text-lg md:text-xl text-lp-muted-foreground mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={reduce ? false : { opacity: 0, y: 20 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
@@ -35,8 +36,8 @@ export default function Solution() {
 
         <motion.div
           className="relative max-w-4xl mx-auto"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={reduce ? false : { opacity: 0, y: 30 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >

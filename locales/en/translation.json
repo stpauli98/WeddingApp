@@ -22,7 +22,7 @@
     "secondaryCta": "How it works",
     "trustPrivacy": "Private & secure",
     "trustSpeed": "2 min setup",
-    "trustFree": "100% Free",
+    "trustFree": "Free plan available",
     "mockupAlt": "Screenshot of guest login screen on mobile device"
   },
   "howItWorks": {
@@ -290,7 +290,8 @@
       "errors": {
         "invalidCredentials": "Invalid email or password.",
         "sessionExpired": "Your session has expired or there was a security token error. Please try again.",
-        "networkError": "A network or server error occurred."
+        "networkError": "A network or server error occurred.",
+        "allFieldsRequired": "All fields are required."
       }
     },
     "register": {
@@ -475,6 +476,14 @@
       "upToGuests": "Up to {{count}} guests",
       "storageDays": "Photos stored for {{count}} days",
       "storageYear": "Photos stored for 1 year"
+    },
+    "labels": {
+      "guests": "guests",
+      "storage": "storage",
+      "quality": "quality",
+      "daysStored_one": "{{count}} day",
+      "daysStored_other": "{{count}} days",
+      "oneYear": "1 yr"
     }
   }
 }
