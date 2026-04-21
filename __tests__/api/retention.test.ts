@@ -50,8 +50,8 @@ function buildReq(): Request {
   });
 }
 
-const EXPIRED_FREE_EVENT_DATE = new Date(Date.now() - 11 * 86400000); // 11d ago (free = 10d)
-const WARNING_WINDOW_EVENT_DATE = new Date(Date.now() - 9 * 86400000); // 9d ago → expires in 1d
+const EXPIRED_FREE_EVENT_DATE = new Date(Date.now() - 31 * 86400000); // 31d ago (free = 30d)
+const WARNING_WINDOW_EVENT_DATE = new Date(Date.now() - 29 * 86400000); // 29d ago → expires in 1d (within 2d warning window)
 
 beforeEach(() => {
   jest.clearAllMocks();

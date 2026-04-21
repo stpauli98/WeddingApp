@@ -1,8 +1,13 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Homepage', () => {
-  test('should display welcome message', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('h1')).toHaveText(/welcome/i);
+  test('renders hero heading on the Serbian homepage', async ({ page }) => {
+    await page.goto('/sr');
+    await expect(page.locator('h1#hero-heading')).toBeVisible();
+  });
+
+  test('renders hero heading on the English homepage', async ({ page }) => {
+    await page.goto('/en');
+    await expect(page.locator('h1#hero-heading')).toBeVisible();
   });
 });

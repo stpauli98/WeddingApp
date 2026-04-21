@@ -1,19 +1,6 @@
 export const metadata = {
   title: "DodajUspomenu – Digitalni svadbeni album i razmena slika",
   description: "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene. Brza i sigurna razmena fotografija sa venčanja.",
-  keywords: [
-    "svadbeni album",
-    "slike sa venčanja",
-    "upload slika",
-    "mladenci",
-    "gosti",
-    "digitalni album",
-    "čestitke",
-    "uspomene",
-    "wedding photo album",
-    "wedding guests",
-    "wedding app"
-  ],
   authors: [{ name: "DodajUspomenu Team", url: "https://www.dodajuspomenu.com" }],
   openGraph: {
     title: "DodajUspomenu – Digitalni svadbeni album i razmena slika",
@@ -35,17 +22,12 @@ export const metadata = {
   }
 };
 
-
-
-import { Inter } from "next/font/google";
 import ClientPage from "@/components/ClientPage";
+import { getPricingPlansFromDb } from "@/lib/pricing-db";
+import { getServerT } from "@/lib/i18n/server";
 
-const inter = Inter({ subsets: ["latin"] });
-
-export default function Home() {
-  return (
-    <main id="main-content" className={`min-h-screen bg-background ${inter.className}`}>
-      <ClientPage />
-    </main>
-  );
+export default async function Home() {
+  const tiers = await getPricingPlansFromDb();
+  const t = getServerT('sr');
+  return <ClientPage t={t} lang="sr" tiers={tiers} />;
 }

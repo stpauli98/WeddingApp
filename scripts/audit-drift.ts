@@ -29,9 +29,15 @@ async function main() {
   const byTier = new Map(plans.map((p) => [p.tier, p.imageLimit]));
 
   const events = await prisma.event.findMany({
-    select: { id: true, slug: true, pricingTier: true, imageLimit: true },
+    select: { id: true, slug: true, pricingTier: true, imageLimit: true, legacyGrandfathered: true },
   });
   for (const e of events) {
+    // Events marked as grandfathered are intentionally pinned to their
+    // original imageLimit even after tier caps were tightened.
+    // 'unlimited' tier is deprecated (2026-04-20) and has no PricingPlan row
+    // by design; legacy events on that tier are expected to be grandfathered.
+    if (e.legacyGrandfathered) continue;
+
     const expected = byTier.get(e.pricingTier);
     if (expected === undefined) {
       findings.push({
@@ -55,6 +61,10 @@ async function main() {
     WHERE t.typname = 'PricingTier'
   `;
   for (const v of enumValues) {
+    // 'unlimited' was intentionally removed from PricingPlan on 2026-04-20
+    // (consolidation to 3 tiers). Enum value survives only for back-compat
+    // with any legacy event row still carrying that tier value.
+    if (v.enumlabel === 'unlimited') continue;
     if (!byTier.has(v.enumlabel)) {
       findings.push({
         severity: 'CRITICAL',

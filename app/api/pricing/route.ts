@@ -13,6 +13,9 @@ export async function GET() {
       tier: plan.tier,
       name: { sr: plan.nameSr, en: plan.nameEn },
       imageLimit: plan.imageLimit,
+      clientResizeMaxWidth: plan.clientResizeMaxWidth,
+      clientQuality: plan.clientQuality,
+      storeOriginal: plan.storeOriginal,
       price: plan.price,
       recommended: plan.recommended,
       features: plan.features.map((f: any) => ({ sr: f.textSr, en: f.textEn })),
@@ -22,10 +25,12 @@ export async function GET() {
   } catch {
     // Fallback to hardcoded if DB fails
     const { PRICING_TIERS } = await import('@/lib/pricing-tiers');
-    const result = Object.entries(PRICING_TIERS).map(([tier, config]) => ({
-      tier,
-      ...config,
-    }));
+    const result = Object.entries(PRICING_TIERS)
+      .filter(([tier]) => tier !== 'unlimited') // deprecated
+      .map(([tier, config]) => ({
+        tier,
+        ...config,
+      }));
     return NextResponse.json(result);
   }
 }

@@ -8,72 +8,58 @@ datasource db {
   directUrl = env("DIRECT_DATABASE_URL")
 }
 
-// ──────────────────────────────────────
-// Enums
-// ──────────────────────────────────────
-
-/// Paketi za eventi — određuju maksimalan broj slika po gostu
-/// Izvor istine za imageLimit/price je DB tabela `PricingPlan` (ne komentari ovdje).
-enum PricingTier {
-  free
-  basic
-  premium
-  unlimited
-}
-
-// ──────────────────────────────────────
-// Pricing Plans (dinamičke cijene iz baze)
-// ──────────────────────────────────────
-
 /// Plan — definicija paketa sa cijenama i limitima
 model PricingPlan {
-  id           String      @id @default(uuid())
-  tier         PricingTier @unique
-  nameSr       String
-  nameEn       String
-  imageLimit   Int
-  price        Int         @default(0)    // cijena u centima (0 = besplatno)
-  recommended  Boolean     @default(false)
-  sortOrder    Int         @default(0)
-  active       Boolean     @default(true)
+  id                   String           @id @default(uuid())
+  tier                 PricingTier      @unique
+  nameSr               String
+  nameEn               String
+  imageLimit           Int
+  price                Int              @default(0) // cijena u centima (0 = besplatno)
+  recommended          Boolean          @default(false)
+  sortOrder            Int              @default(0)
+  active               Boolean          @default(true)
   /// LS variant ID — allowlist for webhook variant_id verification.
   /// Null for free tier (not purchasable). Sync from env vars via seed.ts.
-  lsVariantId  String?     @unique
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  features     PricingFeature[]
+  lsVariantId          String?          @unique
+  /// Max width for client-side canvas resize. 0 = no resize (unlimited tier).
+  clientResizeMaxWidth Int              @default(1280)
+  /// Canvas.toBlob quality parameter (0.0–1.0).
+  clientQuality        Float            @default(0.85)
+  /// If true, Cloudinary upload runs WITHOUT transformation so the
+  /// original is stored. Admin ZIP download returns the original.
+  storeOriginal        Boolean          @default(false)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  features             PricingFeature[]
 }
 
 /// Feature — feature lista za svaki plan
 model PricingFeature {
-  id           String      @id @default(uuid())
-  planId       String
-  textSr       String
-  textEn       String
-  sortOrder    Int         @default(0)
-  plan         PricingPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  id        String      @id @default(uuid())
+  planId    String
+  textSr    String
+  textEn    String
+  sortOrder Int         @default(0)
+  plan      PricingPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
 
   @@index([planId])
 }
 
-// ──────────────────────────────────────
-// Admin & Autentifikacija
-// ──────────────────────────────────────
-
 /// Admin (mladenci) — kreira event i pregledava slike/poruke gostiju
 model Admin {
-  id           String         @id @default(uuid())
-  email        String         @unique
-  passwordHash String
-  firstName    String
-  lastName     String
-  language     String         @default("sr")
+  id               String         @id @default(uuid())
+  email            String         @unique
+  passwordHash     String
+  createdAt        DateTime       @default(now())
+  firstName        String
+  lastName         String
+  language         String         @default("sr")
   /// GDPR opt-in for product/marketing emails. Default false — opt-in UI
   /// can be added in admin settings later. Cron only harvests when true.
-  marketingConsent Boolean    @default(false)
-  createdAt    DateTime       @default(now())
-  sessions     AdminSession[]
-  event        Event?         @relation("AdminEvent")
+  marketingConsent Boolean        @default(false)
+  sessions         AdminSession[]
+  event            Event?         @relation("AdminEvent")
 }
 
 /// Admin sesija — httpOnly cookie, traje 7 dana
@@ -89,38 +75,31 @@ model AdminSession {
   @@index([expiresAt])
 }
 
-// ──────────────────────────────────────
-// Event
-// ──────────────────────────────────────
-
 /// Svadbeni event — identifikuje se po slug-u (npr. /guest/login?event=marko-i-ana)
 /// Jedan admin ima tačno jedan event (1:1 relacija preko adminId)
 model Event {
   id                    String      @id @default(uuid())
-  slug                  String      @unique
   coupleName            String
   location              String
   date                  DateTime
+  slug                  String      @unique
+  createdAt             DateTime    @default(now())
+  adminId               String?     @unique
   guestMessage          String?
   language              String      @default("sr")
   imageLimit            Int         @default(10)
   pricingTier           PricingTier @default(free)
-  /// Additional days admin granted beyond tier's storageDays (0..365).
-  /// Used by retention cron when computing expiry.
-  retentionOverrideDays Int         @default(0)
-  createdAt             DateTime    @default(now())
   /// Set when the 2-day deletion warning email has been sent (idempotency guard).
   deletionWarningSentAt DateTime?
   /// Set when retention-based hard delete of guest data completed. Event row stays.
   deletedAt             DateTime?
-  adminId               String?     @unique
+  /// Additional days admin granted beyond tier's storageDays (0..365).
+  /// Used by retention cron when computing expiry.
+  retentionOverrideDays Int         @default(0)
+  legacyGrandfathered   Boolean     @default(false)
   admin                 Admin?      @relation("AdminEvent", fields: [adminId], references: [id])
   guests                Guest[]
   payments              Payment[]
-  /// C3: Grandfather flag for events created before payment infrastructure.
-  /// Exempts event from "paid tier without Payment" audit invariant and
-  /// from maxRetentionOverrideDays cap.
-  legacyGrandfathered   Boolean     @default(false)
 
   @@index([deletedAt])
 }
@@ -186,20 +165,25 @@ model WebhookLog {
 /// Gost — registruje se imenom i emailom, auto-verifikovan (bez email kodova)
 /// Isti email može biti gost na više evenata, ali samo jednom po eventu
 model Guest {
-  id               String    @id @default(uuid())
-  email            String
-  firstName        String
-  lastName         String
-  eventId          String
-  sessionToken     String?
-  sessionExpires   DateTime?
+  id                  String    @id @default(uuid())
+  email               String
+  createdAt           DateTime  @default(now())
+  eventId             String
+  firstName           String
+  lastName            String
+  sessionExpires      DateTime?
+  sessionToken        String?
   /// GDPR opt-in at registration. When true, email is harvested into
   /// MarketingContact at retention expiry.
-  marketingConsent Boolean   @default(false)
-  createdAt        DateTime  @default(now())
-  event            Event     @relation(fields: [eventId], references: [id])
-  images           Image[]
-  message          Message?
+  marketingConsent    Boolean   @default(false)
+  /// Total images this guest has ever uploaded to this event. Monotonic:
+  /// never decreases, even when images are deleted. Anti-abuse cap:
+  /// lifetime <= event.imageLimit * 2 prevents unlimited upload/delete
+  /// cycles from draining Cloudinary bandwidth.
+  lifetimeUploadCount Int       @default(0)
+  event               Event     @relation(fields: [eventId], references: [id])
+  images              Image[]
+  message             Message?
 
   @@unique([email, eventId])
   @@index([eventId])
@@ -208,12 +192,16 @@ model Guest {
 
 /// Slika — upload na Cloudinary, storagePath = Cloudinary public_id za brisanje
 model Image {
-  id          String   @id @default(uuid())
+  id          String       @id @default(uuid())
   guestId     String
   imageUrl    String
+  createdAt   DateTime     @default(now())
   storagePath String?
-  createdAt   DateTime @default(now())
-  guest       Guest    @relation(fields: [guestId], references: [id])
+  /// Snapshot of event.pricingTier at upload time. Captures whether this
+  /// image was stored as a compressed derivative (free/basic) or original
+  /// (premium/unlimited). Null for pre-migration legacy rows.
+  tier        PricingTier?
+  guest       Guest        @relation(fields: [guestId], references: [id])
 
   @@index([guestId, createdAt(sort: Desc)])
   @@index([createdAt])
@@ -228,27 +216,32 @@ model Message {
   guest     Guest    @relation(fields: [guestId], references: [id])
 }
 
-// ──────────────────────────────────────
-// Marketing
-// ──────────────────────────────────────
-
 /// Marketing contact — harvested at retention expiry for consented guests / admins.
 /// Separate from operational tables so GDPR unsubscribe + cleanup stay simple.
 model MarketingContact {
-  id             String    @id @default(uuid())
-  email          String
+  id               String    @id @default(uuid())
+  email            String
   /// "guest" (harvested from Guest on event deletion) or "admin" (harvested once per admin)
-  source         String
-  eventSlug      String?
-  coupleName     String?
-  weddingDate    DateTime?
-  consentedAt    DateTime
-  harvestedAt    DateTime  @default(now())
-  unsubscribedAt DateTime?
+  source           String
+  eventSlug        String?
+  coupleName       String?
+  weddingDate      DateTime?
+  consentedAt      DateTime
+  harvestedAt      DateTime  @default(now())
+  unsubscribedAt   DateTime?
   /// Opaque token issued at harvest time — embedded in marketing email links
   /// so recipients can unsubscribe without authenticating.
-  unsubscribeToken String? @unique
+  unsubscribeToken String?
 
   @@unique([email, source])
   @@index([source])
+}
+
+/// Paketi za eventi — određuju maksimalan broj slika po gostu
+/// Izvor istine za imageLimit/price je DB tabela `PricingPlan` (ne komentari ovdje).
+enum PricingTier {
+  free
+  basic
+  premium
+  unlimited
 }

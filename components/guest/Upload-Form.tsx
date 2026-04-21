@@ -13,6 +13,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ImageSlotBar } from "@/components/guest/ImageSlotBar"
 import { useTranslation } from "react-i18next"
 import { UploadStatusList } from "./UploadStatusList";
+import { uploadWithCsrfRetry, fetchWithCsrfRetry } from "@/lib/csrf-client";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
+import { ModalPortal } from "@/components/shared/ModalPortal";
+import type { PricingTier } from "@/lib/pricing-tiers";
+import { getClientResizeParams } from "@/lib/pricing-tiers";
 
 // Note: formSchema će biti kreiran kao funkcija jer max limit je dinamičan
 
@@ -33,9 +38,10 @@ interface UploadFormProps {
   existingImagesCount?: number; // Dodajemo opcioni prop za broj postojećih slika
   language?: string; // Dodajemo prop za jezik
   imageLimit?: number; // Dodajemo opcioni prop za maksimalan broj slika
+  tier?: PricingTier;
 }
 
-export function UploadForm({ guestId, message, existingImagesCount: initialImagesCount = 0, language = 'sr', imageLimit = 10 }: UploadFormProps) {
+export function UploadForm({ guestId, message, existingImagesCount: initialImagesCount = 0, language = 'sr', imageLimit = 10, tier = 'free' }: UploadFormProps) {
   const { t, i18n } = useTranslation();
 
   // Dinamička validacija forme sa promjenljivim limitom slika
@@ -50,172 +56,95 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
       i18n.changeLanguage(language);
     }
   }, [language, i18n]);
-  // Funkcija za ponovno pokušavanje uploada neuspjelih slika
-  async function retryFailedUploads() {
-    // Filtriraj samo slike koje su označene kao retryable
-    const failedUploads = uploadStatuses.filter(status => status.status === 'error' && status.retryable);
-    
-    if (failedUploads.length === 0) return;
-    
-    setIsLoading(true);
-    
-    let retrySuccessCount = 0;
-    
-    for (const failedStatus of failedUploads) {
-      try {
-        // Pronađi indeks u trenutnom nizu statusa
-        const statusIndex = uploadStatuses.findIndex(s => s.id === failedStatus.id);
-        if (statusIndex === -1) continue;
-        
-        // Ažuriraj status da je slika u procesu ponovnog uploada
-        setUploadStatuses(prev => prev.map((status) => 
-          status.id === failedStatus.id ? { ...status, status: 'uploading', progress: 10, retryable: false } : status
-        ));
-        
-        // Resize slike
-        const resizedImg = await resizeImage(failedStatus.file);
-        
-        // Ažuriraj progress nakon resize-a
-        setUploadStatuses(prev => prev.map((status) => 
-          status.id === failedStatus.id ? { ...status, progress: 30 } : status
-        ));
-        
-        // Kreiraj formData za pojedinačnu sliku
-        const imageFormData = new FormData();
-        imageFormData.append("images", resizedImg);
-        
-        // Ažuriraj progress prije uploada
-        setUploadStatuses(prev => prev.map((status) => 
-          status.id === failedStatus.id ? { ...status, progress: 50 } : status
-        ));
-        
-        // Upload slike
-        const response = await fetch(`/api/guest/upload?guestId=${guestId}`, {
-          method: "POST",
-          body: imageFormData,
-          headers: {
-            "x-csrf-token": csrfToken || "",
-          },
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(data.error || "Došlo je do greške");
-        }
-        
-        // Ažuriraj status da je slika uspješno uploadovana
-        setUploadStatuses(prev => prev.map((status) => 
-          status.id === failedStatus.id ? { ...status, status: 'success', progress: 100 } : status
-        ));
-        
-        retrySuccessCount++;
-      } catch (error) {
-        // Ažuriraj status da je došlo do greške pri ponovnom uploadu slike
-        setUploadStatuses(prev => prev.map((status) => 
-          status.id === failedStatus.id ? { 
-            ...status, 
-            status: 'error', 
-            error: error instanceof Error ? error.message : "Greška pri ponovnom uploadu",
-            retryable: true // I dalje je retryable
-          } : status
-        ));
+  // Upload helper: pokreće resize → POST sa real progress-om → ažurira status.
+  // Dijeli se između batch submit-a i retry-ja jedne slike.
+  async function uploadSingleImage(statusId: string, file: File): Promise<boolean> {
+    const setProgress = (pct: number) =>
+      setUploadStatuses((prev) =>
+        prev.map((s) => (s.id === statusId ? { ...s, status: "uploading", progress: pct, retryable: false } : s))
+      );
+
+    try {
+      setProgress(0);
+      const { maxWidth, quality } = getClientResizeParams(tier);
+      const resized = await resizeImage(file, maxWidth, quality);
+      const formData = new FormData();
+      formData.append("images", resized);
+
+      const response = await uploadWithCsrfRetry("/api/guest/upload", formData, {
+        csrfEndpoint: "/api/guest/upload",
+        onProgress: setProgress,
+      });
+
+      const data = await response.json().catch(() => ({ error: "Neispravan odgovor servera" }));
+      if (!response.ok) {
+        throw new Error(data.error || "Došlo je do greške");
       }
+
+      setUploadStatuses((prev) =>
+        prev.map((s) => (s.id === statusId ? { ...s, status: "success", progress: 100 } : s))
+      );
+      return true;
+    } catch (error) {
+      setUploadStatuses((prev) =>
+        prev.map((s) =>
+          s.id === statusId
+            ? {
+                ...s,
+                status: "error",
+                error: error instanceof Error ? error.message : "Greška pri uploadu",
+                retryable: true,
+              }
+            : s
+        )
+      );
+      return false;
     }
-    
-    // Provjeri da li su sve slike uspješno uploadovane
-    const allSuccess = uploadStatuses.every(status => status.status === 'success');
-    
-    if (allSuccess) {
+  }
+
+  async function retryFailedUploads() {
+    const failed = uploadStatuses.filter((s) => s.status === "error" && s.retryable);
+    if (failed.length === 0) return;
+    setIsLoading(true);
+    for (const s of failed) {
+      await uploadSingleImage(s.id, s.file);
+    }
+    const refreshed = await new Promise<ImageUploadStatus[]>((resolve) => {
+      setUploadStatuses((prev) => {
+        resolve(prev);
+        return prev;
+      });
+    });
+    if (refreshed.every((s) => s.status === "success")) {
       setTimeout(() => {
-        const langPrefix = language === 'en' ? '/en' : '/sr';
+        const langPrefix = language === "en" ? "/en" : "/sr";
         window.location.href = `${langPrefix}/guest/success`;
       }, 1500);
     } else {
       setIsLoading(false);
     }
   }
-  
-  // Funkcija za ponovni pokušaj uploada jedne slike
+
   async function retryUpload(statusId: string) {
-    const statusIndex = uploadStatuses.findIndex(s => s.id === statusId);
-    if (statusIndex === -1) return;
-    
-    const failedStatus = uploadStatuses[statusIndex];
-    
+    const failed = uploadStatuses.find((s) => s.id === statusId);
+    if (!failed) return;
     setIsLoading(true);
-    
-    try {
-      // Ažuriraj status da je slika u procesu ponovnog uploada
-      setUploadStatuses(prev => prev.map((status) => 
-        status.id === statusId ? { ...status, status: 'uploading', progress: 10, retryable: false } : status
-      ));
-      
-      // Resize slike
-      const resizedImg = await resizeImage(failedStatus.file);
-      
-      // Ažuriraj progress nakon resize-a
-      setUploadStatuses(prev => prev.map((status) => 
-        status.id === statusId ? { ...status, progress: 30 } : status
-      ));
-      
-      // Kreiraj formData za pojedinačnu sliku
-      const imageFormData = new FormData();
-      imageFormData.append("images", resizedImg);
-      
-      // Ažuriraj progress prije uploada
-      setUploadStatuses(prev => prev.map((status) => 
-        status.id === statusId ? { ...status, progress: 50 } : status
-      ));
-      
-      // Upload slike
-      const response = await fetch(`/api/guest/upload?guestId=${guestId}`, {
-        method: "POST",
-        body: imageFormData,
-        headers: {
-          "x-csrf-token": csrfToken || "",
-        },
+    await uploadSingleImage(statusId, failed.file);
+    const refreshed = await new Promise<ImageUploadStatus[]>((resolve) => {
+      setUploadStatuses((prev) => {
+        resolve(prev);
+        return prev;
       });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || "Došlo je do greške");
-      }
-      
-      // Ažuriraj status da je slika uspješno uploadovana
-      setUploadStatuses(prev => prev.map((status) => 
-        status.id === statusId ? { ...status, status: 'success', progress: 100 } : status
-      ));
-      
-      // Provjeri da li su sve slike uspješno uploadovane
-      const allSuccess = uploadStatuses.every(status => 
-        status.status === 'success' || status.id === statusId
-      );
-      
-      if (allSuccess) {
-        setTimeout(() => {
-          const langPrefix = language === 'en' ? '/en' : '/sr';
-          window.location.href = `${langPrefix}/guest/success`;
-        }, 1500);
-      } else {
-        setIsLoading(false);
-      }
-    } catch (error) {
-      // Ažuriraj status da je došlo do greške pri ponovnom uploadu slike
-      setUploadStatuses(prev => prev.map((status) => 
-        status.id === statusId ? { 
-          ...status, 
-          status: 'error', 
-          error: error instanceof Error ? error.message : "Greška pri ponovnom uploadu",
-          retryable: true // I dalje je retryable
-        } : status
-      ));
-      
+    });
+    if (refreshed.every((s) => s.status === "success")) {
+      setTimeout(() => {
+        const langPrefix = language === "en" ? "/en" : "/sr";
+        window.location.href = `${langPrefix}/guest/success`;
+      }, 1500);
+    } else {
       setIsLoading(false);
     }
   }
-  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false)
   const [uploadStatuses, setUploadStatuses] = useState<ImageUploadStatus[]>([])
   const [showUploadStatus, setShowUploadStatus] = useState(false)
@@ -223,27 +152,24 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedImagesCount, setSelectedImagesCount] = useState(0);
   const [existingImagesCount, setExistingImagesCount] = useState(initialImagesCount || 0);
+
+  // Lock body scroll while the upload progress modal is visible.
+  useLockBodyScroll(showUploadStatus);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { message: message ?? "", images: [] },
   })
 
-  // Povuci CSRF token i broj postojećih slika na mount
+  // csrf-client helpers fetch their own token per request, so no need to
+  // prefetch here. Count is fetched lazily only if not provided by parent.
   React.useEffect(() => {
-    // Dohvati CSRF token
-    fetch("/api/guest/upload")
-      .then(res => res.json())
-      .then(data => setCsrfToken(data.csrfToken))
-      .catch(() => setCsrfToken(null)); // Token je sada csrf_token_guest_upload u kolačiću
-    
-    // Dohvati broj postojećih slika samo ako nije proslijeđen kroz props
     if (guestId && initialImagesCount === undefined) {
       fetch(`/api/guest/images/count?guestId=${guestId}`)
         .then(res => res.json())
         .then(data => {
           if (data.count !== undefined) {
             setExistingImagesCount(data.count);
-            console.log(`Broj postojećih slika: ${data.count}`);
           }
         })
         .catch(err => console.error("Greška pri dohvatanju broja slika:", err));
@@ -259,19 +185,23 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
     }
   }, [initialImagesCount]);
 
-  // Funkcija za resize i optimizaciju slike za Cloudinary
-  async function resizeImage(file: File, maxWidth = 1280): Promise<File> {
+  // Funkcija za resize i optimizaciju slike za Cloudinary (tier-aware)
+  async function resizeImage(file: File, maxWidth: number, quality: number): Promise<File> {
     return new Promise((resolve, reject) => {
-      // Ako je slika manja od 1MB, ne radimo resize
+      // No resize za unlimited tier — original fajl prolazi kako je.
+      if (maxWidth === 0) {
+        resolve(file);
+        return;
+      }
+      // < 1MB i manji od target maxWidth → ne diraj.
       if (file.size < 1024 * 1024) {
-        console.log(`Slika ${file.name} je manja od 1MB, preskačemo resize`);
         resolve(file);
         return;
       }
 
       const img = new window.Image();
       const reader = new FileReader();
-      
+
       reader.onload = (e) => {
         img.src = e.target?.result as string;
       };
@@ -279,64 +209,45 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
       img.onload = () => {
         let width = img.width;
         let height = img.height;
-        
-        // Računamo novi width i height za resize
+
         if (width > maxWidth) {
           height = Math.round((height * maxWidth) / width);
           width = maxWidth;
         }
-        
-        // Ako je slika već manja od maxWidth, samo optimiziramo kvalitetu
-        // Cloudinary će se pobrinuti za dodatnu optimizaciju
+
         if (img.width <= maxWidth && file.size < 2 * 1024 * 1024) {
           resolve(file);
           return;
         }
-        
+
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
-        if (!ctx) return reject("Canvas not supported");
-        
-        // Crtamo sliku na canvas
+        if (!ctx) return reject('Canvas not supported');
+
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Određujemo kvalitetu kompresije na osnovu veličine slike
-        let quality = 0.85; // Osnovna kvaliteta
-        
-        // Ako je slika veća od 5MB, dodatno smanjujemo kvalitetu
-        if (file.size > 5 * 1024 * 1024) {
-          quality = 0.75;
-        }
-        
-        // Za JPEG i JPG slike koristimo JPEG format za bolju kompresiju
-        const outputType = file.type.includes('jpeg') || file.type.includes('jpg') 
-          ? 'image/jpeg' 
-          : file.type;
+        const outputType =
+          file.type.includes('jpeg') || file.type.includes('jpg')
+            ? 'image/jpeg'
+            : file.type;
 
-        // Konvertujemo u blob
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              // Kreiramo novi File objekat sa optimiziranim blob-om
               const newFile = new File([blob], file.name, { type: outputType });
-              console.log(`Slika ${file.name} optimizirana: ${(file.size / (1024 * 1024)).toFixed(2)}MB -> ${(newFile.size / (1024 * 1024)).toFixed(2)}MB`);
               resolve(newFile);
             } else {
-              // Ako toBlob ne uspije, vrati originalnu sliku
-              console.warn(`Nije moguće optimizirati sliku ${file.name}, koristimo originalnu`);
               resolve(file);
             }
           },
           outputType,
-          quality // Prilagođena kvaliteta
+          quality
         );
       };
-      
-      reader.onerror = (e) => {
-        // U slučaju greške, vrati originalnu sliku
-        console.error(`Greška pri optimizaciji slike ${file.name}:`, e);
+
+      reader.onerror = () => {
         resolve(file);
       };
       reader.readAsDataURL(file);
@@ -385,84 +296,26 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
       if (values.message) {
         const messageFormData = new FormData();
         messageFormData.append("message", values.message);
-        
-        const messageResponse = await fetch(`/api/guest/upload?guestId=${guestId}`, {
+
+        const messageResponse = await fetchWithCsrfRetry("/api/guest/upload", {
           method: "POST",
           body: messageFormData,
-          headers: {
-            "x-csrf-token": csrfToken || "",
-          },
+          csrfEndpoint: "/api/guest/upload",
         });
-        
+
         if (!messageResponse.ok) {
-          const data = await messageResponse.json();
+          const data = await messageResponse.json().catch(() => ({}));
           throw new Error(data.error || "Došlo je do greške prilikom slanja poruke");
         }
       }
 
-      // Paralelno uploaduj sve slike
-      const uploadPromises = values.images.map(async (img, i) => {
-        try {
-          // Ažuriraj status da je slika u procesu uploada
-          setUploadStatuses(prev => prev.map((status, idx) =>
-            idx === i ? { ...status, status: 'uploading', progress: 10 } : status
-          ));
+      // Paralelno uploaduj sve slike sa stvarnim progress-om
+      const uploadPromises = initialStatuses.map((status, i) =>
+        uploadSingleImage(status.id, values.images![i])
+      );
 
-          // Resize slike
-          const resizedImg = await resizeImage(img);
-
-          // Ažuriraj progress nakon resize-a
-          setUploadStatuses(prev => prev.map((status, idx) =>
-            idx === i ? { ...status, progress: 30 } : status
-          ));
-
-          // Kreiraj formData za pojedinačnu sliku
-          const imageFormData = new FormData();
-          imageFormData.append("images", resizedImg);
-
-          // Ažuriraj progress prije uploada
-          setUploadStatuses(prev => prev.map((status, idx) =>
-            idx === i ? { ...status, progress: 50 } : status
-          ));
-
-          // Upload slike
-          const response = await fetch(`/api/guest/upload?guestId=${guestId}`, {
-            method: "POST",
-            body: imageFormData,
-            headers: {
-              "x-csrf-token": csrfToken || "",
-            },
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            const errorMsg = data.error || data.errors?.[0]?.msg || "Došlo je do greške";
-            throw new Error(errorMsg);
-          }
-
-          // Ažuriraj status da je slika uspješno uploadovana
-          setUploadStatuses(prev => prev.map((status, idx) =>
-            idx === i ? { ...status, status: 'success', progress: 100 } : status
-          ));
-
-          return { success: true, index: i };
-        } catch (error) {
-          // Ažuriraj status da je došlo do greške pri uploadu slike
-          setUploadStatuses(prev => prev.map((status, idx) =>
-            idx === i ? {
-              ...status,
-              status: 'error',
-              error: error instanceof Error ? error.message : "Greška pri uploadu",
-              retryable: true // Označavamo da se ovaj upload može ponovno pokušati
-            } : status
-          ));
-          return { success: false, index: i };
-        }
-      });
-
-      const results = await Promise.allSettled(uploadPromises);
-      const uploadedCount = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+      const results = await Promise.all(uploadPromises);
+      const uploadedCount = results.filter(Boolean).length;
       
       // Ako su sve slike uspješno uploadovane, preusmjeri na success stranicu sa jezikom
       if (uploadedCount === values.images.length) {
@@ -505,12 +358,15 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
       )}
       
       {showUploadStatus && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4 md:p-6 overflow-y-auto"
+        <ModalPortal>
+        <div
+          className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4 md:p-6 overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
           aria-live="assertive"
           aria-label="Status uploada slika"
         >
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto overscroll-contain">
             {/* Header sa naslovom i brojem uploadovanih slika */}
             <div className="sticky top-0 bg-white p-4 border-b border-[hsl(var(--lp-accent))]/10 flex items-center justify-between z-10">
               <div>
@@ -536,7 +392,7 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
             </div>
             
             {/* Lista slika sa statusima */}
-            <UploadStatusList 
+            <UploadStatusList
               uploadStatuses={uploadStatuses}
               isLoading={isLoading}
               onRetryUpload={retryUpload}
@@ -545,6 +401,7 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
             />
           </div>
         </div>
+        </ModalPortal>
       )}
       <CardHeader>
         <CardTitle>{t('guest.uploadForm.addImages', 'Dodaj slike')}</CardTitle>
@@ -601,6 +458,14 @@ export function UploadForm({ guestId, message, existingImagesCount: initialImage
                 'aria-label': `Izaberite slike za upload (maksimalno ${imageLimit})`,
               }}
             />
+            {(tier === 'premium' || tier === 'unlimited') && (
+              <p className="text-xs text-[hsl(var(--lp-muted-foreground))] mt-2 text-center">
+                {t(
+                  'guest.uploadForm.premiumQualityNote',
+                  'Slike se čuvaju u punoj kvaliteti — idealno za album štampu.'
+                )}
+              </p>
+            )}
           </div>
           <div>
             <label className="block font-medium mb-1">{t('guest.uploadForm.messageOptional', 'Poruka (opciono)')}</label>

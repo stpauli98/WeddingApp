@@ -95,6 +95,7 @@ export default async function DashboardPage(props: any) {
         message={guestWithData?.message?.text ?? ""}
         language={urlLanguage || language || eventLanguage}
         imageLimit={event.imageLimit || 10}
+        tier={event.pricingTier}
       />
       <div className="mt-8">
         <LogoutButton 

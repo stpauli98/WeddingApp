@@ -1,12 +1,9 @@
-import { Inter } from "next/font/google";
 import ClientPage from "@/components/ClientPage";
+import { getPricingPlansFromDb } from "@/lib/pricing-db";
+import { getServerT } from "@/lib/i18n/server";
 
-const inter = Inter({ subsets: ["latin"] });
-
-export default function EnHomePage() {
-  return (
-    <main id="main-content" className={`min-h-screen bg-background ${inter.className}`}>
-      <ClientPage />
-    </main>
-  );
+export default async function EnHomePage() {
+  const tiers = await getPricingPlansFromDb();
+  const t = getServerT('en');
+  return <ClientPage t={t} lang="en" tiers={tiers} />;
 }

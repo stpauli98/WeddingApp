@@ -1,46 +1,67 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const baseUrl = "https://www.dodajuspomenu.com";
+  const base = "https://www.dodajuspomenu.com";
+  const lastmod = new Date().toISOString();
 
-  const urls = [
-    // Landing pages
-    { path: "", priority: "1.0", changefreq: "weekly" },
-    { path: "/sr", priority: "1.0", changefreq: "weekly" },
-    { path: "/en", priority: "1.0", changefreq: "weekly" },
+  type Url = {
+    loc: string;
+    priority?: string;
+    alternates?: Record<string, string>;
+  };
 
-    // About
-    { path: "/about", priority: "0.8", changefreq: "monthly" },
-
-    // Admin pages
-    { path: "/admin/register", priority: "0.7", changefreq: "monthly" },
-    { path: "/admin/login", priority: "0.7", changefreq: "monthly" },
-    { path: "/admin/dashboard", priority: "0.6", changefreq: "weekly" },
-
-    // Guest pages
-    { path: "/guest/login", priority: "0.7", changefreq: "monthly" },
-    { path: "/guest/dashboard", priority: "0.6", changefreq: "weekly" },
-    { path: "/guest/success", priority: "0.5", changefreq: "monthly" },
+  const urls: Url[] = [
+    {
+      loc: `${base}/sr`,
+      priority: "1.0",
+      alternates: {
+        "sr-RS": `${base}/sr`,
+        "en-US": `${base}/en`,
+        "x-default": `${base}/sr`,
+      },
+    },
+    {
+      loc: `${base}/en`,
+      priority: "1.0",
+      alternates: {
+        "sr-RS": `${base}/sr`,
+        "en-US": `${base}/en`,
+        "x-default": `${base}/sr`,
+      },
+    },
+    { loc: `${base}/privacy`, priority: "0.5" },
+    { loc: `${base}/terms`, priority: "0.5" },
+    { loc: `${base}/cookies`, priority: "0.5" },
+    { loc: `${base}/kontakt`, priority: "0.6" },
   ];
 
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+  const body = urls
+    .map((u) => {
+      const alt = u.alternates
+        ? "\n    " +
+          Object.entries(u.alternates)
+            .map(
+              ([lang, href]) =>
+                `<xhtml:link rel="alternate" hreflang="${lang}" href="${href}" />`
+            )
+            .join("\n    ")
+        : "";
+      const priority = u.priority ? `\n    <priority>${u.priority}</priority>` : "";
+      return `  <url>
+    <loc>${u.loc}</loc>
+    <lastmod>${lastmod}</lastmod>${priority}${alt}
+  </url>`;
+    })
+    .join("\n");
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  ${urls
-    .map(
-      ({ path, priority, changefreq }) => `<url>
-    <loc>${baseUrl}${path}</loc>
-    <priority>${priority}</priority>
-    <changefreq>${changefreq}</changefreq>
-  </url>`
-    )
-    .join("\n  ")}
+${body}
 </urlset>`;
 
-  return new NextResponse(sitemap, {
+  return new NextResponse(xml, {
     status: 200,
-    headers: {
-      "Content-Type": "application/xml",
-    },
+    headers: { "Content-Type": "application/xml" },
   });
 }

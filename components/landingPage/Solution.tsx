@@ -1,45 +1,33 @@
-"use client"
-
+// NO 'use client' - RSC.
 import Image from "next/image"
-import { useTranslation } from "react-i18next"
-import { getCurrentLanguageFromPath } from "@/lib/utils/language"
-import { motion } from "framer-motion"
+import type { TFunction } from "i18next"
+import { FadeInOnScroll } from "@/components/motion/FadeInOnScroll"
 
-export default function Solution() {
-  const { t, i18n } = useTranslation()
-  const lang = i18n.language || "sr"
+interface SolutionProps {
+  t: TFunction
+  lang: "sr" | "en"
+}
 
+export default function Solution({ t, lang }: SolutionProps) {
   return (
     <section className="py-16 sm:py-20 bg-white" aria-labelledby="solution-heading">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
-        <motion.h2
+        <FadeInOnScroll
+          as="h2"
           id="solution-heading"
           className="font-playfair text-3xl md:text-4xl lg:text-5xl font-bold text-lp-text mb-4"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
         >
           {t("solution.title")}
-        </motion.h2>
+        </FadeInOnScroll>
 
-        <motion.p
+        <FadeInOnScroll
+          delay={0.1}
           className="text-lg md:text-xl text-lp-muted-foreground mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
         >
           {t("solution.subtitle")}
-        </motion.p>
+        </FadeInOnScroll>
 
-        <motion.div
-          className="relative max-w-4xl mx-auto"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
+        <FadeInOnScroll delay={0.2} className="relative max-w-4xl mx-auto">
           <Image
             src={`/images/${lang}/gallery-desktop.png`}
             alt={t("solution.imageAlt")}
@@ -47,7 +35,7 @@ export default function Solution() {
             height={617}
             className="w-full h-auto rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl"
           />
-        </motion.div>
+        </FadeInOnScroll>
       </div>
     </section>
   )

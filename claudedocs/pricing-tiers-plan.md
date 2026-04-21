@@ -205,3 +205,54 @@ await prisma.event.updateMany({
 
 **Total Time (Phase 1 - without payment): ~7-8 hours**
 **Total Time (Phase 2 - with payment): ~11-14 hours**
+
+---
+
+## Image quality gradient (2026-04-19)
+
+Each tier gets a distinct image pipeline beyond just `imageLimit`:
+
+| Tier | Client resize | Client quality | Cloudinary storage |
+|---|---|---|---|
+| free | 1280px | 0.85 | q_auto compressed derivative |
+| basic | 1600px | 0.9 | q_auto compressed derivative |
+| premium | 2560px | 0.95 | original (no upload transform) |
+| unlimited | no resize | 1.0 | original |
+
+**Why:** 1280px is web-grade but unusable for album print (max ~A5 @ 300dpi). Premium/Unlimited tiers justify their price by delivering album-quality originals the admin can actually print. Free stays cheap on Cloudinary storage.
+
+**Schema:** `PricingPlan.{clientResizeMaxWidth,clientQuality,storeOriginal}` + `Image.tier` snapshot. See migration `20260419_add_tier_quality_fields`.
+
+**Implementation:** See [plans/2026-04-19-tier-based-image-quality-gradient.md](../docs/superpowers/plans/2026-04-19-tier-based-image-quality-gradient.md) and [specs/2026-04-19-tier-based-image-quality-gradient-design.md](../docs/superpowers/specs/2026-04-19-tier-based-image-quality-gradient-design.md).
+
+---
+
+## DB-first pricing refactor (2026-04-19)
+
+Prije: `PRICING_TIERS` const je bio single source of truth; UI čitao hardcoded.
+Poslije: DB (`PricingPlan` + `PricingFeature`) je runtime source of truth. `PRICING_TIERS` ostaje build-time fallback + seed source.
+
+Ključni fajlovi:
+- `lib/pricing-db.ts` — `getPricingPlansFromDb()` za server components
+- `lib/pricing-features.ts` — `buildDynamicFeatures()` za template-based bullet rendering
+- `/api/pricing` — runtime REST endpoint za client components
+
+Ako admin dashboard u budućnosti dobije formu za uređivanje pricing-a, ova arhitektura već podržava trenutnu propagaciju promjena.
+
+---
+
+## Tier consolidation (2026-04-20)
+
+Konzolidacija 4 → 3 tiera bazirana na unit economics analizi:
+
+| Tier | Slika/gost | Gostiju | Retention | Cijena | Kvalitet |
+|---|---|---|---|---|---|
+| Free | 3 | 20 | 30 dana | €0 | Standard (1280px) |
+| Basic | 7 | 100 | 30 dana | €25 | High (1600px) |
+| Premium | 25 | 300 | 30 dana | €75 | Original (2560px+) |
+
+**Unlimited deprecated** — PricingPlan row postaje active:false. Enum value `unlimited` ostaje u schema-i za back-compat sa postojećim event-ima (oni bi bili grandfather-ovani sa retentionOverrideDays=335 — aktualno 0 event-a pri primjeni, pa je no-op).
+
+**Retention dropped to 30 days** za sve tier-ove. Add-on "extend retention by 30 days" (€10/mo) je followup feature — mehanizam već postoji preko `Event.retentionOverrideDays` polja.
+
+**Premium price €40 → €75** — dizanje cijene opravdano unit economics-om (original quality + storage cost) i premium positioning-om. Basic €20 → €25 je round-number + 1/3 Premium-a anchor.

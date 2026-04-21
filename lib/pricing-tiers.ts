@@ -17,6 +17,16 @@ export interface TierConfig {
   guestLimit: number;
   storageDays: number;
   price: number; // in cents (0 for free)
+  /** Max width for client-side canvas resize. 0 = no resize. */
+  clientResizeMaxWidth: number;
+  /** Canvas.toBlob quality param (0.0–1.0). */
+  clientQuality: number;
+  /**
+   * If true, Cloudinary upload runs WITHOUT transformation so the
+   * original is stored. If false, upload applies q_auto+f_auto and
+   * the stored asset is the compressed derivative.
+   */
+  storeOriginal: boolean;
   features: TierFeature[];
   limitations?: TierFeature[];
   recommended?: boolean;
@@ -26,14 +36,14 @@ export interface TierConfig {
 export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
   free: {
     name: { sr: 'Besplatno', en: 'Free' },
-    imageLimit: 10,
+    imageLimit: 3,
     guestLimit: 20,
-    storageDays: 10,
+    storageDays: 30,
     price: 0,
+    clientResizeMaxWidth: 1280,
+    clientQuality: 0.85,
+    storeOriginal: false,
     features: [
-      { sr: 'Do 10 slika po gostu', en: 'Up to 10 images per guest' },
-      { sr: 'Maksimalno 20 gostiju', en: 'Up to 20 guests' },
-      { sr: 'Slike se čuvaju 10 dana', en: 'Photos stored for 10 days' },
       { sr: 'Standardni QR kod', en: 'Standard QR code' },
       { sr: 'Galerija fotografija', en: 'Photo gallery' },
       { sr: 'Preuzimanje svih slika', en: 'Download all images' },
@@ -41,14 +51,14 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
   },
   basic: {
     name: { sr: 'Osnovno', en: 'Basic' },
-    imageLimit: 25,
+    imageLimit: 7,
     guestLimit: 100,
     storageDays: 30,
-    price: 1999,
+    price: 2500, // €25
+    clientResizeMaxWidth: 1600,
+    clientQuality: 0.9,
+    storeOriginal: false,
     features: [
-      { sr: 'Do 25 slika po gostu', en: 'Up to 25 images per guest' },
-      { sr: 'Do 100 gostiju', en: 'Up to 100 guests' },
-      { sr: 'Slike se čuvaju 30 dana', en: 'Photos stored for 30 days' },
       { sr: 'Prilagođen QR kod', en: 'Custom QR code' },
       { sr: 'Prioritetna podrška', en: 'Priority support' },
     ],
@@ -56,14 +66,14 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
   },
   premium: {
     name: { sr: 'Premium', en: 'Premium' },
-    imageLimit: 50,
+    imageLimit: 25,
     guestLimit: 300,
-    storageDays: 365,
-    price: 3999,
+    storageDays: 30,
+    price: 7500, // €75
+    clientResizeMaxWidth: 2560,
+    clientQuality: 0.95,
+    storeOriginal: true,
     features: [
-      { sr: 'Do 50 slika po gostu', en: 'Up to 50 images per guest' },
-      { sr: 'Do 300 gostiju', en: 'Up to 300 guests' },
-      { sr: 'Slike se čuvaju 1 godinu', en: 'Photos stored for 1 year' },
       { sr: 'Napredni QR kod', en: 'Advanced QR code' },
       { sr: 'Prilagođen brending', en: 'Custom branding' },
       { sr: 'Prilagođene poruke', en: 'Custom messages' },
@@ -71,20 +81,21 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     ],
     recommended: false,
   },
+  // DEPRECATED 2026-04-20: konzolidacija 4→3 tiera. PricingPlan row postaje
+  // active:false u DB-u (seed radi Step 2 niže). Config entry zadržan radi
+  // Prisma enum compatibility + back-compat sa postojećim event-ima na
+  // 'unlimited' tier-u (oni su grandfather-ovani u Task 2). NE pojavljuje
+  // se na landing-u ili admin selector-u jer /api/pricing filtrira po active:true.
   unlimited: {
-    name: { sr: 'Neograničeno', en: 'Unlimited' },
-    imageLimit: 999,
-    guestLimit: 9999,
-    storageDays: 365,
-    price: 5999,
-    features: [
-      { sr: 'Neograničen broj slika po gostu', en: 'Unlimited images per guest' },
-      { sr: 'Neograničen broj gostiju', en: 'Unlimited guests' },
-      { sr: 'Slike se čuvaju 1 godinu', en: 'Photos stored for 1 year' },
-      { sr: 'Napredni QR kod', en: 'Advanced QR code' },
-      { sr: 'Prilagođen brending', en: 'Custom branding' },
-      { sr: 'Dedicirana podrška', en: 'Dedicated support' },
-    ],
+    name: { sr: 'Neograničeno (deprecated)', en: 'Unlimited (deprecated)' },
+    imageLimit: 25, // matches premium — legacy events get treated as premium for new features
+    guestLimit: 300,
+    storageDays: 30,
+    price: 7500,
+    clientResizeMaxWidth: 2560,
+    clientQuality: 0.95,
+    storeOriginal: true,
+    features: [],
     recommended: false,
   },
 };
@@ -136,4 +147,44 @@ export function formatPrice(priceInCents: number, currency: string = 'EUR'): str
  */
 export function isValidTier(tier: string): tier is PricingTier {
   return tier in PRICING_TIERS;
+}
+
+/**
+ * Client-side resize params per tier. `maxWidth: 0` znači bez resize-a.
+ */
+export function getClientResizeParams(tier: PricingTier): {
+  maxWidth: number;
+  quality: number;
+} {
+  const config = PRICING_TIERS[tier] ?? PRICING_TIERS.free;
+  return {
+    maxWidth: config.clientResizeMaxWidth,
+    quality: config.clientQuality,
+  };
+}
+
+/**
+ * Kombinovana fraza za quality+resolution (landing card + admin selector).
+ */
+export function getQualityLabel(tier: PricingTier, language: 'sr' | 'en' = 'sr'): string {
+  const labels: Record<PricingTier, { sr: string; en: string }> = {
+    free: {
+      sr: 'Standard (do 1280px)',
+      en: 'Standard (up to 1280px)',
+    },
+    basic: {
+      sr: 'Visok kvalitet (do 1600px)',
+      en: 'High quality (up to 1600px)',
+    },
+    premium: {
+      sr: 'Vrlo visok (do 2560px)',
+      en: 'Very high (up to 2560px)',
+    },
+    unlimited: {
+      sr: 'Original (puna rezolucija)',
+      en: 'Original (full resolution)',
+    },
+  };
+  const entry = labels[tier] ?? labels.free;
+  return entry[language] ?? entry.sr;
 }

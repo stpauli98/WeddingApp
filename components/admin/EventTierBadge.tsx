@@ -1,6 +1,9 @@
 "use client";
 
-import { PRICING_TIERS, PricingTier, getTierName, getTierFeatures } from '@/lib/pricing-tiers';
+import { useEffect, useState } from 'react';
+import { PRICING_TIERS, PricingTier, getTierName } from '@/lib/pricing-tiers';
+import { buildDynamicFeatures } from '@/lib/pricing-features';
+import type { PricingPlanRow } from '@/lib/pricing-db';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, ImageIcon } from 'lucide-react';
@@ -15,9 +18,24 @@ interface EventTierBadgeProps {
 
 export function EventTierBadge({ tier, imageLimit, language = 'sr', variant = 'badge' }: EventTierBadgeProps) {
   const { t } = useTranslation();
-  const config = PRICING_TIERS[tier];
+  const [plan, setPlan] = useState<PricingPlanRow | null>(null);
   const tierName = getTierName(tier, language);
-  const features = getTierFeatures(tier, language);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/pricing')
+      .then((r) => r.json())
+      .then((data: PricingPlanRow[]) => {
+        if (!cancelled) {
+          const found = data.find((p) => p.tier === tier);
+          setPlan(found ?? null);
+        }
+      })
+      .catch((err) => console.error('[tier-badge] fetch failed:', err));
+    return () => {
+      cancelled = true;
+    };
+  }, [tier]);
 
   if (variant === 'badge') {
     return (
@@ -36,6 +54,12 @@ export function EventTierBadge({ tier, imageLimit, language = 'sr', variant = 'b
     );
   }
 
+  const features = plan
+    ? buildDynamicFeatures(plan, language, t)
+    : PRICING_TIERS[tier].features.map((f) => f[language]); // fallback
+
+  const price = plan?.price ?? PRICING_TIERS[tier].price;
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -46,15 +70,15 @@ export function EventTierBadge({ tier, imageLimit, language = 'sr', variant = 'b
               {t('admin.event.pricing.imagesPerGuest', '{{count}} slika po gostu', { count: imageLimit })}
             </CardDescription>
           </div>
-          {config.price > 0 && (
+          {price > 0 && (
             <div className="text-right">
-              <div className="text-2xl font-bold">{(config.price / 100).toFixed(2)} EUR</div>
+              <div className="text-2xl font-bold">{(price / 100).toFixed(2)} EUR</div>
               <div className="text-xs text-muted-foreground">
                 {language === 'sr' ? 'po događaju' : 'per event'}
               </div>
             </div>
           )}
-          {config.price === 0 && (
+          {price === 0 && (
             <Badge variant="secondary" className="text-lg px-4 py-2">
               {t('admin.event.pricing.free', 'Besplatno')}
             </Badge>
