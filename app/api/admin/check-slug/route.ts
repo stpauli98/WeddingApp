@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 import { getRequestIp } from "@/lib/security/request-ip";
 import { createRateLimiter } from "@/lib/security/rate-limit";
+import { isReservedSlug } from "@/lib/security/reserved-slugs";
 
 const checkSlugLimiter = createRateLimiter({ name: 'check-slug', max: 10, windowMs: 60_000 });
 
@@ -22,6 +23,10 @@ export async function GET(request: NextRequest) {
   }
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
     return NextResponse.json({ available: false, reason: "invalid_format" });
+  }
+
+  if (isReservedSlug(slug)) {
+    return NextResponse.json({ available: false, reason: "reserved" });
   }
 
   try {
