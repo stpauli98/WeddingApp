@@ -15,7 +15,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const guest = await prisma.guest.findUnique({
     where: { id },
-    include: { images: true, message: true, event: true },
+    include: {
+      images: true,
+      message: true,
+      event: { select: { id: true, slug: true, coupleName: true, date: true } },
+    },
   });
 
   if (!guest) {

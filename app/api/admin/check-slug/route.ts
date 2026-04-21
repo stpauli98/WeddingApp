@@ -1,24 +1,31 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getAuthenticatedAdmin } from "@/lib/admin-auth";
+import { getRequestIp } from "@/lib/security/request-ip";
+import { createRateLimiter } from "@/lib/security/rate-limit";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const slug = searchParams.get("slug");
+const checkSlugLimiter = createRateLimiter({ name: 'check-slug', max: 10, windowMs: 60_000 });
 
+export async function GET(request: NextRequest) {
+  const admin = await getAuthenticatedAdmin();
+  if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const ip = getRequestIp(request);
+  const rl = await checkSlugLimiter.check(ip);
+  if (!rl.success) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
+  const slug = new URL(request.url).searchParams.get("slug");
   if (!slug || slug.length < 3) {
     return NextResponse.json({ available: false, reason: "invalid" });
   }
-
-  // Check if slug matches the pattern
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
     return NextResponse.json({ available: false, reason: "invalid_format" });
   }
 
   try {
-    const existingEvent = await prisma.event.findUnique({
-      where: { slug },
-    });
-
+    const existingEvent = await prisma.event.findUnique({ where: { slug } });
     return NextResponse.json({
       available: !existingEvent,
       reason: existingEvent ? "exists" : "available",

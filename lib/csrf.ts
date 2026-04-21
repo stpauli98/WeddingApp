@@ -24,7 +24,8 @@ function getSecret(): Uint8Array {
 export async function generateCsrfToken() {
   const tokenUint8 = await createToken(getSecret(), 32);
   const token = utoa(tokenUint8);
-  const cookie = `csrf_token=${token}; Path=/; SameSite=Lax; HttpOnly; Max-Age=3600`;
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  const cookie = `csrf_token=${token}; Path=/; SameSite=Lax; HttpOnly${secure}; Max-Age=3600`;
   return { token, cookie };
 }
 

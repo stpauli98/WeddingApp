@@ -4,15 +4,11 @@ import { getAuthenticatedGuest } from '@/lib/guest-auth'
 import crypto from 'crypto';
 import { cookies } from 'next/headers';
 import cloudinary from '@/lib/cloudinary';
+import { createRateLimiter } from '@/lib/security/rate-limit';
+import { getRequestIp } from '@/lib/security/request-ip';
 
 // Per-IP rate limit for image deletes.
-declare global {
-  var __guestDeleteAttempts: Map<string, number[]> | undefined;
-}
-const deleteAttempts: Map<string, number[]> = globalThis.__guestDeleteAttempts || new Map();
-globalThis.__guestDeleteAttempts = deleteAttempts;
-const DELETE_MAX = 30;
-const DELETE_WINDOW_MS = 5 * 60 * 1000;
+const deleteLimiter = createRateLimiter({ name: 'guest-delete', max: 30, windowMs: 5 * 60 * 1000 });
 
 export async function GET() {
   const csrfToken = crypto.randomBytes(32).toString('hex');
@@ -45,16 +41,9 @@ export async function DELETE(request: Request) {
   }
 
   // Per-IP rate limiting.
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-  const now = Date.now();
-  const recent = (deleteAttempts.get(ip) || []).filter((ts) => now - ts < DELETE_WINDOW_MS);
-  if (recent.length >= DELETE_MAX) {
-    return NextResponse.json(
-      { error: 'Previše zahtjeva za brisanje. Pokušajte ponovo za nekoliko minuta.' },
-      { status: 429 }
-    );
-  }
-  deleteAttempts.set(ip, [...recent, now]);
+  const ip = getRequestIp(request);
+  const rl = await deleteLimiter.check(ip);
+  if (!rl.success) return NextResponse.json({ error: 'Previše zahtjeva za brisanje. Pokušajte ponovo za nekoliko minuta.' }, { status: 429 });
 
   try {
     // Validiraj guest sesiju

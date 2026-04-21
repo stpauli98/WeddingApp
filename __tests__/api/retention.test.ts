@@ -55,8 +55,8 @@ const WARNING_WINDOW_EVENT_DATE = new Date(Date.now() - 29 * 86400000); // 29d a
 beforeEach(() => {
   jest.clearAllMocks();
   process.env.CRON_SECRET = 'test-secret';
-  // Reset per-IP rate-limit map (module captured reference — clear in place).
-  (globalThis as any).__cronCleanupAttempts?.clear();
+  // Reset per-IP rate-limit map (shared-limiter key from createRateLimiter).
+  (globalThis as any)['__rl_cron-cleanup']?.clear();
   guestUpdateMany.mockResolvedValue({ count: 0 });
   adminSessionDeleteMany.mockResolvedValue({ count: 0 });
   eventFindMany.mockResolvedValue([]);
