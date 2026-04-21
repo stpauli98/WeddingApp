@@ -157,3 +157,34 @@ describe('P2002 handling', () => {
     expect(res.status).toBe(409);
   });
 });
+
+describe('reserved slug rejection', () => {
+  beforeEach(() => {
+    mocks.adminSessionFindUnique.mockResolvedValue({
+      admin: { id: 'adm1' }, expiresAt: new Date(Date.now() + 3600_000),
+    });
+    mocks.adminFindUnique.mockResolvedValue({ language: 'sr' });
+    mocks.pricingPlanFindUnique.mockResolvedValue({ imageLimit: 3 });
+    mocks.eventFindFirst.mockResolvedValue(null);
+    mocks.eventFindUnique.mockResolvedValue(null);
+  });
+
+  it('rejects slug "admin" with 409', async () => {
+    const res = await POST(buildRequest({ ...VALID_BODY_BASE, slug: 'admin' }));
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body.error).toMatch(/rezervisan/i);
+    expect(mocks.eventCreate).not.toHaveBeenCalled();
+  });
+
+  it('rejects slug "api" case-insensitively', async () => {
+    const res = await POST(buildRequest({ ...VALID_BODY_BASE, slug: 'API' }));
+    expect(res.status).toBe(409);
+  });
+
+  it('accepts non-reserved slug', async () => {
+    mocks.eventCreate.mockResolvedValue({ id: 'e1', slug: 'ana-marko' });
+    const res = await POST(buildRequest({ ...VALID_BODY_BASE, slug: 'ana-marko' }));
+    expect(res.status).toBe(200);
+  });
+});

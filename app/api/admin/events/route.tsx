@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { generateCsrfToken, validateCsrfToken } from '@/lib/csrf';
 import { PRICING_TIERS, isValidTier, type PricingTier } from '@/lib/pricing-tiers';
+import { isReservedSlug } from '@/lib/security/reserved-slugs';
 
 export async function GET() {
   const { token } = await generateCsrfToken();
@@ -30,6 +31,10 @@ export async function POST(request: Request) {
 
     if (!coupleName || !location || !date || !slug) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    if (isReservedSlug(slug)) {
+      return NextResponse.json({ error: "Taj URL je rezervisan sistemom. Molimo izaberite drugi." }, { status: 409 });
     }
 
     const selectedTier: PricingTier = isValidTier(pricingTier) ? pricingTier : 'free';
