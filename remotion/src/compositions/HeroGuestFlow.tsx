@@ -3,17 +3,32 @@ import { theme } from '../theme';
 import { playfair, inter } from '../fonts';
 
 // Phase timings (fps=30). Total 360 frames = 12s.
-const PHASE_LOGIN_END = 120;   // 4.0s
-const PHASE_UPLOAD_END = 270;  // 9.0s
+const PHASE_LOGIN_END = 120; // 4.0s
+const PHASE_UPLOAD_END = 270; // 9.0s
 const PHASE_SUCCESS_END = 360; // 12.0s
+
+// Paper-noise SVG tile (low-opacity turbulence) encoded as data URI.
+// Used as backgroundImage for subtle letterpress grain.
+const PAPER_NOISE_URI =
+  "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.18  0 0 0 0 0.13  0 0 0 0 0.15  0 0 0 0.06 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>\")";
 
 export const HeroGuestFlow: React.FC = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: theme.lpBg, fontFamily: inter }}>
-      {/* Warm ivory → soft pink gradient backdrop for wedding warmth */}
+      {/* Paper-grain overlay — subtle letterpress texture */}
       <AbsoluteFill
         style={{
-          background: `linear-gradient(180deg, ${theme.lpBg} 0%, ${theme.lpPrimarySoft}55 100%)`,
+          backgroundImage: PAPER_NOISE_URI,
+          backgroundRepeat: 'repeat',
+          opacity: 0.55,
+          pointerEvents: 'none',
+        }}
+      />
+      {/* Soft vignette — keeps the eye centered without being obvious */}
+      <AbsoluteFill
+        style={{
+          background: `radial-gradient(ellipse at center, transparent 55%, ${theme.lpBorder}22 100%)`,
+          pointerEvents: 'none',
         }}
       />
 
@@ -33,106 +48,185 @@ export const HeroGuestFlow: React.FC = () => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Inline Lucide icon components (SVG paths copied from lucide-react).
+// Ornamental SVG primitives — all hand-drawn paths, no icon libs.
 // ─────────────────────────────────────────────────────────────────────────────
 
-type IconProps = { size?: number; color?: string; stroke?: number; fill?: string };
+type OrnamentProps = { width?: number; opacity?: number; progress?: number };
 
-const CalendarIcon: React.FC<IconProps> = ({ size = 20, color = theme.lpMutedForeground, stroke = 2 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-    <line x1="16" y1="2" x2="16" y2="6" />
-    <line x1="8" y1="2" x2="8" y2="6" />
-    <line x1="3" y1="10" x2="21" y2="10" />
+// Thin gold flourish — botanical curve with dot accents. Mirrorable via scaleX.
+const Flourish: React.FC<OrnamentProps & { mirror?: boolean }> = ({
+  width = 160,
+  opacity = 1,
+  progress = 1,
+  mirror = false,
+}) => {
+  const dashTotal = 220;
+  const dashOffset = dashTotal - dashTotal * progress;
+  return (
+    <svg
+      width={width}
+      height={width * 0.22}
+      viewBox="0 0 200 44"
+      fill="none"
+      style={{ opacity, transform: mirror ? 'scaleY(-1)' : undefined }}
+    >
+      <path
+        d="M4 30 Q 40 8 74 22 T 126 22 Q 160 8 196 30"
+        stroke={theme.lpAccent}
+        strokeWidth="1"
+        strokeLinecap="round"
+        fill="none"
+        strokeDasharray={dashTotal}
+        strokeDashoffset={dashOffset}
+      />
+      <circle cx="100" cy="22" r="1.6" fill={theme.lpAccent} opacity={progress} />
+      <circle cx="72" cy="22" r="0.9" fill={theme.lpAccent} opacity={progress * 0.7} />
+      <circle cx="128" cy="22" r="0.9" fill={theme.lpAccent} opacity={progress * 0.7} />
+      <path
+        d="M96 22 L100 14 L104 22 L100 30 Z"
+        fill={theme.lpAccent}
+        opacity={progress * 0.9}
+      />
+    </svg>
+  );
+};
+
+// Horizontal ornamental divider with centered diamond glyph. Uses real unicode.
+const DiamondDivider: React.FC<{ width?: number; opacity?: number; color?: string }> = ({
+  width = 240,
+  opacity = 1,
+  color = theme.lpAccent,
+}) => (
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 14,
+      width,
+      opacity,
+    }}
+  >
+    <div style={{ flex: 1, height: 1, backgroundColor: color, opacity: 0.55 }} />
+    <span
+      style={{
+        fontFamily: playfair,
+        fontSize: 14,
+        color,
+        letterSpacing: '0.1em',
+        lineHeight: 1,
+        transform: 'translateY(-1px)',
+      }}
+    >
+      ◇
+    </span>
+    <div style={{ flex: 1, height: 1, backgroundColor: color, opacity: 0.55 }} />
+  </div>
+);
+
+// Tiny corner botanical — a single curving stem with two leaf-dots.
+const CornerBotanical: React.FC<{ size?: number; opacity?: number; rotate?: number }> = ({
+  size = 44,
+  opacity = 0.28,
+  rotate = 0,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 48 48"
+    fill="none"
+    style={{ opacity, transform: `rotate(${rotate}deg)` }}
+  >
+    <path
+      d="M4 44 Q 16 30 22 20 Q 28 10 44 4"
+      stroke={theme.lpAccent}
+      strokeWidth="0.9"
+      strokeLinecap="round"
+      fill="none"
+    />
+    <ellipse cx="16" cy="28" rx="2.2" ry="1" fill={theme.lpAccent} transform="rotate(-40 16 28)" />
+    <ellipse cx="30" cy="14" rx="2.2" ry="1" fill={theme.lpAccent} transform="rotate(-40 30 14)" />
+    <circle cx="44" cy="4" r="1.2" fill={theme.lpAccent} />
   </svg>
 );
 
-const MapPinIcon: React.FC<IconProps> = ({ size = 20, color = theme.lpMutedForeground, stroke = 2 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-    <circle cx="12" cy="10" r="3" />
+// Minimal camera glyph for polaroid centers.
+const CameraGlyph: React.FC<{ size?: number; color?: string }> = ({
+  size = 22,
+  color = theme.lpMutedForeground,
+}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+    <circle cx="12" cy="13" r="4" />
   </svg>
 );
 
-const HeartIcon: React.FC<IconProps> = ({ size = 20, color = theme.lpPrimary, stroke = 2, fill = 'none' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-  </svg>
-);
-
-const CheckIcon: React.FC<IconProps> = ({ size = 20, color = theme.lpSuccess, stroke = 3 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-);
-
-const UploadIcon: React.FC<IconProps> = ({ size = 40, color = theme.lpMutedForeground, stroke = 2 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-    <polyline points="17 8 12 3 7 8" />
-    <line x1="12" y1="3" x2="12" y2="15" />
-  </svg>
-);
-
-// Spinning loader (uses frame for rotation via caller).
-const LoaderIcon: React.FC<IconProps & { rotate?: number }> = ({ size = 18, color = theme.lpPrimary, stroke = 2.5, rotate = 0 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" style={{ transform: `rotate(${rotate}deg)` }}>
-    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-  </svg>
-);
-
-// Small decorative heart for corners.
-const CornerHeart: React.FC<{ size?: number; opacity?: number; rotate?: number; color?: string }> = ({ size = 28, opacity = 0.35, rotate = 0, color = theme.lpAccent }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill={color} style={{ opacity, transform: `rotate(${rotate}deg)` }}>
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-  </svg>
-);
-
-// Interlocking rings (wedding bands) for the login header.
-const WeddingRings: React.FC<{ size?: number; opacity?: number }> = ({ size = 42, opacity = 0.75 }) => (
-  <svg width={size} height={size} viewBox="0 0 48 32" fill="none" style={{ opacity }}>
-    <circle cx="18" cy="16" r="11" stroke={theme.lpAccent} strokeWidth="2" fill="none" />
-    <circle cx="30" cy="16" r="11" stroke={theme.lpPrimary} strokeWidth="2" fill="none" />
-  </svg>
-);
+// Thin check for modal completion — rendered in gold, not green.
+const ThinCheck: React.FC<{ size?: number; color?: string; progress?: number }> = ({
+  size = 14,
+  color = theme.lpAccent,
+  progress = 1,
+}) => {
+  const dashLen = 24;
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <path
+        d="M5 12 L10 17 L19 7"
+        stroke={color}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+        strokeDasharray={dashLen}
+        strokeDashoffset={dashLen - dashLen * progress}
+      />
+    </svg>
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PHASE 1 — Login (0-120 frames, 4.0s)
+// PHASE 1 — "The Invitation" (0-120 frames, 4.0s)
 // ─────────────────────────────────────────────────────────────────────────────
 
 const PhaseLogin: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const headerY = interpolate(frame, [0, 18], [-30, 0], { extrapolateRight: 'clamp' });
-  const headerOpacity = interpolate(frame, [0, 18], [0, 1], { extrapolateRight: 'clamp' });
+  // Flourishes draw in first — establishes the stationery.
+  const flourishProgress = interpolate(frame, [0, 30], [0, 1], { extrapolateRight: 'clamp' });
+  const cornerOpacity = interpolate(frame, [6, 28], [0, 1], { extrapolateRight: 'clamp' });
 
-  const cardY = interpolate(frame, [12, 30], [40, 0], { extrapolateRight: 'clamp' });
-  const cardOpacity = interpolate(frame, [12, 30], [0, 1], { extrapolateRight: 'clamp' });
+  // Monogram slides in softly.
+  const monogramY = interpolate(frame, [10, 30], [-14, 0], { extrapolateRight: 'clamp' });
+  const monogramOpacity = interpolate(frame, [10, 30], [0, 1], { extrapolateRight: 'clamp' });
 
-  // Typewriter fills for the 3 inputs.
-  const firstNameChars = Math.floor(interpolate(frame, [32, 48], [0, 3], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }));
-  const lastNameChars = Math.floor(interpolate(frame, [52, 72], [0, 8], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }));
-  const emailChars = Math.floor(interpolate(frame, [76, 96], [0, 19], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }));
+  // Content card: whole column materializes after monogram settles.
+  const cardY = interpolate(frame, [20, 40], [20, 0], { extrapolateRight: 'clamp' });
+  const cardOpacity = interpolate(frame, [20, 40], [0, 1], { extrapolateRight: 'clamp' });
 
-  // Consent checkbox check at frame ~96.
-  const checkFill = interpolate(frame, [96, 104], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  // Typewriter fills — values rendered in Playfair Italic.
+  const firstNameChars = Math.floor(
+    interpolate(frame, [40, 54], [0, 3], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
+  );
+  const lastNameChars = Math.floor(
+    interpolate(frame, [58, 78], [0, 8], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
+  );
+  const emailChars = Math.floor(
+    interpolate(frame, [82, 102], [0, 17], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
+  );
 
-  // Submit button pulse (after form is filled).
-  const buttonScale = spring({ frame: frame - 100, fps, config: { damping: 12, stiffness: 160 } });
-  const buttonPulse = interpolate(buttonScale, [0, 1], [1, 1.05]);
+  // Button gently emerges (no pulse — editorial is still).
+  const buttonSpring = spring({ frame: frame - 100, fps, config: { damping: 18, stiffness: 120 } });
+  const buttonScale = interpolate(buttonSpring, [0, 1], [0.97, 1]);
 
   // Exit transition.
-  const exitY = interpolate(frame, [108, 120], [0, -30], { extrapolateLeft: 'clamp' });
+  const exitY = interpolate(frame, [108, 120], [0, -22], { extrapolateLeft: 'clamp' });
   const exitOpacity = interpolate(frame, [108, 120], [1, 0], { extrapolateLeft: 'clamp' });
-
-  // Corner heart decorations — subtle floating.
-  const heartFloat = Math.sin(frame * 0.08) * 4;
 
   return (
     <AbsoluteFill
       style={{
-        padding: '60px 36px',
+        padding: '60px 44px',
         opacity: exitOpacity,
         transform: `translateY(${exitY}px)`,
         display: 'flex',
@@ -140,541 +234,229 @@ const PhaseLogin: React.FC = () => {
         justifyContent: 'center',
       }}
     >
-      {/* Decorative corner hearts */}
-      <div style={{ position: 'absolute', top: 50 + heartFloat, left: 28 }}>
-        <CornerHeart size={24} opacity={0.25} rotate={-15} color={theme.lpAccent} />
+      {/* Corner botanical watermarks */}
+      <div style={{ position: 'absolute', top: 44, left: 32, opacity: cornerOpacity }}>
+        <CornerBotanical size={48} opacity={0.3} rotate={0} />
       </div>
-      <div style={{ position: 'absolute', top: 80 - heartFloat, right: 36 }}>
-        <CornerHeart size={20} opacity={0.3} rotate={20} color={theme.lpPrimary} />
-      </div>
-      <div style={{ position: 'absolute', bottom: 70 + heartFloat, left: 44 }}>
-        <CornerHeart size={18} opacity={0.22} rotate={-25} color={theme.lpPrimary} />
-      </div>
-      <div style={{ position: 'absolute', bottom: 90 - heartFloat, right: 30 }}>
-        <CornerHeart size={22} opacity={0.28} rotate={15} color={theme.lpAccent} />
-      </div>
-
-      {/* Header: rings + couple name + date */}
       <div
         style={{
-          opacity: headerOpacity,
-          transform: `translateY(${headerY}px)`,
-          marginBottom: 28,
-          textAlign: 'center',
+          position: 'absolute',
+          bottom: 44,
+          right: 32,
+          opacity: cornerOpacity,
+          transform: 'rotate(180deg)',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
-          <WeddingRings size={48} opacity={0.8} />
-        </div>
+        <CornerBotanical size={48} opacity={0.3} rotate={0} />
+      </div>
+
+      {/* Top flourish */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+        <Flourish width={180} opacity={0.9} progress={flourishProgress} />
+      </div>
+
+      {/* Monogram A × M */}
+      <div
+        style={{
+          opacity: monogramOpacity,
+          transform: `translateY(${monogramY}px)`,
+          textAlign: 'center',
+          marginBottom: 14,
+        }}
+      >
         <div
           style={{
             fontFamily: playfair,
-            fontSize: 36,
-            fontWeight: 700,
-            color: theme.lpText,
-            lineHeight: 1.1,
-            letterSpacing: '-0.02em',
+            fontStyle: 'italic',
+            fontSize: 44,
+            fontWeight: 400,
+            color: theme.lpAccent,
+            letterSpacing: '0.08em',
+            lineHeight: 1,
           }}
         >
-          Prijavi se
+          A <span style={{ fontSize: 32, opacity: 0.8 }}>×</span> M
         </div>
-        <div style={{ fontSize: 15, color: theme.lpMutedForeground, marginTop: 8, fontWeight: 500 }}>
-          Ana &amp; Marko · 20. april 2026.
-        </div>
-        <div
-          style={{
-            width: 60,
-            height: 2,
-            backgroundColor: theme.lpAccent,
-            margin: '14px auto 0',
-            opacity: 0.6,
-            borderRadius: 1,
-          }}
-        />
       </div>
 
-      {/* Card with 3 labeled inputs + consent + button */}
+      {/* Diamond divider */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          marginBottom: 22,
+          opacity: monogramOpacity,
+        }}
+      >
+        <DiamondDivider width={280} opacity={0.9} />
+      </div>
+
+      {/* Greeting */}
       <div
         style={{
           opacity: cardOpacity,
           transform: `translateY(${cardY}px)`,
-          backgroundColor: theme.lpCard,
-          border: `1px solid ${theme.lpBorder}`,
-          borderRadius: 20,
-          padding: '24px 22px',
-          boxShadow: `0 8px 24px ${theme.lpPrimary}15`,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 14,
+          textAlign: 'center',
         }}
       >
-        <LabeledField label="Ime" placeholder="Vaše ime" value={'Ana'.slice(0, firstNameChars)} />
-        <LabeledField label="Prezime" placeholder="Vaše prezime" value={'Marković'.slice(0, lastNameChars)} />
-        <LabeledField label="Email" placeholder="vase.ime@email.com" value={'ana.m@example.com'.slice(0, emailChars)} />
+        <div
+          style={{
+            fontFamily: playfair,
+            fontStyle: 'italic',
+            fontSize: 38,
+            fontWeight: 400,
+            color: theme.lpText,
+            lineHeight: 1,
+            marginBottom: 6,
+          }}
+        >
+          Hvala
+        </div>
+        <div
+          style={{
+            fontFamily: playfair,
+            fontStyle: 'italic',
+            fontSize: 18,
+            fontWeight: 400,
+            color: theme.lpMutedForeground,
+            marginBottom: 26,
+          }}
+        >
+          što dolazite na venčanje
+        </div>
 
-        {/* Consent row */}
+        {/* Date/place line — small-caps tracked between two thin rules */}
         <div
           style={{
             display: 'flex',
-            alignItems: 'flex-start',
-            gap: 10,
-            marginTop: 4,
-            fontSize: 12,
-            color: theme.lpMutedForeground,
-            lineHeight: 1.35,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 12,
+            marginBottom: 36,
           }}
         >
-          <div
+          <div style={{ flex: 1, height: 1, backgroundColor: theme.lpBorder }} />
+          <span
             style={{
-              width: 16,
-              height: 16,
-              borderRadius: 4,
-              border: `1.5px solid ${theme.lpBorder}`,
-              backgroundColor: checkFill > 0 ? theme.lpPrimary : theme.lpCard,
-              borderColor: checkFill > 0 ? theme.lpPrimary : theme.lpBorder,
-              flexShrink: 0,
-              marginTop: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s',
+              fontFamily: inter,
+              fontSize: 11,
+              fontWeight: 500,
+              color: theme.lpMutedForeground,
+              textTransform: 'uppercase',
+              letterSpacing: '0.25em',
+              whiteSpace: 'nowrap',
             }}
           >
-            {checkFill > 0.3 && <CheckIcon size={11} color="#ffffff" stroke={4} />}
-          </div>
-          <span>Slažem se sa uslovima korišćenja i politikom privatnosti.</span>
+            20 · IV · MMXXVI &nbsp;·&nbsp; GRADIŠKA
+          </span>
+          <div style={{ flex: 1, height: 1, backgroundColor: theme.lpBorder }} />
         </div>
 
-        {/* Submit button */}
+        {/* Three input rows */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18, textAlign: 'left' }}>
+          <StationeryField
+            label="ime"
+            placeholder="ana"
+            value={'Ana'.slice(0, firstNameChars)}
+            typing={firstNameChars > 0 && firstNameChars < 3}
+          />
+          <StationeryField
+            label="prezime"
+            placeholder="marković"
+            value={'Marković'.slice(0, lastNameChars)}
+            typing={lastNameChars > 0 && lastNameChars < 8}
+          />
+          <StationeryField
+            label="email"
+            placeholder="ana.m@example.com"
+            value={'ana.m@example.com'.slice(0, emailChars)}
+            typing={emailChars > 0 && emailChars < 17}
+          />
+        </div>
+
+        {/* Ivory button with rose text + 1px rose border */}
         <div
           style={{
-            marginTop: 10,
-            padding: '14px 20px',
-            background: `linear-gradient(135deg, ${theme.lpPrimary} 0%, ${theme.lpPrimaryDark} 100%)`,
-            color: '#ffffff',
-            borderRadius: 12,
-            fontWeight: 600,
-            fontSize: 15,
+            marginTop: 30,
+            padding: '15px 22px',
+            backgroundColor: theme.lpBg,
+            color: theme.lpPrimaryDark,
+            border: `1px solid ${theme.lpPrimary}`,
+            fontFamily: inter,
+            fontWeight: 500,
+            fontSize: 12,
             textAlign: 'center',
-            transform: `scale(${buttonPulse})`,
-            boxShadow: `0 6px 16px ${theme.lpPrimary}50`,
-            letterSpacing: '0.01em',
+            textTransform: 'uppercase',
+            letterSpacing: '0.3em',
+            transform: `scale(${buttonScale})`,
           }}
         >
           Prijavi se
         </div>
+
+        {/* Tiny consent footnote */}
+        <div
+          style={{
+            marginTop: 14,
+            fontFamily: playfair,
+            fontStyle: 'italic',
+            fontSize: 10,
+            color: theme.lpMutedForeground,
+            opacity: 0.75,
+            textAlign: 'center',
+            letterSpacing: '0.02em',
+          }}
+        >
+          prijavljujem se u skladu sa uslovima korišćenja
+        </div>
+      </div>
+
+      {/* Bottom flourish — mirror of top */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 22 }}>
+        <Flourish width={180} opacity={0.9} progress={flourishProgress} mirror />
       </div>
     </AbsoluteFill>
   );
 };
 
-const LabeledField: React.FC<{ label: string; placeholder: string; value: string }> = ({ label, placeholder, value }) => {
-  const showCursor = value.length > 0 && value.length < placeholder.length + 10;
+const StationeryField: React.FC<{
+  label: string;
+  placeholder: string;
+  value: string;
+  typing: boolean;
+}> = ({ label, placeholder, value, typing }) => {
+  const hasValue = value.length > 0;
   return (
     <div>
-      <div style={{ fontSize: 12, color: theme.lpText, marginBottom: 6, fontWeight: 600 }}>{label}</div>
+      <div
+        style={{
+          fontFamily: inter,
+          fontSize: 10,
+          fontWeight: 500,
+          color: theme.lpMutedForeground,
+          textTransform: 'uppercase',
+          letterSpacing: '0.28em',
+          marginBottom: 7,
+        }}
+      >
+        {label}
+      </div>
       <div
         style={{
           padding: '11px 14px',
           backgroundColor: theme.lpCard,
-          border: `1.5px solid ${value.length > 0 ? theme.lpPrimary + '80' : theme.lpBorder}`,
-          borderRadius: 10,
-          fontSize: 14,
-          color: value.length > 0 ? theme.lpText : theme.lpMutedForeground + 'aa',
-          minHeight: 20,
-          transition: 'border-color 0.2s',
+          border: `1px solid ${hasValue ? theme.lpPrimary : theme.lpBorder}`,
+          fontSize: 15,
+          minHeight: 22,
+          fontFamily: hasValue ? playfair : inter,
+          fontStyle: hasValue ? 'italic' : 'normal',
+          color: hasValue ? theme.lpText : theme.lpMutedForeground + '88',
+          letterSpacing: hasValue ? '0.01em' : '0.02em',
         }}
       >
-        {value.length > 0 ? value : placeholder}
-        {showCursor && <span style={{ opacity: 0.6, marginLeft: 1 }}>|</span>}
-      </div>
-    </div>
-  );
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PHASE 2 — Upload flow (120-270 frames, 5.0s, localFrame 0-150)
-// ─────────────────────────────────────────────────────────────────────────────
-
-const PhaseUpload: React.FC = () => {
-  const f = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  // Enter from bottom.
-  const headerY = interpolate(f, [0, 18], [30, 0], { extrapolateRight: 'clamp' });
-  const headerOpacity = interpolate(f, [0, 18], [0, 1], { extrapolateRight: 'clamp' });
-
-  const slotBarOpacity = interpolate(f, [10, 26], [0, 1], { extrapolateRight: 'clamp' });
-  const slotBarY = interpolate(f, [10, 26], [20, 0], { extrapolateRight: 'clamp' });
-
-  // ImageSlotBar counter 0 → 3 as thumbnails appear.
-  const filledSlots = Math.min(
-    3,
-    Math.floor(interpolate(f, [60, 75, 85], [0, 1.5, 3], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }))
-  );
-
-  // Dropzone visible early; scales slightly on "click" at ~frame 45.
-  const dropzoneOpacity = interpolate(f, [16, 32], [0, 1], { extrapolateRight: 'clamp' });
-  const dropzoneY = interpolate(f, [16, 32], [30, 0], { extrapolateRight: 'clamp' });
-  const dropzoneClick = spring({ frame: f - 45, fps, config: { damping: 15, stiffness: 200 } });
-  const dropzoneScale = 1 - interpolate(dropzoneClick, [0, 1], [0, 0.03]);
-  const dropzoneHideOpacity = interpolate(f, [55, 70], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-
-  // Thumbnails fade/scale in sequentially.
-  const thumb1 = interpolate(f, [60, 76], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-  const thumb2 = interpolate(f, [68, 84], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-  const thumb3 = interpolate(f, [76, 92], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-
-  // Upload modal overlay comes in around frame 92, progresses bars, exits.
-  const modalOpacity = interpolate(f, [92, 106], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-  const modalExit = interpolate(f, [138, 148], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-  const modalCombined = modalOpacity * modalExit;
-  const modalScale = interpolate(modalOpacity, [0, 1], [0.92, 1]);
-
-  // Per-row progress.
-  const bar1 = interpolate(f, [102, 120], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-  const bar2 = interpolate(f, [110, 128], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-  const bar3 = interpolate(f, [118, 136], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-
-  const loaderRotate = (f * 12) % 360;
-
-  const remaining = 10 - filledSlots;
-
-  return (
-    <AbsoluteFill
-      style={{
-        padding: '60px 32px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-      }}
-    >
-      {/* Greeting + info row */}
-      <div
-        style={{
-          opacity: headerOpacity,
-          transform: `translateY(${headerY}px)`,
-          marginBottom: 22,
-          textAlign: 'center',
-        }}
-      >
-        <div style={{ fontFamily: playfair, fontSize: 24, fontWeight: 700, color: theme.lpText, letterSpacing: '-0.01em' }}>
-          Dobrodošla, Ana
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 14,
-            marginTop: 8,
-            fontSize: 12,
-            color: theme.lpMutedForeground,
-          }}
-        >
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-            <CalendarIcon size={14} />
-            20. april 2026.
-          </span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-            <MapPinIcon size={14} />
-            Podgorica
-          </span>
-        </div>
-      </div>
-
-      {/* ImageSlotBar */}
-      <div
-        style={{
-          opacity: slotBarOpacity,
-          transform: `translateY(${slotBarY}px)`,
-          marginBottom: 18,
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 6,
-            fontSize: 12,
-            color: theme.lpMutedForeground,
-            fontWeight: 500,
-          }}
-        >
-          <span>Slike</span>
-          <span style={{ fontFamily: inter, fontWeight: 700, color: theme.lpText, fontVariantNumeric: 'tabular-nums' }}>
-            {filledSlots} / 10
-          </span>
-        </div>
-        <div
-          style={{
-            height: 16,
-            backgroundColor: theme.lpMuted,
-            borderRadius: 8,
-            border: `1px solid ${theme.lpAccent}50`,
-            overflow: 'hidden',
-            position: 'relative',
-          }}
-        >
-          <div
-            style={{
-              height: '100%',
-              width: `${(filledSlots / 10) * 100}%`,
-              background: `linear-gradient(90deg, ${theme.lpPrimary} 0%, ${theme.lpPrimaryDark} 100%)`,
-              borderRadius: 7,
-              transition: 'width 0.3s',
-            }}
-          />
-        </div>
-        <div style={{ fontSize: 11, color: theme.lpMutedForeground, marginTop: 6, textAlign: 'right' }}>
-          Možete dodati još {remaining} slika
-        </div>
-      </div>
-
-      {/* Dropzone + thumbnails occupy the same slot — stacked with opacity transitions */}
-      <div style={{ position: 'relative', minHeight: 170, marginBottom: 8 }}>
-        {/* Dropzone */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            opacity: dropzoneOpacity * dropzoneHideOpacity,
-            transform: `translateY(${dropzoneY}px) scale(${dropzoneScale})`,
-            border: `2px dashed ${theme.lpBorder}`,
-            borderRadius: 14,
-            padding: '28px 16px',
-            backgroundColor: theme.lpCard + 'cc',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 10,
-          }}
-        >
-          <UploadIcon size={36} color={theme.lpMutedForeground} />
-          <div style={{ fontSize: 13, color: theme.lpMutedForeground, fontWeight: 500, lineHeight: 1.4 }}>
-            Prevucite slike ovde ili
-            <br />
-            kliknite za odabir
-          </div>
-        </div>
-
-        {/* Thumbnail grid in same slot — overlaps dropzone as dropzone fades */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 10,
-            opacity: 1 - dropzoneHideOpacity,
-          }}
-        >
-          <Thumbnail
-            opacity={thumb1}
-            gradient={`linear-gradient(135deg, ${theme.lpAccent} 0%, ${theme.lpAccentSoft} 100%)`}
-            filename="IMG_4821"
-          />
-          <Thumbnail
-            opacity={thumb2}
-            gradient={`linear-gradient(135deg, ${theme.lpPrimary} 0%, ${theme.lpPrimarySoft} 100%)`}
-            filename="IMG_4822"
-          />
-          <Thumbnail
-            opacity={thumb3}
-            gradient={`linear-gradient(135deg, ${theme.lpAccent} 0%, ${theme.lpPrimarySoft} 100%)`}
-            filename="IMG_4823"
-          />
-        </div>
-      </div>
-
-      {/* Upload modal overlay */}
-      {modalCombined > 0.01 && (
-        <>
-          {/* Backdrop */}
-          <AbsoluteFill
-            style={{
-              backgroundColor: `rgba(0, 0, 0, ${0.5 * modalCombined})`,
-            }}
-          />
-          {/* Card */}
-          <AbsoluteFill
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              padding: '60px 32px',
-              opacity: modalCombined,
-              transform: `scale(${modalScale})`,
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: theme.lpCard,
-                borderRadius: 18,
-                padding: '22px 18px',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.25)',
-                border: `1px solid ${theme.lpBorder}`,
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: playfair,
-                  fontSize: 17,
-                  fontWeight: 700,
-                  color: theme.lpText,
-                  marginBottom: 16,
-                  textAlign: 'center',
-                }}
-              >
-                Status uploada slika
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <UploadRow
-                  gradient={`linear-gradient(135deg, ${theme.lpAccent} 0%, ${theme.lpAccentSoft} 100%)`}
-                  filename="IMG_4821.jpg"
-                  progress={bar1}
-                  loaderRotate={loaderRotate}
-                />
-                <UploadRow
-                  gradient={`linear-gradient(135deg, ${theme.lpPrimary} 0%, ${theme.lpPrimarySoft} 100%)`}
-                  filename="IMG_4822.jpg"
-                  progress={bar2}
-                  loaderRotate={loaderRotate}
-                />
-                <UploadRow
-                  gradient={`linear-gradient(135deg, ${theme.lpAccent} 0%, ${theme.lpPrimarySoft} 100%)`}
-                  filename="IMG_4823.jpg"
-                  progress={bar3}
-                  loaderRotate={loaderRotate}
-                />
-              </div>
-            </div>
-          </AbsoluteFill>
-        </>
-      )}
-    </AbsoluteFill>
-  );
-};
-
-const Thumbnail: React.FC<{ opacity: number; gradient: string; filename: string }> = ({ opacity, gradient }) => (
-  <div
-    style={{
-      aspectRatio: '1 / 1',
-      borderRadius: 10,
-      background: gradient,
-      border: `1px solid ${theme.lpAccent}66`,
-      opacity,
-      transform: `scale(${0.9 + opacity * 0.1})`,
-      position: 'relative',
-      overflow: 'hidden',
-      boxShadow: opacity > 0.5 ? `0 4px 12px ${theme.lpPrimary}30` : 'none',
-    }}
-  >
-    {/* Subtle inner highlight for glass/photo feel */}
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'radial-gradient(circle at 30% 20%, rgba(255,255,255,0.45) 0%, transparent 55%)',
-      }}
-    />
-    {/* Soft vignette */}
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'radial-gradient(circle at 70% 80%, rgba(0,0,0,0.08) 0%, transparent 60%)',
-      }}
-    />
-  </div>
-);
-
-const UploadRow: React.FC<{ gradient: string; filename: string; progress: number; loaderRotate: number }> = ({
-  gradient,
-  filename,
-  progress,
-  loaderRotate,
-}) => {
-  const done = progress >= 0.999;
-  const pct = Math.round(progress * 100);
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      {/* Thumbnail */}
-      <div
-        style={{
-          width: 36,
-          height: 36,
-          borderRadius: 6,
-          background: gradient,
-          border: `1px solid ${theme.lpAccent}66`,
-          flexShrink: 0,
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'radial-gradient(circle at 30% 20%, rgba(255,255,255,0.4) 0%, transparent 55%)',
-          }}
-        />
-      </div>
-      {/* Filename + progress */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div
-          style={{
-            fontSize: 12,
-            color: theme.lpText,
-            fontWeight: 500,
-            marginBottom: 4,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {filename}
-        </div>
-        <div style={{ height: 5, backgroundColor: theme.lpMuted, borderRadius: 3, overflow: 'hidden' }}>
-          <div
-            style={{
-              height: '100%',
-              width: `${pct}%`,
-              background: done
-                ? `linear-gradient(90deg, ${theme.lpSuccess} 0%, ${theme.lpSuccess} 100%)`
-                : `linear-gradient(90deg, ${theme.lpPrimary} 0%, ${theme.lpPrimaryDark} 100%)`,
-              borderRadius: 3,
-            }}
-          />
-        </div>
-      </div>
-      {/* % + icon */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          width: 54,
-          justifyContent: 'flex-end',
-        }}
-      >
-        <span
-          style={{
-            fontSize: 11,
-            color: theme.lpMutedForeground,
-            fontVariantNumeric: 'tabular-nums',
-            fontWeight: 600,
-          }}
-        >
-          {pct}%
-        </span>
-        {done ? (
-          <CheckIcon size={16} color={theme.lpSuccess} stroke={3} />
-        ) : (
-          <LoaderIcon size={16} color={theme.lpPrimary} rotate={loaderRotate} />
+        {hasValue ? value : placeholder}
+        {typing && (
+          <span style={{ opacity: 0.5, marginLeft: 2, color: theme.lpPrimaryDark }}>|</span>
         )}
       </div>
     </div>
@@ -682,29 +464,459 @@ const UploadRow: React.FC<{ gradient: string; filename: string; progress: number
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PHASE 3 — Success / Thank You (270-360 frames, 3.0s, localFrame 0-90)
+// PHASE 2 — "The Album" (120-270 frames, 5.0s)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const PhaseUpload: React.FC = () => {
+  const f = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  // Header enters from below.
+  const headerOpacity = interpolate(f, [0, 18], [0, 1], { extrapolateRight: 'clamp' });
+  const headerY = interpolate(f, [0, 18], [18, 0], { extrapolateRight: 'clamp' });
+
+  // Slot bar and labels.
+  const slotOpacity = interpolate(f, [12, 30], [0, 1], { extrapolateRight: 'clamp' });
+  const slotY = interpolate(f, [12, 30], [14, 0], { extrapolateRight: 'clamp' });
+
+  // Filled count 0 → 3 as polaroids pin themselves.
+  const filledSlots = Math.min(
+    3,
+    Math.floor(
+      interpolate(f, [50, 68, 80], [0, 1.5, 3], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
+    )
+  );
+
+  // Slot-bar fill tweens continuously (not stepped) for calm motion.
+  // Target 3/10 slots = 30% fill at the end.
+  const slotFillCount = interpolate(f, [50, 68, 80], [0, 1.5, 3], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  // Thumbnails materialize sequentially — no dropzone to fade out.
+  const thumb1 = interpolate(f, [48, 66], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const thumb2 = interpolate(f, [58, 76], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const thumb3 = interpolate(f, [68, 86], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+
+  // Modal overlay.
+  const modalOpacity = interpolate(f, [92, 108], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const modalExit = interpolate(f, [138, 150], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const modalCombined = modalOpacity * modalExit;
+
+  // Dim behind modal.
+  const backgroundDim = 1 - modalCombined * 0.6;
+
+  // Per-row progress.
+  const bar1 = interpolate(f, [102, 122], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const bar2 = interpolate(f, [110, 130], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const bar3 = interpolate(f, [118, 138], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+
+  const modalScale = interpolate(modalOpacity, [0, 1], [0.96, 1]);
+
+  return (
+    <AbsoluteFill>
+      {/* Background content — dimmed when modal is up */}
+      <AbsoluteFill
+        style={{
+          padding: '60px 40px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          opacity: backgroundDim,
+        }}
+      >
+        {/* Greeting — Ana ✧ 20. april */}
+        <div
+          style={{
+            opacity: headerOpacity,
+            transform: `translateY(${headerY}px)`,
+            textAlign: 'center',
+            marginBottom: 10,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 16,
+              marginBottom: 6,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: playfair,
+                fontStyle: 'italic',
+                fontSize: 24,
+                color: theme.lpText,
+              }}
+            >
+              Ana
+            </span>
+            <span
+              style={{
+                fontFamily: playfair,
+                fontSize: 14,
+                color: theme.lpAccent,
+                letterSpacing: '0.1em',
+              }}
+            >
+              ✧
+            </span>
+            <span
+              style={{
+                fontFamily: inter,
+                fontSize: 11,
+                color: theme.lpMutedForeground,
+                textTransform: 'uppercase',
+                letterSpacing: '0.28em',
+                fontWeight: 500,
+              }}
+            >
+              20 · IV · MMXXVI
+            </span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 10 }}>
+            <DiamondDivider width={220} opacity={0.85} />
+          </div>
+        </div>
+
+        {/* Slot bar — small-caps label + count */}
+        <div
+          style={{
+            opacity: slotOpacity,
+            transform: `translateY(${slotY}px)`,
+            marginTop: 22,
+            marginBottom: 22,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'baseline',
+              marginBottom: 10,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: inter,
+                fontSize: 11,
+                fontWeight: 500,
+                color: theme.lpMutedForeground,
+                textTransform: 'uppercase',
+                letterSpacing: '0.3em',
+              }}
+            >
+              Slike
+            </span>
+            <span
+              style={{
+                fontFamily: playfair,
+                fontStyle: 'italic',
+                fontSize: 14,
+                color: theme.lpText,
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              {filledSlots} <span style={{ color: theme.lpMutedForeground }}>/</span> 10
+            </span>
+          </div>
+
+          {/* Border-framed thin bar */}
+          <div
+            style={{
+              padding: 2,
+              border: `1px solid ${theme.lpAccent}80`,
+            }}
+          >
+            <div
+              style={{
+                height: 6,
+                backgroundColor: theme.lpMuted,
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: `${(slotFillCount / 10) * 100}%`,
+                  backgroundColor: theme.lpPrimary,
+                }}
+              />
+            </div>
+          </div>
+
+          <div
+            style={{
+              fontFamily: playfair,
+              fontStyle: 'italic',
+              fontSize: 11,
+              color: theme.lpMutedForeground,
+              marginTop: 8,
+              textAlign: 'right',
+            }}
+          >
+            Odabrano: {filledSlots} od ukupno 10
+          </div>
+        </div>
+
+        {/* "— × —" small ornament before the polaroid row */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, opacity: slotOpacity }}>
+            <div style={{ width: 48, height: 1, backgroundColor: theme.lpAccent, opacity: 0.6 }} />
+            <span
+              style={{
+                fontFamily: playfair,
+                fontStyle: 'italic',
+                fontSize: 14,
+                color: theme.lpAccent,
+              }}
+            >
+              ×
+            </span>
+            <div style={{ width: 48, height: 1, backgroundColor: theme.lpAccent, opacity: 0.6 }} />
+          </div>
+        </div>
+
+        {/* Polaroid row — 3 pinned photos, slight rotations */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 14,
+          }}
+        >
+          <Polaroid opacity={thumb1} rotate={-2.5} caption="IMG · 01" tone="rose" />
+          <Polaroid opacity={thumb2} rotate={1.2} caption="IMG · 02" tone="gold" />
+          <Polaroid opacity={thumb3} rotate={-1} caption="IMG · 03" tone="blend" />
+        </div>
+      </AbsoluteFill>
+
+      {/* Modal card — centered, no dark backdrop, just content dim */}
+      {modalCombined > 0.01 && (
+        <AbsoluteFill
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            padding: '60px 44px',
+            opacity: modalCombined,
+            transform: `scale(${modalScale})`,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: theme.lpCard,
+              border: `1px solid ${theme.lpAccent}`,
+              padding: '26px 22px',
+              boxShadow: `0 20px 48px ${theme.lpPrimary}25, 0 6px 14px ${theme.lpAccent}20`,
+            }}
+          >
+            {/* Tiny small-caps heading, no emoji, no green */}
+            <div
+              style={{
+                fontFamily: inter,
+                fontSize: 10,
+                color: theme.lpMutedForeground,
+                textTransform: 'uppercase',
+                letterSpacing: '0.35em',
+                textAlign: 'center',
+                marginBottom: 4,
+              }}
+            >
+              prenos
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+              <DiamondDivider width={180} opacity={0.7} />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <ModalRow filename="IMG · 01.jpg" progress={bar1} tone="rose" />
+              <ModalRow filename="IMG · 02.jpg" progress={bar2} tone="gold" />
+              <ModalRow filename="IMG · 03.jpg" progress={bar3} tone="blend" />
+            </div>
+          </div>
+        </AbsoluteFill>
+      )}
+    </AbsoluteFill>
+  );
+};
+
+type Tone = 'rose' | 'gold' | 'blend';
+
+const toneBg: Record<Tone, string> = {
+  rose: theme.lpPrimarySoft,
+  gold: theme.lpAccentSoft,
+  blend: theme.lpMuted,
+};
+
+const Polaroid: React.FC<{ opacity: number; rotate: number; caption: string; tone: Tone }> = ({
+  opacity,
+  rotate,
+  caption,
+  tone,
+}) => {
+  const scale = 0.94 + opacity * 0.06;
+  return (
+    <div
+      style={{
+        opacity,
+        transform: `rotate(${rotate}deg) scale(${scale})`,
+        backgroundColor: theme.lpCard,
+        border: `1px solid ${theme.lpBorder}`,
+        padding: '8px 8px 26px 8px',
+        boxShadow: opacity > 0.5 ? `0 6px 14px ${theme.lpText}12` : 'none',
+        position: 'relative',
+      }}
+    >
+      {/* Photo area */}
+      <div
+        style={{
+          aspectRatio: '1 / 1.05',
+          backgroundColor: toneBg[tone],
+          borderTop: `1px solid ${theme.lpBorder}80`,
+          borderLeft: `1px solid ${theme.lpBorder}80`,
+          borderRight: `1px solid ${theme.lpBorder}80`,
+          borderBottom: `1px solid ${theme.lpBorder}80`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Very soft inner highlight — paper feel, not glass */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: `radial-gradient(ellipse at 30% 25%, ${theme.lpBg}88 0%, transparent 60%)`,
+          }}
+        />
+        <CameraGlyph size={26} color={theme.lpMutedForeground + 'cc'} />
+      </div>
+
+      {/* Caption strip */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 6,
+          left: 0,
+          right: 0,
+          textAlign: 'center',
+          fontFamily: inter,
+          fontSize: 8,
+          color: theme.lpMutedForeground,
+          textTransform: 'uppercase',
+          letterSpacing: '0.28em',
+          fontWeight: 500,
+        }}
+      >
+        {caption}
+      </div>
+    </div>
+  );
+};
+
+const ModalRow: React.FC<{ filename: string; progress: number; tone: Tone }> = ({
+  filename,
+  progress,
+  tone,
+}) => {
+  const done = progress >= 0.999;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+      {/* Small photo swatch */}
+      <div
+        style={{
+          width: 30,
+          height: 30,
+          backgroundColor: toneBg[tone],
+          border: `1px solid ${theme.lpBorder}`,
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <CameraGlyph size={14} color={theme.lpMutedForeground + '99'} />
+      </div>
+
+      {/* Filename + thin progress rail */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontFamily: inter,
+            fontSize: 10,
+            color: theme.lpText,
+            textTransform: 'uppercase',
+            letterSpacing: '0.22em',
+            marginBottom: 6,
+            fontWeight: 500,
+          }}
+        >
+          {filename}
+        </div>
+        <div
+          style={{
+            height: 2,
+            backgroundColor: theme.lpMuted,
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: `${progress * 100}%`,
+              backgroundColor: theme.lpPrimary,
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Gold check on completion — no percentage */}
+      <div style={{ width: 18, display: 'flex', justifyContent: 'center' }}>
+        {done ? <ThinCheck size={14} color={theme.lpAccent} progress={1} /> : null}
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PHASE 3 — "The Thank You" (270-360 frames, 3.0s)
 // ─────────────────────────────────────────────────────────────────────────────
 
 const PhaseSuccess: React.FC = () => {
   const f = useCurrentFrame();
-  const { fps } = useVideoConfig();
 
-  const checkDraw = interpolate(f, [0, 22], [0, 1], { extrapolateRight: 'clamp' });
-  const checkScale = spring({ frame: f - 3, fps, config: { damping: 12, stiffness: 140 } });
+  // Flourishes draw in first.
+  const flourishProgress = interpolate(f, [0, 24], [0, 1], { extrapolateRight: 'clamp' });
 
-  const titleY = interpolate(f, [18, 34], [30, 0], { extrapolateRight: 'clamp' });
-  const titleOpacity = interpolate(f, [18, 34], [0, 1], { extrapolateRight: 'clamp' });
+  const titleOpacity = interpolate(f, [8, 24], [0, 1], { extrapolateRight: 'clamp' });
+  const titleY = interpolate(f, [8, 24], [12, 0], { extrapolateRight: 'clamp' });
 
-  const subtitleOpacity = interpolate(f, [28, 44], [0, 1], { extrapolateRight: 'clamp' });
-  const coupleOpacity = interpolate(f, [38, 54], [0, 1], { extrapolateRight: 'clamp' });
+  // Underline sweeps in after heading.
+  const underlineProgress = interpolate(f, [24, 42], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+
+  const subtitleOpacity = interpolate(f, [30, 48], [0, 1], { extrapolateRight: 'clamp' });
+
+  // Monogram card fades in last.
+  const cardOpacity = interpolate(f, [42, 62], [0, 1], { extrapolateRight: 'clamp' });
+  const cardY = interpolate(f, [42, 62], [14, 0], { extrapolateRight: 'clamp' });
 
   // Loop fade.
-  const loopFade = interpolate(f, [78, 90], [1, 0], { extrapolateLeft: 'clamp' });
+  const loopFade = interpolate(f, [80, 90], [1, 0], { extrapolateLeft: 'clamp' });
 
   return (
     <AbsoluteFill
       style={{
-        padding: '60px 40px',
+        padding: '52px 44px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -712,106 +924,141 @@ const PhaseSuccess: React.FC = () => {
         opacity: loopFade,
       }}
     >
-      {/* Confetti — 40 pieces falling with drift */}
-      <Confetti frame={f} />
+      {/* Sparse gold foil flecks — 12 pieces, tasteful */}
+      <FoilFlecks frame={f} />
 
-      {/* Animated check inside a soft circle */}
-      <div
-        style={{
-          marginBottom: 28,
-          transform: `scale(${checkScale})`,
-        }}
-      >
-        <svg width="110" height="110" viewBox="0 0 120 120" fill="none">
-          <circle cx="60" cy="60" r="54" fill={theme.lpPrimarySoft} />
-          <circle cx="60" cy="60" r="54" stroke={theme.lpPrimary} strokeOpacity="0.3" strokeWidth="2" fill="none" />
-          <path
-            d="M38 62 L52 76 L82 46"
-            stroke={theme.lpPrimary}
-            strokeWidth="7"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeDasharray="60"
-            strokeDashoffset={60 - checkDraw * 60}
-          />
-        </svg>
-      </div>
+      {/* Top flourish */}
+      <Flourish width={200} opacity={1} progress={flourishProgress} />
 
-      {/* "Hvala!" heading */}
+      {/* Hvala heading */}
       <div
         style={{
           opacity: titleOpacity,
           transform: `translateY(${titleY}px)`,
-          fontFamily: playfair,
-          fontSize: 52,
-          fontWeight: 700,
-          color: theme.lpPrimary,
-          letterSpacing: '-0.02em',
+          marginTop: 28,
           textAlign: 'center',
-          lineHeight: 1,
-          marginBottom: 14,
+          position: 'relative',
         }}
       >
-        Hvala!
+        <div
+          style={{
+            fontFamily: playfair,
+            fontStyle: 'italic',
+            fontSize: 66,
+            fontWeight: 400,
+            color: theme.lpText,
+            lineHeight: 1,
+            letterSpacing: '0.01em',
+          }}
+        >
+          Hvala
+        </div>
+        {/* Thin gold draw-in underline */}
+        <div
+          style={{
+            margin: '10px auto 0',
+            height: 1,
+            width: 100,
+            backgroundColor: theme.lpAccent,
+            transformOrigin: 'left center',
+            transform: `scaleX(${underlineProgress})`,
+          }}
+        />
       </div>
 
       {/* Subtitle */}
       <div
         style={{
           opacity: subtitleOpacity,
-          fontSize: 14,
+          fontFamily: playfair,
+          fontStyle: 'italic',
+          fontSize: 20,
+          fontWeight: 400,
           color: theme.lpMutedForeground,
           textAlign: 'center',
-          marginBottom: 18,
-          maxWidth: 360,
-          lineHeight: 1.45,
+          lineHeight: 1.4,
+          marginTop: 24,
+          marginBottom: 34,
         }}
       >
-        Vaše slike i poruka su uspješno poslane.
+        što ste<br />
+        podijelili<br />
+        uspomenu
       </div>
 
-      {/* Couple line with heart */}
+      {/* Monogram card */}
       <div
         style={{
-          opacity: coupleOpacity,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          fontSize: 15,
-          color: theme.lpPrimary,
-          fontWeight: 600,
-          fontFamily: playfair,
+          opacity: cardOpacity,
+          transform: `translateY(${cardY}px)`,
+          border: `1px solid ${theme.lpAccent}`,
+          backgroundColor: theme.lpCard,
+          padding: '28px 36px',
+          textAlign: 'center',
+          boxShadow: `0 8px 22px ${theme.lpAccent}18`,
         }}
       >
-        <HeartIcon size={16} color={theme.lpPrimary} fill={theme.lpPrimary} stroke={0} />
-        <span>Ana &amp; Marko će biti oduševljeni!</span>
-        <HeartIcon size={16} color={theme.lpPrimary} fill={theme.lpPrimary} stroke={0} />
+        <div
+          style={{
+            fontFamily: playfair,
+            fontStyle: 'italic',
+            fontSize: 64,
+            fontWeight: 400,
+            color: theme.lpAccent,
+            letterSpacing: '0.06em',
+            lineHeight: 1,
+          }}
+        >
+          A <span style={{ fontSize: 44, opacity: 0.85 }}>×</span> M
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 14 }}>
+          <DiamondDivider width={160} opacity={0.8} />
+        </div>
+        <div
+          style={{
+            marginTop: 12,
+            fontFamily: inter,
+            fontSize: 10,
+            color: theme.lpMutedForeground,
+            textTransform: 'lowercase',
+            letterSpacing: '0.35em',
+            fontWeight: 500,
+          }}
+        >
+          20 april mmxxvi
+        </div>
+      </div>
+
+      {/* Bottom flourish (mirror) */}
+      <div style={{ marginTop: 28 }}>
+        <Flourish width={200} opacity={1} progress={flourishProgress} mirror />
       </div>
     </AbsoluteFill>
   );
 };
 
-// Deterministic pseudo-random for a seed.
+// Deterministic pseudo-random for foil flecks.
 function seededRand(seed: number): number {
   const x = Math.sin(seed * 9973.1) * 43758.5453;
   return x - Math.floor(x);
 }
 
-const Confetti: React.FC<{ frame: number }> = ({ frame }) => {
-  const colors = [theme.lpPrimary, theme.lpAccent, theme.lpPrimarySoft, theme.lpAccentSoft, theme.lpPrimaryDark];
-  const pieces = Array.from({ length: 40 }, (_, i) => {
-    const startX = seededRand(i + 1) * 100; // % of width
-    const delay = seededRand(i + 17) * 35; // frames (staggered more, so some start later and stay visible longer)
-    const fallSpeed = 900 + seededRand(i + 7) * 400; // total px fall — span the full 1200px canvas
+// 12 tiny gold foil rectangles — sparse, slow, tasteful.
+const FoilFlecks: React.FC<{ frame: number }> = ({ frame }) => {
+  const pieces = Array.from({ length: 12 }, (_, i) => {
+    const startX = 6 + seededRand(i + 1) * 88; // % width, inset from edges
+    const delay = seededRand(i + 17) * 30;
+    const fallTotal = 900 + seededRand(i + 7) * 300;
     const localFrame = Math.max(0, frame - delay);
-    const baseY = interpolate(localFrame, [0, 85], [-40, fallSpeed], { extrapolateRight: 'clamp' });
-    const swirl = Math.sin(localFrame * 0.12 + i) * 16;
-    const rotate = localFrame * (2 + seededRand(i + 41) * 6) + i * 17;
-    const colorIdx = Math.floor(seededRand(i + 3) * colors.length);
-    const color = colors[colorIdx];
-    const opacity = interpolate(localFrame, [0, 6, 85, 90], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-    const w = 5 + seededRand(i + 29) * 6;
-    const h = 9 + seededRand(i + 31) * 6;
+    const y = interpolate(localFrame, [0, 80], [-20, fallTotal], { extrapolateRight: 'clamp' });
+    const drift = Math.sin(localFrame * 0.07 + i) * 10;
+    const rotate = localFrame * (1.5 + seededRand(i + 41) * 2) + i * 23;
+    const opacity = interpolate(localFrame, [0, 8, 70, 85], [0, 0.85, 0.85, 0], {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+    });
+    const w = 3 + seededRand(i + 29) * 1.5;
+    const h = 1 + seededRand(i + 31) * 0.8;
     return (
       <div
         key={i}
@@ -821,9 +1068,8 @@ const Confetti: React.FC<{ frame: number }> = ({ frame }) => {
           left: `${startX}%`,
           width: w,
           height: h,
-          backgroundColor: color,
-          transform: `translate(${swirl}px, ${baseY}px) rotate(${rotate}deg)`,
-          borderRadius: 1.5,
+          backgroundColor: theme.lpAccent,
+          transform: `translate(${drift}px, ${y}px) rotate(${rotate}deg)`,
           opacity,
         }}
       />
