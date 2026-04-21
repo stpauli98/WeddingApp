@@ -29,10 +29,10 @@ export default function Footer({ t, lang }: FooterProps) {
                 <Link href="/kontakt" className="text-sm text-lp-muted-foreground hover:text-lp-primary transition-colors">{t("footer.contact")}</Link>
               </div>
               <div className="flex gap-4 items-start">
-                <a href="https://www.instagram.com/pixelnext9/" target="_blank" rel="noopener noreferrer" className="text-lp-muted-foreground hover:text-lp-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary rounded" aria-label="Instagram">
+                <a href="https://www.instagram.com/nexrpixel.dev/" target="_blank" rel="noopener noreferrer" className="text-lp-muted-foreground hover:text-lp-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary rounded" aria-label="Instagram">
                   <Instagram className="w-5 h-5" aria-hidden="true" />
                 </a>
-                <a href="https://www.tiktok.com/@next.pixel9" target="_blank" rel="noopener noreferrer" className="text-lp-muted-foreground hover:text-lp-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary rounded" aria-label="TikTok">
+                <a href="https://www.tiktok.com/@nexrpixel.dev" target="_blank" rel="noopener noreferrer" className="text-lp-muted-foreground hover:text-lp-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary rounded" aria-label="TikTok">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden="true"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.27 0 .54.03.79.1V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.65a6.34 6.34 0 0 0 10.86 4.48 6.29 6.29 0 0 0 1.83-4.48l.01-7.66a8.16 8.16 0 0 0 4.87 1.63v-3.45a4.85 4.85 0 0 1-1-.1z"/></svg>
                 </a>
                 <a href="https://x.com/nextpixel98" target="_blank" rel="noopener noreferrer" className="text-lp-muted-foreground hover:text-lp-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary rounded" aria-label="X (Twitter)">
