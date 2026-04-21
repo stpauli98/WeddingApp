@@ -22,3 +22,31 @@ describe('createRateLimiter (in-memory fallback)', () => {
     expect((await limiter.check('a')).success).toBe(false);
   });
 });
+
+describe('createRateLimiter (production guard)', () => {
+  const origEnv = process.env.NODE_ENV;
+  afterEach(() => {
+    (process.env as any).NODE_ENV = origEnv;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+  });
+
+  it('throws in production when Upstash env vars are missing', () => {
+    (process.env as any).NODE_ENV = 'production';
+    expect(() => createRateLimiter({ name: 'x', max: 1, windowMs: 1000 }))
+      .toThrow(/UPSTASH_REDIS_REST/);
+  });
+
+  it('throws in production when only URL is set', () => {
+    (process.env as any).NODE_ENV = 'production';
+    process.env.UPSTASH_REDIS_REST_URL = 'https://example.upstash.io';
+    // token missing
+    expect(() => createRateLimiter({ name: 'x', max: 1, windowMs: 1000 }))
+      .toThrow(/UPSTASH_REDIS_REST_TOKEN/);
+  });
+
+  it('uses in-memory in test/development regardless of env vars', () => {
+    (process.env as any).NODE_ENV = 'test';
+    expect(() => createRateLimiter({ name: 'x', max: 1, windowMs: 1000 })).not.toThrow();
+  });
+});

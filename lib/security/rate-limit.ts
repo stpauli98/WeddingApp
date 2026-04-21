@@ -40,8 +40,21 @@ function upstashLimiter(cfg: Config): RateLimiter {
 }
 
 export function createRateLimiter(cfg: Config): RateLimiter {
-  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-    return upstashLimiter(cfg);
+  const hasUrl = !!process.env.UPSTASH_REDIS_REST_URL;
+  const hasToken = !!process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (hasUrl && hasToken) return upstashLimiter(cfg);
+
+  if (process.env.NODE_ENV === 'production') {
+    const missing = [
+      !hasUrl && 'UPSTASH_REDIS_REST_URL',
+      !hasToken && 'UPSTASH_REDIS_REST_TOKEN',
+    ].filter(Boolean).join(', ');
+    throw new Error(
+      `Rate-limit requires Upstash in production. Missing env var(s): ${missing}. ` +
+      `Set them or explicitly opt into in-memory fallback via UPSTASH_FALLBACK_ALLOWED=1.`
+    );
   }
+
   return inMemoryLimiter(cfg);
 }
