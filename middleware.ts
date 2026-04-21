@@ -11,6 +11,7 @@ const exemptPaths = [
   '/_next',           // Next.js interne rute
   '/images',          // Static images (Vercel image optimizer fetches these internally)
   '/templates',       // Static QR templates
+  '/videos',          // Static hero video + poster
   '/favicon.ico',     // Favicon
   '/robots.txt',      // Robots.txt
   '/sitemap.xml',     // Sitemap
