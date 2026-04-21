@@ -77,3 +77,36 @@ it('returns 429 when rate-limit exceeded', async () => {
   const res = await POST(reqWith(VALID) as any);
   expect(res.status).toBe(429);
 });
+
+import bcrypt from 'bcryptjs';
+const hashSpy = bcrypt.hash as jest.MockedFunction<any>;
+
+it('runs bcrypt.hash even when admin already exists (timing parity)', async () => {
+  m.findUnique.mockResolvedValue({ id: 'existing', email: 'a@b.com' });
+  hashSpy.mockClear();
+  const res = await POST(reqWith(VALID) as any);
+  expect(hashSpy).toHaveBeenCalled();
+  expect(m.create).not.toHaveBeenCalled();
+  expect(res.status).toBe(200);
+});
+
+it('returns generic 200 without session cookie for existing email', async () => {
+  m.findUnique.mockResolvedValue({ id: 'existing', email: 'a@b.com' });
+  const res = await POST(reqWith(VALID) as any);
+  expect(res.status).toBe(200);
+  const body = await res.json();
+  expect(body.success).toBe(true);
+  expect(body.requiresAction).toBe('check_existing');
+  expect(body.admin).toBeUndefined();
+  expect(m.sessionCreate).not.toHaveBeenCalled();
+});
+
+it('returns success + admin payload for genuinely new email', async () => {
+  m.findUnique.mockResolvedValue(null);
+  const res = await POST(reqWith(VALID) as any);
+  expect(res.status).toBe(200);
+  const body = await res.json();
+  expect(body.success).toBe(true);
+  expect(body.admin).toBeDefined();
+  expect(body.requiresAction).toBeUndefined();
+});
