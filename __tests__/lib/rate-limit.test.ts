@@ -25,36 +25,33 @@ describe('createRateLimiter (in-memory fallback)', () => {
 
 describe('createRateLimiter (production guard)', () => {
   const origEnv = process.env.NODE_ENV;
-  const origPhase = process.env.NEXT_PHASE;
   afterEach(() => {
     (process.env as any).NODE_ENV = origEnv;
-    process.env.NEXT_PHASE = origPhase;
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
   });
 
-  it('throws in production when Upstash env vars are missing', () => {
+  it('factory never throws (lazy resolution)', () => {
     (process.env as any).NODE_ENV = 'production';
-    expect(() => createRateLimiter({ name: 'x', max: 1, windowMs: 1000 }))
-      .toThrow(/UPSTASH_REDIS_REST/);
+    expect(() => createRateLimiter({ name: 'x', max: 1, windowMs: 1000 })).not.toThrow();
   });
 
-  it('throws in production when only URL is set', () => {
+  it('first .check() throws in production when Upstash env vars are missing', async () => {
+    (process.env as any).NODE_ENV = 'production';
+    const limiter = createRateLimiter({ name: 'x', max: 1, windowMs: 1000 });
+    await expect(limiter.check('k')).rejects.toThrow(/UPSTASH_REDIS_REST/);
+  });
+
+  it('first .check() throws in production when only URL is set', async () => {
     (process.env as any).NODE_ENV = 'production';
     process.env.UPSTASH_REDIS_REST_URL = 'https://example.upstash.io';
-    // token missing
-    expect(() => createRateLimiter({ name: 'x', max: 1, windowMs: 1000 }))
-      .toThrow(/UPSTASH_REDIS_REST_TOKEN/);
+    const limiter = createRateLimiter({ name: 'x', max: 1, windowMs: 1000 });
+    await expect(limiter.check('k')).rejects.toThrow(/UPSTASH_REDIS_REST_TOKEN/);
   });
 
-  it('uses in-memory in test/development regardless of env vars', () => {
+  it('uses in-memory in test/development regardless of env vars', async () => {
     (process.env as any).NODE_ENV = 'test';
-    expect(() => createRateLimiter({ name: 'x', max: 1, windowMs: 1000 })).not.toThrow();
-  });
-
-  it('does not throw during next build phase even if env vars missing', () => {
-    (process.env as any).NODE_ENV = 'production';
-    process.env.NEXT_PHASE = 'phase-production-build';
-    expect(() => createRateLimiter({ name: 'x', max: 1, windowMs: 1000 })).not.toThrow();
+    const limiter = createRateLimiter({ name: 'x', max: 1, windowMs: 1000 });
+    await expect(limiter.check('k')).resolves.toEqual(expect.objectContaining({ success: true }));
   });
 });

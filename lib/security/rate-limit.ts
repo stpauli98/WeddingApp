@@ -39,18 +39,13 @@ function upstashLimiter(cfg: Config): RateLimiter {
   };
 }
 
-export function createRateLimiter(cfg: Config): RateLimiter {
+function resolveLimiter(cfg: Config): RateLimiter {
   const hasUrl = !!process.env.UPSTASH_REDIS_REST_URL;
   const hasToken = !!process.env.UPSTASH_REDIS_REST_TOKEN;
 
   if (hasUrl && hasToken) return upstashLimiter(cfg);
 
-  // `next build` sets NODE_ENV=production while collecting page data, which
-  // imports every route module and runs this factory. Rate-limit is never
-  // called during build, so the in-memory fallback is safe there.
-  const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
-
-  if (process.env.NODE_ENV === 'production' && !isBuildPhase) {
+  if (process.env.NODE_ENV === 'production') {
     const missing = [
       !hasUrl && 'UPSTASH_REDIS_REST_URL',
       !hasToken && 'UPSTASH_REDIS_REST_TOKEN',
@@ -62,4 +57,19 @@ export function createRateLimiter(cfg: Config): RateLimiter {
   }
 
   return inMemoryLimiter(cfg);
+}
+
+export function createRateLimiter(cfg: Config): RateLimiter {
+  // Resolve lazily on first `.check()`. Keeps module import side-effect-free
+  // so `next build`, CSRF-only GET handlers, and anything else that imports
+  // a rate-limited route without calling `.check()` works even when Upstash
+  // env vars are missing. The production guard still fires on the first real
+  // rate-limit call — there's no silent degrade.
+  let impl: RateLimiter | null = null;
+  return {
+    async check(key: string) {
+      if (!impl) impl = resolveLimiter(cfg);
+      return impl.check(key);
+    },
+  };
 }
