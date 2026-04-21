@@ -217,6 +217,7 @@
       "of": "od"
     },
     "event": {
+      "eyebrow": "Kreiranje događaja",
       "title": "Unesite detalje događaja",
       "description": "Unesite detalje događaja koje ćete koristiti za kreiranje vaše svadbe.",
       "coupleName": "Ime para (npr. Marko i Ana)",

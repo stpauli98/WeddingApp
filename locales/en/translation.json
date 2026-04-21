@@ -217,6 +217,7 @@
       "of": "of"
     },
     "event": {
+      "eyebrow": "Create your event",
       "title": "Enter Event Details",
       "description": "Enter the details of the event you will use to create your wedding page.",
       "coupleName": "Couple's Names (e.g., John and Jane)",
