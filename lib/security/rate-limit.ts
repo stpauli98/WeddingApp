@@ -45,7 +45,12 @@ export function createRateLimiter(cfg: Config): RateLimiter {
 
   if (hasUrl && hasToken) return upstashLimiter(cfg);
 
-  if (process.env.NODE_ENV === 'production') {
+  // `next build` sets NODE_ENV=production while collecting page data, which
+  // imports every route module and runs this factory. Rate-limit is never
+  // called during build, so the in-memory fallback is safe there.
+  const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+
+  if (process.env.NODE_ENV === 'production' && !isBuildPhase) {
     const missing = [
       !hasUrl && 'UPSTASH_REDIS_REST_URL',
       !hasToken && 'UPSTASH_REDIS_REST_TOKEN',

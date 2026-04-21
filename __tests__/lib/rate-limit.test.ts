@@ -25,8 +25,10 @@ describe('createRateLimiter (in-memory fallback)', () => {
 
 describe('createRateLimiter (production guard)', () => {
   const origEnv = process.env.NODE_ENV;
+  const origPhase = process.env.NEXT_PHASE;
   afterEach(() => {
     (process.env as any).NODE_ENV = origEnv;
+    process.env.NEXT_PHASE = origPhase;
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
   });
@@ -47,6 +49,12 @@ describe('createRateLimiter (production guard)', () => {
 
   it('uses in-memory in test/development regardless of env vars', () => {
     (process.env as any).NODE_ENV = 'test';
+    expect(() => createRateLimiter({ name: 'x', max: 1, windowMs: 1000 })).not.toThrow();
+  });
+
+  it('does not throw during next build phase even if env vars missing', () => {
+    (process.env as any).NODE_ENV = 'production';
+    process.env.NEXT_PHASE = 'phase-production-build';
     expect(() => createRateLimiter({ name: 'x', max: 1, windowMs: 1000 })).not.toThrow();
   });
 });
