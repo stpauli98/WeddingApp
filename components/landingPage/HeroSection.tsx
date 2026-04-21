@@ -1,6 +1,5 @@
 // NO 'use client' - RSC.
 import Link from "next/link"
-import Image from "next/image"
 import { ArrowRight, Shield, Clock, CheckCircle, Sparkles } from "lucide-react"
 import type { TFunction } from "i18next"
 import { FadeInUpOnMount } from "@/components/motion/FadeInUpOnMount"
@@ -72,14 +71,26 @@ export default function HeroSection({ t, lang }: HeroSectionProps) {
             <div className="relative w-[200px] h-[400px] sm:w-[240px] sm:h-[480px] md:w-[280px] md:h-[560px] lg:w-[300px] lg:h-[600px] bg-gray-900 rounded-[2rem] sm:rounded-[2.5rem] md:rounded-[3rem] p-2 sm:p-3 shadow-2xl">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 sm:w-28 md:w-32 h-5 sm:h-6 bg-gray-900 rounded-b-xl sm:rounded-b-2xl z-10" />
               <div className="relative w-full h-full rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[2.25rem] overflow-hidden bg-white">
-                <Image
-                  src={`/images/${lang}/guest-login-filled.png`}
-                  alt={t("hero.mockupAlt")}
-                  fill
-                  className="object-cover object-top"
-                  priority
-                  sizes="(max-width: 640px) 200px, (max-width: 768px) 240px, (max-width: 1024px) 280px, 300px"
-                />
+                <video
+                  src="/videos/hero-guest-flow.mp4"
+                  poster="/videos/hero-guest-flow-poster.jpg"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="none"
+                  aria-label={t("hero.mockupAlt")}
+                  className="absolute inset-0 w-full h-full object-cover object-center"
+                >
+                  <source src="/videos/hero-guest-flow.webm" type="video/webm" />
+                  <source src="/videos/hero-guest-flow.mp4" type="video/mp4" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/videos/hero-guest-flow-poster.jpg"
+                    alt={t("hero.mockupAlt")}
+                    className="absolute inset-0 w-full h-full object-cover object-center"
+                  />
+                </video>
               </div>
             </div>
           </FadeInUpOnMount>
