@@ -4,6 +4,8 @@ import path from 'path';
 import { generateCsrfToken, validateCsrfToken } from '@/lib/csrf';
 import { getAuthenticatedAdmin } from '@/lib/admin-auth';
 import { getAuthenticatedGuest } from '@/lib/guest-auth';
+import { createRateLimiter } from '@/lib/security/rate-limit';
+import { getRequestIp } from '@/lib/security/request-ip';
 
 // Definicija tipa za feedback
 interface FeedbackData {
@@ -17,14 +19,8 @@ interface FeedbackData {
 // Putanja do JSON fajla za čuvanje komentara
 const FEEDBACK_FILE = path.join(process.cwd(), 'data', 'feedback.json');
 
-// ─── Rate limiting (in-memory, per-IP) ──────────────────────────────
-declare global {
-  var __feedbackAttempts: Map<string, number[]> | undefined;
-}
-const feedbackAttempts: Map<string, number[]> = globalThis.__feedbackAttempts || new Map();
-globalThis.__feedbackAttempts = feedbackAttempts;
-const FEEDBACK_MAX = 3;
-const FEEDBACK_WINDOW_MS = 15 * 60 * 1000; // 15 min
+// ─── Rate limiting ──────────────────────────────────────────────────
+const feedbackLimiter = createRateLimiter({ name: 'feedback', max: 3, windowMs: 15 * 60 * 1000 });
 
 // ─── Field limits ──────────────────────────────────────────────────
 const MAX_COMMENT_LEN = 2000;
@@ -86,13 +82,9 @@ export async function POST(request: NextRequest) {
   const submittedBy = admin ? `admin:${admin.id}` : `guest:${guest!.id}`;
 
   // 3. Rate limiting po IP
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-  const now = Date.now();
-  const recent = (feedbackAttempts.get(ip) || []).filter(ts => now - ts < FEEDBACK_WINDOW_MS);
-  if (recent.length >= FEEDBACK_MAX) {
-    return NextResponse.json({ error: 'Previše zahteva. Pokušajte ponovo kasnije.' }, { status: 429 });
-  }
-  feedbackAttempts.set(ip, [...recent, now]);
+  const ip = getRequestIp(request);
+  const rl = await feedbackLimiter.check(ip);
+  if (!rl.success) return NextResponse.json({ error: 'Previše zahteva. Pokušajte ponovo kasnije.' }, { status: 429 });
 
   try {
     const body = await request.json();
