@@ -320,7 +320,8 @@
         "allFieldsRequired": "Sva polja su obavezna.",
         "passwordsDontMatch": "Lozinke se ne poklapaju.",
         "sessionExpired": "Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.",
-        "networkError": "Došlo je do greške na mreži."
+        "networkError": "Došlo je do greške na mreži.",
+        "checkExisting": "Ako već imate nalog, prijavite se. Ako ste novi, provjerite spam folder ili pokušajte ponovo."
       }
     },
     "dashboard": {

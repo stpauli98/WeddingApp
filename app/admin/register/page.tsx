@@ -127,6 +127,13 @@ export default function AdminRegisterPage() {
         setError(data.error || t('admin.register.errors.networkError'));
         return;
       }
+      // T5 generic-response flow: server returns 200 with requiresAction instead of 409
+      // to avoid email enumeration. Guide user to login without disclosing whether the
+      // email is registered.
+      if (data.requiresAction === 'check_existing') {
+        setError(t('admin.register.errors.checkExisting'));
+        return;
+      }
       router.push("/admin/event");
     } catch (err) {
       setError(t('admin.register.errors.networkError'));

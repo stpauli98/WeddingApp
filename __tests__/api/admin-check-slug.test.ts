@@ -53,3 +53,12 @@ it('returns 429 when rate-limit exceeded', async () => {
   const res = await GET(req('anything') as any);
   expect(res.status).toBe(429);
 });
+
+it('returns available=false reason=reserved for reserved slug', async () => {
+  m.admin.mockResolvedValue({ id: 'a1' });
+  const res = await GET(req('admin') as any);
+  const body = await res.json();
+  expect(body.available).toBe(false);
+  expect(body.reason).toBe('reserved');
+  expect(m.findUnique).not.toHaveBeenCalled();
+});

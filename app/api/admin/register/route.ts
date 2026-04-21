@@ -73,10 +73,17 @@ export async function POST(req: NextRequest) {
     }
     // Proveri da li admin već postoji
     const existing = await prisma.admin.findUnique({ where: { email } });
-    if (existing) {
-      return NextResponse.json({ error: 'Admin sa tim emailom već postoji.' }, { status: 409 });
-    }
+
+    // ALWAYS hash password first to equalize timing between existing-admin and new-signup.
+    // The hash result is unused on the existing path; this is pure timing defense (R1).
     const passwordHash = await bcrypt.hash(password, 10);
+
+    if (existing) {
+      // Silent no-op with generic success response. Prevents email enumeration.
+      // Client handles the flag by showing "check existing account" UX.
+      return NextResponse.json({ success: true, requiresAction: 'check_existing' }, { status: 200 });
+    }
+
     const admin = await prisma.admin.create({
       data: {
         email,

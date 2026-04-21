@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { generateCsrfToken, validateCsrfToken } from '@/lib/csrf';
 import { PRICING_TIERS, isValidTier, type PricingTier } from '@/lib/pricing-tiers';
+import { isReservedSlug } from '@/lib/security/reserved-slugs';
 
 export async function GET() {
   const { token } = await generateCsrfToken();
@@ -30,6 +31,23 @@ export async function POST(request: Request) {
 
     if (!coupleName || !location || !date || !slug) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    if (typeof coupleName !== 'string' || coupleName.length < 2 || coupleName.length > 60) {
+      return NextResponse.json({ error: "Ime para mora imati između 2 i 60 znakova." }, { status: 400 });
+    }
+    if (typeof location !== 'string' || location.length < 2 || location.length > 120) {
+      return NextResponse.json({ error: "Lokacija mora imati između 2 i 120 znakova." }, { status: 400 });
+    }
+    if (typeof slug !== 'string' || slug.length < 3 || slug.length > 63) {
+      return NextResponse.json({ error: "Slug mora imati između 3 i 63 znaka." }, { status: 400 });
+    }
+    if (guestMessage != null && (typeof guestMessage !== 'string' || guestMessage.length > 500)) {
+      return NextResponse.json({ error: "Poruka za goste može imati najviše 500 znakova." }, { status: 400 });
+    }
+
+    if (isReservedSlug(slug)) {
+      return NextResponse.json({ error: "Taj URL je rezervisan sistemom. Molimo izaberite drugi." }, { status: 409 });
     }
 
     const selectedTier: PricingTier = isValidTier(pricingTier) ? pricingTier : 'free';

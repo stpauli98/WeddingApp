@@ -157,3 +157,79 @@ describe('P2002 handling', () => {
     expect(res.status).toBe(409);
   });
 });
+
+describe('reserved slug rejection', () => {
+  beforeEach(() => {
+    mocks.adminSessionFindUnique.mockResolvedValue({
+      admin: { id: 'adm1' }, expiresAt: new Date(Date.now() + 3600_000),
+    });
+    mocks.adminFindUnique.mockResolvedValue({ language: 'sr' });
+    mocks.pricingPlanFindUnique.mockResolvedValue({ imageLimit: 3 });
+    mocks.eventFindFirst.mockResolvedValue(null);
+    mocks.eventFindUnique.mockResolvedValue(null);
+  });
+
+  it('rejects slug "admin" with 409', async () => {
+    const res = await POST(buildRequest({ ...VALID_BODY_BASE, slug: 'admin' }));
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body.error).toMatch(/rezervisan/i);
+    expect(mocks.eventCreate).not.toHaveBeenCalled();
+  });
+
+  it('rejects slug "api" case-insensitively', async () => {
+    const res = await POST(buildRequest({ ...VALID_BODY_BASE, slug: 'API' }));
+    expect(res.status).toBe(409);
+  });
+
+  it('accepts non-reserved slug', async () => {
+    mocks.eventCreate.mockResolvedValue({ id: 'e1', slug: 'ana-marko' });
+    const res = await POST(buildRequest({ ...VALID_BODY_BASE, slug: 'ana-marko' }));
+    expect(res.status).toBe(200);
+  });
+});
+
+describe('length validation', () => {
+  beforeEach(() => {
+    mocks.adminSessionFindUnique.mockResolvedValue({
+      admin: { id: 'adm1' }, expiresAt: new Date(Date.now() + 3600_000),
+    });
+    mocks.adminFindUnique.mockResolvedValue({ language: 'sr' });
+    mocks.pricingPlanFindUnique.mockResolvedValue({ imageLimit: 3 });
+    mocks.eventFindFirst.mockResolvedValue(null);
+    mocks.eventFindUnique.mockResolvedValue(null);
+    mocks.eventCreate.mockResolvedValue({ id: 'e1', slug: 'ana-marko' });
+  });
+
+  it('rejects coupleName longer than 60 chars', async () => {
+    const res = await POST(buildRequest({ ...VALID_BODY_BASE, coupleName: 'A'.repeat(61) }));
+    expect(res.status).toBe(400);
+    expect(mocks.eventCreate).not.toHaveBeenCalled();
+  });
+
+  it('rejects coupleName shorter than 2 chars', async () => {
+    const res = await POST(buildRequest({ ...VALID_BODY_BASE, coupleName: 'A' }));
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects location longer than 120 chars', async () => {
+    const res = await POST(buildRequest({ ...VALID_BODY_BASE, location: 'L'.repeat(121) }));
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects guestMessage longer than 500 chars', async () => {
+    const res = await POST(buildRequest({ ...VALID_BODY_BASE, guestMessage: 'M'.repeat(501) }));
+    expect(res.status).toBe(400);
+  });
+
+  it('accepts guestMessage at exactly 500 chars', async () => {
+    const res = await POST(buildRequest({ ...VALID_BODY_BASE, guestMessage: 'M'.repeat(500) }));
+    expect(res.status).toBe(200);
+  });
+
+  it('accepts omitted guestMessage', async () => {
+    const { guestMessage: _, ...rest } = VALID_BODY_BASE;
+    const res = await POST(buildRequest(rest));
+    expect(res.status).toBe(200);
+  });
+});
