@@ -6,6 +6,7 @@ import { getRequestIp } from '@/lib/security/request-ip';
 import { normalizeEmail } from '@/lib/security/email';
 import { validatePassword } from '@/lib/security/password-policy';
 import { generateSessionToken } from '@/lib/security/session-token';
+import { createRateLimiter } from '@/lib/security/rate-limit';
 
 
 export async function GET() {
@@ -22,14 +23,8 @@ export async function GET() {
   return response;
 }
 
-// ─── Rate limiting (in-memory, per-IP) ──────────────────────────────
-declare global {
-  var __adminRegisterAttempts: Map<string, number[]> | undefined;
-}
-const registerAttempts: Map<string, number[]> = globalThis.__adminRegisterAttempts || new Map();
-globalThis.__adminRegisterAttempts = registerAttempts;
-const REGISTER_MAX = 5;
-const REGISTER_WINDOW_MS = 60 * 60 * 1000; // 1h
+// ─── Rate limiting ───────────────────────────────────────────────────
+const registerLimiter = createRateLimiter({ name: 'admin-register', max: 5, windowMs: 60 * 60 * 1000 });
 
 export async function POST(req: NextRequest) {
   // Provera CSRF tokena
@@ -41,12 +36,10 @@ export async function POST(req: NextRequest) {
 
   // Rate limiting po IP (spreči spam registraciju i bcrypt CPU DoS)
   const ip = getRequestIp(req);
-  const now = Date.now();
-  const recent = (registerAttempts.get(ip) || []).filter(ts => now - ts < REGISTER_WINDOW_MS);
-  if (recent.length >= REGISTER_MAX) {
+  const rl = await registerLimiter.check(ip);
+  if (!rl.success) {
     return NextResponse.json({ error: 'Previše pokušaja registracije. Pokušajte ponovo kasnije.' }, { status: 429 });
   }
-  registerAttempts.set(ip, [...recent, now]);
 
   try {
     const body = await req.json();

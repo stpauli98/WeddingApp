@@ -1,4 +1,9 @@
 /** @jest-environment node */
+var mockRlCheck = jest.fn();
+jest.mock('@/lib/security/rate-limit', () => ({
+  __esModule: true,
+  createRateLimiter: jest.fn(() => ({ check: (...args: any[]) => mockRlCheck(...args) })),
+}));
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     admin: { findUnique: jest.fn(), create: jest.fn() },
@@ -31,6 +36,8 @@ function reqWith(body: any) {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockRlCheck.mockClear();
+  mockRlCheck.mockResolvedValue({ success: true, remaining: 4 });
   m.findUnique.mockResolvedValue(null);
   m.create.mockResolvedValue({ id: 'id1', email: 'a@b.com' });
   m.sessionCreate.mockResolvedValue({});
@@ -63,4 +70,10 @@ it('issues 64-hex session token', async () => {
   await POST(reqWith(VALID) as any);
   const token = m.sessionCreate.mock.calls[0][0].data.sessionToken;
   expect(token).toMatch(/^[0-9a-f]{64}$/);
+});
+
+it('returns 429 when rate-limit exceeded', async () => {
+  mockRlCheck.mockResolvedValueOnce({ success: false, remaining: 0 });
+  const res = await POST(reqWith(VALID) as any);
+  expect(res.status).toBe(429);
 });
