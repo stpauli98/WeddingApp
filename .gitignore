@@ -30,3 +30,9 @@ next-env.d.ts
 
 *.md.superpowers/
 .env*.local
+
+# Remotion
+remotion/node_modules/
+remotion/.remotion-cache/
+remotion/out/
+remotion/dist/

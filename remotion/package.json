@@ -1,0 +1,26 @@
+{
+  "name": "weddingapp-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Remotion compositions for WeddingApp landing videos. Renders to ../public/videos/.",
+  "scripts": {
+    "dev": "remotion studio",
+    "render:hero": "remotion render HeroGuestFlow ../public/videos/hero-guest-flow.mp4 --codec=h264 --crf=23",
+    "render:hero:webm": "remotion render HeroGuestFlow ../public/videos/hero-guest-flow.webm --codec=vp9 --crf=30",
+    "render:poster": "remotion still HeroGuestFlow ../public/videos/hero-guest-flow-poster.jpg --frame=15"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.450",
+    "@remotion/cli": "4.0.450",
+    "@remotion/google-fonts": "4.0.450",
+    "@remotion/renderer": "4.0.450",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.450"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.18",
+    "@types/react-dom": "18.3.5",
+    "typescript": "5.8.3"
+  }
+}
