@@ -206,4 +206,72 @@ const ThumbRow: React.FC<{ progress: number; barProgress: number; label: string 
   </div>
 );
 
-const PhaseSuccess: React.FC = () => <AbsoluteFill style={{ backgroundColor: theme.lpBg }} />;
+const PhaseSuccess: React.FC = () => {
+  const frame = useCurrentFrame();
+  const localFrame = frame;
+  const { fps } = useVideoConfig();
+
+  const checkProgress = interpolate(localFrame, [0, 20], [0, 1], { extrapolateRight: 'clamp' });
+
+  const bannerY = interpolate(localFrame, [15, 30], [-40, 0], { extrapolateRight: 'clamp' });
+  const bannerOpacity = interpolate(localFrame, [15, 30], [0, 1], { extrapolateRight: 'clamp' });
+
+  const sparkleScale = spring({ frame: localFrame - 25, fps, config: { damping: 10, stiffness: 100 } });
+  const sparkleOpacity = interpolate(localFrame, [40, 60, 78], [1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+
+  const phaseDuration = 90;
+  const loopFade = interpolate(localFrame, [phaseDuration - 12, phaseDuration], [1, 0], { extrapolateLeft: 'clamp' });
+
+  return (
+    <AbsoluteFill style={{ padding: '40px 32px', opacity: loopFade, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+          <circle cx="60" cy="60" r="54" fill={theme.lpPrimarySoft} />
+          <path
+            d="M38 62 L52 76 L82 46"
+            stroke={theme.lpPrimary}
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeDasharray="60"
+            strokeDashoffset={60 - checkProgress * 60}
+          />
+        </svg>
+      </div>
+
+      <div style={{
+        opacity: bannerOpacity,
+        transform: `translateY(${bannerY}px)`,
+        textAlign: 'center',
+        marginBottom: 16,
+      }}>
+        <div style={{ fontFamily: playfair, fontSize: 28, fontWeight: 700, color: theme.lpText }}>
+          Uspješno!
+        </div>
+        <div style={{ fontSize: 15, color: theme.lpMutedForeground, marginTop: 4 }}>
+          3 slike poslate
+        </div>
+      </div>
+
+      <div style={{ position: 'absolute', top: '30%', left: '20%', opacity: sparkleOpacity, transform: `scale(${sparkleScale})` }}>
+        <Sparkle />
+      </div>
+      <div style={{ position: 'absolute', top: '45%', right: '18%', opacity: sparkleOpacity, transform: `scale(${sparkleScale * 0.8})` }}>
+        <Sparkle />
+      </div>
+      <div style={{ position: 'absolute', top: '65%', left: '30%', opacity: sparkleOpacity, transform: `scale(${sparkleScale * 0.6})` }}>
+        <Sparkle />
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+const Sparkle: React.FC = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path
+      d="M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z"
+      fill={theme.lpAccent}
+      opacity="0.8"
+    />
+  </svg>
+);
