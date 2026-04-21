@@ -2,24 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 import { getRequestIp } from "@/lib/security/request-ip";
+import { createRateLimiter } from "@/lib/security/rate-limit";
 
-declare global { var __checkSlugAttempts: Map<string, number[]> | undefined; }
-const attempts: Map<string, number[]> = globalThis.__checkSlugAttempts || new Map();
-globalThis.__checkSlugAttempts = attempts;
-const MAX = 10;
-const WINDOW_MS = 60_000;
+const checkSlugLimiter = createRateLimiter({ name: 'check-slug', max: 10, windowMs: 60_000 });
 
 export async function GET(request: NextRequest) {
   const admin = await getAuthenticatedAdmin();
   if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const ip = getRequestIp(request);
-  const now = Date.now();
-  const recent = (attempts.get(ip) || []).filter(ts => now - ts < WINDOW_MS);
-  if (recent.length >= MAX) {
+  const rl = await checkSlugLimiter.check(ip);
+  if (!rl.success) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
-  attempts.set(ip, [...recent, now]);
 
   const slug = new URL(request.url).searchParams.get("slug");
   if (!slug || slug.length < 3) {
