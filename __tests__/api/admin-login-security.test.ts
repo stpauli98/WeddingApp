@@ -1,4 +1,13 @@
 /** @jest-environment node */
+// Use var so the declaration is hoisted (no TDZ) and the jest.mock factory
+// can reference it when createRateLimiter is called at route module scope.
+// eslint-disable-next-line no-var
+var mockRlCheck = jest.fn().mockResolvedValue({ success: true, remaining: 4 });
+
+jest.mock('@/lib/security/rate-limit', () => ({
+  __esModule: true,
+  createRateLimiter: jest.fn(() => ({ check: (...args: any[]) => mockRlCheck(...args) })),
+}));
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     admin: { findUnique: jest.fn() },
@@ -34,6 +43,8 @@ beforeEach(() => {
   jest.clearAllMocks();
   mocks.sessionDelete.mockResolvedValue({ count: 0 });
   mocks.sessionCreate.mockResolvedValue({});
+  mockRlCheck.mockClear();
+  mockRlCheck.mockResolvedValue({ success: true, remaining: 4 });
 });
 
 it('calls bcrypt.compare even when admin does not exist (timing parity)', async () => {
@@ -57,4 +68,10 @@ it('issues 64-hex session token on success', async () => {
   await POST(buildReq({ email: 'a@b.com', password: 'pw' }) as any);
   const token = mocks.sessionCreate.mock.calls[0][0].data.sessionToken;
   expect(token).toMatch(/^[0-9a-f]{64}$/);
+});
+
+it('returns 429 when rate-limit exceeded', async () => {
+  mockRlCheck.mockResolvedValueOnce({ success: false, remaining: 0 });
+  const res = await POST(buildReq({ email: 'a@b.com', password: 'pw' }) as any);
+  expect(res.status).toBe(429);
 });

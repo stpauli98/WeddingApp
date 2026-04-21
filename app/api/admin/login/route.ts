@@ -5,6 +5,7 @@ import { generateCsrfToken, validateCsrfToken } from '@/lib/csrf';
 import { getRequestIp } from '@/lib/security/request-ip';
 import { normalizeEmail } from '@/lib/security/email';
 import { generateSessionToken } from '@/lib/security/session-token';
+import { createRateLimiter } from '@/lib/security/rate-limit';
 
 // Constant bcrypt hash used to equalize timing when admin is not found.
 // Valid $2a$10 hash — never matches any real password. Any valid bcrypt hash works here.
@@ -17,13 +18,7 @@ export async function GET() {
   return response;
 }
 
-declare global {
-  var __adminLoginAttempts: Map<string, number[]> | undefined;
-}
-const loginAttempts: Map<string, number[]> = globalThis.__adminLoginAttempts || new Map();
-globalThis.__adminLoginAttempts = loginAttempts;
-const MAX_ATTEMPTS = 5;
-const WINDOW_MS = 15 * 60 * 1000;
+const loginLimiter = createRateLimiter({ name: 'admin-login', max: 5, windowMs: 15 * 60 * 1000 });
 
 export async function POST(req: NextRequest) {
   const csrfToken = req.headers.get('x-csrf-token') || req.cookies.get('csrf_token')?.value || '';
@@ -32,9 +27,8 @@ export async function POST(req: NextRequest) {
   }
 
   const ip = getRequestIp(req);
-  const now = Date.now();
-  const recentAttempts = (loginAttempts.get(ip) || []).filter(ts => now - ts < WINDOW_MS);
-  if (recentAttempts.length >= MAX_ATTEMPTS) {
+  const rl = await loginLimiter.check(ip);
+  if (!rl.success) {
     return NextResponse.json({ error: 'Previše neuspešnih pokušaja. Pokušajte ponovo za 15 minuta.' }, { status: 429 });
   }
 
@@ -51,11 +45,8 @@ export async function POST(req: NextRequest) {
     const valid = await bcrypt.compare(password, admin?.passwordHash ?? DUMMY_HASH);
 
     if (!admin || !valid) {
-      loginAttempts.set(ip, [...recentAttempts, now]);
       return NextResponse.json({ error: 'Neispravan email ili lozinka.' }, { status: 401 });
     }
-
-    loginAttempts.delete(ip);
 
     await prisma.adminSession.deleteMany({ where: { expiresAt: { lt: new Date() } } });
 
