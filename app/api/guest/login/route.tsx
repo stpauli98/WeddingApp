@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 
 import crypto from "crypto";
 import { cookies } from "next/headers";
+import { createRateLimiter } from '@/lib/security/rate-limit';
+import { getRequestIp } from '@/lib/security/request-ip';
 
 export async function GET() {
   // Generiši kriptografski siguran random string
@@ -21,14 +23,8 @@ export async function GET() {
   return response;
 }
 
-// ─── Rate limiting (in-memory, per-IP) ──────────────────────────────
-declare global {
-  var __guestLoginAttempts: Map<string, number[]> | undefined;
-}
-const guestLoginAttempts: Map<string, number[]> = globalThis.__guestLoginAttempts || new Map();
-globalThis.__guestLoginAttempts = guestLoginAttempts;
-const GUEST_LOGIN_MAX = 10;
-const GUEST_LOGIN_WINDOW_MS = 15 * 60 * 1000; // 15 min
+// ─── Rate limiting ──────────────────────────────────────────────────
+const guestLoginLimiter = createRateLimiter({ name: 'guest-login', max: 10, windowMs: 15 * 60 * 1000 });
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,13 +37,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Rate limiting po IP — spreči mass account creation
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    const now = Date.now();
-    const recent = (guestLoginAttempts.get(ip) || []).filter(ts => now - ts < GUEST_LOGIN_WINDOW_MS);
-    if (recent.length >= GUEST_LOGIN_MAX) {
-      return NextResponse.json({ error: "Previše pokušaja prijave. Pokušajte ponovo kasnije." }, { status: 429 });
-    }
-    guestLoginAttempts.set(ip, [...recent, now]);
+    const ip = getRequestIp(request);
+    const rl = await guestLoginLimiter.check(ip);
+    if (!rl.success) return NextResponse.json({ error: "Previše pokušaja prijave. Pokušajte ponovo kasnije." }, { status: 429 });
 
     const { firstName, lastName, email, eventSlug, marketingConsent } = await request.json()
 
