@@ -5,18 +5,20 @@ import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
-import { CalendarIcon } from "lucide-react"
+import { CalendarIcon, Check, Loader2, X } from "lucide-react"
 import { format } from "date-fns"
 import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { FadeInUp } from "@/components/ui/fade-in-up"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { toast } from "@/components/ui/use-toast"
 import { PricingTierSelector } from "@/components/admin/PricingTierSelector"
 import { PRICING_TIERS, PricingTier } from "@/lib/pricing-tiers"
+import { cn } from "@/lib/utils"
 
 // Define the form schema with Zod
 const formSchema = z.object({
@@ -299,13 +301,24 @@ export default function CreateEventPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <Card className="max-w-xl mx-auto">
-        <CardHeader>
-          <CardTitle>{t('admin.event.title')}</CardTitle>
-          <CardDescription>{t('admin.event.description')}</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <main className="min-h-screen bg-[hsl(var(--lp-bg))] px-4 py-8 sm:px-6 sm:py-12 lg:py-16">
+      <div className="mx-auto max-w-2xl">
+        <FadeInUp>
+          <header className="mb-8 text-center sm:mb-10 lg:mb-12">
+            <span className="mb-3 inline-block text-xs font-medium uppercase tracking-[0.2em] text-[hsl(var(--lp-accent))]">
+              {t('admin.event.eyebrow')}
+            </span>
+            <h1 className="font-playfair text-3xl leading-tight text-[hsl(var(--lp-text))] sm:text-4xl lg:text-5xl">
+              {t('admin.event.title')}
+            </h1>
+            <p className="mx-auto mt-3 max-w-md text-sm text-[hsl(var(--lp-muted-foreground))] sm:text-base">
+              {t('admin.event.description')}
+            </p>
+          </header>
+        </FadeInUp>
+        <FadeInUp delay={0.15}>
+          <Card className="border-[hsl(var(--lp-border))] bg-[hsl(var(--lp-card))] shadow-sm transition-shadow hover:shadow-md">
+            <CardContent className="p-6 sm:p-8 lg:p-10">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
@@ -314,8 +327,8 @@ export default function CreateEventPage() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex justify-between items-center">
-                      <FormLabel>{t('admin.event.coupleName')}</FormLabel>
-                      <span className="text-xs text-muted-foreground">
+                      <FormLabel className="text-sm font-medium text-[hsl(var(--lp-text))]">{t('admin.event.coupleName')}</FormLabel>
+                      <span className="text-xs text-[hsl(var(--lp-muted-foreground))]">
                         {t('admin.event.coupleNameCounter', { count: field.value?.length || 0 })}
                       </span>
                     </div>
@@ -323,6 +336,7 @@ export default function CreateEventPage() {
                       <Input
                         placeholder={t('admin.event.coupleNamePlaceholder')}
                         maxLength={100}
+                        className="border-[hsl(var(--lp-border))] bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-text))] focus-visible:ring-[hsl(var(--lp-primary))] focus-visible:ring-offset-0"
                         {...field}
                         onChange={e => {
                           handleCoupleNameChange(e);
@@ -331,7 +345,7 @@ export default function CreateEventPage() {
                         }}
                       />
                     </FormControl>
-                    <FormDescription>{t('admin.event.coupleNameDescription')}</FormDescription>
+                    <FormDescription className="text-xs text-[hsl(var(--lp-muted-foreground))]">{t('admin.event.coupleNameDescription')}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -342,14 +356,15 @@ export default function CreateEventPage() {
                 name="location"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('admin.event.location')}</FormLabel>
+                    <FormLabel className="text-sm font-medium text-[hsl(var(--lp-text))]">{t('admin.event.location')}</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder={t('admin.event.locationPlaceholder')} 
-                        {...field} 
+                      <Input
+                        placeholder={t('admin.event.locationPlaceholder')}
+                        className="border-[hsl(var(--lp-border))] bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-text))] focus-visible:ring-[hsl(var(--lp-primary))] focus-visible:ring-offset-0"
+                        {...field}
                       />
                     </FormControl>
-                    <FormDescription>{t('admin.event.locationDescription')}</FormDescription>
+                    <FormDescription className="text-xs text-[hsl(var(--lp-muted-foreground))]">{t('admin.event.locationDescription')}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -360,16 +375,19 @@ export default function CreateEventPage() {
                 name="date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>{t('admin.event.date')}</FormLabel>
+                    <FormLabel className="text-sm font-medium text-[hsl(var(--lp-text))]">{t('admin.event.date')}</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
-                            variant={"outline"}
-                            className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start border-[hsl(var(--lp-border))] bg-[hsl(var(--lp-card))] pl-3 text-left font-normal hover:bg-[hsl(var(--lp-muted))]/30",
+                              !field.value && "text-[hsl(var(--lp-muted-foreground))]"
+                            )}
                           >
                             {field.value ? format(field.value, "PPP") : <span>{t('admin.event.datePlaceholder')}</span>}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            <CalendarIcon className="ml-auto h-4 w-4 text-[hsl(var(--lp-accent))]" />
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
@@ -383,7 +401,7 @@ export default function CreateEventPage() {
                         />
                       </PopoverContent>
                     </Popover>
-                    <FormDescription>{t('admin.event.dateDescription')}</FormDescription>
+                    <FormDescription className="text-xs text-[hsl(var(--lp-muted-foreground))]">{t('admin.event.dateDescription')}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -400,14 +418,14 @@ export default function CreateEventPage() {
                   const slugValid = /^[a-z0-9]+(-[a-z0-9]+)*$/.test(slugValue) && slugValue.length >= 3;
                   return (
                     <FormItem>
-                      <FormLabel>{t('admin.event.slug')}</FormLabel>
+                      <FormLabel className="text-sm font-medium text-[hsl(var(--lp-text))]">{t('admin.event.slug')}</FormLabel>
                       <FormControl>
                         <div className="flex items-center">
-                          <span className="rounded-l-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+                          <span className="inline-flex items-center rounded-l-md border border-r-0 border-[hsl(var(--lp-border))] bg-[hsl(var(--lp-muted))] px-3 py-2 text-sm text-[hsl(var(--lp-muted-foreground))]">
                             dodajuspomenu.com/
                           </span>
                           <Input
-                            className="rounded-l-none"
+                            className="rounded-l-none border-[hsl(var(--lp-border))] bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-text))] focus-visible:ring-[hsl(var(--lp-primary))] focus-visible:ring-offset-0"
                             placeholder={t('admin.event.slugPlaceholder')}
                             {...field}
                             value={slugValue}
@@ -419,30 +437,39 @@ export default function CreateEventPage() {
                           />
                         </div>
                       </FormControl>
-                      <FormDescription>
+                      <FormDescription className="text-xs text-[hsl(var(--lp-muted-foreground))]">
                         {t('admin.event.slugDescription')}
-                        <br />
-                        <span className={`text-xs ${slugValid ? 'text-green-600' : 'text-red-600'}`}>
+                      </FormDescription>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <span className={cn(
+                          "text-xs italic",
+                          slugValid ? "text-[hsl(var(--lp-success))]" : "text-[hsl(var(--lp-muted-foreground))]"
+                        )}>
                           {t('admin.event.slugSuggestion', { suggestion: slugSuggestion })}
                         </span>
-                        {slugChecking && (
-                          <span className="text-xs text-blue-600 ml-2">
-                            {t('admin.event.errors.slugChecking')}
-                          </span>
-                        )}
-                        {!slugChecking && slugAvailable === true && (
-                          <span className="text-xs text-green-600 ml-2 font-semibold">
-                            ✓ {t('admin.event.errors.slugAvailable')}
-                          </span>
-                        )}
-                        {!slugChecking && slugAvailable === false && (
-                          <span className="text-xs text-red-600 ml-2 font-semibold">
-                            ✗ {t('admin.event.errors.slugTaken')}
-                          </span>
-                        )}
-                      </FormDescription>
+                        <div aria-live="polite" className="inline-flex">
+                          {slugChecking && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[hsl(var(--lp-muted))] px-2.5 py-0.5 text-xs font-medium text-[hsl(var(--lp-muted-foreground))]">
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              {t('admin.event.errors.slugChecking')}
+                            </span>
+                          )}
+                          {!slugChecking && slugAvailable === true && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[hsl(var(--lp-success))]/10 px-2.5 py-0.5 text-xs font-medium text-[hsl(var(--lp-success))]">
+                              <Check className="h-3 w-3" />
+                              {t('admin.event.errors.slugAvailable')}
+                            </span>
+                          )}
+                          {!slugChecking && slugAvailable === false && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[hsl(var(--lp-destructive))]/10 px-2.5 py-0.5 text-xs font-medium text-[hsl(var(--lp-destructive))]">
+                              <X className="h-3 w-3" />
+                              {t('admin.event.errors.slugTaken')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                       {!slugValid && (
-                        <div className="text-xs text-red-600 mt-1">
+                        <div className="mt-1 text-xs text-[hsl(var(--lp-destructive))]">
                           {t('admin.event.slugRules')}
                         </div>
                       )}
@@ -458,20 +485,20 @@ export default function CreateEventPage() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex justify-between items-center">
-                      <FormLabel>{t('admin.event.guestMessage')}</FormLabel>
-                      <span className="text-xs text-muted-foreground">
+                      <FormLabel className="text-sm font-medium text-[hsl(var(--lp-text))]">{t('admin.event.guestMessage')}</FormLabel>
+                      <span className="text-xs text-[hsl(var(--lp-muted-foreground))]">
                         {t('admin.event.guestMessageCounter', { count: field.value?.length || 0 })}
                       </span>
                     </div>
                     <FormControl>
                       <textarea
-                        className="w-full min-h-[80px] rounded border px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full min-h-[96px] rounded-md border border-[hsl(var(--lp-border))] bg-[hsl(var(--lp-card))] px-3 py-2 text-base text-[hsl(var(--lp-text))] placeholder:text-[hsl(var(--lp-muted-foreground))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--lp-primary))] focus:ring-offset-0"
                         maxLength={500}
                         placeholder={t('admin.event.guestMessagePlaceholder')}
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription>{t('admin.event.guestMessageDescription')}</FormDescription>
+                    <FormDescription className="text-xs text-[hsl(var(--lp-muted-foreground))]">{t('admin.event.guestMessageDescription')}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -494,25 +521,31 @@ export default function CreateEventPage() {
               />
 
               {slugError && (
-                <div className="text-sm text-red-600 mb-2 text-center">{slugError}</div>
+                <div role="alert" className="rounded-md border border-[hsl(var(--lp-destructive))]/30 bg-[hsl(var(--lp-destructive))]/10 px-4 py-2.5 text-center text-sm text-[hsl(var(--lp-destructive))]">
+                  {slugError}
+                </div>
               )}
               {csrfError && (
-                <div className="text-sm text-red-600 mb-2 text-center">{csrfError}</div>
+                <div role="alert" className="rounded-md border border-[hsl(var(--lp-destructive))]/30 bg-[hsl(var(--lp-destructive))]/10 px-4 py-2.5 text-center text-sm text-[hsl(var(--lp-destructive))]">
+                  {csrfError}
+                </div>
               )}
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))] shadow-sm transition-all hover:bg-[hsl(var(--lp-primary))]/90 hover:shadow-md disabled:bg-[hsl(var(--lp-muted))] disabled:text-[hsl(var(--lp-muted-foreground))] disabled:shadow-none"
                 disabled={isSubmitting || slugChecking || slugAvailable === false || !form.getValues('slug') || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(form.getValues('slug')) || form.getValues('slug').length < 3 || !!slugError || !csrfToken}
               >
                 {isSubmitting ? t('admin.event.submittingButton') : t('admin.event.submitButton')}
               </Button>
             </form>
           </Form>
-        </CardContent>
-        <CardFooter className="flex justify-between text-sm text-muted-foreground">
-          <p>{t('admin.event.requiredFields')}</p>
-        </CardFooter>
-      </Card>
-    </div>
+            </CardContent>
+            <CardFooter className="border-t border-[hsl(var(--lp-border))] bg-[hsl(var(--lp-bg))]/50 px-6 py-4 text-sm text-[hsl(var(--lp-muted-foreground))] sm:px-8">
+              <p>{t('admin.event.requiredFields')}</p>
+            </CardFooter>
+          </Card>
+        </FadeInUp>
+      </div>
+    </main>
   )
 }
