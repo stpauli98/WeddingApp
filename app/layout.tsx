@@ -90,16 +90,12 @@ export default function RootLayout({
         {/* Inter font se učitava preko next/font/google, nije potreban preload */}
         {/* Favicon (dodaćeš public/favicon.ico po želji) */}
         <link rel="icon" href="/favicon.ico" />
-        {/* Preload hero image — next/image priority auto-preload does not
-            propagate through FadeInUpOnMount client island, so add an explicit
-            hint so the browser fetches it during document parse. The SR version
-            is the default landing hero; EN visitors briefly fetch an unused SR
-            copy but the LCP gain outweighs the penalty. */}
+        {/* Preload poster JPG for hero video — serves as LCP candidate during
+            video fetch. Video itself uses preload="none" to stay off LCP path. */}
         <link
           rel="preload"
           as="image"
-          href="/_next/image?url=%2Fimages%2Fsr%2Fguest-login-filled.png&w=640&q=75"
-          imageSrcSet="/_next/image?url=%2Fimages%2Fsr%2Fguest-login-filled.png&w=384&q=75 384w, /_next/image?url=%2Fimages%2Fsr%2Fguest-login-filled.png&w=640&q=75 640w"
+          href="/videos/hero-guest-flow-poster.jpg"
           fetchPriority="high"
         />
         {/* JSON-LD: WebSite schema */}
