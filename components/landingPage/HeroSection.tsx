@@ -80,7 +80,7 @@ export default function HeroSection({ t, lang }: HeroSectionProps) {
                   playsInline
                   preload="none"
                   aria-label={t("hero.mockupAlt")}
-                  className="absolute inset-0 w-full h-full object-cover object-top"
+                  className="absolute inset-0 w-full h-full object-cover object-center"
                 >
                   <source src="/videos/hero-guest-flow.webm" type="video/webm" />
                   <source src="/videos/hero-guest-flow.mp4" type="video/mp4" />
@@ -88,7 +88,7 @@ export default function HeroSection({ t, lang }: HeroSectionProps) {
                   <img
                     src="/videos/hero-guest-flow-poster.jpg"
                     alt={t("hero.mockupAlt")}
-                    className="absolute inset-0 w-full h-full object-cover object-top"
+                    className="absolute inset-0 w-full h-full object-cover object-center"
                   />
                 </video>
               </div>

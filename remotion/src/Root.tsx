@@ -3,7 +3,7 @@ import { HeroGuestFlow } from './compositions/HeroGuestFlow';
 import { waitForAllFonts } from './fonts';
 
 const FPS = 30;
-const DURATION_SEC = 11;
+const DURATION_SEC = 12;
 
 export const Root: React.FC = () => {
   return (
