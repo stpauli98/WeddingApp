@@ -131,3 +131,29 @@ describe('POST /api/admin/events — tier↔imageLimit invariant', () => {
     expect(createArg.data.imageLimit).toBe(50);
   });
 });
+
+describe('P2002 handling', () => {
+  beforeEach(() => {
+    mocks.adminSessionFindUnique.mockResolvedValue({
+      admin: { id: 'adm1' }, expiresAt: new Date(Date.now() + 3600_000),
+    });
+    mocks.adminFindUnique.mockResolvedValue({ language: 'sr' });
+    mocks.pricingPlanFindUnique.mockResolvedValue({ imageLimit: 3 });
+    mocks.eventFindFirst.mockResolvedValue(null);
+    mocks.eventFindUnique.mockResolvedValue(null);
+  });
+
+  it('returns 409 when adminId unique constraint races', async () => {
+    mocks.eventCreate.mockRejectedValue({ code: 'P2002', meta: { target: ['adminId'] } });
+    const res = await POST(buildRequest({ ...VALID_BODY_BASE }));
+    expect(res.status).toBe(409);
+    const body = await res.json();
+    expect(body.error).toMatch(/Već ste kreirali događaj/);
+  });
+
+  it('returns 409 when slug unique constraint races', async () => {
+    mocks.eventCreate.mockRejectedValue({ code: 'P2002', meta: { target: ['slug'] } });
+    const res = await POST(buildRequest({ ...VALID_BODY_BASE }));
+    expect(res.status).toBe(409);
+  });
+});

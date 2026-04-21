@@ -89,7 +89,16 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ success: true, event });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === 'P2002') {
+      const target = Array.isArray(error?.meta?.target) ? error.meta.target : [];
+      if (target.includes('adminId')) {
+        return NextResponse.json({ error: "Već ste kreirali događaj." }, { status: 409 });
+      }
+      if (target.includes('slug')) {
+        return NextResponse.json({ error: "URL (slug) koji ste odabrali već postoji. Molimo izaberite drugi." }, { status: 409 });
+      }
+    }
     console.error("Error creating event:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
