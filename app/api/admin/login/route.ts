@@ -7,7 +7,7 @@ import { normalizeEmail } from '@/lib/security/email';
 import { generateSessionToken } from '@/lib/security/session-token';
 
 // Constant bcrypt hash used to equalize timing when admin is not found.
-// Hash of the literal string "dummy" at cost 10 — never matches any real password.
+// Valid $2a$10 hash — never matches any real password. Any valid bcrypt hash works here.
 const DUMMY_HASH = '$2a$10$CwTycUXWue0Thq9StjUM0uJ8VRgpoSr1PG5bI3lHvlZYZFJyrCHVS';
 
 export async function GET() {
