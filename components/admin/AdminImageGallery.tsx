@@ -295,26 +295,29 @@ export function AdminImageGallery({
     }
   };
 
-  // Selektuj sve fotografije
+  // Selektuj sve fotografije (samo one koje su stvarno vidljive — ne uključuje
+  // optimistično sakrivene nakon delete-a).
   const selectAll = () => {
-    if (selectedPhotos.length === images.length) {
+    const visibleAll = images.filter(img => !hiddenIds.has(img.id));
+    if (selectedPhotos.length === visibleAll.length) {
       handleSelectChange([]);
     } else {
-      handleSelectChange(images.map(img => img.id));
+      handleSelectChange(visibleAll.map(img => img.id));
     }
   };
 
   // Preuzimanje selektovanih slika kao ZIP
   const downloadSelected = async () => {
     if (selectedPhotos.length === 0) return;
-    
+    const visibleAll = images.filter(img => !hiddenIds.has(img.id));
+
     try {
       const JSZip = (await import('jszip')).default;
       const zip = new JSZip();
       let validCount = 0;
-      
-      for (let idx = 0; idx < images.length; idx++) {
-        const img = images[idx];
+
+      for (let idx = 0; idx < visibleAll.length; idx++) {
+        const img = visibleAll[idx];
         if (!selectedPhotos.includes(img.id)) continue;
         
         try {
@@ -368,15 +371,16 @@ export function AdminImageGallery({
 
   // Preuzimanje svih slika kao ZIP
   const downloadAll = async () => {
-    if (images.length === 0) return;
-    
+    const visibleAll = images.filter(img => !hiddenIds.has(img.id));
+    if (visibleAll.length === 0) return;
+
     try {
       const JSZip = (await import('jszip')).default;
       const zip = new JSZip();
       let validCount = 0;
-      
-      for (let idx = 0; idx < images.length; idx++) {
-        const img = images[idx];
+
+      for (let idx = 0; idx < visibleAll.length; idx++) {
+        const img = visibleAll[idx];
         try {
           if (typeof img.imageUrl !== 'string') continue;
           
@@ -558,8 +562,9 @@ export function AdminImageGallery({
     })();
   };
 
-  // Ako nema slika, prikaži poruku
-  if (images.length === 0) {
+  // Ako nema (ni vidljivih) slika, prikaži poruku. Koristi allVisible da se
+  // empty state pojavi i nakon što admin optimistično obriše sve slike.
+  if (allVisible.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-6 gap-2">
         <Image
@@ -582,7 +587,7 @@ export function AdminImageGallery({
         <div className="p-3 sm:p-4 flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-0 sm:items-center border-b">
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-white/50">
-              {images.length} {t('admin.imageGallery.allPhotos')}
+              {allVisible.length} {t('admin.imageGallery.allPhotos')}
             </Badge>
           </div>
 
@@ -621,10 +626,10 @@ export function AdminImageGallery({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-6 py-3 bg-[hsl(var(--lp-muted))]/30 border-y border-[hsl(var(--lp-accent))]/20 gap-2 sm:gap-0">
             <div className="flex flex-wrap items-center gap-2">
               <Button variant="ghost" size="sm" className="text-[hsl(var(--lp-primary))] hover:bg-[hsl(var(--lp-muted))]/50 text-xs sm:text-sm" onClick={selectAll}>
-                {selectedPhotos.length === images.length ? t('common.unselectAll') : t('common.selectAll')}
+                {selectedPhotos.length === allVisible.length && allVisible.length > 0 ? t('common.unselectAll') : t('common.selectAll')}
               </Button>
               <span className="text-xs sm:text-sm text-[hsl(var(--lp-muted-foreground))]">
-                {selectedPhotos.length} {t('admin.imageGallery.selected')} {t('admin.imageGallery.of')} {images.length}
+                {selectedPhotos.length} {t('admin.imageGallery.selected')} {t('admin.imageGallery.of')} {allVisible.length}
               </span>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
