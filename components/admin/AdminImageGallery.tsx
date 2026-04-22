@@ -432,91 +432,130 @@ export function AdminImageGallery({
     ? allVisible.filter(img => favoriteIds.includes(img.id))
     : allVisible;
 
-  // Single-image delete (admin) — POST-hoc optimistic hide, then notify parent.
+  // Single-image delete (admin) — optimistic: hide from UI immediately,
+  // fire DELETE in background, rollback on failure.
   const handleSingleDelete = async (imageId: string): Promise<void> => {
     if (!csrfToken) {
       toast({ variant: 'destructive', description: 'CSRF token nije učitan. Osvježite stranicu.' });
       throw new Error('missing_csrf');
     }
-    const res = await fetch(`/api/admin/images/${encodeURIComponent(imageId)}`, {
-      method: 'DELETE',
-      credentials: 'include',
-      headers: { 'x-csrf-token': csrfToken },
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      toast({ variant: 'destructive', description: body?.error || 'Brisanje nije uspjelo.' });
-      throw new Error('delete_failed');
-    }
+
+    // Optimistic hide + strip from selection/favorites in the same render.
     setHiddenIds(prev => new Set(prev).add(imageId));
-    // Remove from selection and favorites if present.
-    if (selectedPhotos.includes(imageId)) {
+    const wasSelected = selectedPhotos.includes(imageId);
+    if (wasSelected) {
       handleSelectChange(selectedPhotos.filter(id => id !== imageId));
     }
-    if (favoriteIds.includes(imageId)) {
+    const wasFavorite = favoriteIds.includes(imageId);
+    if (wasFavorite) {
       const nextFavs = favoriteIds.filter(id => id !== imageId);
       setFavoriteIds(nextFavs);
       saveFavoriteImages(nextFavs);
     }
     onImageDeleted?.(imageId);
+
+    // Fire-and-rollback: return control to caller immediately so the lightbox
+    // can advance; handle the network result asynchronously.
+    void (async () => {
+      try {
+        const res = await fetch(`/api/admin/images/${encodeURIComponent(imageId)}`, {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: { 'x-csrf-token': csrfToken },
+        });
+        // 404 = already gone server-side → matches our optimistic state.
+        if (res.ok || res.status === 404) return;
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error || 'delete_failed');
+      } catch (err) {
+        // Rollback optimistic mutations.
+        setHiddenIds(prev => {
+          const next = new Set(prev);
+          next.delete(imageId);
+          return next;
+        });
+        if (wasFavorite) {
+          const restored = [...favoriteIds];
+          setFavoriteIds(restored);
+          saveFavoriteImages(restored);
+        }
+        console.error('[admin-image-delete] failed', err);
+        toast({
+          variant: 'destructive',
+          description: (err instanceof Error && err.message) || 'Brisanje nije uspjelo.',
+        });
+      }
+    })();
   };
 
-  // Bulk delete via POST /api/admin/images/bulk-delete — optimistic hide + parent notify.
-  const handleBulkDelete = async (): Promise<void> => {
+  // Bulk delete — optimistic: hide all immediately, fire POST in background,
+  // rollback on failure. UI returns instantly; network resolves async.
+  const handleBulkDelete = (): void => {
     if (!csrfToken) {
       toast({ variant: 'destructive', description: 'CSRF token nije učitan. Osvježite stranicu.' });
       return;
     }
     if (selectedPhotos.length === 0) return;
 
-    setBulkDeleting(true);
-    try {
-      const res = await fetch('/api/admin/images/bulk-delete', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-csrf-token': csrfToken,
-        },
-        body: JSON.stringify({ ids: selectedPhotos }),
-      });
+    const idsToDelete = [...selectedPhotos];
+    const previousFavorites = [...favoriteIds];
+    const deletedSet = new Set(idsToDelete);
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        toast({ variant: 'destructive', description: body?.error || 'Brisanje nije uspjelo.' });
-        return;
-      }
-
-      const data = await res.json();
-      // Optimistic hide of every requested id (even if some didn't exist server-side).
-      setHiddenIds(prev => {
-        const next = new Set(prev);
-        for (const id of selectedPhotos) next.add(id);
-        return next;
-      });
-      // Clear selection + strip any favorites that were deleted.
-      const deletedSet = new Set(selectedPhotos);
-      handleSelectChange([]);
-      if (favoriteIds.some(id => deletedSet.has(id))) {
-        const nextFavs = favoriteIds.filter(id => !deletedSet.has(id));
-        setFavoriteIds(nextFavs);
-        saveFavoriteImages(nextFavs);
-      }
-      // Notify parent in case it wants to refetch.
-      for (const id of selectedPhotos) onImageDeleted?.(id);
-
-      toast({
-        description: `Obrisano ${data.deletedCount ?? selectedPhotos.length} ${(data.deletedCount ?? selectedPhotos.length) === 1 ? 'slika' : 'slika'}.`,
-      });
-      // Close lightbox if it was open (selection can happen from inside).
-      setLightboxIndex(null);
-      setBulkDeleteOpen(false);
-    } catch (err) {
-      console.error('[bulk-delete] network error', err);
-      toast({ variant: 'destructive', description: 'Greška u komunikaciji sa serverom.' });
-    } finally {
-      setBulkDeleting(false);
+    // Optimistic state mutations — UI updates this tick.
+    setHiddenIds(prev => {
+      const next = new Set(prev);
+      for (const id of idsToDelete) next.add(id);
+      return next;
+    });
+    handleSelectChange([]);
+    if (favoriteIds.some(id => deletedSet.has(id))) {
+      const nextFavs = favoriteIds.filter(id => !deletedSet.has(id));
+      setFavoriteIds(nextFavs);
+      saveFavoriteImages(nextFavs);
     }
+    for (const id of idsToDelete) onImageDeleted?.(id);
+    setLightboxIndex(null);
+    setBulkDeleteOpen(false);
+
+    // Fire-and-rollback.
+    setBulkDeleting(true);
+    void (async () => {
+      try {
+        const res = await fetch('/api/admin/images/bulk-delete', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': csrfToken,
+          },
+          body: JSON.stringify({ ids: idsToDelete }),
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.error || 'bulk_delete_failed');
+        }
+        const data = await res.json();
+        toast({
+          description: `Obrisano ${data.deletedCount ?? idsToDelete.length} slika.`,
+        });
+      } catch (err) {
+        // Rollback: unhide images, restore favorites.
+        setHiddenIds(prev => {
+          const next = new Set(prev);
+          for (const id of idsToDelete) next.delete(id);
+          return next;
+        });
+        setFavoriteIds(previousFavorites);
+        saveFavoriteImages(previousFavorites);
+        console.error('[bulk-delete] failed', err);
+        toast({
+          variant: 'destructive',
+          description: (err instanceof Error && err.message) || 'Brisanje nije uspjelo.',
+        });
+      } finally {
+        setBulkDeleting(false);
+      }
+    })();
   };
 
   // Ako nema slika, prikaži poruku
