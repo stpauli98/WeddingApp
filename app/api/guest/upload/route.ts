@@ -8,6 +8,7 @@ import sharp from 'sharp';
 import cloudinary from '@/lib/cloudinary';
 import type { UploadApiResponse, UploadApiErrorResponse, UploadApiOptions } from "cloudinary";
 import type { PricingTier } from '@/lib/pricing-tiers';
+import { assertCloudinaryUrl } from './assertCloudinaryUrl';
 
 // Per-guest lifetime counter (Guest.lifetimeUploadCount) replaces the
 // former IP rate limit. Upload is an authenticated endpoint — throttling
@@ -93,6 +94,11 @@ async function uploadToCloudinary(
       uploadOptions,
       (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
         if (error || !result) return reject(error || new Error('Cloudinary upload failed'));
+        try {
+          assertCloudinaryUrl(result.secure_url);
+        } catch (e) {
+          return reject(e);
+        }
         resolve({ url: result.secure_url, publicId: result.public_id });
       }
     );

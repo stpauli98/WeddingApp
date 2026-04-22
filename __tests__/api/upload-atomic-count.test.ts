@@ -110,7 +110,7 @@ beforeEach(() => {
     end: () => {
       counter += 1;
       cb(undefined, {
-        secure_url: `https://cdn.example/img-${counter}.jpg`,
+        secure_url: `https://res.cloudinary.com/dd6zeo4s9/image/upload/img-${counter}.jpg`,
         public_id: `wedding-app/pub-${counter}`,
       });
     },

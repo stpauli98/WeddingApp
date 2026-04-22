@@ -122,6 +122,7 @@ export default function GuestDetailPage({ params }: { params: Promise<{ id: stri
               // Dodajemo malo kašnjenje da se stranica prvo učita
               setTimeout(() => restoreScrollPosition(), 100);
             }}
+            onImageDeleted={() => fetchGuest(true)}
           />
         ) : (
           <div className="italic text-[hsl(var(--lp-muted-foreground))] border border-[hsl(var(--lp-accent))]/20 rounded-lg p-4 bg-[hsl(var(--lp-muted))]/10">Gost nije uploadovao nijednu fotografiju.</div>

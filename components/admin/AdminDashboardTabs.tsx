@@ -27,6 +27,15 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
   const [copied, setCopied] = useState(false);
   const qrRef = useRef<HTMLDivElement>(null);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [hiddenGuestIds, setHiddenGuestIds] = useState<Set<string>>(new Set());
+  const handleGuestDeleted = (id: string) => {
+    setHiddenGuestIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  };
+  const visibleGuests = guests.filter((g) => !hiddenGuestIds.has(g.id));
 
   // QR COLOR STATE
   // QRCodeCanvas ne može koristiti CSS varijable, pa koristimo direktnu hex vrijednost
@@ -167,7 +176,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
         
         <TabsContent value="guests">
           <FadeInUp>
-          {guests.length === 0 ? (
+          {visibleGuests.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-[hsl(var(--lp-muted-foreground))]">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mb-4 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -179,7 +188,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
             <div className="space-y-8">
               {/* Gosti koji su uploadovali bar jednu sliku */}
               {(() => {
-                const guestsWithImages = guests.filter(guest => guest.images && guest.images.length > 0);
+                const guestsWithImages = visibleGuests.filter(guest => guest.images && guest.images.length > 0);
                 return guestsWithImages.length > 0 ? (
                   <div>
                     <h3 className="text-lg font-semibold text-[hsl(var(--lp-accent))] mb-4 flex items-center gap-2">
@@ -190,7 +199,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
                     </h3>
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                       {guestsWithImages.map((guest: any) => (
-                        <GuestCard key={guest.id} guest={guest} />
+                        <GuestCard key={guest.id} guest={guest} onGuestDeleted={handleGuestDeleted} />
                       ))}
                     </div>
                   </div>
@@ -199,7 +208,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
               
               {/* Gosti koji nisu uploadovali nijednu sliku */}
               {(() => {
-                const guestsWithoutImages = guests.filter(guest => !guest.images || guest.images.length === 0);
+                const guestsWithoutImages = visibleGuests.filter(guest => !guest.images || guest.images.length === 0);
                 return guestsWithoutImages.length > 0 ? (
                   <div>
                     <h3 className="text-lg font-semibold text-[hsl(var(--lp-muted-foreground))] mb-4 flex items-center gap-2">
@@ -210,7 +219,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
                     </h3>
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                       {guestsWithoutImages.map((guest: any) => (
-                        <GuestCard key={guest.id} guest={guest} />
+                        <GuestCard key={guest.id} guest={guest} onGuestDeleted={handleGuestDeleted} />
                       ))}
                     </div>
                   </div>

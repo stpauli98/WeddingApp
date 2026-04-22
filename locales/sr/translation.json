@@ -413,7 +413,10 @@
         "guestsWithoutPhotos": "Gosti bez slika",
         "viewAllPhotos": "Pregledaj sve slike",
         "registeredOn": "Prijavljeno",
-        "noMessageLeft": "Gost nije ostavio poruku"
+        "noMessageLeft": "Gost nije ostavio poruku",
+        "deleteGuest": "Obriši gosta",
+        "deleteGuestTitle": "Obrisati ovog gosta?",
+        "deleteGuestDescription": "Biće obrisane sve slike ({{count}}) i poruka ovog gosta. Ova akcija je nepovratna."
       },
       "noGuests": "Nema prijavljenih gostiju.",
       "noGuestsDescription": "Kada se gosti registruju za ovaj event, ovdje će se pojaviti njihovi profili i slike.",

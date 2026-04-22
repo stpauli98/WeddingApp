@@ -93,7 +93,7 @@ function setup(tier: PricingTier, imageLimit: number) {
     })
   );
   mocks.uploadStream.mockImplementation((_opts: any, cb: any) => ({
-    end: () => cb(undefined, { secure_url: 'https://cdn/x.jpg', public_id: 'wedding-app/x' }),
+    end: () => cb(undefined, { secure_url: 'https://res.cloudinary.com/dd6zeo4s9/image/upload/x.jpg', public_id: 'wedding-app/x' }),
   }));
 }
 
