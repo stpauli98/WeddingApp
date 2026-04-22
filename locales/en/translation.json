@@ -274,6 +274,7 @@
       }
     },
     "login": {
+      "eyebrow": "Admin",
       "title": "Admin Login",
       "subtitle": "Enter your credentials to access the admin panel",
       "email": "Email",
@@ -296,6 +297,7 @@
       }
     },
     "register": {
+      "eyebrow": "Admin",
       "title": "Registration",
       "firstName": "First Name",
       "lastName": "Last Name",

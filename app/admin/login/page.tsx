@@ -5,6 +5,7 @@ import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { FadeInUp } from "@/components/ui/fade-in-up";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
@@ -110,38 +111,44 @@ export default function AdminLoginPage() {
         {/* Container za banner i card */}
         <div className="w-full max-w-md space-y-4">
           {/* Prominentni Register Banner */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-lg border-2 border-[hsl(var(--lp-accent))] p-4 shadow-md">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[hsl(var(--lp-primary))] flex items-center justify-center flex-shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                  </svg>
+          <FadeInUp>
+            <div className="bg-[hsl(var(--lp-card))] backdrop-blur-sm rounded-lg border border-[hsl(var(--lp-accent))]/40 p-4 shadow-sm">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[hsl(var(--lp-primary))] flex items-center justify-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[hsl(var(--lp-primary-foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[hsl(var(--lp-text))]">
+                      {t('admin.login.needAccountPrompt')}
+                    </p>
+                    <p className="text-xs text-[hsl(var(--lp-muted-foreground))]">
+                      {t('admin.login.createAccount')}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-[hsl(var(--lp-text))]">
-                    {t('admin.login.needAccountPrompt')}
-                  </p>
-                  <p className="text-xs text-[hsl(var(--lp-muted-foreground))]">
-                    {t('admin.login.createAccount')}
-                  </p>
-                </div>
+                <Button
+                  asChild
+                  className="bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))] hover:bg-[hsl(var(--lp-primary))]/90 w-full sm:w-auto whitespace-nowrap"
+                >
+                  <Link href={mounted ? `/${getCurrentLanguageFromPath()}/admin/register` : "/admin/register"}>
+                    {t('admin.login.register')}
+                  </Link>
+                </Button>
               </div>
-              <Button
-                asChild
-                className="bg-[hsl(var(--lp-primary))] text-white hover:bg-[hsl(var(--lp-primary))/90] w-full sm:w-auto whitespace-nowrap"
-              >
-                <Link href={mounted ? `/${getCurrentLanguageFromPath()}/admin/register` : "/admin/register"}>
-                  {t('admin.login.register')}
-                </Link>
-              </Button>
             </div>
-          </div>
+          </FadeInUp>
 
           {/* Postojeća login Card */}
-          <Card className="bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-card-foreground))] shadow-lg border-[hsl(var(--lp-accent))]">
-          <CardHeader className="space-y-1 text-center relative pb-6">
-            <CardTitle className="text-2xl font-bold text-[hsl(var(--lp-text))]">
+          <FadeInUp delay={0.1}>
+          <Card className="bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-card-foreground))] shadow-lg border-[hsl(var(--lp-border))]">
+          <CardHeader className="space-y-2 text-center relative pb-6 pt-8">
+            <span className="inline-block text-xs font-medium uppercase tracking-[0.2em] text-[hsl(var(--lp-accent))]">
+              {t('admin.login.eyebrow', 'Admin')}
+            </span>
+            <CardTitle className="font-playfair text-3xl sm:text-4xl font-bold text-[hsl(var(--lp-text))]">
               {t('admin.login.title', 'Admin Login')}
             </CardTitle>
             <CardDescription className="text-[hsl(var(--lp-muted-foreground))]">
@@ -151,7 +158,7 @@ export default function AdminLoginPage() {
         <form onSubmit={handleSubmit} autoComplete="off">
           <CardContent className="space-y-4">
             {error && (
-              <div className="rounded bg-[hsl(var(--lp-destructive))/10] text-[hsl(var(--lp-destructive))] px-3 py-2 text-sm font-medium">{error}</div>
+              <div role="alert" className="rounded-md border border-[hsl(var(--lp-destructive))]/30 bg-[hsl(var(--lp-destructive))]/10 text-[hsl(var(--lp-destructive))] px-3 py-2 text-sm font-medium">{error}</div>
             )}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-[hsl(var(--lp-text))]">{t('admin.login.email')}</Label>
@@ -184,7 +191,7 @@ export default function AdminLoginPage() {
                 />
                 <button
                   type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[hsl(var(--lp-accent))] hover:text-[hsl(var(--lp-accent))/80]"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[hsl(var(--lp-accent))] hover:text-[hsl(var(--lp-accent))]/80"
                   tabIndex={-1}
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? t('admin.login.hidePassword') : t('admin.login.showPassword')}
@@ -202,7 +209,7 @@ export default function AdminLoginPage() {
           </CardContent>
           <CardFooter>
             <Button
-              className="w-full bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))] hover:bg-[hsl(var(--lp-primary))/90] border-none"
+              className="w-full bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))] shadow-sm transition-all hover:bg-[hsl(var(--lp-primary))]/90 hover:shadow-md disabled:bg-[hsl(var(--lp-muted))] disabled:text-[hsl(var(--lp-muted-foreground))] border-none"
               type="submit"
               disabled={loading || !csrfToken}
             >
@@ -212,7 +219,7 @@ export default function AdminLoginPage() {
         </form>
         <div className="p-6 pt-0">
           <Button
-            className="w-full bg-[hsl(var(--lp-muted))] text-[hsl(var(--lp-text))] hover:bg-[hsl(var(--lp-muted))/80] border-none"
+            className="w-full bg-[hsl(var(--lp-muted))] text-[hsl(var(--lp-text))] hover:bg-[hsl(var(--lp-muted))]/80 border-none"
             variant="outline"
             type="button"
             onClick={() => {
@@ -225,6 +232,7 @@ export default function AdminLoginPage() {
           </Button>
         </div>
       </Card>
+          </FadeInUp>
         </div>
       </div>
     </I18nProvider>
