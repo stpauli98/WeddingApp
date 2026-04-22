@@ -84,7 +84,7 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest, onViewPhotos }) => {
       </div>
 
       {/* Content */}
-      <div className="bg-white p-5 flex flex-col h-[220px]">
+      <div className="bg-[hsl(var(--lp-card))] p-5 flex flex-col h-[220px]">
         <div className="flex-grow">
           <h3 className="text-xl font-serif text-[hsl(var(--lp-text))]">{adaptedGuest.name}</h3>
 

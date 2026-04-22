@@ -4,6 +4,7 @@ import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
 import AdminDashboardTabs from "@/components/admin/AdminDashboardTabs";
 import AdminDashboardWelcome from "@/components/admin/AdminDashboardWelcome";
 import { EventTierBadge } from "@/components/admin/EventTierBadge";
+import { FadeInUp } from "@/components/ui/fade-in-up";
 import { PricingTier } from "@/lib/pricing-tiers";
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 
@@ -47,28 +48,32 @@ export default async function AdminDashboardEventPage({ params }: {
       <div className="sticky flex justify-end top-[46px] right-0 z-50 mb-4">
         <AdminLogoutButton language={event.language} />
       </div>
-      <div className="mb-8 text-center">
-        <div className="flex flex-col items-center gap-2">
-          <span className="inline-block text-3xl font-extrabold tracking-wide bg-gradient-to-r from-[hsl(var(--lp-primary))] via-[hsl(var(--lp-accent))] to-[hsl(var(--lp-primary))] bg-clip-text text-transparent underline underline-offset-8 decoration-[5px] decoration-[hsl(var(--lp-accent))] drop-shadow-md animate-pulse">
-            {event.coupleName}
-          </span>
-          <AdminDashboardWelcome eventLanguage={event.language} />
+      <FadeInUp>
+        <div className="mb-8 text-center">
+          <div className="flex flex-col items-center gap-2">
+            <h1 className="font-playfair inline-block text-3xl md:text-4xl lg:text-5xl font-bold tracking-wide bg-gradient-to-r from-[hsl(var(--lp-primary))] via-[hsl(var(--lp-accent))] to-[hsl(var(--lp-primary))] bg-clip-text text-transparent underline underline-offset-8 decoration-[5px] decoration-[hsl(var(--lp-accent))] drop-shadow-md">
+              {event.coupleName}
+            </h1>
+            <AdminDashboardWelcome eventLanguage={event.language} />
 
-          {/* Display current pricing tier */}
-          <div className="mt-4 mb-2">
-            <EventTierBadge
-              tier={event.pricingTier as PricingTier}
-              imageLimit={event.imageLimit || 10}
-              language={event.language as 'sr' | 'en'}
-              variant="badge"
-            />
+            {/* Display current pricing tier */}
+            <div className="mt-4 mb-2">
+              <EventTierBadge
+                tier={event.pricingTier as PricingTier}
+                imageLimit={event.imageLimit || 10}
+                language={event.language as 'sr' | 'en'}
+                variant="badge"
+              />
+            </div>
+
+            <span className="block w-24 h-1 rounded-full bg-gradient-to-r from-[hsl(var(--lp-primary))] via-[hsl(var(--lp-accent))] to-[hsl(var(--lp-primary))] opacity-70 mt-2 mb-2"></span>
+            <span className="block text-2xl">💍</span>
           </div>
-
-          <span className="block w-24 h-1 rounded-full bg-gradient-to-r from-[hsl(var(--lp-primary))] via-[hsl(var(--lp-accent))] to-[hsl(var(--lp-primary))] opacity-70 mt-2 mb-2"></span>
-          <span className="block text-2xl">💍</span>
         </div>
-      </div>
-      <AdminDashboardTabs guests={guests} event={event} />
+      </FadeInUp>
+      <FadeInUp delay={0.1}>
+        <AdminDashboardTabs guests={guests} event={event} />
+      </FadeInUp>
     </div>
   );
 }

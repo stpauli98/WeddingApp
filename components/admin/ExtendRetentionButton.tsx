@@ -59,32 +59,40 @@ export function ExtendRetentionButton({ currentOverrideDays = 0 }: Props) {
   return (
     <div className="space-y-3">
       <div>
-        <h3 className="font-semibold">Produži trajanje podataka</h3>
-        <p className="text-sm text-muted-foreground">
+        <h3 className="text-sm font-semibold text-[hsl(var(--lp-text))]">Produži trajanje podataka</h3>
+        <p className="text-sm text-[hsl(var(--lp-muted-foreground))]">
           Trenutno produženje:{" "}
-          <strong>
+          <strong className="text-[hsl(var(--lp-text))]">
             {overrideDays === 0 ? "nema dodatnih dana" : `+${overrideDays} dana`}
           </strong>
         </p>
       </div>
       <div className="flex flex-wrap gap-2">
-        {PRESET_DAYS.map((d) => (
-          <Button
-            key={d}
-            size="sm"
-            variant={overrideDays === d ? "default" : "outline"}
-            disabled={busy || !csrfToken}
-            onClick={() => extend(d)}
-          >
-            +{d} dana
-          </Button>
-        ))}
+        {PRESET_DAYS.map((d) => {
+          const active = overrideDays === d;
+          return (
+            <Button
+              key={d}
+              size="sm"
+              disabled={busy || !csrfToken}
+              onClick={() => extend(d)}
+              className={
+                active
+                  ? "bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))] hover:bg-[hsl(var(--lp-primary))]/90"
+                  : "border border-[hsl(var(--lp-border))] bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-text))] hover:bg-[hsl(var(--lp-muted))]/30"
+              }
+            >
+              +{d} dana
+            </Button>
+          );
+        })}
         {overrideDays > 0 && (
           <Button
             size="sm"
             variant="ghost"
             disabled={busy || !csrfToken}
             onClick={() => extend(0)}
+            className="text-[hsl(var(--lp-muted-foreground))] hover:text-[hsl(var(--lp-text))] hover:bg-[hsl(var(--lp-muted))]/30"
           >
             Ukloni produženje
           </Button>

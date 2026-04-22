@@ -10,6 +10,7 @@ import AdminAllMessages from "@/components/admin/AdminAllMessages";
 import AdminHelpContact from "@/components/admin/AdminHelpContact";
 import { ExtendRetentionButton } from "@/components/admin/ExtendRetentionButton";
 import QrTemplateSelector from "@/components/admin/qr-template/QrTemplateSelector";
+import { FadeInUp } from "@/components/ui/fade-in-up";
 import { useTranslation } from "react-i18next";
 import { getCurrentLanguageFromPath } from "@/lib/utils/language";
 
@@ -18,7 +19,7 @@ interface AdminDashboardTabsProps {
   event: { coupleName: string; slug?: string; language?: string; retentionOverrideDays?: number } | null;
 }
 
-const TAB_KEYS = ["guests", "analytics", "gallery", "messages", "download", "help"];
+const TAB_KEYS = ["guests", "gallery", "messages", "help"];
 const STORAGE_KEY = "adminDashboardActiveTab";
 
 const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }) => {
@@ -149,25 +150,23 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="overflow-x-auto pb-2 -mx-1 px-1">
           <TabsList className="flex w-max min-w-full mb-4 bg-[hsl(var(--lp-muted))] p-1.5 rounded-xl border border-[hsl(var(--lp-accent))]/20 shadow-sm">
-            <TabsTrigger value="guests" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
+            <TabsTrigger value="guests" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg text-[hsl(var(--lp-text))]/70 data-[state=active]:bg-[hsl(var(--lp-primary))] data-[state=active]:text-[hsl(var(--lp-primary-foreground))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
               {t('admin.dashboard.tabs.guests')}
             </TabsTrigger>
-            {/* <TabsTrigger value="analytics" className="data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm">
-              {t('admin.dashboard.tabs.analytics')}
-            </TabsTrigger> */}
-            <TabsTrigger value="gallery" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
+            <TabsTrigger value="gallery" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg text-[hsl(var(--lp-text))]/70 data-[state=active]:bg-[hsl(var(--lp-primary))] data-[state=active]:text-[hsl(var(--lp-primary-foreground))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
               {t('admin.dashboard.tabs.gallery')}
             </TabsTrigger>
-            <TabsTrigger value="messages" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
+            <TabsTrigger value="messages" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg text-[hsl(var(--lp-text))]/70 data-[state=active]:bg-[hsl(var(--lp-primary))] data-[state=active]:text-[hsl(var(--lp-primary-foreground))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
               {t('admin.dashboard.tabs.messages')}
             </TabsTrigger>
-            <TabsTrigger value="help" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg data-[state=active]:bg-white data-[state=active]:text-[hsl(var(--lp-text))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
+            <TabsTrigger value="help" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg text-[hsl(var(--lp-text))]/70 data-[state=active]:bg-[hsl(var(--lp-primary))] data-[state=active]:text-[hsl(var(--lp-primary-foreground))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
               {t('admin.dashboard.tabs.help')}
             </TabsTrigger>
           </TabsList>
         </div>
         
         <TabsContent value="guests">
+          <FadeInUp>
           {guests.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-[hsl(var(--lp-muted-foreground))]">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mb-4 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -219,33 +218,40 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
               })()}
             </div>
           )}
+          </FadeInUp>
         </TabsContent>
       <TabsContent value="gallery">
-        <div className="rounded-lg border border-[hsl(var(--lp-accent))]/20 p-6 bg-white/70">
-          <AdminGalleryAllImages images={guests.flatMap((g: any) => g.images.map((img: any) => ({
-            id: img.id,
-            imageUrl: img.imageUrl,
-            createdAt: img.createdAt,
-            guestName: `${g.firstName} ${g.lastName}`
-          })))} />
-        </div>
+        <FadeInUp>
+          <div className="rounded-lg border border-[hsl(var(--lp-accent))]/20 p-6 bg-[hsl(var(--lp-card))]">
+            <AdminGalleryAllImages images={guests.flatMap((g: any) => g.images.map((img: any) => ({
+              id: img.id,
+              imageUrl: img.imageUrl,
+              createdAt: img.createdAt,
+              guestName: `${g.firstName} ${g.lastName}`
+            })))} />
+          </div>
+        </FadeInUp>
       </TabsContent>
       <TabsContent value="messages">
-        <div className="rounded-lg border border-[hsl(var(--lp-accent))]/20 p-6 bg-white/70">
-          <AdminAllMessages messages={guests.filter((g: any) => g.message && g.message.text && g.message.text.trim() !== '').map((g: any) => ({
-            id: g.message!.id,
-            text: g.message!.text,
-            guestName: `${g.firstName} ${g.lastName}`,
-            createdAt: g.message!.createdAt
-          }))} />
-        </div>
+        <FadeInUp>
+          <div className="rounded-lg border border-[hsl(var(--lp-accent))]/20 p-6 bg-[hsl(var(--lp-card))]">
+            <AdminAllMessages messages={guests.filter((g: any) => g.message && g.message.text && g.message.text.trim() !== '').map((g: any) => ({
+              id: g.message!.id,
+              text: g.message!.text,
+              guestName: `${g.firstName} ${g.lastName}`,
+              createdAt: g.message!.createdAt
+            }))} />
+          </div>
+        </FadeInUp>
       </TabsContent>
       <TabsContent value="help">
-        <div className="rounded-lg border border-[hsl(var(--lp-accent))]/20 p-6 bg-white/70 space-y-6">
-          <ExtendRetentionButton currentOverrideDays={event?.retentionOverrideDays ?? 0} />
-          <hr className="border-[hsl(var(--lp-accent))]/20" />
-          <AdminHelpContact />
-        </div>
+        <FadeInUp>
+          <div className="rounded-lg border border-[hsl(var(--lp-accent))]/20 p-6 bg-[hsl(var(--lp-card))] space-y-6">
+            <ExtendRetentionButton currentOverrideDays={event?.retentionOverrideDays ?? 0} />
+            <hr className="border-[hsl(var(--lp-accent))]/20" />
+            <AdminHelpContact />
+          </div>
+        </FadeInUp>
       </TabsContent>
     </Tabs>
 
