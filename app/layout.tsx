@@ -65,7 +65,7 @@ export default function RootLayout({
   // Jezik će se postaviti na klijentskoj strani u I18nProvider komponenti
 
   return (
-    <html lang="sr" dir="ltr" className="light" style={{ colorScheme: "light" }}>
+    <html lang="sr" dir="ltr" className="light" style={{ colorScheme: "light" }} suppressHydrationWarning>
       <head>
         {/* Google Analytics with Consent Mode v2 (denied by default) */}
         <Script id="gtag-consent-default" strategy="beforeInteractive">
