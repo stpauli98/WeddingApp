@@ -1,11 +1,21 @@
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
-import { Download, CheckCircle, X } from "lucide-react";
+import { Download, CheckCircle, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { SwipeLightbox } from "@/components/shared/SwipeLightbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { GuestDetail } from "@/components/ui/types";
 import { useTranslation } from "react-i18next";
 import '@/lib/i18n/i18n'; // Osigurava da je i18n inicijaliziran
@@ -226,6 +236,8 @@ export function AdminImageGallery({
   // Optimistic hide of deleted images until parent refetches.
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   // Učitaj omiljene slike pri inicijalizaciji komponente
   useEffect(() => {
@@ -449,6 +461,64 @@ export function AdminImageGallery({
     onImageDeleted?.(imageId);
   };
 
+  // Bulk delete via POST /api/admin/images/bulk-delete — optimistic hide + parent notify.
+  const handleBulkDelete = async (): Promise<void> => {
+    if (!csrfToken) {
+      toast({ variant: 'destructive', description: 'CSRF token nije učitan. Osvježite stranicu.' });
+      return;
+    }
+    if (selectedPhotos.length === 0) return;
+
+    setBulkDeleting(true);
+    try {
+      const res = await fetch('/api/admin/images/bulk-delete', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken,
+        },
+        body: JSON.stringify({ ids: selectedPhotos }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        toast({ variant: 'destructive', description: body?.error || 'Brisanje nije uspjelo.' });
+        return;
+      }
+
+      const data = await res.json();
+      // Optimistic hide of every requested id (even if some didn't exist server-side).
+      setHiddenIds(prev => {
+        const next = new Set(prev);
+        for (const id of selectedPhotos) next.add(id);
+        return next;
+      });
+      // Clear selection + strip any favorites that were deleted.
+      const deletedSet = new Set(selectedPhotos);
+      handleSelectChange([]);
+      if (favoriteIds.some(id => deletedSet.has(id))) {
+        const nextFavs = favoriteIds.filter(id => !deletedSet.has(id));
+        setFavoriteIds(nextFavs);
+        saveFavoriteImages(nextFavs);
+      }
+      // Notify parent in case it wants to refetch.
+      for (const id of selectedPhotos) onImageDeleted?.(id);
+
+      toast({
+        description: `Obrisano ${data.deletedCount ?? selectedPhotos.length} ${(data.deletedCount ?? selectedPhotos.length) === 1 ? 'slika' : 'slika'}.`,
+      });
+      // Close lightbox if it was open (selection can happen from inside).
+      setLightboxIndex(null);
+      setBulkDeleteOpen(false);
+    } catch (err) {
+      console.error('[bulk-delete] network error', err);
+      toast({ variant: 'destructive', description: 'Greška u komunikaciji sa serverom.' });
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
   // Ako nema slika, prikaži poruku
   if (images.length === 0) {
     return (
@@ -518,22 +588,34 @@ export function AdminImageGallery({
                 {selectedPhotos.length} {t('admin.imageGallery.selected')} {t('admin.imageGallery.of')} {images.length}
               </span>
             </div>
-            <Button
-              size="sm"
-              className="bg-[hsl(var(--lp-primary))] hover:bg-[hsl(var(--lp-primary-hover))] text-[hsl(var(--lp-primary-foreground))] text-xs sm:text-sm w-full sm:w-auto"
-              disabled={selectedPhotos.length === 0 || !!downloadSelectedLoading}
-              onClick={onDownloadSelected || downloadSelected}
-            >
-              {downloadSelectedLoading ? (
-                <svg className="animate-spin w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                </svg>
-              ) : (
-                <Download className="mr-1 h-4 w-4" />
-              )}
-              {t('admin.imageGallery.downloadSelected')}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <Button
+                size="sm"
+                className="bg-[hsl(var(--lp-primary))] hover:bg-[hsl(var(--lp-primary-hover))] text-[hsl(var(--lp-primary-foreground))] text-xs sm:text-sm"
+                disabled={selectedPhotos.length === 0 || !!downloadSelectedLoading}
+                onClick={onDownloadSelected || downloadSelected}
+              >
+                {downloadSelectedLoading ? (
+                  <svg className="animate-spin w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                ) : (
+                  <Download className="mr-1 h-4 w-4" />
+                )}
+                {t('admin.imageGallery.downloadSelected')}
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                className="text-xs sm:text-sm"
+                disabled={selectedPhotos.length === 0 || bulkDeleting}
+                onClick={() => setBulkDeleteOpen(true)}
+              >
+                <Trash2 className="mr-1 h-4 w-4" />
+                {t('admin.imageGallery.deleteSelected', 'Obriši selektovane')}
+              </Button>
+            </div>
           </div>
         )}
 
@@ -612,6 +694,37 @@ export function AdminImageGallery({
           </TabsContent>
         </Tabs>
       </div>
+
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t('admin.imageGallery.bulkDeleteTitle', 'Obrisati selektovane slike?')}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('admin.imageGallery.bulkDeleteDescription', 'Ova akcija je nepovratna. Obrisaće se {{count}} {{word}}.', {
+                count: selectedPhotos.length,
+                word: selectedPhotos.length === 1 ? 'slika' : 'slika',
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={bulkDeleting}>
+              {t('common.cancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleBulkDelete();
+              }}
+              disabled={bulkDeleting}
+              className="bg-[hsl(var(--lp-destructive))] text-white hover:bg-[hsl(var(--lp-destructive))]/90"
+            >
+              {bulkDeleting ? 'Brisanje...' : t('admin.imageGallery.deleteSelected', 'Obriši selektovane')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {lightboxIndex !== null && visibleImages.length > 0 && (
         <SwipeLightbox
