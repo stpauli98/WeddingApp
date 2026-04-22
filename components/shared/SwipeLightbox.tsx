@@ -2,7 +2,17 @@
 
 import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { X, Trash, Loader2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Heart,
+  Loader2,
+  Square,
+  SquareCheck,
+  Trash,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 import { ModalPortal } from "@/components/shared/ModalPortal";
@@ -17,6 +27,16 @@ export type SwipeLightboxProps = {
   startIndex: number;
   onClose: () => void;
   onDelete?: (id: string) => Promise<void>;
+
+  // Optional action slots — omitted callbacks = button not rendered
+  onDownload?: (image: SwipeLightboxImage) => void | Promise<void>;
+  onToggleFavorite?: (id: string) => void;
+  favoriteIds?: ReadonlySet<string>;
+  onToggleSelect?: (id: string) => void;
+  selectedIds?: ReadonlySet<string>;
+
+  // On-screen prev/next chevrons. Default: true.
+  showArrows?: boolean;
 };
 
 /**
@@ -49,7 +69,18 @@ function LightboxImage({ src }: { src: string }) {
   );
 }
 
-export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLightboxProps) {
+export function SwipeLightbox({
+  images,
+  startIndex,
+  onClose,
+  onDelete,
+  onDownload,
+  onToggleFavorite,
+  favoriteIds,
+  onToggleSelect,
+  selectedIds,
+  showArrows = true,
+}: SwipeLightboxProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     startIndex,
     loop: false,
@@ -129,6 +160,11 @@ export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLi
 
   if (images.length === 0 || !current) return null;
 
+  const isFavorited = favoriteIds?.has(current.id) ?? false;
+  const isSelected = selectedIds?.has(current.id) ?? false;
+  const isFirst = index === 0;
+  const isLast = index === images.length - 1;
+
   return (
     <ModalPortal>
     <div
@@ -153,6 +189,48 @@ export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLi
         </div>
       </div>
 
+      {/* Top-left action toolbar: only renders buttons whose callbacks exist */}
+      {(onDownload || onToggleFavorite || onToggleSelect) && (
+        <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2">
+          {onDownload && (
+            <Button
+              size="icon"
+              className="bg-white/90 hover:bg-white text-black"
+              onClick={() => onDownload(current)}
+              aria-label="Download"
+            >
+              <Download className="h-5 w-5" />
+            </Button>
+          )}
+          {onToggleFavorite && (
+            <Button
+              size="icon"
+              className="bg-white/90 hover:bg-white text-black"
+              onClick={() => onToggleFavorite(current.id)}
+              aria-label={isFavorited ? "Unfavorite" : "Favorite"}
+            >
+              <Heart
+                className={`h-5 w-5 ${isFavorited ? "fill-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary))]" : ""}`}
+              />
+            </Button>
+          )}
+          {onToggleSelect && (
+            <Button
+              size="icon"
+              className={
+                isSelected
+                  ? "bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))] hover:bg-[hsl(var(--lp-primary))]/90"
+                  : "bg-white/90 hover:bg-white text-black"
+              }
+              onClick={() => onToggleSelect(current.id)}
+              aria-label={isSelected ? "Deselect" : "Select"}
+            >
+              {isSelected ? <SquareCheck className="h-5 w-5" /> : <Square className="h-5 w-5" />}
+            </Button>
+          )}
+        </div>
+      )}
+
       <Button
         variant="destructive"
         size="icon"
@@ -162,6 +240,35 @@ export function SwipeLightbox({ images, startIndex, onClose, onDelete }: SwipeLi
       >
         <X className="h-5 w-5" />
       </Button>
+
+      {showArrows && (
+        <>
+          <Button
+            size="icon"
+            disabled={isFirst}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white text-black disabled:opacity-0 disabled:pointer-events-none"
+            onClick={() => {
+              emblaApi?.scrollPrev();
+              setIndex((i) => Math.max(i - 1, 0));
+            }}
+            aria-label="Previous photo"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <Button
+            size="icon"
+            disabled={isLast}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white text-black disabled:opacity-0 disabled:pointer-events-none"
+            onClick={() => {
+              emblaApi?.scrollNext();
+              setIndex((i) => Math.min(i + 1, images.length - 1));
+            }}
+            aria-label="Next photo"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </Button>
+        </>
+      )}
 
       {onDelete && (
         <Button
