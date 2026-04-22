@@ -413,7 +413,10 @@
         "guestsWithoutPhotos": "Guests without photos",
         "viewAllPhotos": "View all photos",
         "registeredOn": "Registered on",
-        "noMessageLeft": "Guest didn't leave a message"
+        "noMessageLeft": "Guest didn't leave a message",
+        "deleteGuest": "Delete guest",
+        "deleteGuestTitle": "Delete this guest?",
+        "deleteGuestDescription": "All photos ({{count}}) and the message from this guest will be deleted. This action cannot be undone."
       },
       "noGuests": "No registered guests.",
       "noGuestsDescription": "When guests register for this event, their profiles and images will appear here.",
