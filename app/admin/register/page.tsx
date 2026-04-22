@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { FadeInUp } from "@/components/ui/fade-in-up"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState, useEffect, useCallback } from "react"
@@ -166,38 +167,44 @@ export default function AdminRegisterPage() {
         {/* Container za banner i card */}
         <div className="w-full max-w-md space-y-4">
           {/* Prominentni Login Banner */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-lg border-2 border-[hsl(var(--lp-accent))] p-4 shadow-md">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[hsl(var(--lp-primary))] flex items-center justify-center flex-shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
+          <FadeInUp>
+            <div className="bg-[hsl(var(--lp-card))] backdrop-blur-sm rounded-lg border border-[hsl(var(--lp-accent))]/40 p-4 shadow-sm">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[hsl(var(--lp-primary))] flex items-center justify-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[hsl(var(--lp-primary-foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[hsl(var(--lp-text))]">
+                      {t('admin.register.alreadyHaveAccountPrompt')}
+                    </p>
+                    <p className="text-xs text-[hsl(var(--lp-muted-foreground))]">
+                      {t('admin.register.loginPrompt')}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-[hsl(var(--lp-text))]">
-                    {t('admin.register.alreadyHaveAccountPrompt')}
-                  </p>
-                  <p className="text-xs text-[hsl(var(--lp-muted-foreground))]">
-                    {t('admin.register.loginPrompt')}
-                  </p>
-                </div>
+                <Button
+                  asChild
+                  className="bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))] hover:bg-[hsl(var(--lp-primary))]/90 w-full sm:w-auto whitespace-nowrap"
+                >
+                  <Link href="/admin/login">
+                    {t('admin.register.login')}
+                  </Link>
+                </Button>
               </div>
-              <Button
-                asChild
-                className="bg-[hsl(var(--lp-primary))] text-white hover:bg-[hsl(var(--lp-primary))/90] w-full sm:w-auto whitespace-nowrap"
-              >
-                <Link href="/admin/login">
-                  {t('admin.register.login')}
-                </Link>
-              </Button>
             </div>
-          </div>
+          </FadeInUp>
 
           {/* Postojeća registraciona Card */}
-          <Card className="bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-card-foreground))] shadow-lg border-[hsl(var(--lp-accent))]">
-          <CardHeader className="space-y-1 text-center relative pb-6">
-            <CardTitle className="text-2xl font-bold text-[hsl(var(--lp-text))]">{t('admin.register.title')}</CardTitle>
+          <FadeInUp delay={0.1}>
+          <Card className="bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-card-foreground))] shadow-lg border-[hsl(var(--lp-border))]">
+          <CardHeader className="space-y-2 text-center relative pb-6 pt-8">
+            <span className="inline-block text-xs font-medium uppercase tracking-[0.2em] text-[hsl(var(--lp-accent))]">
+              {t('admin.register.eyebrow', 'Admin')}
+            </span>
+            <CardTitle className="font-playfair text-3xl sm:text-4xl font-bold text-[hsl(var(--lp-text))]">{t('admin.register.title')}</CardTitle>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
@@ -235,7 +242,7 @@ export default function AdminRegisterPage() {
                   />
                   <button
                     type="button"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[hsl(var(--lp-accent))] hover:text-[hsl(var(--lp-accent))/80]"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[hsl(var(--lp-accent))] hover:text-[hsl(var(--lp-accent))]/80"
                     tabIndex={-1}
                     onClick={() => setShowPassword((v) => !v)}
                     aria-label={showPassword ? t('admin.register.hidePassword') : t('admin.register.showPassword')}
@@ -282,7 +289,7 @@ export default function AdminRegisterPage() {
                   />
                   <button
                     type="button"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[hsl(var(--lp-accent))] hover:text-[hsl(var(--lp-accent))/80]"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[hsl(var(--lp-accent))] hover:text-[hsl(var(--lp-accent))]/80"
                     tabIndex={-1}
                     onClick={() => setShowConfirmPassword((v) => !v)}
                     aria-label={showConfirmPassword ? t('admin.register.hidePassword') : t('admin.register.showPassword')}
@@ -305,15 +312,20 @@ export default function AdminRegisterPage() {
                   </div>
                 )}
               </div>
-              {error && <div className="text-red-500 text-sm pt-2 font-medium">{error}</div>}
+              {error && (
+                <div role="alert" className="rounded-md border border-[hsl(var(--lp-destructive))]/30 bg-[hsl(var(--lp-destructive))]/10 px-3 py-2 text-sm font-medium text-[hsl(var(--lp-destructive))]">
+                  {error}
+                </div>
+              )}
             </CardContent>
             <CardFooter>
-              <Button className="w-full bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))] hover:bg-[hsl(var(--lp-primary))/90] border-none" type="submit" disabled={loading || !csrfToken}>
+              <Button className="w-full bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))] shadow-sm transition-all hover:bg-[hsl(var(--lp-primary))]/90 hover:shadow-md disabled:bg-[hsl(var(--lp-muted))] disabled:text-[hsl(var(--lp-muted-foreground))] border-none" type="submit" disabled={loading || !csrfToken}>
                 {loading ? t('admin.register.loading') : t('admin.register.registerButton')}
               </Button>
             </CardFooter>
           </form>
         </Card>
+          </FadeInUp>
         </div>
       </div>
     </I18nProvider>
