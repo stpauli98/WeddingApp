@@ -99,14 +99,6 @@ export default async function RootLayout({
         {/* Inter font se učitava preko next/font/google, nije potreban preload */}
         {/* Favicon (dodaćeš public/favicon.ico po želji) */}
         <link rel="icon" href="/favicon.ico" />
-        {/* Preload poster JPG for hero video — serves as LCP candidate during
-            video fetch. Video itself uses preload="none" to stay off LCP path. */}
-        <link
-          rel="preload"
-          as="image"
-          href="/videos/hero-guest-flow-poster.jpg"
-          fetchPriority="high"
-        />
         {/* JSON-LD: WebSite schema */}
         <Script id="jsonld-website" type="application/ld+json">
           {JSON.stringify({
