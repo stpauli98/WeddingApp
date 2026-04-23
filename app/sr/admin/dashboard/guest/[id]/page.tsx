@@ -9,24 +9,14 @@ import type { GuestDetail } from "@/components/ui/types";
 
 import { restoreScrollPosition } from "@/lib/scrollPosition";
 import { useTranslation } from "react-i18next";
-import I18nProvider from "@/components/I18nProvider";
-import '@/lib/i18n/i18n'; // Osigurava da je i18n inicijaliziran
 
-// Omotač komponenta koja koristi I18nProvider i prikazuje sadržaj na srpskom
 function GuestDetailPageContent({ id }: { id: string }) {
   const router = useRouter();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [guest, setGuest] = useState<GuestDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedImageIds, setSelectedImageIds] = useState<string[]>([]);
-  
-  // Osiguravamo da je jezik postavljen na srpski
-  useEffect(() => {
-    if (i18n.language !== 'sr') {
-      i18n.changeLanguage('sr');
-    }
-  }, [i18n]);
 
   // Funkcija za fetch podataka (koristi se i za refresh)
   const fetchGuest = (force = false) => {
@@ -145,10 +135,6 @@ function GuestDetailPageContent({ id }: { id: string }) {
 // Glavna komponenta koja se renderira nakon što se parametri raspakiraju
 export default function GuestDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  
-  return (
-    <I18nProvider>
-      <GuestDetailPageContent id={id} />
-    </I18nProvider>
-  );
+
+  return <GuestDetailPageContent id={id} />;
 }
