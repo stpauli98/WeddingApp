@@ -26,32 +26,51 @@ const nextConfig = {
     // for Next.js runtime, GA, and Vercel live scripts. Nonce-based strict CSP
     // is a tracked followup. img-src uses broad `https:` because Cloudinary
     // may serve from multiple subdomains.
-    const csp = [
+    //
+    // HSTS and `upgrade-insecure-requests` are production-only. On an HTTP
+    // dev server they have no security value (there's no cert to pin) and
+    // they poison the browser's HSTS cache for `localhost`, which forces
+    // https://localhost on every subsequent dev session and breaks RSC
+    // streaming with ERR_SSL_PROTOCOL_ERROR. OWASP/MDN/Next.js security
+    // guides all recommend gating HSTS behind a production check.
+    const isProd = process.env.NODE_ENV === 'production';
+
+    const cspDirectives = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://vercel.live https://va.vercel-scripts.com",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: https: blob: https://res.cloudinary.com https://api.producthunt.com https://www.google-analytics.com",
+      "img-src 'self' data: https: blob: https://res.cloudinary.com https://api.producthunt.com https://*.google-analytics.com",
       "font-src 'self' data:",
-      "connect-src 'self' https://www.google-analytics.com https://*.vercel-insights.com https://vitals.vercel-insights.com https://api.producthunt.com",
+      "connect-src 'self' https://*.google-analytics.com https://*.vercel-insights.com https://vitals.vercel-insights.com https://api.producthunt.com",
       "frame-src 'self' https://www.producthunt.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
       "object-src 'none'",
-      "upgrade-insecure-requests",
-    ].join('; ');
+    ];
+    if (isProd) {
+      cspDirectives.push("upgrade-insecure-requests");
+    }
+    const csp = cspDirectives.join('; ');
+
+    const securityHeaders = [
+      { key: 'Content-Security-Policy', value: csp },
+      { key: 'X-Frame-Options', value: 'DENY' },
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
+    ];
+    if (isProd) {
+      securityHeaders.push({
+        key: 'Strict-Transport-Security',
+        value: 'max-age=63072000; includeSubDomains; preload',
+      });
+    }
 
     return [
       {
         source: '/:path*',
-        headers: [
-          { key: 'Content-Security-Policy', value: csp },
-          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
-          { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
-        ],
+        headers: securityHeaders,
       },
     ];
   },
