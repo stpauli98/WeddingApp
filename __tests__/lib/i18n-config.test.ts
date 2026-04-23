@@ -1,36 +1,33 @@
 /** @jest-environment jsdom */
 // Regression test pinning the client-side language-detector config.
 //
-// Background: `pathname.split('/')` of `/sr/guest/dashboard` yields
-// `['', 'sr', 'guest', 'dashboard']`. If `lookupFromPathIndex` is 0 the
-// detector reads the empty segment, silently falls through to the cookie,
-// and causes a hydration mismatch on every /sr/ or /en/ URL when the cookie
-// holds a different value. Correct value is 1.
+// Background: `i18next-browser-languagedetector`'s path lookup uses the
+// regex `window.location.pathname.match(/\/([a-zA-Z-]*)/g)`, which returns
+// WITH-LEADING-SLASH matches. For `/sr/admin/login` it returns
+// `['/sr', '/admin', '/login']` — NOT a bare split that includes an empty
+// first entry. So `lookupFromPathIndex: 0` correctly resolves to "sr".
 //
-// This test only checks the config — we don't assert `i18n.language` here
-// because the detector's language resolution is part of the module-level
-// singleton that leaks across Jest test files in the same worker. Config
-// validation is enough to prevent a silent revert of the one-line fix.
+// If someone changes this to 1 the detector picks up the second segment —
+// commonly "admin" or "guest" — as the language, which triggers a visible
+// `i18next: languageChanged admin` event in dev tools and a brief flash
+// of fallback rendering during navigation between /sr/admin/login and
+// /sr/admin/register.
 
-// jsdom default URL is `about:blank`; give the detector a realistic path
-// so any assertion that inspects the resolved state still has the right
-// input available if extended later.
 Object.defineProperty(window, 'location', {
-  value: new URL('http://localhost/sr/guest/dashboard'),
+  value: new URL('http://localhost/sr/admin/login'),
   writable: true,
 });
 
 import i18n from '@/lib/i18n/i18n';
 
 describe('i18n client detection config', () => {
-  it('lookupFromPathIndex must be 1 — index 0 is empty string for "/sr/..."', () => {
+  it('lookupFromPathIndex must be 0 — the library returns `/sr` at index 0 (with leading slash stripped)', () => {
     const detector = (i18n as unknown as {
       services: {
         languageDetector: { options: { lookupFromPathIndex: number; order: string[] } };
       };
     }).services.languageDetector;
-
-    expect(detector.options.lookupFromPathIndex).toBe(1);
+    expect(detector.options.lookupFromPathIndex).toBe(0);
   });
 
   it('path is the first detection source so URL locale beats cookie', () => {
@@ -39,7 +36,6 @@ describe('i18n client detection config', () => {
         languageDetector: { options: { lookupFromPathIndex: number; order: string[] } };
       };
     }).services.languageDetector;
-
     expect(detector.options.order[0]).toBe('path');
   });
 });

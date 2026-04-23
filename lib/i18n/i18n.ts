@@ -19,13 +19,16 @@ if (!i18n.isInitialized) {
       },
       detection: {
         order: ['path', 'cookie', 'localStorage', 'navigator'],
-        // Index 1 — NOT 0. `pathname.split('/')` yields ['', 'sr', ...]:
-        // segment 0 is the empty string, segment 1 is the locale. If you
-        // change this to 0, the path detector silently fails and falls
-        // through to the cookie, which causes a hydration mismatch on every
-        // /sr/ or /en/ URL when the cookie holds a different value.
-        // Regression-tested in __tests__/lib/i18n-config.test.ts.
-        lookupFromPathIndex: 1,
+        // Index 0 — NOT 1. The library's path detector uses
+        // `pathname.match(/\/([a-zA-Z-]*)/g)` which returns WITH-LEADING-
+        // SLASH matches, e.g. `/sr/admin/login` → ['/sr', '/admin', '/login'].
+        // There's no empty-string first entry like a bare `split('/')` would
+        // produce. Index 0 is therefore 'sr'. If you change this to 1 the
+        // detector returns 'admin' (segment 2 literal) as the language,
+        // which is NOT a supported locale and triggers an observable
+        // `i18next: languageChanged admin` event. See
+        // __tests__/lib/i18n-config.test.ts.
+        lookupFromPathIndex: 0,
         lookupCookie: 'i18nextLng',
         caches: ['cookie', 'localStorage'],
       },
