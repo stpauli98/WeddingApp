@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
 interface LanguageSelectorProps {
@@ -12,51 +12,32 @@ interface LanguageSelectorProps {
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({ className = '' }) => {
   const { i18n } = useTranslation();
   const router = useRouter();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [isChanging, setIsChanging] = useState(false);
-  
+
   // Koristimo useEffect kako bismo izbjegli probleme s hidracijom
   useEffect(() => {
     setMounted(true);
   }, []);
-  
-  const changeLanguage = async (lang: string) => {
+
+  const changeLanguage = (lang: string) => {
     // Sprečava multiple clicks
     if (isChanging) return;
-    
+
     setIsChanging(true);
-    
-    try {
-      await i18n.changeLanguage(lang);
-      
-      // Pohrani odabrani jezik u localStorage
-      try {
-        localStorage.setItem('i18nextLng', lang);
-      } catch (error) {
-        console.error('Greška pri pohrani jezika u localStorage:', error);
-      }
-      
-      // Promijeni URL da sadrži novi jezični prefiks
-      if (typeof window !== 'undefined') {
-        const currentPath = window.location.pathname;
-        const pathSegments = currentPath.split('/').filter(segment => segment);
-        
-        // Ako je prvi segment jezika, zamijeni ga s novim jezikom
-        if (pathSegments.length > 0 && ['sr', 'en'].includes(pathSegments[0])) {
-          pathSegments[0] = lang;
-        } else {
-          // Inače dodaj novi jezik na početak
-          pathSegments.unshift(lang);
-        }
-        
-        // Konstruiraj novi URL i preusmjeri
-        const newPath = `/${pathSegments.join('/')}`;
-        router.push(newPath);
-      }
-    } catch (error) {
-      console.error('Greška pri promjeni jezika:', error);
-      setIsChanging(false);
+
+    // Swap the leading locale segment on the current pathname and navigate.
+    // The server renders layout with the new locale, middleware sets the
+    // i18nextLng cookie, and I18nProvider seeds a fresh instance — no
+    // client-side `changeLanguage` call is needed.
+    const segments = (pathname ?? '/').split('/').filter(Boolean);
+    if (segments.length > 0 && ['sr', 'en'].includes(segments[0])) {
+      segments[0] = lang;
+    } else {
+      segments.unshift(lang);
     }
+    router.push(`/${segments.join('/')}`);
   };
 
   // Ako komponenta nije montirana, prikazujemo istu strukturu ali bez dinamičkih klasa

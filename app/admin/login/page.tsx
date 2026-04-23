@@ -9,7 +9,6 @@ import { FadeInUp } from "@/components/ui/fade-in-up";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
-import I18nProvider from "@/components/I18nProvider";
 import LanguageSelector from "@/components/LanguageSelector";
 import { getCurrentLanguageFromPath } from "@/lib/utils/language";
 
@@ -90,20 +89,17 @@ export default function AdminLoginPage() {
   // Ako komponenta nije montirana, prikazujemo skeleton
   if (!mounted) {
     return (
-      <I18nProvider>
-        <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--lp-bg))] px-4 py-12 sm:px-6 lg:px-8">
-          <Card className="w-full max-w-md mx-auto shadow-lg bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-card-foreground))]">
-            <div className="h-8 bg-[hsl(var(--lp-muted))] rounded mb-6"></div>
-            <div className="h-64 bg-[hsl(var(--lp-muted))] rounded"></div>
-          </Card>
-        </div>
-      </I18nProvider>
+      <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--lp-bg))] px-4 py-12 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-md mx-auto shadow-lg bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-card-foreground))]">
+          <div className="h-8 bg-[hsl(var(--lp-muted))] rounded mb-6"></div>
+          <div className="h-64 bg-[hsl(var(--lp-muted))] rounded"></div>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <I18nProvider>
-      <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--lp-bg))] px-4 py-12 sm:px-6 lg:px-8 relative">
+    <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--lp-bg))] px-4 py-12 sm:px-6 lg:px-8 relative">
         <div className="absolute top-4 right-4">
           <LanguageSelector className="backdrop-blur-sm bg-white/50" />
         </div>
@@ -234,7 +230,6 @@ export default function AdminLoginPage() {
       </Card>
           </FadeInUp>
         </div>
-      </div>
-    </I18nProvider>
+    </div>
   );
 }

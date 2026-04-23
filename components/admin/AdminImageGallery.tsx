@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { GuestDetail } from "@/components/ui/types";
 import { useTranslation } from "react-i18next";
-import '@/lib/i18n/i18n'; // Osigurava da je i18n inicijaliziran
 
 // Pomoćna funkcija za preuzimanje slika koja podržava različite formate
 async function downloadImageHelper(imgUrl: string, fileName = "fotografija") {

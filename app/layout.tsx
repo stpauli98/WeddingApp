@@ -1,5 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
+import { headers } from "next/headers"
 import { Inter, Playfair_Display } from "next/font/google"
 import "./globals.css"
 import Script from "next/script";
@@ -7,7 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import I18nProvider from "@/components/I18nProvider"
+import I18nProvider, { type SupportedLocale } from "@/components/I18nProvider"
 import { CookieConsent } from "@/components/CookieConsent"
 import { HtmlLangSync } from "@/components/HtmlLangSync"
 import { SkipLink } from "@/components/SkipLink"
@@ -55,17 +56,25 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+function resolveLocale(pathname: string): SupportedLocale {
+  return pathname.startsWith('/en') ? 'en' : 'sr';
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  // U Next.js App Routeru, jezik se automatski postavlja na osnovu strukture direktorija
-  // Ovdje ne možemo direktno pristupiti URL-u jer je ovo server komponenta
-  // Jezik će se postaviti na klijentskoj strani u I18nProvider komponenti
+  // Middleware forwards the pre-rewrite pathname via `x-pathname`. We derive
+  // the locale once per request and pass it to I18nProvider as an explicit
+  // prop so server and client render from the same seed, avoiding the
+  // hydration mismatch that the client path-detector singleton produced.
+  const hdrs = await headers();
+  const pathname = hdrs.get('x-pathname') ?? '/';
+  const locale = resolveLocale(pathname);
 
   return (
-    <html lang="sr" dir="ltr" className="light" style={{ colorScheme: "light" }} suppressHydrationWarning>
+    <html lang={locale} dir="ltr" className="light" style={{ colorScheme: "light" }} suppressHydrationWarning>
       <head>
         {/* Google Analytics with Consent Mode v2 (denied by default) */}
         <Script id="gtag-consent-default" strategy="beforeInteractive">
@@ -178,7 +187,7 @@ export default function RootLayout({
         </Script>
       </head>
       <body className={`${inter.className} ${playfair.variable}`}>
-        <I18nProvider>
+        <I18nProvider locale={locale} key={locale}>
           <HtmlLangSync />
           <SkipLink />
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>

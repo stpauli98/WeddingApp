@@ -47,10 +47,18 @@ const getLanguageFromPath = (path: string): string | null => {
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
+  // Forward the original (pre-rewrite) pathname as a request header so
+  // server components can resolve the URL locale via `headers()` without
+  // relying on a cross-request-polluted i18n singleton. See
+  // `components/I18nProvider.tsx` + `app/layout.tsx`.
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-pathname', path);
+  const forwardOpts = { request: { headers: requestHeaders } };
+
   // Preskoči putanje koje ne zahtijevaju jezični prefiks
   for (const exemptPath of exemptPaths) {
     if (path === exemptPath || path.startsWith(`${exemptPath}/`)) {
-      return NextResponse.next();
+      return NextResponse.next(forwardOpts);
     }
   }
   
@@ -82,41 +90,38 @@ export async function middleware(request: NextRequest) {
     // Ako je guest ruta s jezičnim prefiksom, rewrite na odgovarajuću rutu bez prefiksa
     if (isGuestRoute(path)) {
       const newPath = path.replace(`/${language}/guest`, '/guest');
-      
+
       // Rewrite rute, ali zadrži jezični prefiks u URL-u
       const url = request.nextUrl.clone();
       url.pathname = newPath;
-      
+
       // Postavi kolačić s jezikom da bi i18n mogao detektirati jezik
-      const response = NextResponse.rewrite(url);
-      response.cookies.set('i18nextLng', language as string, { 
+      const response = NextResponse.rewrite(url, forwardOpts);
+      response.cookies.set('i18nextLng', language as string, {
         maxAge: 60 * 60 * 24 * 365, // 1 godina
-        path: '/' 
+        path: '/'
       });
       return response;
     }
-    
+
     // Ako je admin ruta s jezičnim prefiksom, rewrite na odgovarajuću rutu bez prefiksa
     if (isAdminRoute(path)) {
       const newPath = path.replace(`/${language}/admin`, '/admin');
-      
+
       // Rewrite rute, ali zadrži jezični prefiks u URL-u
       const url = request.nextUrl.clone();
       url.pathname = newPath;
-      
-      // Dodajemo originalnu putanju kao header da bismo je mogli koristiti za preusmjeravanje nakon prijave
-      const originalUrl = request.url;
-      
+
       // Postavi kolačić s jezikom da bi i18n mogao detektirati jezik
-      const response = NextResponse.rewrite(url);
-      response.cookies.set('i18nextLng', language as string, { 
+      const response = NextResponse.rewrite(url, forwardOpts);
+      response.cookies.set('i18nextLng', language as string, {
         maxAge: 60 * 60 * 24 * 365, // 1 godina
-        path: '/' 
+        path: '/'
       });
-      
+
       // Postavljamo originalnu putanju kao header za kasnije korištenje
       response.headers.set('x-language-prefix', language as string);
-      
+
       return response;
     }
     
@@ -132,10 +137,10 @@ export async function middleware(request: NextRequest) {
     }
 
     // Za ostale rute s jezičnim prefiksom, samo postavi kolačić i nastavi
-    const nextResponse = NextResponse.next();
-    nextResponse.cookies.set('i18nextLng', language as string, { 
+    const nextResponse = NextResponse.next(forwardOpts);
+    nextResponse.cookies.set('i18nextLng', language as string, {
       maxAge: 60 * 60 * 24 * 365, // 1 godina
-      path: '/' 
+      path: '/'
     });
     return nextResponse;
   }
@@ -171,7 +176,7 @@ export async function middleware(request: NextRequest) {
   // Ovo sprječava dvostruke jezične prefikse poput /sr/sr
   if (path === `/${lang}`) {
     // Ako je putanja već samo jezični prefiks, ne radimo ništa
-    return NextResponse.next();
+    return NextResponse.next(forwardOpts);
   }
   
   // Kloniraj URL i postavi novu putanju s jezičnim prefiksom
