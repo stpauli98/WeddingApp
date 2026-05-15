@@ -48,7 +48,14 @@ describe('resolveVariantId', () => {
   });
 
   it('rejects free as initial_purchase target (free has no payment)', () => {
+    // `as any` is needed because TS forbids free at the type level —
+    // this test verifies the runtime guard defends against JS callers.
     expect(() => resolveVariantId({ purpose: 'initial_purchase', tier: 'free' as any }))
       .toThrow(/free tier has no LS variant/i);
+  });
+
+  it('throws on unsupported upgrade path (premium→basic downgrade)', () => {
+    expect(() => resolveVariantId({ purpose: 'upgrade', fromTier: 'premium', toTier: 'basic' as any }))
+      .toThrow(/unsupported upgrade path/i);
   });
 });
