@@ -95,14 +95,15 @@ model Event {
   /// Used by retention cron when computing expiry.
   retentionOverrideDays   Int         @default(0)
   legacyGrandfathered     Boolean     @default(false)
-  /// Null until payment confirmed via webhook (paid tiers only).
-  /// Free tier events have this set to createdAt on creation.
+  /// Null while a paid event is awaiting LemonSqueezy webhook confirmation.
+  /// Set to `now()` on creation for free-tier events, and on webhook for paid events.
+  /// Backfilled to `createdAt` for pre-paywall events during migration.
   activatedAt             DateTime?
   /// 24h after createdAt for paid tiers; cleanup cron deletes pending events past this time.
   pendingPaymentExpiresAt DateTime?
   admin                   Admin?      @relation("AdminEvent", fields: [adminId], references: [id])
   guests                  Guest[]
-  Payment                 Payment[]
+  payments                Payment[]
 
   @@index([deletedAt])
 }
@@ -201,7 +202,7 @@ model Payment {
   customerEmail        String
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
-  Event                Event          @relation(fields: [eventId], references: [id])
+  event                Event          @relation(fields: [eventId], references: [id])
 
   @@index([createdAt])
   @@index([eventId, status])
