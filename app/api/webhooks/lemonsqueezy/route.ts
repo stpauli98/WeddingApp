@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyLemonSqueezySignature } from '@/lib/lemonsqueezy/signature';
 import { getRequestIp } from '@/lib/security/request-ip';
+import { normalizeWebhook, handleInitialPurchase, handleUpgrade, handleRetentionExtension, handleRefund } from '@/lib/lemonsqueezy/handlers';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
   const sourceIp = getRequestIp(req);
 
   // Always log every webhook attempt for audit, even when signature fails.
-  await prisma.webhookLog.create({
+  const logRow = await prisma.webhookLog.create({
     data: {
       lsEventId,
       eventName,
@@ -59,6 +60,41 @@ export async function POST(req: Request) {
     }
   }
 
-  // Dispatch logic added in subsequent tasks (3.3+).
+  const normalized = normalizeWebhook(payload);
+  if (!normalized) {
+    // Unknown / unrelated event type — log + ack so LS stops retrying.
+    await prisma.webhookLog.update({
+      where: { id: logRow.id },
+      data: { processedAt: new Date(), error: 'unhandled event type' },
+    });
+    return NextResponse.json({ ok: true, ignored: true });
+  }
+
+  try {
+    if (normalized.eventName === 'order_created') {
+      if (normalized.custom.purpose === 'initial_purchase') {
+        await handleInitialPurchase(normalized);
+      } else if (normalized.custom.purpose === 'upgrade') {
+        await handleUpgrade(normalized, payload);
+      } else if (normalized.custom.purpose === 'retention_extension') {
+        await handleRetentionExtension(normalized);
+      }
+    } else if (normalized.eventName === 'order_refunded') {
+      await handleRefund(normalized);
+    }
+  } catch (err) {
+    console.error('LS webhook handler error:', err);
+    await prisma.webhookLog.update({
+      where: { id: logRow.id },
+      data: { error: err instanceof Error ? err.message : String(err) },
+    });
+    return NextResponse.json({ error: 'handler failed' }, { status: 500 });
+  }
+
+  await prisma.webhookLog.update({
+    where: { id: logRow.id },
+    data: { processedAt: new Date() },
+  });
+
   return NextResponse.json({ ok: true });
 }
