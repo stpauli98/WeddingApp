@@ -27,8 +27,11 @@ export async function POST(req: Request) {
   }
 
   const eventId = admin.event.id;
+  // Delete ALL payments for this event (not just pending) to avoid FK violation
+  // on event.delete. The activatedAt guard above ensures the event is unactivated,
+  // so any payment that exists is either pending or failed — never paid.
   await prisma.$transaction([
-    prisma.payment.deleteMany({ where: { eventId, status: 'pending' } }),
+    prisma.payment.deleteMany({ where: { eventId } }),
     prisma.event.delete({ where: { id: eventId } }),
   ]);
 

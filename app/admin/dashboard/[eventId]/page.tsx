@@ -17,12 +17,7 @@ export default async function AdminDashboardEventPage({ params }: {
   const admin = await getAuthenticatedAdmin();
   if (!admin) return notFound();
 
-  // 2. Redirect pending-payment events before loading the full dashboard
-  if (!admin.event?.activatedAt) {
-    redirect('/admin/event/pending');
-  }
-
-  // 3. Dohvati event i proveri vlasništvo
+  // 2. Dohvati event i proveri vlasništvo
   const event = await prisma.event.findUnique({
     where: { id: eventId },
     select: {
@@ -34,9 +29,15 @@ export default async function AdminDashboardEventPage({ params }: {
       pricingTier: true,
       imageLimit: true,
       retentionOverrideDays: true,
+      activatedAt: true,
     }
   });
   if (!event || event.adminId !== admin.id) return notFound();
+
+  // 3. Redirect pending-payment events AFTER ownership check
+  if (!event.activatedAt) {
+    redirect('/admin/event/pending');
+  }
 
   // 4. Dohvati goste SAMO za ovaj event
   const guests = await prisma.guest.findMany({
