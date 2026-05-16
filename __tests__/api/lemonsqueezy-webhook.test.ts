@@ -20,6 +20,14 @@ jest.mock('@/lib/prisma', () => ({
     pricingPlan: {
       findUnique: jest.fn(),
     },
+    // Execute each prisma promise in the array sequentially.
+    $transaction: jest.fn(async (ops: Promise<any>[]) => {
+      const results = [];
+      for (const op of ops) {
+        results.push(await op);
+      }
+      return results;
+    }),
   },
 }));
 
@@ -194,7 +202,8 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
       meta: { event_name: 'order_created', event_id: 'evt_ret_1', custom_data: customData },
       data: { id: 'order_900', attributes: { user_email: 'a@b.c', total: 1500, currency: 'EUR', status: 'paid' } },
     });
-    (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null); // route idempotency check
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null); // handler race guard
     (prisma.event.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'e3', pricingTier: 'basic', retentionOverrideDays: 60 });
     (prisma.payment.upsert as jest.Mock).mockResolvedValueOnce({ id: 'p3' });
     (prisma.event.update as jest.Mock).mockResolvedValueOnce({ id: 'e3' });
@@ -216,7 +225,8 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
       meta: { event_name: 'order_created', event_id: 'evt_ret_2', custom_data: customData },
       data: { id: 'order_901', attributes: { user_email: 'a@b.c', total: 1500, currency: 'EUR', status: 'paid' } },
     });
-    (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null); // route idempotency check
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null); // handler race guard
     (prisma.event.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'e4', pricingTier: 'premium', retentionOverrideDays: 360 });
     (prisma.payment.upsert as jest.Mock).mockResolvedValueOnce({ id: 'p4' });
     (prisma.event.update as jest.Mock).mockResolvedValueOnce({ id: 'e4' });

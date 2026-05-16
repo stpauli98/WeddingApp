@@ -75,7 +75,7 @@ export async function POST(req: Request) {
       if (normalized.custom.purpose === 'initial_purchase') {
         await handleInitialPurchase(normalized);
       } else if (normalized.custom.purpose === 'upgrade') {
-        await handleUpgrade(normalized, payload);
+        await handleUpgrade(normalized);
       } else if (normalized.custom.purpose === 'retention_extension') {
         await handleRetentionExtension(normalized);
       }

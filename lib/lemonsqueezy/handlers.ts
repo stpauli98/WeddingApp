@@ -9,7 +9,7 @@ export interface NormalizedWebhook {
   customerEmail: string;
   amountCents: number;
   currency: string;
-  custom: { eventId: string; adminId: string; purpose: PaymentPurpose };
+  custom: { eventId: string; adminId: string; purpose: PaymentPurpose; toTier?: PricingTier };
 }
 
 const RETENTION_DAYS_PER_PURCHASE = 30;
@@ -25,6 +25,15 @@ export function normalizeWebhook(payload: any): NormalizedWebhook | null {
   if (!lsEventId || !lsOrderId || !custom?.eventId || !custom?.adminId || !custom?.purpose || !attrs) {
     return null;
   }
+  const purpose = custom.purpose as PaymentPurpose;
+  // For upgrade order_created, toTier must be present and a valid paid tier.
+  // For order_refunded, toTier is not required (refund handler reads it from the stored payment record).
+  let toTier: PricingTier | undefined;
+  if (purpose === 'upgrade' && eventName === 'order_created') {
+    const raw = custom.toTier;
+    if (raw !== 'basic' && raw !== 'premium') return null;
+    toTier = raw;
+  }
   return {
     lsEventId: String(lsEventId),
     lsOrderId: String(lsOrderId),
@@ -35,7 +44,8 @@ export function normalizeWebhook(payload: any): NormalizedWebhook | null {
     custom: {
       eventId: String(custom.eventId),
       adminId: String(custom.adminId),
-      purpose: custom.purpose as PaymentPurpose,
+      purpose,
+      toTier,
     },
   };
 }
@@ -48,7 +58,7 @@ export async function handleInitialPurchase(w: NormalizedWebhook): Promise<void>
   if (!event) throw new Error(`Event ${w.custom.eventId} not found`);
   if (event.pricingTier === 'free') throw new Error('free tier should never reach this handler');
 
-  await prisma.payment.upsert({
+  const upsertOp = prisma.payment.upsert({
     where: { lsEventId: w.lsEventId },
     create: {
       eventId: w.custom.eventId,
@@ -70,18 +80,20 @@ export async function handleInitialPurchase(w: NormalizedWebhook): Promise<void>
     },
   });
 
-  await prisma.event.update({
+  const eventOp = prisma.event.update({
     where: { id: w.custom.eventId },
     data: {
       activatedAt: new Date(),
       pendingPaymentExpiresAt: null,
     },
   });
+
+  await prisma.$transaction([upsertOp, eventOp]);
 }
 
-export async function handleUpgrade(w: NormalizedWebhook, payload: any): Promise<void> {
-  const toTier = payload?.meta?.custom_data?.toTier as PricingTier | undefined;
-  if (!toTier || toTier === 'free') throw new Error('upgrade webhook missing toTier or is free');
+export async function handleUpgrade(w: NormalizedWebhook): Promise<void> {
+  const toTier = w.custom.toTier;
+  if (!toTier) throw new Error('upgrade webhook missing toTier');
 
   const event = await prisma.event.findUnique({
     where: { id: w.custom.eventId },
@@ -95,7 +107,7 @@ export async function handleUpgrade(w: NormalizedWebhook, payload: any): Promise
   });
   const newImageLimit = plan?.imageLimit ?? PRICING_TIERS[toTier].imageLimit;
 
-  await prisma.payment.upsert({
+  const upsertOp = prisma.payment.upsert({
     where: { lsEventId: w.lsEventId },
     create: {
       eventId: w.custom.eventId,
@@ -118,13 +130,26 @@ export async function handleUpgrade(w: NormalizedWebhook, payload: any): Promise
     update: { status: 'paid', updatedAt: new Date() },
   });
 
-  await prisma.event.update({
+  const eventOp = prisma.event.update({
     where: { id: w.custom.eventId },
     data: { pricingTier: toTier, imageLimit: newImageLimit },
   });
+
+  await prisma.$transaction([upsertOp, eventOp]);
 }
 
 export async function handleRetentionExtension(w: NormalizedWebhook): Promise<void> {
+  // Race-safe: bail early if a concurrent invocation already processed this lsEventId.
+  const existing = await prisma.payment.findUnique({
+    where: { lsEventId: w.lsEventId },
+    select: { status: true },
+  });
+  if (existing && existing.status === 'paid') {
+    // Already processed by a parallel webhook delivery; the upsert below would be
+    // idempotent but the event.update would double-apply +30 days. Skip entirely.
+    return;
+  }
+
   const event = await prisma.event.findUnique({
     where: { id: w.custom.eventId },
     select: { id: true, pricingTier: true, retentionOverrideDays: true },
@@ -137,7 +162,7 @@ export async function handleRetentionExtension(w: NormalizedWebhook): Promise<vo
     RETENTION_MAX_OVERRIDE_DAYS
   );
 
-  await prisma.payment.upsert({
+  const upsertOp = prisma.payment.upsert({
     where: { lsEventId: w.lsEventId },
     create: {
       eventId: w.custom.eventId,
@@ -156,26 +181,34 @@ export async function handleRetentionExtension(w: NormalizedWebhook): Promise<vo
     update: { status: 'paid', updatedAt: new Date() },
   });
 
-  await prisma.event.update({
+  const eventOp = prisma.event.update({
     where: { id: w.custom.eventId },
     data: {
       retentionOverrideDays: newOverride,
       deletionWarningSentAt: null,
     },
   });
+
+  await prisma.$transaction([upsertOp, eventOp]);
 }
 
 export async function handleRefund(w: NormalizedWebhook): Promise<void> {
+  // lsOrderId is not @unique in schema. Scope query by eventId + status to disambiguate.
   const payment = await prisma.payment.findFirst({
-    where: { lsOrderId: w.lsOrderId },
+    where: {
+      lsOrderId: w.lsOrderId,
+      eventId: w.custom.eventId,
+      status: 'paid',
+    },
+    orderBy: { createdAt: 'desc' },
     select: { id: true, purpose: true, eventId: true, retentionDaysGranted: true, metadata: true },
   });
   if (!payment) {
-    console.warn(`Refund webhook for unknown order ${w.lsOrderId}`);
+    console.warn(`Refund webhook for unknown/already-refunded order ${w.lsOrderId} on event ${w.custom.eventId}`);
     return;
   }
 
-  await prisma.payment.update({
+  const paymentUpdateOp = prisma.payment.update({
     where: { id: payment.id },
     data: {
       status: 'refunded',
@@ -186,20 +219,30 @@ export async function handleRefund(w: NormalizedWebhook): Promise<void> {
   });
 
   if (payment.purpose === 'initial_purchase') {
-    await prisma.event.update({
+    const eventUpdateOp = prisma.event.update({
       where: { id: payment.eventId },
       data: { activatedAt: null },
     });
+    await prisma.$transaction([paymentUpdateOp, eventUpdateOp]);
   } else if (payment.purpose === 'upgrade') {
     const meta = (payment.metadata as any) || {};
-    if (meta.previousTier && meta.previousImageLimit != null) {
-      await prisma.event.update({
+    const validTiers: PricingTier[] = ['free', 'basic', 'premium', 'unlimited'];
+    if (
+      validTiers.includes(meta.previousTier) &&
+      typeof meta.previousImageLimit === 'number' &&
+      meta.previousImageLimit >= 0
+    ) {
+      const eventUpdateOp = prisma.event.update({
         where: { id: payment.eventId },
         data: {
           pricingTier: meta.previousTier,
           imageLimit: meta.previousImageLimit,
         },
       });
+      await prisma.$transaction([paymentUpdateOp, eventUpdateOp]);
+    } else {
+      console.error(`Refund cannot revert upgrade for payment ${payment.id}: invalid metadata`, meta);
+      await paymentUpdateOp;
     }
   } else if (payment.purpose === 'retention_extension') {
     const days = payment.retentionDaysGranted ?? 0;
@@ -208,10 +251,15 @@ export async function handleRefund(w: NormalizedWebhook): Promise<void> {
       select: { retentionOverrideDays: true },
     });
     if (event) {
-      await prisma.event.update({
+      const eventUpdateOp = prisma.event.update({
         where: { id: payment.eventId },
         data: { retentionOverrideDays: Math.max(0, event.retentionOverrideDays - days) },
       });
+      await prisma.$transaction([paymentUpdateOp, eventUpdateOp]);
+    } else {
+      await paymentUpdateOp;
     }
+  } else {
+    await paymentUpdateOp;
   }
 }
