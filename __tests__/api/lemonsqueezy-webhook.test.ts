@@ -102,4 +102,25 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
     const json = await res.json();
     expect(json).toEqual({ ok: true });
   });
+
+  it('returns 413 for body larger than 64 KB', async () => {
+    const huge = 'x'.repeat(65537);
+    const res = await POST(makeRequest(huge, validSig(huge)));
+    expect(res.status).toBe(413);
+    // Should not have written to WebhookLog since we reject before that step
+    expect(prisma.webhookLog.create).not.toHaveBeenCalled();
+  });
+
+  it('truncates oversized lsEventId and eventName before logging', async () => {
+    const longId = 'a'.repeat(500);
+    const longName = 'b'.repeat(500);
+    const body = JSON.stringify({
+      meta: { event_id: longId, event_name: longName },
+      data: {},
+    });
+    await POST(makeRequest(body, 'badsig'));
+    const arg = (prisma.webhookLog.create as jest.Mock).mock.calls[0][0];
+    expect(arg.data.lsEventId).toHaveLength(255);
+    expect(arg.data.eventName).toHaveLength(255);
+  });
 });

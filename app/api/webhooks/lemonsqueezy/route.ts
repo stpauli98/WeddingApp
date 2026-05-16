@@ -14,6 +14,11 @@ export async function POST(req: Request) {
   }
 
   const rawBody = await req.text();
+  // Reject implausibly large bodies before any further processing.
+  // LemonSqueezy webhook payloads are < 10 KB in practice; 64 KB is a generous cap.
+  if (rawBody.length > 65536) {
+    return NextResponse.json({ error: 'payload too large' }, { status: 413 });
+  }
   const signature = req.headers.get('x-signature') || '';
   const signatureValid = verifyLemonSqueezySignature(rawBody, signature, secret);
 
@@ -24,8 +29,10 @@ export async function POST(req: Request) {
     // Non-JSON body is logged below but we don't crash.
   }
 
-  const lsEventId = payload?.meta?.event_id ? String(payload.meta.event_id) : null;
-  const eventName = payload?.meta?.event_name ? String(payload.meta.event_name) : null;
+  // Cap extracted strings before DB write to prevent oversized log rows
+  // (payload values come from untrusted body before signature verification).
+  const lsEventId = payload?.meta?.event_id ? String(payload.meta.event_id).slice(0, 255) : null;
+  const eventName = payload?.meta?.event_name ? String(payload.meta.event_name).slice(0, 255) : null;
   const sourceIp = getRequestIp(req);
 
   // Always log every webhook attempt for audit, even when signature fails.
