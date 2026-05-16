@@ -92,6 +92,10 @@ export async function POST(request: Request) {
       select: { language: true }
     });
 
+    const PENDING_TTL_MS = 1000 * 60 * 60 * 24; // 24h
+    const isFree = selectedTier === 'free';
+    const now = new Date();
+
     const event = await prisma.event.create({
       data: {
         coupleName,
@@ -102,11 +106,51 @@ export async function POST(request: Request) {
         language: admin?.language || "sr",
         pricingTier: selectedTier,
         imageLimit: resolvedImageLimit,
+        activatedAt: isFree ? now : null,
+        pendingPaymentExpiresAt: isFree ? null : new Date(now.getTime() + PENDING_TTL_MS),
         admin: { connect: { id: adminId } },
       },
     });
 
-    return NextResponse.json({ success: true, event });
+    if (isFree) {
+      return NextResponse.json({ success: true, event });
+    }
+
+    // Paid: generate LS checkout URL and persist a pending Payment.
+    const { resolveVariantId } = await import('@/lib/lemonsqueezy/variants');
+    const { createCheckoutUrl } = await import('@/lib/lemonsqueezy/client');
+
+    const variantId = resolveVariantId({ purpose: 'initial_purchase', tier: selectedTier as 'basic' | 'premium' });
+    const checkoutUrl = await createCheckoutUrl({
+      variantId,
+      customerEmail: session.admin.email,
+      customData: {
+        eventId: event.id,
+        adminId,
+        purpose: 'initial_purchase',
+      },
+      successRedirectUrl: `${process.env.NEXTAUTH_URL || 'https://www.dodajuspomenu.com/'}admin/dashboard/${event.id}?paid=1`,
+    });
+
+    await prisma.payment.create({
+      data: {
+        eventId: event.id,
+        tier: selectedTier,
+        amountCents: 0, // real amount comes from webhook
+        currency: 'EUR',
+        status: 'pending',
+        purpose: 'initial_purchase',
+        lsCheckoutId: `pending_${event.id}`,
+        customerEmail: session.admin.email,
+        metadata: {
+          checkoutUrlGeneratedAt: now.toISOString(),
+          requestingAdminId: adminId,
+        },
+        updatedAt: now,
+      },
+    });
+
+    return NextResponse.json({ success: true, event, checkoutUrl });
   } catch (error: any) {
     if (error?.code === 'P2002') {
       const target = Array.isArray(error?.meta?.target) ? error.meta.target : [];
