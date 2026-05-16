@@ -14,11 +14,26 @@ export async function getAuthenticatedAdmin() {
     where: { sessionToken },
     include: {
       admin: {
-        include: {
-          event: { select: { id: true, slug: true } }
-        }
-      }
-    }
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          language: true,
+          event: {
+            select: {
+              id: true,
+              slug: true,
+              coupleName: true,
+              pricingTier: true,
+              imageLimit: true,
+              activatedAt: true,
+              pendingPaymentExpiresAt: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   if (!session || !session.admin) return null;
