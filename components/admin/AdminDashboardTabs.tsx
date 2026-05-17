@@ -16,7 +16,7 @@ import { getCurrentLanguageFromPath } from "@/lib/utils/language";
 
 interface AdminDashboardTabsProps {
   guests: any[];
-  event: { coupleName: string; slug?: string; language?: string; retentionOverrideDays?: number } | null;
+  event: { coupleName: string; slug?: string; language?: string; retentionOverrideDays?: number; pricingTier?: string } | null;
 }
 
 const TAB_KEYS = ["guests", "gallery", "messages", "help"];
@@ -92,6 +92,25 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
 
   return (
     <>
+      {/* Upgrade banner — visible for free and basic tiers */}
+      {event?.pricingTier !== 'premium' && (
+        <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+          <div>
+            <strong>Otključajte sve funkcije</strong>
+            <p className="text-sm text-muted-foreground mt-1">
+              {event?.pricingTier === 'free'
+                ? 'Pređite na Basic (€25) ili Premium (€75)'
+                : 'Pređite na Premium (+€50 razlika)'}
+            </p>
+          </div>
+          <a
+            href="/admin/upgrade"
+            className="inline-flex items-center justify-center rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 transition"
+          >
+            Nadogradi
+          </a>
+        </div>
+      )}
       {/* QR i link sekcija za goste */}
       {event?.slug && (
         <section className="w-full max-w-2xl mx-auto mb-8">
