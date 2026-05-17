@@ -49,6 +49,8 @@ export async function POST(req: Request) {
       purpose: 'initial_purchase',
     },
     successRedirectUrl: `${baseUrl}admin/dashboard/${admin.event.id}?paid=1`,
+    locale: (admin.language === 'en' ? 'en' : 'sr'),
+    checkoutTarget: { purpose: 'initial_purchase', tier: admin.event.pricingTier as 'basic' | 'premium' },
   });
 
   return NextResponse.json({ checkoutUrl });
