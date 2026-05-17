@@ -45,7 +45,7 @@ export function getLocalizedProductCopy(target: CheckoutTarget, locale: Locale):
       return safeLocale === 'sr'
         ? {
             name: 'Nadogradnja Basic → Premium',
-            description: 'Nadogradnja na razlika cijene Premium paketa: 25 slika po gostu, originali bez kompresije, prilagođen QR kod.',
+            description: 'Plati razliku do Premium paketa: 25 slika po gostu, originali bez kompresije, prilagođen QR kod.',
           }
         : {
             name: 'Upgrade Basic → Premium',

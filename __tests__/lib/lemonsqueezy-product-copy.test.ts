@@ -38,7 +38,7 @@ describe('getLocalizedProductCopy', () => {
     it('returns SR copy for basic→premium', () => {
       const copy = getLocalizedProductCopy({ purpose: 'upgrade', fromTier: 'basic', toTier: 'premium' }, 'sr');
       expect(copy.name).toBe('Nadogradnja Basic → Premium');
-      expect(copy.description).toMatch(/razlika/);
+      expect(copy.description).toMatch(/razlik/);
     });
     it('returns EN copy for basic→premium', () => {
       const copy = getLocalizedProductCopy({ purpose: 'upgrade', fromTier: 'basic', toTier: 'premium' }, 'en');
