@@ -34,6 +34,12 @@ export async function POST(req: Request) {
       { status: 403 }
     );
   }
+  if (admin.event.pricingTier === 'unlimited') {
+    return NextResponse.json(
+      { error: 'Unlimited plan već ima trajno čuvanje — produženje nije potrebno.' },
+      { status: 400 }
+    );
+  }
   if (
     (admin.event.retentionOverrideDays ?? 0) + RETENTION_DAYS_PER_PURCHASE >
     RETENTION_MAX_OVERRIDE_DAYS

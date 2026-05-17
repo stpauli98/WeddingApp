@@ -26,14 +26,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'cannot cancel active event' }, { status: 409 });
   }
 
+  // Atomic check-and-delete: WHERE clause ensures concurrent activation blocks the delete.
+  // payment.deleteMany is safe to run unconditionally — if the event was activated
+  // between guard and now, the next event.deleteMany returns count=0 and we report 409.
   const eventId = admin.event.id;
-  // Delete ALL payments for this event (not just pending) to avoid FK violation
-  // on event.delete. The activatedAt guard above ensures the event is unactivated,
-  // so any payment that exists is either pending or failed — never paid.
-  await prisma.$transaction([
+  const [, eventDelete] = await prisma.$transaction([
     prisma.payment.deleteMany({ where: { eventId } }),
-    prisma.event.delete({ where: { id: eventId } }),
+    prisma.event.deleteMany({ where: { id: eventId, activatedAt: null } }),
   ]);
+
+  if (eventDelete.count === 0) {
+    // Event was activated between guard and delete — race lost; webhook wins.
+    return NextResponse.json(
+      { error: 'Plaćanje je u međuvremenu potvrđeno — event je sad aktivan.' },
+      { status: 409 }
+    );
+  }
 
   return NextResponse.json({ ok: true });
 }
