@@ -35,6 +35,13 @@ jest.mock('@/lib/security/request-ip', () => ({
   getRequestIp: jest.fn(() => '203.0.113.5'),
 }));
 
+// B1: deterministic rate-limiter mock — always allows by default; the rate-limit test
+// overrides mockRateLimitCheck directly to simulate exhaustion.
+const mockRateLimitCheck = jest.fn(async () => ({ success: true, remaining: 59 }));
+jest.mock('@/lib/security/rate-limit', () => ({
+  createRateLimiter: () => ({ check: (...args: any[]) => mockRateLimitCheck(...args) }),
+}));
+
 import { POST } from '@/app/api/webhooks/lemonsqueezy/route';
 import { prisma } from '@/lib/prisma';
 
@@ -56,23 +63,20 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.LEMONSQUEEZY_WEBHOOK_SECRET = SECRET;
+    // Reset rate-limiter mock to default "allow" behaviour before each test.
+    mockRateLimitCheck.mockReset();
+    mockRateLimitCheck.mockResolvedValue({ success: true, remaining: 59 });
   });
 
-  it('rejects 401 + logs invalid signature', async () => {
+  it('rejects 401 for invalid signature and does NOT write to WebhookLog (B1)', async () => {
     const body = JSON.stringify({ meta: { event_name: 'order_created', webhook_id: 'wh_1' }, data: {} });
     const res = await POST(makeRequest(body, 'badhex'));
     expect(res.status).toBe(401);
-    expect(prisma.webhookLog.create).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.objectContaining({
-        signatureValid: false,
-        lsEventId: 'wh_1',
-        eventName: 'order_created',
-        sourceIp: '203.0.113.5',
-      }),
-    }));
+    // After B1: unsigned traffic must not touch the DB.
+    expect(prisma.webhookLog.create).not.toHaveBeenCalled();
   });
 
-  it('rejects 401 when no signature header present', async () => {
+  it('rejects 401 when no signature header present and does NOT write to WebhookLog (B1)', async () => {
     const body = JSON.stringify({ meta: {} });
     const req = new Request('https://x/api/webhooks/lemonsqueezy', {
       method: 'POST',
@@ -81,6 +85,7 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(401);
+    expect(prisma.webhookLog.create).not.toHaveBeenCalled();
   });
 
   it('returns 500 when LEMONSQUEEZY_WEBHOOK_SECRET missing', async () => {
@@ -100,7 +105,7 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
     expect(arg.data.eventName).toBeNull();
   });
 
-  it('returns 200 idempotent:true when payment with lsEventId already exists and is not pending', async () => {
+  it('returns 200 idempotent:true when any Payment with lsEventId already exists (B4)', async () => {
     const body = JSON.stringify({
       meta: { event_name: 'order_created', webhook_id: 'wh_dup', custom_data: { event_id: 'e1', admin_id: 'a1', purpose: 'initial_purchase' } },
       data: { id: 'order_1' },
@@ -132,14 +137,18 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
     expect(prisma.webhookLog.create).not.toHaveBeenCalled();
   });
 
-  it('truncates oversized lsEventId and eventName before logging', async () => {
+  it('truncates oversized lsEventId and eventName before logging (uses valid sig so log is written)', async () => {
     const longId = 'a'.repeat(500);
     const longName = 'b'.repeat(500);
+    // body must have attributes so normalizeWebhook doesn't short-circuit before the log assertion
     const body = JSON.stringify({
       meta: { webhook_id: longId, event_name: longName },
       data: {},
     });
-    await POST(makeRequest(body, 'badsig'));
+    // Valid signature so B1 log-after-verify path writes to DB.
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    await POST(makeRequest(body, validSig(body)));
+    expect(prisma.webhookLog.create).toHaveBeenCalled();
     const arg = (prisma.webhookLog.create as jest.Mock).mock.calls[0][0];
     expect(arg.data.lsEventId).toHaveLength(255);
     expect(arg.data.eventName).toHaveLength(255);
@@ -248,6 +257,8 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
       id: 'p1', purpose: 'initial_purchase', eventId: 'e1',
       retentionDaysGranted: null, metadata: null,
     });
+    // B2: ownership check — adminId matches custom_data.admin_id ('a1').
+    (prisma.event.findUnique as jest.Mock).mockResolvedValueOnce({ adminId: 'a1' });
 
     const res = await POST(makeRequest(body, validSig(body)));
     expect(res.status).toBe(200);
@@ -272,6 +283,8 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
       id: 'p2', purpose: 'upgrade', eventId: 'e2', retentionDaysGranted: null,
       metadata: { previousTier: 'basic', previousImageLimit: 7, toTier: 'premium' },
     });
+    // B2: ownership check — adminId matches custom_data.admin_id ('a2').
+    (prisma.event.findUnique as jest.Mock).mockResolvedValueOnce({ adminId: 'a2' });
 
     await POST(makeRequest(body, validSig(body)));
     expect(prisma.event.update).toHaveBeenCalledWith(expect.objectContaining({
@@ -290,6 +303,9 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
     (prisma.payment.findFirst as jest.Mock).mockResolvedValueOnce({
       id: 'p3', purpose: 'retention_extension', eventId: 'e3', retentionDaysGranted: 30, metadata: null,
     });
+    // B2: ownership check — adminId matches custom_data.admin_id ('a3').
+    (prisma.event.findUnique as jest.Mock).mockResolvedValueOnce({ adminId: 'a3' });
+    // Existing retention logic: second findUnique for retentionOverrideDays.
     (prisma.event.findUnique as jest.Mock).mockResolvedValueOnce({ retentionOverrideDays: 20 });
 
     await POST(makeRequest(body, validSig(body)));
@@ -346,5 +362,38 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json).toEqual({ ok: true, ignored: true });
+  });
+
+  it('returns 429 when rate limit exceeded (B1)', async () => {
+    // Override mock to simulate exhaustion.
+    mockRateLimitCheck.mockResolvedValue({ success: false, remaining: 0 });
+    const body = JSON.stringify({ meta: {} });
+    const sig = validSig(body);
+    const res = await POST(makeRequest(body, sig));
+    expect(res.status).toBe(429);
+    // DB must not be touched when rate-limited.
+    expect(prisma.webhookLog.create).not.toHaveBeenCalled();
+  });
+
+  it('refund webhook rejects when custom.adminId does not match event adminId (B2)', async () => {
+    const body = JSON.stringify({
+      meta: {
+        event_name: 'order_refunded',
+        webhook_id: 'wh_refund_mismatch',
+        custom_data: { event_id: 'e1', admin_id: 'attacker_admin', purpose: 'initial_purchase' },
+      },
+      data: { id: 'order_xx', attributes: { user_email: 'a@b.c', total: 2500, currency: 'EUR', status: 'refunded' } },
+    });
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null); // idempotency check
+    (prisma.payment.findFirst as jest.Mock).mockResolvedValueOnce({
+      id: 'p_legit', purpose: 'initial_purchase', eventId: 'e1', retentionDaysGranted: null, metadata: null,
+    });
+    // B2: ownership check returns a DIFFERENT adminId than attacker_admin.
+    (prisma.event.findUnique as jest.Mock).mockResolvedValueOnce({ adminId: 'real_owner' });
+
+    const res = await POST(makeRequest(body, validSig(body)));
+    expect(res.status).toBe(200); // still ack to LS
+    expect(prisma.payment.update).not.toHaveBeenCalled(); // refund NOT applied
+    expect(prisma.event.update).not.toHaveBeenCalled();
   });
 });

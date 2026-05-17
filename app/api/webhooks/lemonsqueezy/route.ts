@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyLemonSqueezySignature } from '@/lib/lemonsqueezy/signature';
 import { getRequestIp } from '@/lib/security/request-ip';
+import { createRateLimiter } from '@/lib/security/rate-limit';
 import { normalizeWebhook, handleInitialPurchase, handleUpgrade, handleRetentionExtension, handleRefund } from '@/lib/lemonsqueezy/handlers';
+
+// LS legitimate webhooks: <1/sec. 60/min cap blocks flood-style abuse.
+const webhookLimiter = createRateLimiter({ name: 'ls-webhook', max: 60, windowMs: 60 * 1000 });
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -12,6 +16,13 @@ export async function POST(req: Request) {
   if (!secret) {
     console.error('LEMONSQUEEZY_WEBHOOK_SECRET not set — rejecting webhook');
     return NextResponse.json({ error: 'webhook misconfigured' }, { status: 500 });
+  }
+
+  const ip = getRequestIp(req);
+  const rl = await webhookLimiter.check(ip);
+  if (!rl.success) {
+    // Don't log to DB — that's the DoS surface we're protecting against.
+    return NextResponse.json({ error: 'rate limit' }, { status: 429 });
   }
 
   const rawBody = await req.text();
@@ -36,26 +47,32 @@ export async function POST(req: Request) {
   const eventName = payload?.meta?.event_name ? String(payload.meta.event_name).slice(0, 255) : null;
   const sourceIp = getRequestIp(req);
 
-  // Always log every webhook attempt for audit, even when signature fails.
+  if (!signatureValid) {
+    // Don't persist to DB — protects against unsigned-traffic flood.
+    // Console log is ephemeral but sufficient for forensic noise.
+    console.warn(`[lemonsqueezy] invalid signature from ${sourceIp} for event=${eventName ?? 'unknown'}`);
+    return NextResponse.json({ error: 'invalid signature' }, { status: 401 });
+  }
+
+  // Only authenticated webhooks get persisted to WebhookLog.
   const logRow = await prisma.webhookLog.create({
     data: {
       lsEventId,
       eventName,
-      signatureValid,
+      signatureValid: true,
       payload: payload ?? { raw: rawBody.slice(0, 1000) },
       sourceIp,
       processedAt: null,
     },
   });
 
-  if (!signatureValid) {
-    return NextResponse.json({ error: 'invalid signature' }, { status: 401 });
-  }
-
-  // Idempotency: if we've already processed this LS event, return 200 no-op.
+  // Idempotency: if any Payment exists for this lsEventId, the webhook was
+  // already processed. After Group A removed orphan pending rows, we never
+  // create pending Payments at the route level, so any row here means the
+  // handler's upsert ran. Treat ALL existing rows as already-handled.
   if (lsEventId) {
     const existing = await prisma.payment.findUnique({ where: { lsEventId } });
-    if (existing && existing.status !== 'pending') {
+    if (existing) {
       return NextResponse.json({ ok: true, idempotent: true });
     }
   }

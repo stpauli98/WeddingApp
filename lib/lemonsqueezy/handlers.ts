@@ -160,14 +160,17 @@ export async function handleUpgrade(w: NormalizedWebhook): Promise<void> {
 }
 
 export async function handleRetentionExtension(w: NormalizedWebhook): Promise<void> {
-  // Race-safe: bail early if a concurrent invocation already processed this lsEventId.
+  // Idempotency safety net is the Payment.lsEventId @unique constraint:
+  // concurrent retries with the same lsEventId will hit P2002 on the second
+  // upsert and that handler returns 500, triggering LS to retry — by then the
+  // first delivery has committed and the top-level route idempotency check at
+  // route.ts sees status='paid' and returns 200 (no double-apply). The early
+  // bail below is purely an optimization to avoid noisy 500s + warning logs.
   const existing = await prisma.payment.findUnique({
     where: { lsEventId: w.lsEventId },
     select: { status: true },
   });
   if (existing && existing.status === 'paid') {
-    // Already processed by a parallel webhook delivery; the upsert below would be
-    // idempotent but the event.update would double-apply +30 days. Skip entirely.
     return;
   }
 
@@ -229,6 +232,18 @@ export async function handleRefund(w: NormalizedWebhook): Promise<void> {
   });
   if (!payment) {
     console.warn(`Refund webhook for unknown/already-refunded order ${w.lsOrderId} on event ${w.custom.eventId}`);
+    return;
+  }
+
+  // Defense-in-depth: verify the event's admin matches the custom_data adminId.
+  // The HMAC signature already proves LS sent the payload, but if the secret ever
+  // leaks, this assertion blocks crafted refunds against other admins' events.
+  const event = await prisma.event.findUnique({
+    where: { id: payment.eventId },
+    select: { adminId: true },
+  });
+  if (event?.adminId !== w.custom.adminId) {
+    console.error(`[lemonsqueezy] Refund admin mismatch: payment.event.adminId=${event?.adminId ?? 'null'} vs custom.adminId=${w.custom.adminId}`);
     return;
   }
 
