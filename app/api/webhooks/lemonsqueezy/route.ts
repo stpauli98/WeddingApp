@@ -8,6 +8,30 @@ import { normalizeWebhook, handleInitialPurchase, handleUpgrade, handleRetention
 // LS legitimate webhooks: <1/sec. 60/min cap blocks flood-style abuse.
 const webhookLimiter = createRateLimiter({ name: 'ls-webhook', max: 60, windowMs: 60 * 1000 });
 
+/**
+ * Strip PII from LS webhook payload before persisting to WebhookLog.
+ * GDPR data minimization: we don't need buyer email/billing in the audit log.
+ * Keep meta (event_name, webhook_id, custom_data) and data.id/type/attributes
+ * structure but null out buyer-identifying fields.
+ */
+function redactPayloadForLog(payload: any): any {
+  if (!payload || typeof payload !== 'object') return payload;
+  const cloned = JSON.parse(JSON.stringify(payload));
+  if (cloned.data?.attributes) {
+    const attrs = cloned.data.attributes;
+    // Null PII fields we don't need for audit
+    if ('user_email' in attrs) attrs.user_email = null;
+    if ('user_name' in attrs) attrs.user_name = null;
+    if ('customer_id' in attrs) attrs.customer_id = null;
+    // Billing-related fields (LS may include these)
+    if ('billing_address' in attrs) attrs.billing_address = null;
+    if ('first_order_item' in attrs && attrs.first_order_item) {
+      delete attrs.first_order_item.product_options;
+    }
+  }
+  return cloned;
+}
+
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
@@ -60,7 +84,7 @@ export async function POST(req: Request) {
       lsEventId,
       eventName,
       signatureValid: true,
-      payload: payload ?? { raw: rawBody.slice(0, 1000) },
+      payload: payload ? redactPayloadForLog(payload) : { raw: rawBody.slice(0, 1000) },
       sourceIp,
       processedAt: null,
     },
