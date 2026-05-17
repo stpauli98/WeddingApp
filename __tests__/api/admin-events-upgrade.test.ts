@@ -82,7 +82,7 @@ describe('POST /api/admin/events/upgrade', () => {
 
   it('happy path free → basic returns checkoutUrl (no pending Payment row)', async () => {
     (getAuthenticatedAdmin as jest.Mock).mockResolvedValueOnce({
-      id: 'a1', email: 'a@b.c',
+      id: 'a1', email: 'a@b.c', language: 'sr',
       event: { id: 'e1', activatedAt: new Date(), pricingTier: 'free' },
     });
 
@@ -96,6 +96,8 @@ describe('POST /api/admin/events/upgrade', () => {
       customData: expect.objectContaining({
         event_id: 'e1', admin_id: 'a1', purpose: 'upgrade', to_tier: 'basic',
       }),
+      locale: 'sr',
+      checkoutTarget: { purpose: 'upgrade', fromTier: 'free', toTier: 'basic' },
     }));
   });
 
@@ -112,7 +114,7 @@ describe('POST /api/admin/events/upgrade', () => {
 
   it('happy path basic → premium uses upgrade variant', async () => {
     (getAuthenticatedAdmin as jest.Mock).mockResolvedValueOnce({
-      id: 'a1', email: 'a@b.c',
+      id: 'a1', email: 'a@b.c', language: 'sr',
       event: { id: 'e1', activatedAt: new Date(), pricingTier: 'basic' },
     });
 
@@ -121,6 +123,8 @@ describe('POST /api/admin/events/upgrade', () => {
     expect(prisma.payment.create).not.toHaveBeenCalled();
     expect(createCheckoutUrl).toHaveBeenCalledWith(expect.objectContaining({
       customData: expect.objectContaining({ to_tier: 'premium' }),
+      locale: 'sr',
+      checkoutTarget: { purpose: 'upgrade', fromTier: 'basic', toTier: 'premium' },
     }));
   });
 });

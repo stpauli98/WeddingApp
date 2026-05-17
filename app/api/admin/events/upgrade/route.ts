@@ -63,6 +63,8 @@ export async function POST(req: Request) {
       to_tier: toTier,
     },
     successRedirectUrl: `${baseUrl}admin/dashboard/${admin.event.id}?upgraded=1`,
+    locale: (admin.language === 'en' ? 'en' : 'sr'),
+    checkoutTarget: { purpose: 'upgrade', fromTier, toTier },
   });
 
   return NextResponse.json({ checkoutUrl });
