@@ -39,6 +39,10 @@ export function ExtendRetentionButton({ currentOverrideDays = 0, pricingTier }: 
       });
       const data = await res.json();
       if (data.checkoutUrl) {
+        // Note: setBusy(false) intentionally NOT called here — keep button
+        // disabled while the navigation is in flight. If the redirect fails
+        // (rare), the user can refresh; an always-true busy state on the
+        // happy path is safer than a flicker back to enabled before nav.
         window.location.href = data.checkoutUrl;
         return;
       }

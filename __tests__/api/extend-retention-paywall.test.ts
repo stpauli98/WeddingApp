@@ -8,6 +8,9 @@ jest.mock('@/lib/csrf', () => ({
 jest.mock('@/lib/lemonsqueezy/client', () => ({
   createCheckoutUrl: jest.fn(async () => 'https://lc.test/checkout/ret'),
 }));
+jest.mock('@/lib/lemonsqueezy/variants', () => ({
+  resolveVariantId: jest.fn(() => 'vr'),
+}));
 
 import { POST } from '@/app/api/admin/events/extend-retention/route';
 import { getAuthenticatedAdmin } from '@/lib/admin-auth';
