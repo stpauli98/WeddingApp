@@ -29,6 +29,8 @@ describe('createCheckoutUrl', () => {
       customerEmail: 'admin@example.com',
       customData: { event_id: 'e1', admin_id: 'a1', purpose: 'initial_purchase' },
       successRedirectUrl: 'https://app.test/admin/dashboard/e1?paid=1',
+      locale: 'sr',
+      checkoutTarget: { purpose: 'initial_purchase', tier: 'basic' },
     });
     expect(url).toBe('https://checkout.lemonsqueezy.com/abc123');
     expect(lemonSqueezySetup).toHaveBeenCalledWith({ apiKey: 'lstest_apikey' });
@@ -51,6 +53,8 @@ describe('createCheckoutUrl', () => {
       customerEmail: 'a@b.c',
       customData: { event_id: 'e', admin_id: 'a', purpose: 'initial_purchase' },
       successRedirectUrl: 'https://x',
+      locale: 'sr',
+      checkoutTarget: { purpose: 'initial_purchase', tier: 'basic' },
     });
     expect(createCheckout).toHaveBeenCalledWith('99', 'var_basic', expect.objectContaining({
       testMode: false,
@@ -67,6 +71,8 @@ describe('createCheckoutUrl', () => {
       customerEmail: 'a@b.c',
       customData: { event_id: 'e', admin_id: 'a', purpose: 'initial_purchase' },
       successRedirectUrl: 'https://x',
+      locale: 'sr',
+      checkoutTarget: { purpose: 'initial_purchase', tier: 'basic' },
     })).rejects.toThrow(/invalid variant/);
   });
 
@@ -80,6 +86,8 @@ describe('createCheckoutUrl', () => {
       customerEmail: 'a@b.c',
       customData: { event_id: 'e', admin_id: 'a', purpose: 'initial_purchase' },
       successRedirectUrl: 'https://x',
+      locale: 'sr',
+      checkoutTarget: { purpose: 'initial_purchase', tier: 'basic' },
     })).rejects.toThrow(/no URL/);
   });
 
@@ -90,6 +98,42 @@ describe('createCheckoutUrl', () => {
       customerEmail: 'a@b.c',
       customData: { event_id: 'e', admin_id: 'a', purpose: 'initial_purchase' },
       successRedirectUrl: 'https://x',
+      locale: 'sr',
+      checkoutTarget: { purpose: 'initial_purchase', tier: 'basic' },
     })).rejects.toThrow(/LEMONSQUEEZY_API_KEY/);
+  });
+
+  it('passes localized productOptions.name + description based on locale arg', async () => {
+    await createCheckoutUrl({
+      variantId: 'var_basic',
+      customerEmail: 'a@b.c',
+      customData: { event_id: 'e', admin_id: 'a', purpose: 'initial_purchase' },
+      successRedirectUrl: 'https://x',
+      locale: 'sr',
+      checkoutTarget: { purpose: 'initial_purchase', tier: 'basic' },
+    });
+    expect(createCheckout).toHaveBeenCalledWith('99', 'var_basic', expect.objectContaining({
+      productOptions: expect.objectContaining({
+        name: 'Svadbeni paket — Basic',
+        description: expect.stringMatching(/7 slika/),
+      }),
+    }));
+  });
+
+  it('uses EN copy when locale=en', async () => {
+    await createCheckoutUrl({
+      variantId: 'var_premium',
+      customerEmail: 'a@b.c',
+      customData: { event_id: 'e', admin_id: 'a', purpose: 'initial_purchase' },
+      successRedirectUrl: 'https://x',
+      locale: 'en',
+      checkoutTarget: { purpose: 'initial_purchase', tier: 'premium' },
+    });
+    expect(createCheckout).toHaveBeenCalledWith('99', 'var_premium', expect.objectContaining({
+      productOptions: expect.objectContaining({
+        name: 'Wedding Package — Premium',
+        description: expect.stringMatching(/25 photos/),
+      }),
+    }));
   });
 });
