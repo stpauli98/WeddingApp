@@ -44,8 +44,8 @@ export async function POST(req: Request) {
     variantId,
     customerEmail: admin.email,
     customData: {
-      eventId: admin.event.id,
-      adminId: admin.id,
+      event_id: admin.event.id,
+      admin_id: admin.id,
       purpose: 'initial_purchase',
     },
     successRedirectUrl: `${baseUrl}admin/dashboard/${admin.event.id}?paid=1`,

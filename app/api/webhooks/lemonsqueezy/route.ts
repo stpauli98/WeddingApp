@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
   // Cap extracted strings before DB write to prevent oversized log rows
   // (payload values come from untrusted body before signature verification).
-  const lsEventId = payload?.meta?.event_id ? String(payload.meta.event_id).slice(0, 255) : null;
+  const lsEventId = payload?.meta?.webhook_id ? String(payload.meta.webhook_id).slice(0, 255) : null;
   const eventName = payload?.meta?.event_name ? String(payload.meta.event_name).slice(0, 255) : null;
   const sourceIp = getRequestIp(req);
 

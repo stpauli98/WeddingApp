@@ -18,22 +18,34 @@ const RETENTION_MAX_OVERRIDE_DAYS = 365;
 export function normalizeWebhook(payload: any): NormalizedWebhook | null {
   const eventName = payload?.meta?.event_name;
   if (eventName !== 'order_created' && eventName !== 'order_refunded') return null;
-  const lsEventId = payload?.meta?.event_id;
+
+  // LS uses meta.webhook_id (UUID) as the per-delivery unique ID — NOT meta.event_id.
+  const lsEventId = payload?.meta?.webhook_id;
   const lsOrderId = payload?.data?.id;
+  // LS normalizes custom_data keys to snake_case (we send camelCase, LS echoes snake_case).
   const custom = payload?.meta?.custom_data;
   const attrs = payload?.data?.attributes;
-  if (!lsEventId || !lsOrderId || !custom?.eventId || !custom?.adminId || !custom?.purpose || !attrs) {
+
+  const eventId = custom?.event_id;
+  const adminId = custom?.admin_id;
+  const purpose = custom?.purpose;
+  if (!lsEventId || !lsOrderId || !eventId || !adminId || !purpose || !attrs) {
     return null;
   }
-  const purpose = custom.purpose as PaymentPurpose;
-  // For upgrade order_created, toTier must be present and a valid paid tier.
-  // For order_refunded, toTier is not required (refund handler reads it from the stored payment record).
+  if (eventName !== 'order_created' && eventName !== 'order_refunded') return null;
+
+  // For upgrade, to_tier must be present and a valid paid tier.
   let toTier: PricingTier | undefined;
-  if (purpose === 'upgrade' && eventName === 'order_created') {
-    const raw = custom.toTier;
-    if (raw !== 'basic' && raw !== 'premium') return null;
-    toTier = raw;
+  if (purpose === 'upgrade') {
+    const raw = custom.to_tier;
+    if (eventName === 'order_created') {
+      if (raw !== 'basic' && raw !== 'premium') return null;
+      toTier = raw;
+    } else if (raw === 'basic' || raw === 'premium') {
+      toTier = raw;
+    }
   }
+
   return {
     lsEventId: String(lsEventId),
     lsOrderId: String(lsOrderId),
@@ -42,9 +54,9 @@ export function normalizeWebhook(payload: any): NormalizedWebhook | null {
     amountCents: Number(attrs.total) || 0,
     currency: String(attrs.currency ?? 'EUR'),
     custom: {
-      eventId: String(custom.eventId),
-      adminId: String(custom.adminId),
-      purpose,
+      eventId: String(eventId),
+      adminId: String(adminId),
+      purpose: purpose as PaymentPurpose,
       toTier,
     },
   };

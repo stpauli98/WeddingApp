@@ -59,13 +59,13 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
   });
 
   it('rejects 401 + logs invalid signature', async () => {
-    const body = JSON.stringify({ meta: { event_name: 'order_created', event_id: 'evt_1' }, data: {} });
+    const body = JSON.stringify({ meta: { event_name: 'order_created', webhook_id: 'wh_1' }, data: {} });
     const res = await POST(makeRequest(body, 'badhex'));
     expect(res.status).toBe(401);
     expect(prisma.webhookLog.create).toHaveBeenCalledWith(expect.objectContaining({
       data: expect.objectContaining({
         signatureValid: false,
-        lsEventId: 'evt_1',
+        lsEventId: 'wh_1',
         eventName: 'order_created',
         sourceIp: '203.0.113.5',
       }),
@@ -102,10 +102,10 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
 
   it('returns 200 idempotent:true when payment with lsEventId already exists and is not pending', async () => {
     const body = JSON.stringify({
-      meta: { event_name: 'order_created', event_id: 'evt_dup', custom_data: { eventId: 'e1', adminId: 'a1', purpose: 'initial_purchase' } },
+      meta: { event_name: 'order_created', webhook_id: 'wh_dup', custom_data: { event_id: 'e1', admin_id: 'a1', purpose: 'initial_purchase' } },
       data: { id: 'order_1' },
     });
-    (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'p1', status: 'paid', lsEventId: 'evt_dup' });
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'p1', status: 'paid', lsEventId: 'wh_dup' });
     const res = await POST(makeRequest(body, validSig(body)));
     expect(res.status).toBe(200);
     const json = await res.json();
@@ -114,7 +114,7 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
 
   it('returns 200 ignored:true when payload has no attributes (normalizeWebhook returns null)', async () => {
     const body = JSON.stringify({
-      meta: { event_name: 'order_created', event_id: 'evt_new', custom_data: { eventId: 'e1', adminId: 'a1', purpose: 'initial_purchase' } },
+      meta: { event_name: 'order_created', webhook_id: 'wh_new', custom_data: { event_id: 'e1', admin_id: 'a1', purpose: 'initial_purchase' } },
       data: { id: 'order_1' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null);
@@ -136,7 +136,7 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
     const longId = 'a'.repeat(500);
     const longName = 'b'.repeat(500);
     const body = JSON.stringify({
-      meta: { event_id: longId, event_name: longName },
+      meta: { webhook_id: longId, event_name: longName },
       data: {},
     });
     await POST(makeRequest(body, 'badsig'));
@@ -146,9 +146,9 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
   });
 
   it('handles initial_purchase order_created: activates event + creates Payment', async () => {
-    const customData = { eventId: 'e1', adminId: 'a1', purpose: 'initial_purchase' };
+    const customData = { event_id: 'e1', admin_id: 'a1', purpose: 'initial_purchase' };
     const body = JSON.stringify({
-      meta: { event_name: 'order_created', event_id: 'evt_new_1', custom_data: customData },
+      meta: { event_name: 'order_created', webhook_id: 'wh_new_1', custom_data: customData },
       data: { id: 'order_555', attributes: { user_email: 'admin@x.com', total: 2500, currency: 'EUR', status: 'paid' } },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null);
@@ -159,7 +159,7 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
     const res = await POST(makeRequest(body, validSig(body)));
     expect(res.status).toBe(200);
     expect(prisma.payment.upsert).toHaveBeenCalledWith(expect.objectContaining({
-      where: { lsEventId: 'evt_new_1' },
+      where: { lsEventId: 'wh_new_1' },
       create: expect.objectContaining({
         eventId: 'e1', tier: 'basic', purpose: 'initial_purchase', status: 'paid', amountCents: 2500,
       }),
@@ -171,9 +171,9 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
   });
 
   it('handles upgrade order_created: updates tier + imageLimit, snapshots previous', async () => {
-    const customData = { eventId: 'e2', adminId: 'a2', purpose: 'upgrade', toTier: 'premium' };
+    const customData = { event_id: 'e2', admin_id: 'a2', purpose: 'upgrade', to_tier: 'premium' };
     const body = JSON.stringify({
-      meta: { event_name: 'order_created', event_id: 'evt_up_1', custom_data: customData },
+      meta: { event_name: 'order_created', webhook_id: 'wh_up_1', custom_data: customData },
       data: { id: 'order_700', attributes: { user_email: 'a@b.c', total: 5000, currency: 'EUR', status: 'paid' } },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null);
@@ -197,9 +197,9 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
   });
 
   it('handles retention_extension order_created: bumps retentionOverrideDays by 30, clamps at 365', async () => {
-    const customData = { eventId: 'e3', adminId: 'a3', purpose: 'retention_extension' };
+    const customData = { event_id: 'e3', admin_id: 'a3', purpose: 'retention_extension' };
     const body = JSON.stringify({
-      meta: { event_name: 'order_created', event_id: 'evt_ret_1', custom_data: customData },
+      meta: { event_name: 'order_created', webhook_id: 'wh_ret_1', custom_data: customData },
       data: { id: 'order_900', attributes: { user_email: 'a@b.c', total: 1500, currency: 'EUR', status: 'paid' } },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null); // route idempotency check
@@ -220,9 +220,9 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
   });
 
   it('clamps retention extension at 365 days', async () => {
-    const customData = { eventId: 'e4', adminId: 'a4', purpose: 'retention_extension' };
+    const customData = { event_id: 'e4', admin_id: 'a4', purpose: 'retention_extension' };
     const body = JSON.stringify({
-      meta: { event_name: 'order_created', event_id: 'evt_ret_2', custom_data: customData },
+      meta: { event_name: 'order_created', webhook_id: 'wh_ret_2', custom_data: customData },
       data: { id: 'order_901', attributes: { user_email: 'a@b.c', total: 1500, currency: 'EUR', status: 'paid' } },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null); // route idempotency check
@@ -238,9 +238,9 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
   });
 
   it('handles order_refunded for initial_purchase: clears activatedAt', async () => {
-    const customData = { eventId: 'e1', adminId: 'a1', purpose: 'initial_purchase' };
+    const customData = { event_id: 'e1', admin_id: 'a1', purpose: 'initial_purchase' };
     const body = JSON.stringify({
-      meta: { event_name: 'order_refunded', event_id: 'evt_ref_1', custom_data: customData },
+      meta: { event_name: 'order_refunded', webhook_id: 'wh_ref_1', custom_data: customData },
       data: { id: 'order_555', attributes: { user_email: 'a@b.c', total: 2500, currency: 'EUR', status: 'refunded' } },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null);
@@ -262,9 +262,9 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
   });
 
   it('handles order_refunded for upgrade: reverts tier + imageLimit', async () => {
-    const customData = { eventId: 'e2', adminId: 'a2', purpose: 'upgrade' };
+    const customData = { event_id: 'e2', admin_id: 'a2', purpose: 'upgrade' };
     const body = JSON.stringify({
-      meta: { event_name: 'order_refunded', event_id: 'evt_ref_2', custom_data: customData },
+      meta: { event_name: 'order_refunded', webhook_id: 'wh_ref_2', custom_data: customData },
       data: { id: 'order_700', attributes: { user_email: 'a@b.c', total: 5000, currency: 'EUR', status: 'refunded' } },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null);
@@ -281,9 +281,9 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
   });
 
   it('handles order_refunded for retention_extension: subtracts granted days, clamped at 0', async () => {
-    const customData = { eventId: 'e3', adminId: 'a3', purpose: 'retention_extension' };
+    const customData = { event_id: 'e3', admin_id: 'a3', purpose: 'retention_extension' };
     const body = JSON.stringify({
-      meta: { event_name: 'order_refunded', event_id: 'evt_ref_3', custom_data: customData },
+      meta: { event_name: 'order_refunded', webhook_id: 'wh_ref_3', custom_data: customData },
       data: { id: 'order_900', attributes: { user_email: 'a@b.c', total: 1500, currency: 'EUR', status: 'refunded' } },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null);
@@ -300,9 +300,9 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
   });
 
   it('marks WebhookLog.processedAt on success', async () => {
-    const customData = { eventId: 'e1', adminId: 'a1', purpose: 'initial_purchase' };
+    const customData = { event_id: 'e1', admin_id: 'a1', purpose: 'initial_purchase' };
     const body = JSON.stringify({
-      meta: { event_name: 'order_created', event_id: 'evt_proc_1', custom_data: customData },
+      meta: { event_name: 'order_created', webhook_id: 'wh_proc_1', custom_data: customData },
       data: { id: 'order_111', attributes: { user_email: 'a@b.c', total: 2500, currency: 'EUR', status: 'paid' } },
     });
     (prisma.webhookLog.create as jest.Mock).mockResolvedValueOnce({ id: 'wl_proc' });
@@ -319,9 +319,9 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
   });
 
   it('returns 500 + logs error when handler throws', async () => {
-    const customData = { eventId: 'e_missing', adminId: 'a', purpose: 'initial_purchase' };
+    const customData = { event_id: 'e_missing', admin_id: 'a', purpose: 'initial_purchase' };
     const body = JSON.stringify({
-      meta: { event_name: 'order_created', event_id: 'evt_err_1', custom_data: customData },
+      meta: { event_name: 'order_created', webhook_id: 'wh_err_1', custom_data: customData },
       data: { id: 'order_x', attributes: { user_email: 'a@b.c', total: 2500, currency: 'EUR', status: 'paid' } },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null);

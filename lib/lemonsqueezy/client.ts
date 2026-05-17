@@ -1,10 +1,11 @@
 import { lemonSqueezySetup, createCheckout } from '@lemonsqueezy/lemonsqueezy.js';
 
 export interface CustomCheckoutData {
-  eventId: string;
-  adminId: string;
+  event_id: string;
+  admin_id: string;
   purpose: 'initial_purchase' | 'upgrade' | 'retention_extension';
-  [key: string]: string;
+  to_tier?: 'basic' | 'premium';
+  [key: string]: string | undefined;
 }
 
 export interface CreateCheckoutArgs {

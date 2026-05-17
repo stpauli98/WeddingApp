@@ -104,8 +104,8 @@ describe('POST /api/admin/events paywall behavior', () => {
     expect(createCheckoutUrl).toHaveBeenCalledWith(expect.objectContaining({
       customerEmail: 'a@b.c',
       customData: expect.objectContaining({
-        eventId: 'e_paid',
-        adminId: 'a1',
+        event_id: 'e_paid',
+        admin_id: 'a1',
         purpose: 'initial_purchase',
       }),
     }));
