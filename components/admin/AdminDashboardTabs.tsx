@@ -1,7 +1,5 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import GuestCard from "./GuestCard";
 import { QRCodeCanvas } from 'qrcode.react';
 import { Check, Copy, Download } from "lucide-react";
@@ -26,8 +24,6 @@ const STORAGE_KEY = "adminDashboardActiveTab";
 
 const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }) => {
   const { t } = useTranslation();
-  const pathname = usePathname();
-  const langPrefix = pathname?.startsWith('/en') ? '/en' : '/sr';
   const [copied, setCopied] = useState(false);
   const qrRef = useRef<HTMLDivElement>(null);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
@@ -96,31 +92,6 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
 
   return (
     <>
-      {/* Subtle upgrade nudge — wedding palette, minimal height, mobile-first */}
-      {event?.pricingTier && event.pricingTier !== 'premium' && (
-        <Link
-          href={`${langPrefix}/admin/upgrade`}
-          className="group mb-4 flex items-center justify-between gap-3 rounded-full border border-[hsl(var(--lp-accent))]/30 bg-gradient-to-r from-[hsl(var(--lp-secondary))]/40 via-white to-[hsl(var(--lp-secondary))]/40 px-4 py-2.5 sm:px-5 sm:py-3 min-h-[48px] transition-all hover:border-[hsl(var(--lp-accent))]/60 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--lp-accent))]/40"
-        >
-          <span className="flex items-center gap-2 min-w-0">
-            <span className="font-playfair italic text-[hsl(var(--lp-accent))] text-sm sm:text-base shrink-0">
-              ✦
-            </span>
-            <span className="text-xs sm:text-sm text-[hsl(var(--lp-text))] truncate">
-              {event.pricingTier === 'free'
-                ? 'Više slika i kvaliteta — '
-                : 'Premium kvalitet — '}
-              <span className="text-[hsl(var(--lp-muted-foreground))]">
-                {event.pricingTier === 'free' ? 'Basic €25 ili Premium €75' : 'plati +€50 razlike'}
-              </span>
-            </span>
-          </span>
-          <span className="text-xs font-medium text-[hsl(var(--lp-accent))] flex items-center gap-1 shrink-0 transition-transform group-hover:translate-x-0.5">
-            <span className="hidden sm:inline">Nadogradi</span>
-            <span aria-hidden>→</span>
-          </span>
-        </Link>
-      )}
       {/* QR i link sekcija za goste */}
       {event?.slug && (
         <section className="w-full max-w-2xl mx-auto mb-8">
