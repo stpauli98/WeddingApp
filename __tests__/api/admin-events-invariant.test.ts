@@ -18,7 +18,16 @@ jest.mock('@/lib/prisma', () => ({
       findUnique: jest.fn(),
       create: jest.fn(),
     },
+    payment: { create: jest.fn() },
   },
+}));
+
+jest.mock('@/lib/lemonsqueezy/client', () => ({
+  createCheckoutUrl: jest.fn(async () => 'https://checkout.lemonsqueezy.com/test'),
+}));
+
+jest.mock('@/lib/lemonsqueezy/variants', () => ({
+  resolveVariantId: jest.fn(() => 'var_test'),
 }));
 
 jest.mock('@/lib/csrf', () => ({
@@ -70,7 +79,7 @@ beforeEach(() => {
   mocks.adminSessionFindUnique.mockResolvedValue({
     sessionToken: 'test-session-token',
     expiresAt: new Date(Date.now() + 1000 * 60 * 60),
-    admin: { id: 'admin-1' },
+    admin: { id: 'admin-1', email: 'test@test.com' },
   });
   mocks.adminFindUnique.mockResolvedValue({ language: 'sr' });
   mocks.eventFindFirst.mockResolvedValue(null);

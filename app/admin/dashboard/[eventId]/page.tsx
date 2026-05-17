@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from '@/lib/prisma';
 import AdminLogoutButton from "@/components/admin/AdminLogoutButton";
 import AdminDashboardTabs from "@/components/admin/AdminDashboardTabs";
@@ -29,11 +29,17 @@ export default async function AdminDashboardEventPage({ params }: {
       pricingTier: true,
       imageLimit: true,
       retentionOverrideDays: true,
+      activatedAt: true,
     }
   });
   if (!event || event.adminId !== admin.id) return notFound();
 
-  // 3. Dohvati goste SAMO za ovaj event
+  // 3. Redirect pending-payment events AFTER ownership check
+  if (!event.activatedAt) {
+    redirect('/admin/event/pending');
+  }
+
+  // 4. Dohvati goste SAMO za ovaj event
   const guests = await prisma.guest.findMany({
     where: { eventId },
     include: {

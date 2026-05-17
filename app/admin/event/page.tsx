@@ -266,6 +266,13 @@ export default function CreateEventPage() {
           title: t('admin.event.success.title'),
           description: t('admin.event.success.description'),
         });
+
+        if (result.checkoutUrl) {
+          // Paid tier: redirect to LemonSqueezy hosted checkout
+          window.location.href = result.checkoutUrl;
+          return;
+        }
+
         // Dohvati trenutni jezik iz i18n
         const currentLang = i18n.language || 'sr';
 
