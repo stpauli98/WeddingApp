@@ -76,6 +76,8 @@ export async function handleInitialPurchase(w: NormalizedWebhook): Promise<void>
   }
   if (event.pricingTier === 'free') throw new Error('free tier should never reach this handler');
 
+  // NOTE: customerEmail is the BUYER email from LS checkout form, not the admin's
+  // account email. They may differ if buyer pays on behalf of the admin.
   const upsertOp = prisma.payment.upsert({
     where: { lsEventId: w.lsEventId },
     create: {
@@ -228,7 +230,7 @@ export async function handleRefund(w: NormalizedWebhook): Promise<void> {
     select: { id: true, purpose: true, eventId: true, retentionDaysGranted: true, metadata: true },
   });
   if (!payment) {
-    console.warn(`Refund webhook for unknown/already-refunded order ${w.lsOrderId} on event ${w.custom.eventId}`);
+    console.warn(`[lemonsqueezy] Refund webhook for unknown/already-refunded order ${w.lsOrderId} on event ${w.custom.eventId}`);
     return;
   }
 
@@ -277,7 +279,7 @@ export async function handleRefund(w: NormalizedWebhook): Promise<void> {
       });
       await prisma.$transaction([paymentUpdateOp, eventUpdateOp]);
     } else {
-      console.error(`Refund cannot revert upgrade for payment ${payment.id}: invalid metadata`, meta);
+      console.error(`[lemonsqueezy] Refund cannot revert upgrade for payment ${payment.id}: invalid metadata`, meta);
       await paymentUpdateOp;
     }
   } else if (payment.purpose === 'retention_extension') {

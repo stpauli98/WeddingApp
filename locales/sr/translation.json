@@ -424,6 +424,20 @@
         "enjoyPhotos": "uživajte u vašim sličicama",
         "welcomeMessage": "Dobrodošli na vaš dashboard"
       }
+    },
+    "pending": {
+      "loading": "Učitavanje...",
+      "errorLoading": "Greška pri učitavanju",
+      "title": "Plaćanje na čekanju",
+      "description": "Tvoj događaj {{coupleName}} ({{tier}}) je rezervisan. Završi plaćanje da bi aktivirao admin dashboard.",
+      "payNow": "Plati sad",
+      "loadingState": "Učitava...",
+      "cancel": "Otkaži događaj",
+      "cancelConfirm": "Sigurno otkažeš događaj? URL će biti oslobođen i ne možeš ga vratiti.",
+      "cancelError": "Greška pri otkazivanju",
+      "networkError": "Mrežna greška",
+      "error": "Greška",
+      "refundFooter": "Refund je moguć u roku od 7 dana — kontaktirajte support@dodajuspomenu.com."
     }
   },
   "navbar": {

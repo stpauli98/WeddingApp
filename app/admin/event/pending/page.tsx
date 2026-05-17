@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -14,6 +15,7 @@ interface PendingEventInfo {
 
 export default function PendingPaymentPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [eventInfo, setEventInfo] = useState<PendingEventInfo | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,8 +34,8 @@ export default function PendingPaymentPage() {
         }
         setEventInfo(data.event);
       })
-      .catch(() => setError('Greška pri učitavanju'));
-  }, [router]);
+      .catch(() => setError(t('admin.pending.errorLoading')));
+  }, [router, t]);
 
   async function payNow() {
     setLoading(true);
@@ -49,17 +51,17 @@ export default function PendingPaymentPage() {
       if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
       } else {
-        setError(data.error || 'Greška');
+        setError(data.error || t('admin.pending.error'));
         setLoading(false);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Network error');
+      setError(e instanceof Error ? e.message : t('admin.pending.networkError'));
       setLoading(false);
     }
   }
 
   async function cancelEvent() {
-    if (!confirm('Sigurno otkažeš događaj? URL će biti oslobođen i ne možeš ga vratiti.')) return;
+    if (!confirm(t('admin.pending.cancelConfirm'))) return;
     setLoading(true);
     try {
       const csrfRes = await fetch('/api/admin/events/cancel-pending');
@@ -72,11 +74,11 @@ export default function PendingPaymentPage() {
         router.replace('/admin/event');
       } else {
         const data = await res.json();
-        setError(data.error || 'Greška pri otkazivanju');
+        setError(data.error || t('admin.pending.cancelError'));
         setLoading(false);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Network error');
+      setError(e instanceof Error ? e.message : t('admin.pending.networkError'));
       setLoading(false);
     }
   }
@@ -84,28 +86,30 @@ export default function PendingPaymentPage() {
   if (error && !eventInfo) {
     return <div className="container mx-auto py-12 max-w-xl text-red-600">{error}</div>;
   }
-  if (!eventInfo) return <div className="container mx-auto py-12 max-w-xl">Učitavanje...</div>;
+  if (!eventInfo) return <div className="container mx-auto py-12 max-w-xl">{t('admin.pending.loading')}</div>;
 
   return (
     <div className="container mx-auto py-12 max-w-xl">
       <Card>
         <CardContent className="space-y-6 pt-6">
-          <h1 className="text-2xl font-bold">Plaćanje na čekanju</h1>
+          <h1 className="text-2xl font-bold">{t('admin.pending.title')}</h1>
           <p>
-            Tvoj događaj <strong>{eventInfo.coupleName}</strong> ({eventInfo.pricingTier}) je rezervisan. Završi
-            plaćanje da bi aktivirao admin dashboard.
+            {t('admin.pending.description', {
+              coupleName: eventInfo.coupleName,
+              tier: eventInfo.pricingTier,
+            })}
           </p>
           {error && <div className="text-red-600 text-sm">{error}</div>}
           <div className="flex gap-3">
             <Button onClick={payNow} disabled={loading}>
-              {loading ? 'Učitava...' : 'Plati sad'}
+              {loading ? t('admin.pending.loadingState') : t('admin.pending.payNow')}
             </Button>
             <Button variant="outline" onClick={cancelEvent} disabled={loading}>
-              Otkaži događaj
+              {t('admin.pending.cancel')}
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Refund je moguć u roku od 7 dana — kontaktirajte support@dodajuspomenu.com.
+            {t('admin.pending.refundFooter')}
           </p>
         </CardContent>
       </Card>
