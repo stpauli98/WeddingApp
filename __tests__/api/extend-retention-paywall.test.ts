@@ -33,7 +33,7 @@ describe('POST /api/admin/events/extend-retention (paywall)', () => {
 
   it('returns checkoutUrl for activated basic tier admin (no pending Payment row)', async () => {
     (getAuthenticatedAdmin as jest.Mock).mockResolvedValueOnce({
-      id: 'a1', email: 'a@b.c',
+      id: 'a1', email: 'a@b.c', language: 'sr',
       event: { id: 'e1', activatedAt: new Date(), pricingTier: 'basic', retentionOverrideDays: 30 },
     });
     const res = await POST(req());
@@ -45,6 +45,8 @@ describe('POST /api/admin/events/extend-retention (paywall)', () => {
       customData: expect.objectContaining({
         event_id: 'e1', admin_id: 'a1', purpose: 'retention_extension',
       }),
+      locale: 'sr',
+      checkoutTarget: { purpose: 'retention_extension' },
     }));
   });
 
