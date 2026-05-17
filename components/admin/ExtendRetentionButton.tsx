@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   currentOverrideDays?: number;
@@ -17,6 +18,7 @@ export function ExtendRetentionButton({ currentOverrideDays = 0, pricingTier }: 
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetch("/api/admin/events/extend-retention")
@@ -46,12 +48,12 @@ export function ExtendRetentionButton({ currentOverrideDays = 0, pricingTier }: 
         window.location.href = data.checkoutUrl;
         return;
       }
-      throw new Error(data.error || "Greška");
+      throw new Error(data.error || t('admin.retention.error'));
     } catch (err: unknown) {
       toast({
         variant: "destructive",
-        title: "Greška",
-        description: err instanceof Error ? err.message : "Nepoznata greška",
+        title: t('admin.retention.error'),
+        description: err instanceof Error ? err.message : t('admin.retention.unknownError'),
       });
       setBusy(false);
     }
@@ -63,21 +65,21 @@ export function ExtendRetentionButton({ currentOverrideDays = 0, pricingTier }: 
   return (
     <div className="space-y-2">
       <div className="text-sm text-muted-foreground">
-        Trenutno dodatno čuvanje: <strong>+{currentOverrideDays} dana</strong>
-        {isAtCap && ` (maksimalno ${MAX_OVERRIDE_DAYS})`}
+        {t('admin.retention.currentStorage')} <strong>+{currentOverrideDays} dana</strong>
+        {isAtCap && ` ${t('admin.retention.maxDays', { max: MAX_OVERRIDE_DAYS })}`}
       </div>
       {isFree ? (
         <div className="text-sm text-amber-700">
-          Nadogradi paket prije produžavanja retencije.{" "}
-          <a href="/admin/upgrade" className="underline">Nadogradi</a>
+          {t('admin.retention.upgradePlanFirst')}{" "}
+          <a href="/admin/upgrade" className="underline">{t('admin.retention.upgradeLink')}</a>
         </div>
       ) : (
         <Button onClick={extend} disabled={busy || isAtCap || !csrfToken}>
-          {busy ? "Učitava..." : `Produži za ${DAYS_PER_PURCHASE} dana (+€${PRICE_EUR})`}
+          {busy ? t('admin.retention.loading') : t('admin.retention.extendButton', { days: DAYS_PER_PURCHASE, price: PRICE_EUR })}
         </Button>
       )}
       <p className="text-xs text-muted-foreground">
-        Refund je moguć u roku od 7 dana — kontaktirajte support@dodajuspomenu.com.
+        {t('admin.retention.refundNote')}
       </p>
     </div>
   );

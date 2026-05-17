@@ -214,7 +214,12 @@
       "noFavorites": "You don't have any favorite photos yet",
       "clickHeartToFavorite": "Click the heart icon on photos you want to mark as favorites",
       "selected": "selected",
-      "of": "of"
+      "of": "of",
+      "downloadError": "An error occurred while downloading the photo.",
+      "zipError": "An error occurred while creating the ZIP file.",
+      "csrfError": "CSRF token not loaded. Please refresh the page.",
+      "downloadFailed": "Failed to download photo",
+      "weddingPhoto": "Wedding photo"
     },
     "event": {
       "eyebrow": "Create your event",
@@ -416,13 +421,27 @@
         "noMessageLeft": "Guest didn't leave a message",
         "deleteGuest": "Delete guest",
         "deleteGuestTitle": "Delete this guest?",
-        "deleteGuestDescription": "All photos ({{count}}) and the message from this guest will be deleted. This action cannot be undone."
+        "deleteGuestDescription": "All photos ({{count}}) and the message from this guest will be deleted. This action cannot be undone.",
+        "csrfError": "CSRF token not loaded. Please refresh the page.",
+        "guestDeleted": "Guest deleted ({{name}}).",
+        "deleteError": "Delete failed.",
+        "deleting": "Deleting..."
       },
       "noGuests": "No registered guests.",
       "noGuestsDescription": "When guests register for this event, their profiles and images will appear here.",
       "welcome": {
         "enjoyPhotos": "enjoy your photos",
         "welcomeMessage": "Welcome to your dashboard"
+      },
+      "stats": {
+        "title": "Your celebration statistics",
+        "totalGuests": "Total guests",
+        "guestsWithImages": "Guests who uploaded photos",
+        "totalImages": "Total photos",
+        "avgImagesPerGuest": "Average photos per guest",
+        "guestsWithMessage": "Guests with a message",
+        "topGuest": "Most photos",
+        "noData": "No data"
       }
     },
     "pending": {
@@ -438,6 +457,66 @@
       "networkError": "Network error",
       "error": "Error",
       "refundFooter": "Refunds within 7 days — contact support@dodajuspomenu.com."
+    },
+    "guest": {
+      "detail": {
+        "serverError": "Server communication error.",
+        "loading": "Loading guest data...",
+        "notFound": "Guest not found",
+        "backToDashboard": "Back to dashboard",
+        "messageHeading": "Guest message",
+        "noMessage": "Guest left no message.",
+        "noPhotos": "Guest uploaded no photos."
+      }
+    },
+    "gallery": {
+      "loading": "Loading gallery...",
+      "downloadImage": "Download this image",
+      "downloadError": "Error downloading image.",
+      "download": "Download",
+      "guestPhoto": "Guest photo"
+    },
+    "messages": {
+      "pdfTitle": "Guest messages",
+      "pdfError": "Error generating PDF.",
+      "noMessages": "No guest messages.",
+      "guestMessageLabel": "Guest message"
+    },
+    "download": {
+      "title": "Download memories",
+      "description": "Here you can download all photos and messages from your wedding, save them as a keepsake or for further processing.",
+      "allImages": "All photos",
+      "imagesZip": "Download .zip ({{count}})",
+      "imagesZipDescription": "Download all guest photos as a ZIP archive ready for saving or sharing.",
+      "noImages": "No photos to download.",
+      "allMessages": "All messages",
+      "messagesZip": "Download .csv ({{count}})",
+      "messagesZipDescription": "All guest congratulations and messages in CSV format, ready for saving or printing.",
+      "noMessages": "No messages to download.",
+      "downloadingImages": "Downloading photos...",
+      "downloadingMessages": "Downloading messages...",
+      "imagesCount": "Total:",
+      "messagesCount": "Total:",
+      "tip": "We recommend regularly downloading photos and messages to preserve your memories.",
+      "imagesError": "Error downloading photos: ",
+      "messagesError": "Error downloading messages: "
+    },
+    "logout": {
+      "errorMessage": "Error logging out. Please try again.",
+      "networkError": "Failed to log out (network error).",
+      "button": "Log out",
+      "loading": "Logging out..."
+    },
+    "retention": {
+      "error": "Error",
+      "unknownError": "Unknown error",
+      "currentStorage": "Current additional storage:",
+      "maxDays": "(maximum {{max}})",
+      "upgradePlanFirst": "Upgrade your plan before extending retention.",
+      "upgradeLink": "Upgrade",
+      "loading": "Loading...",
+      "extendButton": "Extend by {{days}} days (+€{{price}})",
+      "refundNote": "Refund available within 7 days — contact support@dodajuspomenu.com."
     }
   },
   "navbar": {

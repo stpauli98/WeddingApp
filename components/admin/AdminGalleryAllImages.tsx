@@ -2,6 +2,7 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ImageData {
@@ -17,6 +18,7 @@ interface AdminGalleryAllImagesProps {
 
 
 const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images }) => {
+  const { t } = useTranslation();
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentIdx, setCurrentIdx] = useState<number>(0);
@@ -129,7 +131,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
-            <p className="text-[hsl(var(--lp-text))] font-medium">Učitavanje galerije...</p>
+            <p className="text-[hsl(var(--lp-text))] font-medium">{t('admin.gallery.loading')}</p>
           </div>
         </div>
       )}
@@ -163,7 +165,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
             )}
             <Image
               src={img.imageUrl && img.imageUrl.trim() !== "" ? img.imageUrl : "/placeholder.png"}
-              alt={img.guestName ? `Slika gosta: ${img.guestName}` : "Slika gosta"}
+              alt={img.guestName ? `${t('admin.gallery.guestPhoto')}: ${img.guestName}` : t('admin.gallery.guestPhoto')}
               width={400}
               height={400}
               priority={idx < 4}
@@ -284,7 +286,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
               <motion.button
                 whileHover={{ scale: 1.1, backgroundColor: 'hsl(var(--lp-accent))' }}
                 whileTap={{ scale: 0.95 }}
-                aria-label="Preuzmi ovu sliku"
+                aria-label={t('admin.gallery.downloadImage')}
                 onClick={async () => {
                   const img = sortedImages[currentIdx];
                   let blob: Blob;
@@ -301,7 +303,7 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
                       blob = new Blob([u8arr], { type: mime });
                     } else {
                       const res = await fetch(img.imageUrl);
-                      if (!res.ok) throw new Error('Greška pri preuzimanju slike');
+                      if (!res.ok) throw new Error(t('admin.gallery.downloadError'));
                       blob = await res.blob();
                     }
                     const url = URL.createObjectURL(blob);
@@ -316,16 +318,16 @@ const AdminGalleryAllImages: React.FC<AdminGalleryAllImagesProps> = ({ images })
                     }, 200);
                   } catch (error) {
                     console.error('Greška pri preuzimanju:', error);
-                    toast({ variant: "destructive", description: 'Greška pri preuzimanju slike.' });
+                    toast({ variant: "destructive", description: t('admin.gallery.downloadError') });
                   }
                 }}
                 className="fixed md:absolute bottom-4 right-4 md:bottom-8 md:right-8 z-20 bg-[hsl(var(--lp-accent))] hover:bg-[hsl(var(--lp-accent))] text-[hsl(var(--lp-text))] rounded-full p-3 shadow-xl transition-all duration-300 flex items-center gap-2"
-                title="Preuzmi ovu sliku"
+                title={t('admin.gallery.downloadImage')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
                 </svg>
-                <span className="hidden md:inline">Preuzmi</span>
+                <span className="hidden md:inline">{t('admin.gallery.download')}</span>
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.1, x: 5 }}
