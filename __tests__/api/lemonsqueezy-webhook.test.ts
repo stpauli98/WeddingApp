@@ -364,6 +364,26 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
     expect(json).toEqual({ ok: true, ignored: true });
   });
 
+  it('redacts user_email from WebhookLog payload before storing', async () => {
+    const customData = { event_id: 'e1', admin_id: 'a1', purpose: 'initial_purchase' };
+    const body = JSON.stringify({
+      meta: { event_name: 'order_created', webhook_id: 'wh_pii', custom_data: customData },
+      data: { id: 'o1', attributes: { user_email: 'buyer@example.com', total: 2500, currency: 'EUR', status: 'paid' } },
+    });
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    (prisma.event.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'e1', pricingTier: 'basic' });
+    (prisma.payment.upsert as jest.Mock).mockResolvedValueOnce({ id: 'p1' });
+    (prisma.event.update as jest.Mock).mockResolvedValueOnce({ id: 'e1' });
+
+    await POST(makeRequest(body, validSig(body)));
+
+    const logArg = (prisma.webhookLog.create as jest.Mock).mock.calls[0][0];
+    expect(logArg.data.payload.data.attributes.user_email).toBeNull();
+    // meta fields preserved (event_id, custom_data, etc.)
+    expect(logArg.data.payload.meta.webhook_id).toBe('wh_pii');
+    expect(logArg.data.payload.meta.custom_data.event_id).toBe('e1');
+  });
+
   it('returns 429 when rate limit exceeded (B1)', async () => {
     // Override mock to simulate exhaustion.
     mockRateLimitCheck.mockResolvedValue({ success: false, remaining: 0 });

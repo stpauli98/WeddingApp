@@ -62,6 +62,7 @@ export async function GET(request: Request) {
     adminSessionsDeleted: 0,
     warningEmailsSent: 0,
     eventsDeleted: 0,
+    webhookLogsDeleted: 0,
     errors: [] as string[],
   };
 
@@ -180,6 +181,17 @@ export async function GET(request: Request) {
           result.errors.push(`warn ${e.slug}: ${err?.message || 'unknown'}`);
         }
       }
+    }
+
+    // 5. Delete WebhookLog rows older than 90 days (GDPR + storage hygiene).
+    try {
+      const webhookLogCutoff = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      const deleted = await prisma.webhookLog.deleteMany({
+        where: { createdAt: { lt: webhookLogCutoff } },
+      });
+      result.webhookLogsDeleted = deleted.count;
+    } catch (e) {
+      result.errors.push(`webhook log cleanup: ${e instanceof Error ? e.message : String(e)}`);
     }
 
     return NextResponse.json(result);
