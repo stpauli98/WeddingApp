@@ -224,10 +224,13 @@ describe('cron cleanup — retention invariants', () => {
   });
 
   it('does not reprocess soft-deleted events (query filters by deletedAt: null)', async () => {
-    // Route's findMany uses { where: { deletedAt: null } } — verify query contract.
+    // Route's findMany is called twice: first for pending-event cleanup (pass 0),
+    // then for the retention candidates pass (pass 1, which filters by deletedAt: null).
     await GET(buildReq());
-    const whereArg = eventFindMany.mock.calls[0]?.[0]?.where;
-    expect(whereArg).toEqual(expect.objectContaining({ deletedAt: null }));
+    const retentionWhereArg = eventFindMany.mock.calls.find(
+      (call: any[]) => call[0]?.where?.deletedAt === null
+    )?.[0]?.where;
+    expect(retentionWhereArg).toEqual(expect.objectContaining({ deletedAt: null }));
   });
 
   it('sends deletion notification email to each guest on hard delete', async () => {

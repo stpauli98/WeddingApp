@@ -31,7 +31,7 @@ describe('POST /api/admin/events/extend-retention (paywall)', () => {
     process.env.LS_VARIANT_RETENTION_30 = 'vr';
   });
 
-  it('returns checkoutUrl for activated basic tier admin', async () => {
+  it('returns checkoutUrl for activated basic tier admin (no pending Payment row)', async () => {
     (getAuthenticatedAdmin as jest.Mock).mockResolvedValueOnce({
       id: 'a1', email: 'a@b.c',
       event: { id: 'e1', activatedAt: new Date(), pricingTier: 'basic', retentionOverrideDays: 30 },
@@ -40,11 +40,7 @@ describe('POST /api/admin/events/extend-retention (paywall)', () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.checkoutUrl).toBe('https://lc.test/checkout/ret');
-    expect(prisma.payment.create).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.objectContaining({
-        purpose: 'retention_extension', status: 'pending', tier: 'basic', retentionDaysGranted: 30,
-      }),
-    }));
+    expect(prisma.payment.create).not.toHaveBeenCalled();
     expect(createCheckoutUrl).toHaveBeenCalledWith(expect.objectContaining({
       customData: expect.objectContaining({
         event_id: 'e1', admin_id: 'a1', purpose: 'retention_extension',

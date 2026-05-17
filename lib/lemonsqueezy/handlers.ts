@@ -29,10 +29,13 @@ export function normalizeWebhook(payload: any): NormalizedWebhook | null {
   const eventId = custom?.event_id;
   const adminId = custom?.admin_id;
   const purpose = custom?.purpose;
+  const validPurposes = ['initial_purchase', 'upgrade', 'retention_extension'] as const;
   if (!lsEventId || !lsOrderId || !eventId || !adminId || !purpose || !attrs) {
     return null;
   }
-  if (eventName !== 'order_created' && eventName !== 'order_refunded') return null;
+  if (!(validPurposes as readonly string[]).includes(purpose)) {
+    return null;
+  }
 
   // For upgrade, to_tier must be present and a valid paid tier.
   let toTier: PricingTier | undefined;
@@ -67,7 +70,10 @@ export async function handleInitialPurchase(w: NormalizedWebhook): Promise<void>
     where: { id: w.custom.eventId },
     select: { id: true, pricingTier: true },
   });
-  if (!event) throw new Error(`Event ${w.custom.eventId} not found`);
+  if (!event) {
+    console.warn(`[lemonsqueezy] Event ${w.custom.eventId} not found — likely cancelled. Webhook ignored.`);
+    return;
+  }
   if (event.pricingTier === 'free') throw new Error('free tier should never reach this handler');
 
   const upsertOp = prisma.payment.upsert({
@@ -111,7 +117,10 @@ export async function handleUpgrade(w: NormalizedWebhook): Promise<void> {
     where: { id: w.custom.eventId },
     select: { id: true, pricingTier: true, imageLimit: true },
   });
-  if (!event) throw new Error(`Event ${w.custom.eventId} not found`);
+  if (!event) {
+    console.warn(`[lemonsqueezy] Event ${w.custom.eventId} not found — likely cancelled. Webhook ignored.`);
+    return;
+  }
 
   const plan = await prisma.pricingPlan.findUnique({
     where: { tier: toTier },
@@ -166,7 +175,10 @@ export async function handleRetentionExtension(w: NormalizedWebhook): Promise<vo
     where: { id: w.custom.eventId },
     select: { id: true, pricingTier: true, retentionOverrideDays: true },
   });
-  if (!event) throw new Error(`Event ${w.custom.eventId} not found`);
+  if (!event) {
+    console.warn(`[lemonsqueezy] Event ${w.custom.eventId} not found — likely cancelled. Webhook ignored.`);
+    return;
+  }
   if (event.pricingTier === 'free') throw new Error('free tier cannot have retention extension');
 
   const newOverride = Math.min(

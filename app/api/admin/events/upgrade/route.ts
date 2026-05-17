@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { getAuthenticatedAdmin } from '@/lib/admin-auth';
 import { validateCsrfToken, generateCsrfToken } from '@/lib/csrf';
 import { resolveVariantId } from '@/lib/lemonsqueezy/variants';
@@ -58,21 +57,6 @@ export async function POST(req: Request) {
       to_tier: toTier,
     },
     successRedirectUrl: `${baseUrl}admin/dashboard/${admin.event.id}?upgraded=1`,
-  });
-
-  await prisma.payment.create({
-    data: {
-      eventId: admin.event.id,
-      tier: toTier,
-      amountCents: 0,
-      currency: 'EUR',
-      status: 'pending',
-      purpose: 'upgrade',
-      lsCheckoutId: `pending_up_${admin.event.id}_${Date.now()}`,
-      customerEmail: admin.email,
-      metadata: { fromTier, toTier, requestingAdminId: admin.id },
-      updatedAt: new Date(),
-    },
   });
 
   return NextResponse.json({ checkoutUrl });

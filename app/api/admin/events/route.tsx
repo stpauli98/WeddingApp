@@ -129,25 +129,7 @@ export async function POST(request: Request) {
         admin_id: adminId,
         purpose: 'initial_purchase',
       },
-      successRedirectUrl: `${process.env.NEXTAUTH_URL || 'https://www.dodajuspomenu.com/'}admin/dashboard/${event.id}?paid=1`,
-    });
-
-    await prisma.payment.create({
-      data: {
-        eventId: event.id,
-        tier: selectedTier,
-        amountCents: 0, // real amount comes from webhook
-        currency: 'EUR',
-        status: 'pending',
-        purpose: 'initial_purchase',
-        lsCheckoutId: `pending_${event.id}`,
-        customerEmail: session.admin.email,
-        metadata: {
-          checkoutUrlGeneratedAt: now.toISOString(),
-          requestingAdminId: adminId,
-        },
-        updatedAt: now,
-      },
+      successRedirectUrl: `${(process.env.NEXTAUTH_URL || 'https://www.dodajuspomenu.com/').replace(/\/?$/, '/')}admin/dashboard/${event.id}?paid=1`,
     });
 
     return NextResponse.json({ success: true, event, checkoutUrl });
