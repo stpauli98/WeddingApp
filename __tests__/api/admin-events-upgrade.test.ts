@@ -80,23 +80,17 @@ describe('POST /api/admin/events/upgrade', () => {
     expect(res.status).toBe(409);
   });
 
-  it('happy path free → basic returns checkoutUrl + persists pending Payment', async () => {
+  it('happy path free → basic returns checkoutUrl (no pending Payment row)', async () => {
     (getAuthenticatedAdmin as jest.Mock).mockResolvedValueOnce({
       id: 'a1', email: 'a@b.c',
       event: { id: 'e1', activatedAt: new Date(), pricingTier: 'free' },
     });
-    (prisma.payment.create as jest.Mock).mockResolvedValueOnce({ id: 'p1' });
 
     const res = await POST(req({ toTier: 'basic' }));
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.checkoutUrl).toBe('https://lc.test/checkout/up');
-    expect(prisma.payment.create).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.objectContaining({
-        eventId: 'e1', purpose: 'upgrade', status: 'pending', tier: 'basic',
-        metadata: expect.objectContaining({ fromTier: 'free', toTier: 'basic' }),
-      }),
-    }));
+    expect(prisma.payment.create).not.toHaveBeenCalled();
     expect(createCheckoutUrl).toHaveBeenCalledWith(expect.objectContaining({
       customerEmail: 'a@b.c',
       customData: expect.objectContaining({
@@ -110,10 +104,10 @@ describe('POST /api/admin/events/upgrade', () => {
       id: 'a1', email: 'a@b.c',
       event: { id: 'e1', activatedAt: new Date(), pricingTier: 'basic' },
     });
-    (prisma.payment.create as jest.Mock).mockResolvedValueOnce({ id: 'p2' });
 
     const res = await POST(req({ toTier: 'premium' }));
     expect(res.status).toBe(200);
+    expect(prisma.payment.create).not.toHaveBeenCalled();
     expect(createCheckoutUrl).toHaveBeenCalledWith(expect.objectContaining({
       customData: expect.objectContaining({ to_tier: 'premium' }),
     }));

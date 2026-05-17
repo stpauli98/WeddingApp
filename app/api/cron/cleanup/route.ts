@@ -57,6 +57,7 @@ export async function GET(request: Request) {
   const result = {
     ok: true,
     at: now.toISOString(),
+    pendingEventsDeleted: 0,
     guestSessionsCleared: 0,
     adminSessionsDeleted: 0,
     warningEmailsSent: 0,
@@ -65,6 +66,27 @@ export async function GET(request: Request) {
   };
 
   try {
+    // 0. Delete pending events past their 24h TTL — unblock 1:1 admin↔event constraint
+    try {
+      const expiredPending = await prisma.event.findMany({
+        where: {
+          activatedAt: null,
+          pendingPaymentExpiresAt: { lt: now },
+        },
+        select: { id: true },
+      });
+      if (expiredPending.length > 0) {
+        const ids = expiredPending.map((e) => e.id);
+        await prisma.$transaction([
+          prisma.payment.deleteMany({ where: { eventId: { in: ids } } }),
+          prisma.event.deleteMany({ where: { id: { in: ids } } }),
+        ]);
+        result.pendingEventsDeleted = expiredPending.length;
+      }
+    } catch (e) {
+      result.errors.push(`pending cleanup: ${e instanceof Error ? e.message : String(e)}`);
+    }
+
     // 1. Guest session token cleanup (grace 7 days).
     const guestCutoff = new Date(now.getTime() - GUEST_SESSION_GRACE_MS);
     result.guestSessionsCleared = (

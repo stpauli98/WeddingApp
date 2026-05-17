@@ -1,7 +1,6 @@
 // Admin-initiated retention extension — paywalled via LemonSqueezy.
 // Each POST starts a €15 / +30 days purchase. Webhook handler bumps retentionOverrideDays.
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { generateCsrfToken, validateCsrfToken } from '@/lib/csrf';
 import { getAuthenticatedAdmin } from '@/lib/admin-auth';
 import { resolveVariantId } from '@/lib/lemonsqueezy/variants';
@@ -59,21 +58,6 @@ export async function POST(req: Request) {
       purpose: 'retention_extension',
     },
     successRedirectUrl: `${baseUrl}admin/dashboard/${admin.event.id}?retention=1`,
-  });
-
-  await prisma.payment.create({
-    data: {
-      eventId: admin.event.id,
-      tier: admin.event.pricingTier,
-      amountCents: 0,
-      currency: 'EUR',
-      status: 'pending',
-      purpose: 'retention_extension',
-      lsCheckoutId: `pending_ret_${admin.event.id}_${Date.now()}`,
-      customerEmail: admin.email,
-      retentionDaysGranted: RETENTION_DAYS_PER_PURCHASE,
-      updatedAt: new Date(),
-    },
   });
 
   return NextResponse.json({ checkoutUrl });

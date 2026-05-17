@@ -318,19 +318,33 @@ describe('POST /api/webhooks/lemonsqueezy', () => {
     }));
   });
 
-  it('returns 500 + logs error when handler throws', async () => {
+  it('returns 200 ok:true (no error) when event is missing — handler warns + returns gracefully', async () => {
     const customData = { event_id: 'e_missing', admin_id: 'a', purpose: 'initial_purchase' };
     const body = JSON.stringify({
       meta: { event_name: 'order_created', webhook_id: 'wh_err_1', custom_data: customData },
       data: { id: 'order_x', attributes: { user_email: 'a@b.c', total: 2500, currency: 'EUR', status: 'paid' } },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValueOnce(null);
-    (prisma.event.findUnique as jest.Mock).mockResolvedValueOnce(null); // Event missing -> handler throws
+    (prisma.event.findUnique as jest.Mock).mockResolvedValueOnce(null); // Event missing -> handler warns + returns
 
     const res = await POST(makeRequest(body, validSig(body)));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json).toEqual({ ok: true });
+    // processedAt stamped; no error field
     expect(prisma.webhookLog.update).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.objectContaining({ error: expect.stringContaining('not found') }),
+      data: expect.objectContaining({ processedAt: expect.any(Date) }),
     }));
+  });
+
+  it('returns 200 ignored for webhook with unknown purpose value', async () => {
+    const body = JSON.stringify({
+      meta: { event_name: 'order_created', webhook_id: 'wh_bad_purpose', custom_data: { event_id: 'e1', admin_id: 'a1', purpose: 'unknown_value' } },
+      data: { id: 'order_x', attributes: { user_email: 'a@b.c', total: 100, currency: 'EUR', status: 'paid' } },
+    });
+    const res = await POST(makeRequest(body, validSig(body)));
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json).toEqual({ ok: true, ignored: true });
   });
 });

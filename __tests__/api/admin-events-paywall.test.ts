@@ -74,10 +74,9 @@ describe('POST /api/admin/events paywall behavior', () => {
     expect(createCheckoutUrl).not.toHaveBeenCalled();
   });
 
-  it('creates paid event pending + Payment(pending) + returns checkoutUrl', async () => {
+  it('creates paid event pending + returns checkoutUrl (no pending Payment row)', async () => {
     (prisma.pricingPlan.findUnique as jest.Mock).mockResolvedValue({ imageLimit: 7 });
     (prisma.event.create as jest.Mock).mockResolvedValueOnce({ id: 'e_paid', slug: 'paid-slug' });
-    (prisma.payment.create as jest.Mock).mockResolvedValueOnce({ id: 'p1' });
 
     const res = await POST(makeReq({
       coupleName: 'X Y', location: 'Bg', date: '2027-01-01',
@@ -93,14 +92,7 @@ describe('POST /api/admin/events paywall behavior', () => {
         pendingPaymentExpiresAt: expect.any(Date),
       }),
     }));
-    expect(prisma.payment.create).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.objectContaining({
-        eventId: 'e_paid',
-        status: 'pending',
-        purpose: 'initial_purchase',
-        tier: 'basic',
-      }),
-    }));
+    expect(prisma.payment.create).not.toHaveBeenCalled();
     expect(createCheckoutUrl).toHaveBeenCalledWith(expect.objectContaining({
       customerEmail: 'a@b.c',
       customData: expect.objectContaining({
