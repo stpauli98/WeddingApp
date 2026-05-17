@@ -98,6 +98,37 @@ Messages are separate: upserted via `prisma.message.upsert({ where: { guestId } 
 - `/api/admin/download/images` — streams ZIP. Only fetches URLs passing `isAllowedImageUrl()` (Cloudinary allowlist + base64 data URIs). Do not extend this without re-auditing.
 - `/api/admin/download/messages` — HTML export with escaped content to prevent XSS.
 
+### Paywall (LemonSqueezy)
+
+All paid actions go through LemonSqueezy (LS) hosted checkout. Three surfaces:
+
+1. **Initial purchase** — admin selects `basic`/`premium` at event creation → POST `/api/admin/events` returns `{ checkoutUrl }`. Event is created with `activatedAt=null + pendingPaymentExpiresAt=now+24h`. Webhook activates on payment.
+2. **Tier upgrade** — POST `/api/admin/events/upgrade` (free→basic/premium, basic→premium). No pre-webhook Payment row (Group A removed orphans). Webhook updates `event.pricingTier + imageLimit` and records `Payment(purpose='upgrade', metadata.previousTier)`.
+3. **Retention extension** — €15 / +30 days. POST `/api/admin/events/extend-retention` returns checkout URL. Webhook bumps `event.retentionOverrideDays` by 30 (capped at 365). Free tier blocked (must upgrade first); unlimited tier blocked (already permanent).
+
+**Webhook receiver** at `/api/webhooks/lemonsqueezy`:
+- HMAC-SHA256 signature gate (fail-closed, log only authenticated traffic)
+- Rate limit 60/min/IP via `createRateLimiter`
+- Idempotency: `Payment.lsEventId @unique` (full constraint, not partial)
+- Dispatch by `payload.meta.event_name + payload.meta.custom_data.purpose`
+- Each handler wraps writes in `prisma.$transaction([upsert, eventUpdate])`
+- Missing-event guard: `console.warn + return` instead of throwing → LS doesn't retry-storm cancelled events
+- Refund handler cross-checks `event.adminId === custom.admin_id` as defense-in-depth
+
+**Cancel-pending** (`/api/admin/events/cancel-pending`) uses `event.deleteMany WHERE id AND activatedAt IS NULL` so a concurrent webhook activation atomically blocks the delete (race-safe).
+
+**Cleanup cron** (`/api/cron/cleanup`) purges expired pending events (`activatedAt=null AND pendingPaymentExpiresAt < now`) to prevent 1:1 admin↔event lockout.
+
+**Env vars** (Production): `LEMONSQUEEZY_API_KEY`, `LEMONSQUEEZY_STORE_ID`, `LEMONSQUEEZY_WEBHOOK_SECRET`, `LEMONSQUEEZY_TEST_MODE` (1=test, 0=live), `LS_VARIANT_{BASIC,PREMIUM,UPGRADE_BASIC_TO_PREMIUM,RETENTION_30}`.
+
+**Custom data keys** sent to LS use **snake_case** (`event_id`, `admin_id`, `purpose`, `to_tier`) — LS normalizes them anyway, but we send the canonical form.
+
+**Specs + plans**:
+- `docs/superpowers/specs/2026-05-16-paywall-design.md` — design
+- `docs/superpowers/plans/2026-05-16-paywall-implementation.md` — M1/M2/M3 plan
+- `docs/superpowers/specs/2026-05-17-paywall-followup-fixes.md` — post-go-live audit
+- `docs/superpowers/plans/2026-05-17-paywall-final-cleanup.md` — H1/H2/M2/M5/L1/L2/L4 cleanup
+
 ## Key Directory Pointers
 
 ```

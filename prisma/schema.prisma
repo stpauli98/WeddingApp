@@ -192,7 +192,6 @@ model Payment {
   currency             String         @default("EUR")
   status               PaymentStatus
   purpose              PaymentPurpose
-  lsCheckoutId         String         @unique
   lsOrderId            String?
   lsEventId            String?        @unique
   retentionDaysGranted Int?

@@ -99,6 +99,17 @@ describe('POST /api/admin/events/upgrade', () => {
     }));
   });
 
+  it('rejects 400 with clear message when fromTier is unlimited (grandfathered)', async () => {
+    (getAuthenticatedAdmin as jest.Mock).mockResolvedValueOnce({
+      id: 'a1', email: 'a@b.c',
+      event: { id: 'e1', activatedAt: new Date(), pricingTier: 'unlimited' },
+    });
+    const res = await POST(req({ toTier: 'premium' }));
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json.error).toMatch(/najvišem planu|highest plan|unlimited/i);
+  });
+
   it('happy path basic → premium uses upgrade variant', async () => {
     (getAuthenticatedAdmin as jest.Mock).mockResolvedValueOnce({
       id: 'a1', email: 'a@b.c',

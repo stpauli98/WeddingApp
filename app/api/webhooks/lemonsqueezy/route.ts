@@ -14,7 +14,7 @@ export const runtime = 'nodejs';
 export async function POST(req: Request) {
   const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
   if (!secret) {
-    console.error('LEMONSQUEEZY_WEBHOOK_SECRET not set — rejecting webhook');
+    console.error('[lemonsqueezy] LEMONSQUEEZY_WEBHOOK_SECRET not set — rejecting webhook');
     return NextResponse.json({ error: 'webhook misconfigured' }, { status: 500 });
   }
 
@@ -100,7 +100,7 @@ export async function POST(req: Request) {
       await handleRefund(normalized);
     }
   } catch (err) {
-    console.error('LS webhook handler error:', err);
+    console.error('[lemonsqueezy] handler error:', err);
     await prisma.webhookLog.update({
       where: { id: logRow.id },
       data: { error: err instanceof Error ? err.message : String(err) },

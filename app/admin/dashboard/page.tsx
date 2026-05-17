@@ -21,6 +21,10 @@ export default async function AdminDashboardPage() {
   // Pronadji event koji pripada ovom adminu
   const event = await prisma.event.findFirst({ where: { adminId: admin.id } });
   if (event) {
+    // Short-circuit pending events to avoid a redirect bounce via [eventId] page.
+    if (!event.activatedAt) {
+      redirect(`/${languagePrefix}/admin/event/pending`);
+    }
     redirect(`/${languagePrefix}/admin/dashboard/${event.id}`);
   }
 

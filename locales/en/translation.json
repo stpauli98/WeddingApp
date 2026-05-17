@@ -424,6 +424,20 @@
         "enjoyPhotos": "enjoy your photos",
         "welcomeMessage": "Welcome to your dashboard"
       }
+    },
+    "pending": {
+      "loading": "Loading...",
+      "errorLoading": "Failed to load",
+      "title": "Payment pending",
+      "description": "Your event {{coupleName}} ({{tier}}) is reserved. Complete payment to activate the admin dashboard.",
+      "payNow": "Pay now",
+      "loadingState": "Loading...",
+      "cancel": "Cancel event",
+      "cancelConfirm": "Sure you want to cancel? The URL will be freed and you cannot get it back.",
+      "cancelError": "Failed to cancel",
+      "networkError": "Network error",
+      "error": "Error",
+      "refundFooter": "Refunds within 7 days — contact support@dodajuspomenu.com."
     }
   },
   "navbar": {

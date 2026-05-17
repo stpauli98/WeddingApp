@@ -81,6 +81,17 @@ describe('POST /api/admin/events/extend-retention (paywall)', () => {
     expect(res.status).toBe(409);
   });
 
+  it('rejects 400 when pricingTier is unlimited (grandfathered — never expires)', async () => {
+    (getAuthenticatedAdmin as jest.Mock).mockResolvedValueOnce({
+      id: 'a1', email: 'a@b.c',
+      event: { id: 'e1', activatedAt: new Date(), pricingTier: 'unlimited', retentionOverrideDays: 0 },
+    });
+    const res = await POST(req());
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json.error).toMatch(/unlimited|trajno|never expires/i);
+  });
+
   it('rejects 403 invalid CSRF', async () => {
     const { validateCsrfToken } = await import('@/lib/csrf');
     (validateCsrfToken as jest.Mock).mockResolvedValueOnce(false);

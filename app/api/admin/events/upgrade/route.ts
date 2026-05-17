@@ -35,6 +35,12 @@ export async function POST(req: Request) {
   }
 
   const fromTier = admin.event.pricingTier as PricingTier;
+  if (fromTier === 'unlimited') {
+    return NextResponse.json(
+      { error: 'Već ste na najvišem planu (unlimited).' },
+      { status: 400 }
+    );
+  }
   if (fromTier === toTier) {
     return NextResponse.json({ error: `already on ${toTier}` }, { status: 400 });
   }
