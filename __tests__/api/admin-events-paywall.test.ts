@@ -100,6 +100,8 @@ describe('POST /api/admin/events paywall behavior', () => {
         admin_id: 'a1',
         purpose: 'initial_purchase',
       }),
+      locale: 'sr',
+      checkoutTarget: { purpose: 'initial_purchase', tier: 'basic' },
     }));
   });
 

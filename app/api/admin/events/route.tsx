@@ -130,6 +130,8 @@ export async function POST(request: Request) {
         purpose: 'initial_purchase',
       },
       successRedirectUrl: `${(process.env.NEXTAUTH_URL || 'https://www.dodajuspomenu.com/').replace(/\/?$/, '/')}admin/dashboard/${event.id}?paid=1`,
+      locale: (admin?.language === 'en' ? 'en' : 'sr'),
+      checkoutTarget: { purpose: 'initial_purchase', tier: selectedTier as 'basic' | 'premium' },
     });
 
     return NextResponse.json({ success: true, event, checkoutUrl });

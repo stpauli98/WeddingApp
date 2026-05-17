@@ -1,4 +1,6 @@
 import { lemonSqueezySetup, createCheckout } from '@lemonsqueezy/lemonsqueezy.js';
+import { getLocalizedProductCopy, type Locale } from '@/lib/lemonsqueezy/product-copy';
+import type { CheckoutTarget } from '@/lib/lemonsqueezy/variants';
 
 export interface CustomCheckoutData {
   event_id: string;
@@ -13,6 +15,17 @@ export interface CreateCheckoutArgs {
   customerEmail: string;
   customData: CustomCheckoutData;
   successRedirectUrl: string;
+  /**
+   * Admin's UI locale ('sr' or 'en'). Used to override the LS-stored product
+   * name/description on the hosted checkout page so the buyer sees the right
+   * language regardless of what was typed in the LS dashboard.
+   */
+  locale: Locale;
+  /**
+   * The same target object passed to `resolveVariantId` — used to look up the
+   * localized product copy.
+   */
+  checkoutTarget: CheckoutTarget;
 }
 
 function requireEnv(name: string): string {
@@ -32,6 +45,8 @@ export async function createCheckoutUrl(args: CreateCheckoutArgs): Promise<strin
   ensureSetup();
   const storeId = requireEnv('LEMONSQUEEZY_STORE_ID');
 
+  const copy = getLocalizedProductCopy(args.checkoutTarget, args.locale);
+
   const { data, error } = await createCheckout(storeId, args.variantId, {
     checkoutData: {
       email: args.customerEmail,
@@ -39,6 +54,8 @@ export async function createCheckoutUrl(args: CreateCheckoutArgs): Promise<strin
     },
     productOptions: {
       redirectUrl: args.successRedirectUrl,
+      name: copy.name,
+      description: copy.description,
     },
     testMode: process.env.LEMONSQUEEZY_TEST_MODE === '1',
   });

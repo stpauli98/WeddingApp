@@ -64,6 +64,8 @@ export async function POST(req: Request) {
       purpose: 'retention_extension',
     },
     successRedirectUrl: `${baseUrl}admin/dashboard/${admin.event.id}?retention=1`,
+    locale: (admin.language === 'en' ? 'en' : 'sr'),
+    checkoutTarget: { purpose: 'retention_extension' },
   });
 
   return NextResponse.json({ checkoutUrl });
