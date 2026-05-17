@@ -466,7 +466,8 @@
         "backToDashboard": "Back to dashboard",
         "messageHeading": "Guest message",
         "noMessage": "Guest left no message.",
-        "noPhotos": "Guest uploaded no photos."
+        "noPhotos": "Guest uploaded no photos.",
+        "unknownError": "Unknown error."
       }
     },
     "gallery": {
@@ -474,7 +475,14 @@
       "downloadImage": "Download this image",
       "downloadError": "Error downloading image.",
       "download": "Download",
-      "guestPhoto": "Guest photo"
+      "guestPhoto": "Guest photo",
+      "emptyHeading": "No uploaded photos yet",
+      "emptySubtext": "Once guests upload photos, the gallery for this event will appear here.",
+      "modalClose": "Close",
+      "modalCloseAria": "Close image view",
+      "prevImage": "Previous image",
+      "nextImage": "Next image",
+      "thumbnailAria": "Go to image {{n}}"
     },
     "messages": {
       "pdfTitle": "Guest messages",

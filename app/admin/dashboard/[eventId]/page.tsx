@@ -52,7 +52,7 @@ export default async function AdminDashboardEventPage({ params }: {
   return (
     <div className="container mx-auto p-6 relative bg-[hsl(var(--lp-bg))]">
       <div className="sticky flex justify-end top-[46px] right-0 z-50 mb-4">
-        <AdminLogoutButton language={event.language} />
+        <AdminLogoutButton />
       </div>
       <FadeInUp>
         <div className="mb-8 text-center">

@@ -466,7 +466,8 @@
         "backToDashboard": "Nazad na dashboard",
         "messageHeading": "Poruka gosta",
         "noMessage": "Gost nije ostavio poruku.",
-        "noPhotos": "Gost nije uploadovao nijednu fotografiju."
+        "noPhotos": "Gost nije uploadovao nijednu fotografiju.",
+        "unknownError": "Nepoznata greška."
       }
     },
     "gallery": {
@@ -474,7 +475,14 @@
       "downloadImage": "Preuzmi ovu sliku",
       "downloadError": "Greška pri preuzimanju slike.",
       "download": "Preuzmi",
-      "guestPhoto": "Slika gosta"
+      "guestPhoto": "Slika gosta",
+      "emptyHeading": "Nema uploadovanih slika",
+      "emptySubtext": "Kada gosti pošalju slike, ovdje će se pojaviti galerija za ovaj event.",
+      "modalClose": "Zatvori",
+      "modalCloseAria": "Zatvori prikaz slike",
+      "prevImage": "Prethodna slika",
+      "nextImage": "Sledeća slika",
+      "thumbnailAria": "Pređi na sliku {{n}}"
     },
     "messages": {
       "pdfTitle": "Poruke gostiju",

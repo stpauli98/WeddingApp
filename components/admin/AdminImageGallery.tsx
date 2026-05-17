@@ -109,6 +109,7 @@ function PhotoCard({
   photoAlt?: string;
   onDownload?: (url: string) => void;
 }) {
+  const { t } = useTranslation();
   const validUrl = photo.imageUrl && photo.imageUrl.trim() !== "" ? photo.imageUrl : "/no-image-uploaded.png";
 
   return (
@@ -169,7 +170,7 @@ function PhotoCard({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              if (onDownload) onDownload(validUrl); else downloadImageHelper(validUrl, "fotografija");
+              if (onDownload) onDownload(validUrl); else downloadImageHelper(validUrl, "fotografija", { downloadFailed: t('admin.imageGallery.downloadFailed'), downloadError: t('admin.imageGallery.downloadError') });
             }}
             className="rounded-full p-1 text-slate-400 hover:text-blue-500"
             aria-label="Preuzmi sliku"

@@ -36,7 +36,7 @@ export default function GuestDetailPage({ params }: { params: Promise<{ id: stri
       .then(async res => {
         if (!res.ok) {
           const data = await res.json();
-          setError(data.error || "Nepoznata greška.");
+          setError(data.error || t('admin.guest.detail.unknownError'));
           setGuest(null);
           setLoading(false);
           return;

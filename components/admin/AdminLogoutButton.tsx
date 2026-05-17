@@ -4,11 +4,7 @@ import { toast } from "@/hooks/use-toast"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-interface AdminLogoutButtonProps {
-  language?: string
-}
-
-export default function AdminLogoutButton({ language }: AdminLogoutButtonProps = {}) {
+export default function AdminLogoutButton() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
