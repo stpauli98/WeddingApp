@@ -36,7 +36,6 @@ export function normalizeWebhook(payload: any): NormalizedWebhook | null {
   if (!(validPurposes as readonly string[]).includes(purpose)) {
     return null;
   }
-  if (eventName !== 'order_created' && eventName !== 'order_refunded') return null;
 
   // For upgrade, to_tier must be present and a valid paid tier.
   let toTier: PricingTier | undefined;
