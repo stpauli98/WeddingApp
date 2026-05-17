@@ -27,7 +27,7 @@ describe('createCheckoutUrl', () => {
     const url = await createCheckoutUrl({
       variantId: 'var_basic',
       customerEmail: 'admin@example.com',
-      customData: { eventId: 'e1', adminId: 'a1', purpose: 'initial_purchase' },
+      customData: { event_id: 'e1', admin_id: 'a1', purpose: 'initial_purchase' },
       successRedirectUrl: 'https://app.test/admin/dashboard/e1?paid=1',
     });
     expect(url).toBe('https://checkout.lemonsqueezy.com/abc123');
@@ -35,7 +35,7 @@ describe('createCheckoutUrl', () => {
     expect(createCheckout).toHaveBeenCalledWith('99', 'var_basic', expect.objectContaining({
       checkoutData: expect.objectContaining({
         email: 'admin@example.com',
-        custom: { eventId: 'e1', adminId: 'a1', purpose: 'initial_purchase' },
+        custom: { event_id: 'e1', admin_id: 'a1', purpose: 'initial_purchase' },
       }),
       productOptions: expect.objectContaining({
         redirectUrl: 'https://app.test/admin/dashboard/e1?paid=1',
@@ -49,7 +49,7 @@ describe('createCheckoutUrl', () => {
     await createCheckoutUrl({
       variantId: 'var_basic',
       customerEmail: 'a@b.c',
-      customData: { eventId: 'e', adminId: 'a', purpose: 'initial_purchase' },
+      customData: { event_id: 'e', admin_id: 'a', purpose: 'initial_purchase' },
       successRedirectUrl: 'https://x',
     });
     expect(createCheckout).toHaveBeenCalledWith('99', 'var_basic', expect.objectContaining({
@@ -65,7 +65,7 @@ describe('createCheckoutUrl', () => {
     await expect(createCheckoutUrl({
       variantId: 'var_bad',
       customerEmail: 'a@b.c',
-      customData: { eventId: 'e', adminId: 'a', purpose: 'initial_purchase' },
+      customData: { event_id: 'e', admin_id: 'a', purpose: 'initial_purchase' },
       successRedirectUrl: 'https://x',
     })).rejects.toThrow(/invalid variant/);
   });
@@ -78,7 +78,7 @@ describe('createCheckoutUrl', () => {
     await expect(createCheckoutUrl({
       variantId: 'var_basic',
       customerEmail: 'a@b.c',
-      customData: { eventId: 'e', adminId: 'a', purpose: 'initial_purchase' },
+      customData: { event_id: 'e', admin_id: 'a', purpose: 'initial_purchase' },
       successRedirectUrl: 'https://x',
     })).rejects.toThrow(/no URL/);
   });
@@ -88,7 +88,7 @@ describe('createCheckoutUrl', () => {
     await expect(createCheckoutUrl({
       variantId: 'var_basic',
       customerEmail: 'a@b.c',
-      customData: { eventId: 'e', adminId: 'a', purpose: 'initial_purchase' },
+      customData: { event_id: 'e', admin_id: 'a', purpose: 'initial_purchase' },
       successRedirectUrl: 'https://x',
     })).rejects.toThrow(/LEMONSQUEEZY_API_KEY/);
   });

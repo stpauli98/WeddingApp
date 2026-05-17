@@ -125,8 +125,8 @@ export async function POST(request: Request) {
       variantId,
       customerEmail: session.admin.email,
       customData: {
-        eventId: event.id,
-        adminId,
+        event_id: event.id,
+        admin_id: adminId,
         purpose: 'initial_purchase',
       },
       successRedirectUrl: `${process.env.NEXTAUTH_URL || 'https://www.dodajuspomenu.com/'}admin/dashboard/${event.id}?paid=1`,
