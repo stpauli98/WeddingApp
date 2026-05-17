@@ -6,14 +6,16 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Props {
   currentOverrideDays?: number;
+  pricingTier?: string;
 }
 
-const PRESET_DAYS = [7, 30, 90, 180];
+const DAYS_PER_PURCHASE = 30;
+const MAX_OVERRIDE_DAYS = 365;
+const PRICE_EUR = 15;
 
-export function ExtendRetentionButton({ currentOverrideDays = 0 }: Props) {
+export function ExtendRetentionButton({ currentOverrideDays = 0, pricingTier }: Props) {
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [overrideDays, setOverrideDays] = useState(currentOverrideDays);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export function ExtendRetentionButton({ currentOverrideDays = 0 }: Props) {
       .catch(() => setCsrfToken(null));
   }, []);
 
-  async function extend(days: number) {
+  async function extend() {
     if (!csrfToken) return;
     setBusy(true);
     try {
@@ -33,71 +35,50 @@ export function ExtendRetentionButton({ currentOverrideDays = 0 }: Props) {
           "content-type": "application/json",
           "x-csrf-token": csrfToken,
         },
-        body: JSON.stringify({ days }),
+        body: JSON.stringify({}),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Greška");
-      setOverrideDays(data.retentionOverrideDays);
-      toast({
-        title: "Produženo",
-        description:
-          days === 0
-            ? "Dodatni dani uklonjeni — vraćaš se na osnovni plan."
-            : `Produženje postavljeno na +${days} dana.`,
-      });
+      if (data.checkoutUrl) {
+        // Note: setBusy(false) intentionally NOT called here — keep button
+        // disabled while the navigation is in flight. If the redirect fails
+        // (rare), the user can refresh; an always-true busy state on the
+        // happy path is safer than a flicker back to enabled before nav.
+        window.location.href = data.checkoutUrl;
+        return;
+      }
+      throw new Error(data.error || "Greška");
     } catch (err: unknown) {
       toast({
         variant: "destructive",
         title: "Greška",
         description: err instanceof Error ? err.message : "Nepoznata greška",
       });
-    } finally {
       setBusy(false);
     }
   }
 
+  const isFree = pricingTier === "free";
+  const isAtCap = currentOverrideDays + DAYS_PER_PURCHASE > MAX_OVERRIDE_DAYS;
+
   return (
-    <div className="space-y-3">
-      <div>
-        <h3 className="text-sm font-semibold text-[hsl(var(--lp-text))]">Produži trajanje podataka</h3>
-        <p className="text-sm text-[hsl(var(--lp-muted-foreground))]">
-          Trenutno produženje:{" "}
-          <strong className="text-[hsl(var(--lp-text))]">
-            {overrideDays === 0 ? "nema dodatnih dana" : `+${overrideDays} dana`}
-          </strong>
-        </p>
+    <div className="space-y-2">
+      <div className="text-sm text-muted-foreground">
+        Trenutno dodatno čuvanje: <strong>+{currentOverrideDays} dana</strong>
+        {isAtCap && ` (maksimalno ${MAX_OVERRIDE_DAYS})`}
       </div>
-      <div className="flex flex-wrap gap-2">
-        {PRESET_DAYS.map((d) => {
-          const active = overrideDays === d;
-          return (
-            <Button
-              key={d}
-              size="sm"
-              disabled={busy || !csrfToken}
-              onClick={() => extend(d)}
-              className={
-                active
-                  ? "bg-[hsl(var(--lp-primary))] text-[hsl(var(--lp-primary-foreground))] hover:bg-[hsl(var(--lp-primary))]/90"
-                  : "border border-[hsl(var(--lp-border))] bg-[hsl(var(--lp-card))] text-[hsl(var(--lp-text))] hover:bg-[hsl(var(--lp-muted))]/30"
-              }
-            >
-              +{d} dana
-            </Button>
-          );
-        })}
-        {overrideDays > 0 && (
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={busy || !csrfToken}
-            onClick={() => extend(0)}
-            className="text-[hsl(var(--lp-muted-foreground))] hover:text-[hsl(var(--lp-text))] hover:bg-[hsl(var(--lp-muted))]/30"
-          >
-            Ukloni produženje
-          </Button>
-        )}
-      </div>
+      {isFree ? (
+        <div className="text-sm text-amber-700">
+          Nadogradi paket prije produžavanja retencije.{" "}
+          <a href="/admin/upgrade" className="underline">Nadogradi</a>
+        </div>
+      ) : (
+        <Button onClick={extend} disabled={busy || isAtCap || !csrfToken}>
+          {busy ? "Učitava..." : `Produži za ${DAYS_PER_PURCHASE} dana (+€${PRICE_EUR})`}
+        </Button>
+      )}
+      <p className="text-xs text-muted-foreground">
+        Refund je moguć u roku od 7 dana — kontaktirajte support@dodajuspomenu.com.
+      </p>
     </div>
   );
 }

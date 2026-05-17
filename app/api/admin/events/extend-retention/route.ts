@@ -1,12 +1,17 @@
-// Admin-initiated retention extension for their event.
-// Days is absolute (sets retentionOverrideDays, not additive) — simpler UX.
+// Admin-initiated retention extension — paywalled via LemonSqueezy.
+// Each POST starts a €15 / +30 days purchase. Webhook handler bumps retentionOverrideDays.
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateCsrfToken, validateCsrfToken } from '@/lib/csrf';
 import { getAuthenticatedAdmin } from '@/lib/admin-auth';
+import { resolveVariantId } from '@/lib/lemonsqueezy/variants';
+import { createCheckoutUrl } from '@/lib/lemonsqueezy/client';
 
-const MIN_DAYS = 0;
-const MAX_DAYS = 365;
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+const RETENTION_DAYS_PER_PURCHASE = 30;
+const RETENTION_MAX_OVERRIDE_DAYS = 365;
 
 export async function GET() {
   const { token, cookie } = await generateCsrfToken();
@@ -16,41 +21,60 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const csrfToken = req.headers.get('x-csrf-token') || '';
-  if (!(await validateCsrfToken(csrfToken))) {
+  const csrf = req.headers.get('x-csrf-token') || '';
+  if (!(await validateCsrfToken(csrf))) {
     return NextResponse.json({ error: 'Neispravan CSRF token.' }, { status: 403 });
   }
-
   const admin = await getAuthenticatedAdmin();
   if (!admin?.event) {
     return NextResponse.json({ error: 'Niste prijavljeni.' }, { status: 401 });
   }
-
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Neispravan JSON.' }, { status: 400 });
-  }
-
-  const days = (body as { days?: unknown })?.days;
-  if (!Number.isInteger(days) || (days as number) < MIN_DAYS || (days as number) > MAX_DAYS) {
+  if (admin.event.pricingTier === 'free') {
     return NextResponse.json(
-      { error: `"days" mora biti cijeli broj između ${MIN_DAYS} i ${MAX_DAYS}.` },
-      { status: 400 }
+      { error: 'Free tier mora prvo nadograditi paket.' },
+      { status: 403 }
     );
   }
+  if (
+    (admin.event.retentionOverrideDays ?? 0) + RETENTION_DAYS_PER_PURCHASE >
+    RETENTION_MAX_OVERRIDE_DAYS
+  ) {
+    return NextResponse.json(
+      { error: `Maksimalna retencija je ${RETENTION_MAX_OVERRIDE_DAYS} dana.` },
+      { status: 409 }
+    );
+  }
+  if (!admin.event.activatedAt) {
+    return NextResponse.json({ error: 'Plaćanje na čekanju — završi inicijalnu kupovinu.' }, { status: 409 });
+  }
 
-  const updated = await prisma.event.update({
-    where: { id: admin.event.id },
-    data: {
-      retentionOverrideDays: days as number,
-      // Reset the warning flag — extended retention may push expiry past the
-      // previous warning window, so the next window should re-warn.
-      deletionWarningSentAt: null,
+  const variantId = resolveVariantId({ purpose: 'retention_extension' });
+  const baseUrl = (process.env.NEXTAUTH_URL || 'https://www.dodajuspomenu.com/').replace(/\/?$/, '/');
+  const checkoutUrl = await createCheckoutUrl({
+    variantId,
+    customerEmail: admin.email,
+    customData: {
+      event_id: admin.event.id,
+      admin_id: admin.id,
+      purpose: 'retention_extension',
     },
-    select: { retentionOverrideDays: true },
+    successRedirectUrl: `${baseUrl}admin/dashboard/${admin.event.id}?retention=1`,
   });
 
-  return NextResponse.json({ ok: true, retentionOverrideDays: updated.retentionOverrideDays });
+  await prisma.payment.create({
+    data: {
+      eventId: admin.event.id,
+      tier: admin.event.pricingTier,
+      amountCents: 0,
+      currency: 'EUR',
+      status: 'pending',
+      purpose: 'retention_extension',
+      lsCheckoutId: `pending_ret_${admin.event.id}_${Date.now()}`,
+      customerEmail: admin.email,
+      retentionDaysGranted: RETENTION_DAYS_PER_PURCHASE,
+      updatedAt: new Date(),
+    },
+  });
+
+  return NextResponse.json({ checkoutUrl });
 }

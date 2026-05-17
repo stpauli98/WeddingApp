@@ -285,7 +285,10 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
       <TabsContent value="help">
         <FadeInUp>
           <div className="rounded-lg border border-[hsl(var(--lp-accent))]/20 p-6 bg-[hsl(var(--lp-card))] space-y-6">
-            <ExtendRetentionButton currentOverrideDays={event?.retentionOverrideDays ?? 0} />
+            <ExtendRetentionButton
+              currentOverrideDays={event?.retentionOverrideDays ?? 0}
+              pricingTier={event?.pricingTier}
+            />
             <hr className="border-[hsl(var(--lp-accent))]/20" />
             <AdminHelpContact />
           </div>
