@@ -75,7 +75,7 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest, onViewPhotos, onGuestDelet
 
   const handleDelete = () => {
     if (!csrfToken) {
-      toast({ variant: 'destructive', description: 'CSRF token nije učitan. Osvježite stranicu.' });
+      toast({ variant: 'destructive', description: t('admin.dashboard.guestList.csrfError') });
       return;
     }
     setDeleting(true);
@@ -93,12 +93,12 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest, onViewPhotos, onGuestDelet
           const body = await res.json().catch(() => ({}));
           throw new Error(body?.error || 'delete_failed');
         }
-        toast({ description: `Gost obrisan (${guest.firstName} ${guest.lastName}).` });
+        toast({ description: t('admin.dashboard.guestList.guestDeleted', { name: `${guest.firstName} ${guest.lastName}` }) });
       } catch (err) {
         console.error('[guest-delete] failed', err);
         toast({
           variant: 'destructive',
-          description: (err instanceof Error && err.message) || 'Brisanje nije uspjelo.',
+          description: (err instanceof Error && err.message) || t('admin.dashboard.guestList.deleteError'),
         });
       } finally {
         setDeleting(false);
@@ -213,7 +213,7 @@ const GuestCard: React.FC<GuestCardProps> = ({ guest, onViewPhotos, onGuestDelet
               disabled={deleting}
               className="bg-[hsl(var(--lp-destructive))] text-white hover:bg-[hsl(var(--lp-destructive))]/90"
             >
-              {deleting ? 'Brisanje...' : t('admin.dashboard.guestList.deleteGuest', 'Obriši gosta')}
+              {deleting ? t('admin.dashboard.guestList.deleting') : t('admin.dashboard.guestList.deleteGuest', 'Obriši gosta')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface MessageData {
   id: string;
@@ -20,7 +21,7 @@ function stripEmojis(text: string): string {
   return text.replace(/[\u200d\ufe0f\u20e3\u{1f000}-\u{1ffff}\u{2600}-\u{27bf}\u{e0020}-\u{e007f}\u{fe00}-\u{fe0f}\u{1fa00}-\u{1faff}]/gu, "").trim();
 }
 
-async function generateMessagesPdf(messages: MessageData[]) {
+async function generateMessagesPdf(messages: MessageData[], title: string) {
   const { PDFDocument, rgb } = await import("pdf-lib");
   const fontkit = (await import("@pdf-lib/fontkit")).default;
 
@@ -58,7 +59,7 @@ async function generateMessagesPdf(messages: MessageData[]) {
 
   // Title
   const titleSize = 22;
-  const titleText = "Poruke gostiju";
+  const titleText = title;
   const titleWidth = fontBold.widthOfTextAtSize(titleText, titleSize);
   page.drawText(titleText, {
     x: (pageWidth - titleWidth) / 2,
@@ -194,12 +195,13 @@ async function generateMessagesPdf(messages: MessageData[]) {
 }
 
 const AdminAllMessages: React.FC<AdminAllMessagesProps> = ({ messages }) => {
+  const { t } = useTranslation();
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
     try {
-      const pdfBytes = await generateMessagesPdf(messages);
+      const pdfBytes = await generateMessagesPdf(messages, t('admin.messages.pdfTitle'));
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -209,7 +211,7 @@ const AdminAllMessages: React.FC<AdminAllMessagesProps> = ({ messages }) => {
       setTimeout(() => URL.revokeObjectURL(url), 200);
     } catch (err) {
       console.error("PDF generation error:", err);
-      toast({ variant: "destructive", description: "Greška pri generisanju PDF-a" });
+      toast({ variant: "destructive", description: t('admin.messages.pdfError') });
     } finally {
       setIsDownloading(false);
     }
@@ -219,7 +221,7 @@ const AdminAllMessages: React.FC<AdminAllMessagesProps> = ({ messages }) => {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-[hsl(var(--lp-muted-foreground))]">
         <span className="text-6xl mb-2">💬</span>
-        <div className="italic mb-2">Nema poruka od gostiju.</div>
+        <div className="italic mb-2">{t('admin.messages.noMessages')}</div>
         <div className="text-sm text-[hsl(var(--lp-muted-foreground))] text-center max-w-xs">Kada gosti ostave čestitku ili poruku, ovde će se pojaviti njihove lepe reči i želje za mladence.</div>
       </div>
     );
@@ -250,7 +252,7 @@ const AdminAllMessages: React.FC<AdminAllMessagesProps> = ({ messages }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {[...messages].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(msg => (
           <div key={msg.id} className="relative flex flex-col gap-2 bg-[hsl(var(--lp-card))] border border-[hsl(var(--lp-accent))]/20 rounded-2xl shadow-lg p-5 min-h-[120px]">
-            <svg className="absolute -top-4 left-4 text-2xl" aria-label="Poruka gosta" role="img">💌</svg>
+            <svg className="absolute -top-4 left-4 text-2xl" aria-label={t('admin.messages.guestMessageLabel')} role="img">💌</svg>
             <div className="text-base text-[hsl(var(--lp-text))] font-medium mb-1 mt-2 whitespace-pre-line">{msg.text}</div>
             <div className="flex items-center justify-between mt-2">
               <span className="text-xs font-semibold text-[hsl(var(--lp-accent))] flex items-center gap-1">

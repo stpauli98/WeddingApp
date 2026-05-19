@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import AdminDownloadAll from "./AdminDownloadAll";
+import { useTranslation } from "react-i18next";
 
 interface AdminDownloadTabProps {
   imagesCount: number;
@@ -8,6 +9,7 @@ interface AdminDownloadTabProps {
 }
 
 const AdminDownloadTab: React.FC<AdminDownloadTabProps> = ({ imagesCount, messagesCount }) => {
+  const { t } = useTranslation();
   // Ove funkcije su sada bezbedno klijentske
   const handleDownloadImages = async () => {
     try {
@@ -25,7 +27,7 @@ const AdminDownloadTab: React.FC<AdminDownloadTabProps> = ({ imagesCount, messag
         URL.revokeObjectURL(url);
       }, 200);
     } catch (err: any) {
-      alert("Greška pri preuzimanju slika: " + (err?.message || err));
+      alert(t('admin.download.imagesError') + (err?.message || err));
     }
   };
 
@@ -45,7 +47,7 @@ const AdminDownloadTab: React.FC<AdminDownloadTabProps> = ({ imagesCount, messag
         URL.revokeObjectURL(url);
       }, 200);
     } catch (err: any) {
-      alert("Greška pri preuzimanju poruka: " + (err?.message || err));
+      alert(t('admin.download.messagesError') + (err?.message || err));
     }
   };
 

@@ -214,7 +214,12 @@
       "noFavorites": "Još uvijek nemate omiljenih fotografija",
       "clickHeartToFavorite": "Kliknite na ikonu srca na fotografijama koje želite označiti kao omiljene",
       "selected": "odabrano",
-      "of": "od"
+      "of": "od",
+      "downloadError": "Došlo je do greške pri preuzimanju slike.",
+      "zipError": "Došlo je do greške pri kreiranju ZIP fajla.",
+      "csrfError": "CSRF token nije učitan. Osvježite stranicu.",
+      "downloadFailed": "Neuspješno preuzimanje slike",
+      "weddingPhoto": "Fotografija sa vjenčanja"
     },
     "event": {
       "eyebrow": "Kreiranje događaja",
@@ -416,13 +421,27 @@
         "noMessageLeft": "Gost nije ostavio poruku",
         "deleteGuest": "Obriši gosta",
         "deleteGuestTitle": "Obrisati ovog gosta?",
-        "deleteGuestDescription": "Biće obrisane sve slike ({{count}}) i poruka ovog gosta. Ova akcija je nepovratna."
+        "deleteGuestDescription": "Biće obrisane sve slike ({{count}}) i poruka ovog gosta. Ova akcija je nepovratna.",
+        "csrfError": "CSRF token nije učitan. Osvježite stranicu.",
+        "guestDeleted": "Gost obrisan ({{name}}).",
+        "deleteError": "Brisanje nije uspjelo.",
+        "deleting": "Brisanje..."
       },
       "noGuests": "Nema prijavljenih gostiju.",
       "noGuestsDescription": "Kada se gosti registruju za ovaj event, ovdje će se pojaviti njihovi profili i slike.",
       "welcome": {
         "enjoyPhotos": "uživajte u vašim sličicama",
         "welcomeMessage": "Dobrodošli na vaš dashboard"
+      },
+      "stats": {
+        "title": "Statistika vaše proslave",
+        "totalGuests": "Ukupno gostiju",
+        "guestsWithImages": "Gostiju uploadovalo slike",
+        "totalImages": "Ukupno slika",
+        "avgImagesPerGuest": "Prosječno slika po gostu",
+        "guestsWithMessage": "Gostiju sa porukom",
+        "topGuest": "Najviše slika",
+        "noData": "Nema podataka"
       }
     },
     "pending": {
@@ -438,6 +457,74 @@
       "networkError": "Mrežna greška",
       "error": "Greška",
       "refundFooter": "Refund je moguć u roku od 7 dana — kontaktirajte support@dodajuspomenu.com."
+    },
+    "guest": {
+      "detail": {
+        "serverError": "Greška pri komunikaciji sa serverom.",
+        "loading": "Učitavanje podataka o gostu...",
+        "notFound": "Gost nije pronađen",
+        "backToDashboard": "Nazad na dashboard",
+        "messageHeading": "Poruka gosta",
+        "noMessage": "Gost nije ostavio poruku.",
+        "noPhotos": "Gost nije uploadovao nijednu fotografiju.",
+        "unknownError": "Nepoznata greška."
+      }
+    },
+    "gallery": {
+      "loading": "Učitavanje galerije...",
+      "downloadImage": "Preuzmi ovu sliku",
+      "downloadError": "Greška pri preuzimanju slike.",
+      "download": "Preuzmi",
+      "guestPhoto": "Slika gosta",
+      "emptyHeading": "Nema uploadovanih slika",
+      "emptySubtext": "Kada gosti pošalju slike, ovdje će se pojaviti galerija za ovaj event.",
+      "modalClose": "Zatvori",
+      "modalCloseAria": "Zatvori prikaz slike",
+      "prevImage": "Prethodna slika",
+      "nextImage": "Sledeća slika",
+      "thumbnailAria": "Pređi na sliku {{n}}"
+    },
+    "messages": {
+      "pdfTitle": "Poruke gostiju",
+      "pdfError": "Greška pri generisanju PDF-a",
+      "noMessages": "Nema poruka od gostiju.",
+      "guestMessageLabel": "Poruka gosta"
+    },
+    "download": {
+      "title": "Preuzimanje uspomena",
+      "description": "Ovde možete preuzeti sve slike i poruke gostiju sa vaše svadbe, sačuvajte ih za uspomenu ili dalju obradu.",
+      "allImages": "Sve slike",
+      "imagesZip": "Preuzmi .zip ({{count}})",
+      "imagesZipDescription": "Preuzmite sve slike gostiju kao ZIP arhivu spremnu za čuvanje ili deljenje.",
+      "noImages": "Nema slika za preuzimanje.",
+      "allMessages": "Sve poruke",
+      "messagesZip": "Preuzmi .csv ({{count}})",
+      "messagesZipDescription": "Sve čestitke i poruke gostiju u CSV formatu, spremno za čuvanje ili štampu.",
+      "noMessages": "Nema poruka za preuzimanje.",
+      "downloadingImages": "Preuzimanje slika...",
+      "downloadingMessages": "Preuzimanje poruka...",
+      "imagesCount": "Ukupno:",
+      "messagesCount": "Ukupno:",
+      "tip": "Preporučujemo da redovno preuzimate slike i poruke radi čuvanja uspomena.",
+      "imagesError": "Greška pri preuzimanju slika: ",
+      "messagesError": "Greška pri preuzimanju poruka: "
+    },
+    "logout": {
+      "errorMessage": "Greška pri odjavi. Pokušajte ponovo.",
+      "networkError": "Neuspjela odjava (network greška).",
+      "button": "Odjavi se",
+      "loading": "Odjava..."
+    },
+    "retention": {
+      "error": "Greška",
+      "unknownError": "Nepoznata greška",
+      "currentStorage": "Trenutno dodatno čuvanje:",
+      "maxDays": "(maksimalno {{max}})",
+      "upgradePlanFirst": "Nadogradi paket prije produžavanja retencije.",
+      "upgradeLink": "Nadogradi",
+      "loading": "Učitava...",
+      "extendButton": "Produži za {{days}} dana (+€{{price}})",
+      "refundNote": "Refund je moguć u roku od 7 dana — kontaktirajte support@dodajuspomenu.com."
     }
   },
   "navbar": {

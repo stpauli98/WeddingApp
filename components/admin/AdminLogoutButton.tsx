@@ -2,15 +2,12 @@
 import { useRouter } from "next/navigation"
 import { toast } from "@/hooks/use-toast"
 import { useState } from "react"
-import { getCurrentLanguageFromPath } from "@/lib/utils/language"
+import { useTranslation } from "react-i18next"
 
-interface AdminLogoutButtonProps {
-  language?: string
-}
-
-export default function AdminLogoutButton({ language }: AdminLogoutButtonProps = {}) {
+export default function AdminLogoutButton() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     setLoading(true);
@@ -24,50 +21,20 @@ export default function AdminLogoutButton({ language }: AdminLogoutButtonProps =
         headers: { "x-csrf-token": csrfToken },
       });
       if (!response.ok) {
-        // Loguj status i tekst greške za debug
         const text = await response.text();
         console.error("Logout API error:", response.status, text);
-        // Koristimo prijevode za poruku o grešci
-      const errorMessage = language === 'en' ? "Error logging out. Please try again." : "Greška pri odjavi. Pokušajte ponovo.";
-      toast({ variant: "destructive", description: errorMessage });
+        toast({ variant: "destructive", description: t('admin.logout.errorMessage') });
         setLoading(false);
         return;
       }
       router.replace("/admin/login");
     } catch (error) {
       console.error("Logout fetch error:", error);
-      // Koristimo prijevode za poruku o mrežnoj grešci
-      const networkErrorMessage = language === 'en' ? "Failed to log out (network error)." : "Neuspela odjava (network greška).";
-      toast({ variant: "destructive", description: networkErrorMessage });
+      toast({ variant: "destructive", description: t('admin.logout.networkError') });
     } finally {
       setLoading(false);
     }
   };
-
-  // Detekcija jezika iz URL-a ako nije eksplicitno proslijeđen
-  // Direktno koristimo window.location.pathname za detekciju jezika
-  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
-  const segments = pathname.split('/');
-  const urlLanguage = segments.length > 1 && (segments[1] === 'en' || segments[1] === 'sr') ? segments[1] : 'sr';
-
-  // Prioritet: 1. URL jezik, 2. Event jezik
-  // Ovo osigurava da će jezik iz URL-a uvijek imati prednost
-  const currentLanguage = urlLanguage || language || 'sr';
-
-  // Prijevodi za gumb za odjavu
-  const translations = {
-    sr: {
-      button: "Odjavi se",
-      loading: "Odjava..."
-    },
-    en: {
-      button: "Log out",
-      loading: "Logging out..."
-    }
-  };
-
-  // Dohvaćamo prijevode za trenutni jezik ili defaultno za srpski
-  const t = translations[currentLanguage as keyof typeof translations] || translations.sr;
 
   return (
     <button
@@ -83,14 +50,14 @@ export default function AdminLogoutButton({ language }: AdminLogoutButtonProps =
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
           </svg>
-          {t.loading}
+          {t('admin.logout.loading')}
         </span>
       ) : (
         <>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 md:w-4 md:h-4 text-[hsl(var(--lp-accent))]">
             <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
           </svg>
-          <span className="hidden md:inline">{t.button}</span>
+          <span className="hidden md:inline">{t('admin.logout.button')}</span>
         </>
       )}
     </button>

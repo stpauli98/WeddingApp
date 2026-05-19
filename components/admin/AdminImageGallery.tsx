@@ -20,7 +20,7 @@ import type { GuestDetail } from "@/components/ui/types";
 import { useTranslation } from "react-i18next";
 
 // Pomoćna funkcija za preuzimanje slika koja podržava različite formate
-async function downloadImageHelper(imgUrl: string, fileName = "fotografija") {
+async function downloadImageHelper(imgUrl: string, fileName = "fotografija", errorMessages?: { downloadFailed: string; downloadError: string }) {
   try {
     // Provjera je li base64
     const match = imgUrl.match(/^data:image\/(\w+);base64,(.+)$/);
@@ -57,7 +57,7 @@ async function downloadImageHelper(imgUrl: string, fileName = "fotografija") {
     
     // Za URL-ove, moramo dohvatiti sliku i pretvoriti je u blob
     const response = await fetch(imgUrl);
-    if (!response.ok) throw new Error('Neuspješno preuzimanje slike');
+    if (!response.ok) throw new Error(errorMessages?.downloadFailed ?? 'Download failed');
     
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
@@ -74,7 +74,7 @@ async function downloadImageHelper(imgUrl: string, fileName = "fotografija") {
     }, 100);
   } catch (error) {
     console.error('Greška pri preuzimanju slike:', error);
-    toast({ variant: "destructive", description: 'Došlo je do greške pri preuzimanju slike.' });
+    toast({ variant: "destructive", description: errorMessages?.downloadError ?? 'Download error.' });
   }
 }
 
@@ -97,6 +97,8 @@ function PhotoCard({
   onSelect,
   onLike,
   onOpenLightbox,
+  photoAlt,
+  onDownload,
 }: {
   photo: Photo;
   selectionMode: boolean;
@@ -104,7 +106,10 @@ function PhotoCard({
   onSelect: () => void;
   onLike?: () => void;
   onOpenLightbox: () => void;
+  photoAlt?: string;
+  onDownload?: (url: string) => void;
 }) {
+  const { t } = useTranslation();
   const validUrl = photo.imageUrl && photo.imageUrl.trim() !== "" ? photo.imageUrl : "/no-image-uploaded.png";
 
   return (
@@ -130,7 +135,7 @@ function PhotoCard({
       >
         <Image
           src={validUrl}
-          alt="Fotografija sa vjenčanja"
+          alt={photoAlt ?? "Wedding photo"}
           fill
           className="object-cover transition-transform duration-300 hover:scale-105"
         />
@@ -165,7 +170,7 @@ function PhotoCard({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              downloadImageHelper(validUrl, "fotografija");
+              if (onDownload) onDownload(validUrl); else downloadImageHelper(validUrl, "fotografija", { downloadFailed: t('admin.imageGallery.downloadFailed'), downloadError: t('admin.imageGallery.downloadError') });
             }}
             className="rounded-full p-1 text-slate-400 hover:text-blue-500"
             aria-label="Preuzmi sliku"
@@ -364,7 +369,7 @@ export function AdminImageGallery({
       }, 500);
     } catch (error) {
       console.error('Greška pri kreiranju ZIP fajla:', error);
-      toast({ variant: "destructive", description: 'Došlo je do greške pri kreiranju ZIP fajla.' });
+      toast({ variant: "destructive", description: t('admin.imageGallery.zipError') });
     }
   };
 
@@ -425,7 +430,7 @@ export function AdminImageGallery({
       }, 500);
     } catch (error) {
       console.error('Greška pri kreiranju ZIP fajla:', error);
-      toast({ variant: "destructive", description: 'Došlo je do greške pri kreiranju ZIP fajla.' });
+      toast({ variant: "destructive", description: t('admin.imageGallery.zipError') });
     }
   };
 
@@ -439,7 +444,7 @@ export function AdminImageGallery({
   // fire DELETE in background, rollback on failure.
   const handleSingleDelete = async (imageId: string): Promise<void> => {
     if (!csrfToken) {
-      toast({ variant: 'destructive', description: 'CSRF token nije učitan. Osvježite stranicu.' });
+      toast({ variant: 'destructive', description: t('admin.imageGallery.csrfError') });
       throw new Error('missing_csrf');
     }
 
@@ -495,7 +500,7 @@ export function AdminImageGallery({
   // rollback on failure. UI returns instantly; network resolves async.
   const handleBulkDelete = (): void => {
     if (!csrfToken) {
-      toast({ variant: 'destructive', description: 'CSRF token nije učitan. Osvježite stranicu.' });
+      toast({ variant: 'destructive', description: t('admin.imageGallery.csrfError') });
       return;
     }
     if (selectedPhotos.length === 0) return;
@@ -697,6 +702,8 @@ export function AdminImageGallery({
                       onSelect={() => togglePhotoSelection(img.id)}
                       onLike={() => toggleFavorite(img.id)}
                       onOpenLightbox={() => setLightboxIndex(idx)}
+                      photoAlt={t('admin.imageGallery.weddingPhoto')}
+                      onDownload={(url) => downloadImageHelper(url, "fotografija", { downloadFailed: t('admin.imageGallery.downloadFailed'), downloadError: t('admin.imageGallery.downloadError') })}
                     />
                   );
                 })}
@@ -722,6 +729,8 @@ export function AdminImageGallery({
                       onSelect={() => togglePhotoSelection(img.id)}
                       onLike={() => toggleFavorite(img.id)}
                       onOpenLightbox={() => setLightboxIndex(idx)}
+                      photoAlt={t('admin.imageGallery.weddingPhoto')}
+                      onDownload={(url) => downloadImageHelper(url, "fotografija", { downloadFailed: t('admin.imageGallery.downloadFailed'), downloadError: t('admin.imageGallery.downloadError') })}
                     />
                   );
                 })}
@@ -775,7 +784,7 @@ export function AdminImageGallery({
           startIndex={Math.min(lightboxIndex, visibleImages.length - 1)}
           onClose={() => setLightboxIndex(null)}
           onDelete={csrfToken ? handleSingleDelete : undefined}
-          onDownload={(img) => downloadImageHelper(img.imageUrl, 'fotografija')}
+          onDownload={(img) => downloadImageHelper(img.imageUrl, 'fotografija', { downloadFailed: t('admin.imageGallery.downloadFailed'), downloadError: t('admin.imageGallery.downloadError') })}
           onToggleFavorite={toggleFavorite}
           favoriteIds={new Set(favoriteIds)}
           onToggleSelect={togglePhotoSelection}
