@@ -207,13 +207,13 @@ export default function AdminRegisterPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName" className="text-[hsl(var(--lp-text))]">{t('admin.register.firstName')}</Label>
-                  <Input id="firstName" placeholder="Marko" required value={firstName} onChange={e => setFirstName(e.target.value)} 
+                  <Input id="firstName" placeholder={t('admin.register.firstNamePlaceholder')} required value={firstName} onChange={e => setFirstName(e.target.value)}
                     className="border-[hsl(var(--lp-accent))] focus:ring-[hsl(var(--lp-accent))] focus-visible:ring-[hsl(var(--lp-accent))]"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName" className="text-[hsl(var(--lp-text))]">{t('admin.register.lastName')}</Label>
-                  <Input id="lastName" placeholder="Marković" required value={lastName} onChange={e => setLastName(e.target.value)} 
+                  <Input id="lastName" placeholder={t('admin.register.lastNamePlaceholder')} required value={lastName} onChange={e => setLastName(e.target.value)}
                     className="border-[hsl(var(--lp-accent))] focus:ring-[hsl(var(--lp-accent))] focus-visible:ring-[hsl(var(--lp-accent))]"
                   />
                 </div>

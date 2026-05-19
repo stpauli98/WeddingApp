@@ -271,7 +271,8 @@
         "pastDate": "Datum mora biti u budućnosti",
         "createError": "Greška prilikom kreiranja događaja. Pokušajte ponovo.",
         "csrfTokenFetch": "Neuspješno dobijanje CSRF tokena. Osvježite stranicu.",
-        "csrfTokenMissing": "CSRF token nije dostupan. Osvježite stranicu."
+        "csrfTokenMissing": "CSRF token nije dostupan. Osvježite stranicu.",
+        "coupleNameMax": "Ime para može imati najviše 100 karaktera."
       },
       "success": {
         "title": "Događaj kreiran",
@@ -330,7 +331,9 @@
         "sessionExpired": "Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.",
         "networkError": "Došlo je do greške na mreži.",
         "checkExisting": "Ako već imate nalog, prijavite se. Ako ste novi, provjerite spam folder ili pokušajte ponovo."
-      }
+      },
+      "firstNamePlaceholder": "Marko",
+      "lastNamePlaceholder": "Marković"
     },
     "dashboard": {
       "tabs": {

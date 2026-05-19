@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useWatch } from "react-hook-form"
@@ -20,40 +20,40 @@ import { PricingTierSelector } from "@/components/admin/PricingTierSelector"
 import { PRICING_TIERS, PricingTier } from "@/lib/pricing-tiers"
 import { cn } from "@/lib/utils"
 
-// Define the form schema with Zod
-const formSchema = z.object({
-  coupleName: z.string().min(2, {
-    message: "Ime paru mora imati najmanje 2 karaktera.",
-  }).max(100, {
-    message: "Ime para može imati najviše 100 karaktera.",
-  }),
-  location: z.string().min(2, {
-    message: "Lokacija mora imati najmanje 2 karaktera.",
-  }),
-  date: z.date({
-    required_error: "Datum svadebe je obavezan.",
-  }).refine((date) => date > new Date(), {
-    message: "Datum mora biti u budućnosti.",
-  }),
-  slug: z
-    .string()
-    .min(2, {
-      message: "Slug mora imati najmanje 2 karaktera.",
-    })
-    .regex(/^[a-z0-9-]+$/, {
-      message: "Slug može sadržati samo mala slova, brojeve i crtica.",
-    }),
-  guestMessage: z.string().max(500, { message: "Poruka za goste može imati najviše 500 karaktera." }).optional(),
-  pricingTier: z.enum(["free", "basic", "premium"]).default("free"),
-});
-
-type FormSchemaType = z.infer<typeof formSchema>;
+type FormSchemaType = {
+  coupleName: string;
+  location: string;
+  date: Date;
+  slug: string;
+  guestMessage?: string;
+  pricingTier: "free" | "basic" | "premium";
+};
 
 export default function CreateEventPage() {
   // Svi React Hooks moraju biti pozvani na vrhu komponente
   const { t, i18n, ready } = useTranslation();
   const router = useRouter();
-  
+
+  // Zod schema built inside component so it can use t()
+  const formSchema = useMemo(() => z.object({
+    coupleName: z.string()
+      .min(2, { message: t('admin.event.errors.coupleNameMin') })
+      .max(100, { message: t('admin.event.errors.coupleNameMax') }),
+    location: z.string()
+      .min(2, { message: t('admin.event.errors.locationMin') }),
+    date: z.date({
+      required_error: t('admin.event.errors.dateRequired'),
+    }).refine((date) => date > new Date(), {
+      message: t('admin.event.errors.pastDate'),
+    }),
+    slug: z
+      .string()
+      .min(2, { message: t('admin.event.errors.slugMin') })
+      .regex(/^[a-z0-9-]+$/, { message: t('admin.event.errors.slugInvalid') }),
+    guestMessage: z.string().max(500, { message: t('admin.event.errors.guestMessageMax') }).optional(),
+    pricingTier: z.enum(["free", "basic", "premium"]).default("free"),
+  }), [t]);
+
   // State hooks
   const [slugError, setSlugError] = useState<string | null>(null);
   const [slugChecking, setSlugChecking] = useState(false);
@@ -284,8 +284,7 @@ export default function CreateEventPage() {
       } else if (result.error) {
         // Check for slug exists error in both languages
         const errorLower = result.error.toLowerCase();
-        if (errorLower.includes('url (slug) koji ste odabrali već postoji') || 
-            errorLower.includes('the url (slug) you chose already exists')) {
+        if (errorLower.includes('slug') && (errorLower.includes('postoji') || errorLower.includes('exists') || errorLower.includes('taken'))) {
           setSlugError(t('admin.event.errors.slugExists'));
         } else {
           toast({
