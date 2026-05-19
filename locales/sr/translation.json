@@ -271,7 +271,8 @@
         "pastDate": "Datum mora biti u budućnosti",
         "createError": "Greška prilikom kreiranja događaja. Pokušajte ponovo.",
         "csrfTokenFetch": "Neuspješno dobijanje CSRF tokena. Osvježite stranicu.",
-        "csrfTokenMissing": "CSRF token nije dostupan. Osvježite stranicu."
+        "csrfTokenMissing": "CSRF token nije dostupan. Osvježite stranicu.",
+        "coupleNameMax": "Ime para može imati najviše 100 karaktera."
       },
       "success": {
         "title": "Događaj kreiran",
@@ -330,7 +331,9 @@
         "sessionExpired": "Sesija je istekla ili je došlo do greške sa sigurnosnim tokenom. Pokušajte ponovo.",
         "networkError": "Došlo je do greške na mreži.",
         "checkExisting": "Ako već imate nalog, prijavite se. Ako ste novi, provjerite spam folder ili pokušajte ponovo."
-      }
+      },
+      "firstNamePlaceholder": "Marko",
+      "lastNamePlaceholder": "Marković"
     },
     "dashboard": {
       "tabs": {
@@ -525,6 +528,37 @@
       "loading": "Učitava...",
       "extendButton": "Produži za {{days}} dana (+€{{price}})",
       "refundNote": "Refund je moguć u roku od 7 dana — kontaktirajte support@dodajuspomenu.com."
+    },
+    "upgrade": {
+      "title": "Nadogradnja paketa",
+      "heroLine1": "Učinite svoj dan",
+      "heroLine2": "još posebnijim",
+      "subFromFree": "Otključajte više slika po gostu, najbolji kvalitet i dodatne mogućnosti.",
+      "subFromBasic": "Pređite na Premium i dobijte originale, prilagođen QR kod i sve premium funkcije.",
+      "loading": "Učitavanje...",
+      "errorLoading": "Greška pri učitavanju",
+      "error": "Greška",
+      "networkError": "Mrežna greška",
+      "recommended": "Preporučeno",
+      "pay": "Plati {{price}}",
+      "redirecting": "Preusmjeravamo...",
+      "backToDashboard": "Nazad na dashboard",
+      "refundFooter": "Refund je moguć u roku od 7 dana — kontaktirajte support@dodajuspomenu.com.",
+      "oneTime": "jednokratno",
+      "diffFromBasic": "razlika do Premium paketa",
+      "basicFeature1": "7 slika po gostu",
+      "basicFeature2": "30 dana čuvanja",
+      "basicFeature3": "Standardni QR kod",
+      "basicFeature4": "Optimizovan kvalitet (1600px)",
+      "premiumFeature1": "25 slika po gostu",
+      "premiumFeature2": "30 dana čuvanja",
+      "premiumFeature3": "Prilagođen QR kod sa brendiranjem",
+      "premiumFeature4": "Najveći kvalitet — originali (2560px)",
+      "premiumFeature5": "Prioritetna podrška",
+      "basicToPremiumFeature1": "25 slika po gostu (umjesto 7)",
+      "basicToPremiumFeature2": "Originali bez kompresije",
+      "basicToPremiumFeature3": "Prilagođen QR kod",
+      "basicToPremiumFeature4": "Prioritetna podrška"
     }
   },
   "navbar": {

@@ -271,7 +271,8 @@
         "pastDate": "Date must be in the future",
         "createError": "Error creating event. Please try again.",
         "csrfTokenFetch": "Failed to get CSRF token. Please refresh the page.",
-        "csrfTokenMissing": "CSRF token is not available. Please refresh the page."
+        "csrfTokenMissing": "CSRF token is not available. Please refresh the page.",
+        "coupleNameMax": "Couple name can be at most 100 characters."
       },
       "success": {
         "title": "Event Created",
@@ -330,7 +331,9 @@
         "sessionExpired": "Session expired or security token error. Please try again.",
         "networkError": "A network error occurred.",
         "checkExisting": "If you already have an account, please log in. If you are new, check your spam folder or try again."
-      }
+      },
+      "firstNamePlaceholder": "John",
+      "lastNamePlaceholder": "Smith"
     },
     "dashboard": {
       "tabs": {
@@ -525,6 +528,37 @@
       "loading": "Loading...",
       "extendButton": "Extend by {{days}} days (+€{{price}})",
       "refundNote": "Refund available within 7 days — contact support@dodajuspomenu.com."
+    },
+    "upgrade": {
+      "title": "Plan Upgrade",
+      "heroLine1": "Make your day",
+      "heroLine2": "even more special",
+      "subFromFree": "Unlock more photos per guest, best quality, and extra features.",
+      "subFromBasic": "Switch to Premium for originals, custom QR code, and all premium features.",
+      "loading": "Loading...",
+      "errorLoading": "Failed to load",
+      "error": "Error",
+      "networkError": "Network error",
+      "recommended": "Recommended",
+      "pay": "Pay {{price}}",
+      "redirecting": "Redirecting...",
+      "backToDashboard": "Back to dashboard",
+      "refundFooter": "Refund within 7 days — contact support@dodajuspomenu.com.",
+      "oneTime": "one-time",
+      "diffFromBasic": "difference to Premium package",
+      "basicFeature1": "7 photos per guest",
+      "basicFeature2": "30 days retention",
+      "basicFeature3": "Standard QR code",
+      "basicFeature4": "Optimized quality (1600px)",
+      "premiumFeature1": "25 photos per guest",
+      "premiumFeature2": "30 days retention",
+      "premiumFeature3": "Custom branded QR code",
+      "premiumFeature4": "Best quality — originals (2560px)",
+      "premiumFeature5": "Priority support",
+      "basicToPremiumFeature1": "25 photos per guest (instead of 7)",
+      "basicToPremiumFeature2": "Originals without compression",
+      "basicToPremiumFeature3": "Custom QR code",
+      "basicToPremiumFeature4": "Priority support"
     }
   },
   "navbar": {

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Check, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface TierOption {
   tier: 'basic' | 'premium';
@@ -14,55 +15,56 @@ interface TierOption {
   highlighted?: boolean;
 }
 
-const OPTIONS_FROM_FREE: TierOption[] = [
-  {
-    tier: 'basic',
-    name: 'Basic',
-    priceLabel: '€25',
-    priceSubtitle: 'jednokratno',
-    features: [
-      '7 slika po gostu',
-      '30 dana čuvanja',
-      'Standardni QR kod',
-      'Optimizovan kvalitet (1600px)',
-    ],
-  },
-  {
-    tier: 'premium',
-    name: 'Premium',
-    priceLabel: '€75',
-    priceSubtitle: 'jednokratno',
-    features: [
-      '25 slika po gostu',
-      '30 dana čuvanja',
-      'Prilagođen QR kod sa brendiranjem',
-      'Najveći kvalitet — originali (2560px)',
-      'Prioritetna podrška',
-    ],
-    highlighted: true,
-  },
-];
-
-const OPTIONS_FROM_BASIC: TierOption[] = [
-  {
-    tier: 'premium',
-    name: 'Premium',
-    priceLabel: '€50',
-    priceSubtitle: 'razlika do Premium paketa',
-    features: [
-      '25 slika po gostu (umjesto 7)',
-      'Originali bez kompresije',
-      'Prilagođen QR kod',
-      'Prioritetna podrška',
-    ],
-    highlighted: true,
-  },
-];
-
 export default function UpgradePage() {
   const router = useRouter();
   const pathname = usePathname();
   const langPrefix = pathname?.startsWith('/en') ? '/en' : '/sr';
+  const { t } = useTranslation();
+
+  const OPTIONS_FROM_FREE: TierOption[] = [
+    {
+      tier: 'basic',
+      name: 'Basic',
+      priceLabel: '€25',
+      priceSubtitle: t('admin.upgrade.oneTime'),
+      features: [
+        t('admin.upgrade.basicFeature1'),
+        t('admin.upgrade.basicFeature2'),
+        t('admin.upgrade.basicFeature3'),
+        t('admin.upgrade.basicFeature4'),
+      ],
+    },
+    {
+      tier: 'premium',
+      name: 'Premium',
+      priceLabel: '€75',
+      priceSubtitle: t('admin.upgrade.oneTime'),
+      features: [
+        t('admin.upgrade.premiumFeature1'),
+        t('admin.upgrade.premiumFeature2'),
+        t('admin.upgrade.premiumFeature3'),
+        t('admin.upgrade.premiumFeature4'),
+        t('admin.upgrade.premiumFeature5'),
+      ],
+      highlighted: true,
+    },
+  ];
+
+  const OPTIONS_FROM_BASIC: TierOption[] = [
+    {
+      tier: 'premium',
+      name: 'Premium',
+      priceLabel: '€50',
+      priceSubtitle: t('admin.upgrade.diffFromBasic'),
+      features: [
+        t('admin.upgrade.basicToPremiumFeature1'),
+        t('admin.upgrade.basicToPremiumFeature2'),
+        t('admin.upgrade.basicToPremiumFeature3'),
+        t('admin.upgrade.basicToPremiumFeature4'),
+      ],
+      highlighted: true,
+    },
+  ];
 
   const [currentTier, setCurrentTier] = useState<string | null>(null);
   const [eventId, setEventId] = useState<string | null>(null);
@@ -88,8 +90,8 @@ export default function UpgradePage() {
         setCurrentTier(d.event.pricingTier);
         setEventId(d.event.id);
       })
-      .catch(() => setError('Greška pri učitavanju'));
-  }, [router, langPrefix]);
+      .catch(() => setError(t('admin.upgrade.errorLoading')));
+  }, [router, langPrefix, t]);
 
   async function buy(toTier: 'basic' | 'premium') {
     setLoading(toTier);
@@ -107,10 +109,10 @@ export default function UpgradePage() {
         window.location.href = data.checkoutUrl;
         return;
       }
-      setError(data.error || 'Greška');
+      setError(data.error || t('admin.upgrade.error'));
       setLoading(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Mrežna greška');
+      setError(e instanceof Error ? e.message : t('admin.upgrade.networkError'));
       setLoading(null);
     }
   }
@@ -154,26 +156,26 @@ export default function UpgradePage() {
             className="inline-flex items-center gap-1.5 text-sm text-[hsl(var(--lp-muted-foreground))] hover:text-[hsl(var(--lp-accent))] transition-colors mb-6 sm:mb-8 min-h-[44px]"
           >
             <ArrowLeft className="h-4 w-4" />
-            Nazad na dashboard
+            {t('admin.upgrade.backToDashboard')}
           </Link>
         )}
 
         {/* Hero */}
         <header className="text-center mb-8 sm:mb-12">
           <p className="text-xs sm:text-sm uppercase tracking-[0.3em] text-[hsl(var(--lp-accent))] mb-3 font-medium">
-            ✦ Nadogradnja paketa ✦
+            ✦ {t('admin.upgrade.title')} ✦
           </p>
           <h1 className="font-playfair text-3xl sm:text-4xl md:text-5xl text-[hsl(var(--lp-text))] mb-3 sm:mb-4 leading-tight">
-            Učinite svoj dan
+            {t('admin.upgrade.heroLine1')}
             <br />
             <span className="italic bg-gradient-to-r from-[hsl(var(--lp-primary))] via-[hsl(var(--lp-accent))] to-[hsl(var(--lp-primary))] bg-clip-text text-transparent">
-              još posebnijim
+              {t('admin.upgrade.heroLine2')}
             </span>
           </h1>
           <p className="text-sm sm:text-base text-[hsl(var(--lp-muted-foreground))] max-w-md mx-auto">
             {currentTier === 'free'
-              ? 'Otključajte više slika po gostu, najbolji kvalitet i dodatne mogućnosti.'
-              : 'Pređite na Premium i dobijte originale, prilagođen QR kod i sve premium funkcije.'}
+              ? t('admin.upgrade.subFromFree')
+              : t('admin.upgrade.subFromBasic')}
           </p>
         </header>
 
@@ -204,15 +206,7 @@ export default function UpgradePage() {
         <footer className="mt-10 sm:mt-14 text-center">
           <div className="inline-flex items-center gap-2 text-xs text-[hsl(var(--lp-muted-foreground))]">
             <span aria-hidden>♡</span>
-            <span>
-              Refund u roku od 7 dana —{' '}
-              <a
-                href="mailto:support@dodajuspomenu.com"
-                className="underline decoration-[hsl(var(--lp-accent))]/40 hover:decoration-[hsl(var(--lp-accent))] underline-offset-4 transition-colors"
-              >
-                support@dodajuspomenu.com
-              </a>
-            </span>
+            <span>{t('admin.upgrade.refundFooter')}</span>
             <span aria-hidden>♡</span>
           </div>
         </footer>
@@ -229,6 +223,7 @@ interface TierCardProps {
 }
 
 function TierCard({ option, loading, disabled, onSelect }: TierCardProps) {
+  const { t } = useTranslation();
   const { name, priceLabel, priceSubtitle, features, highlighted } = option;
   return (
     <div
@@ -240,7 +235,7 @@ function TierCard({ option, loading, disabled, onSelect }: TierCardProps) {
     >
       {highlighted && (
         <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[hsl(var(--lp-accent))] to-[hsl(var(--lp-primary))] px-3 py-1 text-[10px] sm:text-xs uppercase tracking-wider text-white font-medium shadow-sm whitespace-nowrap">
-          Preporučeno
+          {t('admin.upgrade.recommended')}
         </span>
       )}
 
@@ -287,10 +282,10 @@ function TierCard({ option, loading, disabled, onSelect }: TierCardProps) {
         {loading ? (
           <span className="inline-flex items-center justify-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Preusmjeravamo...
+            {t('admin.upgrade.redirecting')}
           </span>
         ) : (
-          <>Plati {priceLabel}</>
+          <>{t('admin.upgrade.pay', { price: priceLabel })}</>
         )}
       </button>
     </div>
