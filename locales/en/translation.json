@@ -56,6 +56,18 @@
     "question8": "Can I upgrade my plan after creating an event?",
     "answer8": "Yes, you can upgrade your plan at any time. Your existing photos and data are preserved."
   },
+  "about": {
+    "title": "About",
+    "hookLine": "Keep your wedding memories alive through photos and messages from your loved ones.",
+    "whatIs": "What is AddMemories?",
+    "whatIsBody": "AddMemories is a modern web app that lets wedding guests share photos and well-wishes with the newlyweds, with no complicated logins or social-media uploads.",
+    "howItWorks": "How it works",
+    "step1": "Guests sign in with their name and email — no password, no app install.",
+    "step2": "After signing in, they get a personal panel to upload photos and leave a message for the couple.",
+    "step3": "The newlyweds later browse every photo and message, grouped by guest.",
+    "tryAsGuest": "Try as a Guest",
+    "tryAsAdmin": "Try as an Admin"
+  },
   "footer": {
     "description": "The simplest way to collect wedding photos.",
     "copyright": "All rights reserved.",

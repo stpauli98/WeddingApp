@@ -20,4 +20,22 @@ test.describe('SEO routing', () => {
     const res = await request.get('/en', { maxRedirects: 0 });
     expect([200, 308]).toContain(res.status());
   });
+
+  test('/sr/about renders without 404 and contains expected SR heading', async ({ page }) => {
+    const res = await page.goto('/sr/about', { waitUntil: 'domcontentloaded' });
+    expect(res?.status()).toBe(200);
+    await expect(page.locator('h1', { hasText: 'Šta je DodajUspomenu' })).toBeVisible();
+  });
+
+  test('/en/about renders without 404 and contains expected EN heading', async ({ page }) => {
+    const res = await page.goto('/en/about', { waitUntil: 'domcontentloaded' });
+    expect(res?.status()).toBe(200);
+    await expect(page.locator('h1', { hasText: 'What is AddMemories' })).toBeVisible();
+  });
+
+  test('legacy /about does NOT serve stale mojasvadbaa.com URL', async ({ request }) => {
+    const res = await request.get('/about');
+    const body = res.status() === 200 ? await res.text() : '';
+    expect(body).not.toContain('mojasvadbaa');
+  });
 });

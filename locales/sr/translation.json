@@ -56,6 +56,18 @@
     "question8": "Mogu li nadograditi plan nakon što kreiram event?",
     "answer8": "Da, možete nadograditi plan u bilo kom trenutku. Vaše postojeće slike i podaci se čuvaju."
   },
+  "about": {
+    "title": "O aplikaciji",
+    "hookLine": "Sačuvajte uspomene sa vašeg vjenčanja kroz fotografije i poruke vaših najdražih.",
+    "whatIs": "Šta je DodajUspomenu?",
+    "whatIsBody": "DodajUspomenu je moderna aplikacija koja omogućava gostima da jednostavno podijele svoje fotografije i čestitke sa mladencima, bez potrebe za komplikovanim prijavljivanjem ili dijeljenjem slika preko društvenih mreža.",
+    "howItWorks": "Kako funkcioniše?",
+    "step1": "Gosti se prijavljuju kroz svoje ime i email — bez registracije, bez lozinki, bez aplikacije.",
+    "step2": "Nakon prijave, pristupaju svom ličnom panelu gdje mogu uploadovati slike i ostaviti poruku mladencima.",
+    "step3": "Mladenci kasnije pregledaju sve slike i poruke podijeljene po gostima.",
+    "tryAsGuest": "Probaj kao Gost",
+    "tryAsAdmin": "Probaj kao Admin"
+  },
   "footer": {
     "description": "Najjednostavniji način za prikupljanje fotografija sa vjenčanja.",
     "copyright": "Sva prava zadržana.",
