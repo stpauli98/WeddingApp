@@ -14,6 +14,7 @@ import { HtmlLangSync } from "@/components/HtmlLangSync"
 import { SkipLink } from "@/components/SkipLink"
 import { websiteSchema, organizationSchema, faqPageSchema, localBusinessSchema } from "@/lib/seo/json-ld"
 import { getServerT } from "@/lib/i18n/server"
+import { JsonLd } from "@/components/seo/JsonLd"
 
 const inter = Inter({ subsets: ["latin"] })
 const playfair = Playfair_Display({
@@ -106,18 +107,10 @@ export default async function RootLayout({
         {/* Inter font se učitava preko next/font/google, nije potreban preload */}
         {/* Favicon (dodaćeš public/favicon.ico po želji) */}
         <link rel="icon" href="/favicon.ico" />
-        <Script id="jsonld-website" type="application/ld+json">
-          {JSON.stringify(ldWebsite)}
-        </Script>
-        <Script id="jsonld-organization" type="application/ld+json">
-          {JSON.stringify(ldOrganization)}
-        </Script>
-        <Script id="jsonld-faq" type="application/ld+json">
-          {JSON.stringify(ldFaq)}
-        </Script>
-        <Script id="jsonld-localbusiness" type="application/ld+json">
-          {JSON.stringify(ldLocalBusiness)}
-        </Script>
+        <JsonLd id="jsonld-website" data={ldWebsite} />
+        <JsonLd id="jsonld-organization" data={ldOrganization} />
+        <JsonLd id="jsonld-faq" data={ldFaq} />
+        <JsonLd id="jsonld-localbusiness" data={ldLocalBusiness} />
       </head>
       <body className={`${inter.className} ${playfair.variable}`}>
         <I18nProvider locale={locale} key={locale}>

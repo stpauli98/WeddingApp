@@ -1,4 +1,5 @@
 import { breadcrumbSchema } from '@/lib/seo/json-ld';
+import { JsonLd } from '@/components/seo/JsonLd';
 
 export function JsonLdBreadcrumb({
   id,
@@ -7,13 +8,5 @@ export function JsonLdBreadcrumb({
   id: string;
   items: Array<{ name: string; url: string }>;
 }) {
-  return (
-    <script
-      id={id}
-      type="application/ld+json"
-      // SSR-inlined: avoids next/script post-hydration injection so the JSON-LD
-      // is in the initial HTML for crawlers (and for our e2e assertions).
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema(items)) }}
-    />
-  );
+  return <JsonLd id={id} data={breadcrumbSchema(items)} />;
 }
