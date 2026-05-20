@@ -32,7 +32,9 @@ const isAdminRoute = (path: string): boolean => {
 
 // Funkcija za provjeru ima li ruta jezični prefiks
 const hasLanguagePrefix = (path: string): boolean => {
-  return supportedLanguages.some(lang => path.startsWith(`/${lang}/`));
+  return supportedLanguages.some(
+    lang => path === `/${lang}` || path.startsWith(`/${lang}/`)
+  );
 };
 
 // Funkcija za dobivanje jezika iz rute
