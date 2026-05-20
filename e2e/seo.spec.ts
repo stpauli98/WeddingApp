@@ -38,4 +38,10 @@ test.describe('SEO routing', () => {
     const body = res.status() === 200 ? await res.text() : '';
     expect(body).not.toContain('mojasvadbaa');
   });
+
+  test('/ redirects exactly once to /sr', async ({ request }) => {
+    const res = await request.get('/', { maxRedirects: 0 });
+    expect(res.status()).toBe(307);
+    expect(res.headers()['location']).toBe('/sr');
+  });
 });
