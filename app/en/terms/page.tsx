@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { JsonLdBreadcrumb } from '@/components/seo/JsonLdBreadcrumb';
 
 export const metadata: Metadata = {
   title: 'Terms of Service | AddMemories',
@@ -16,15 +17,24 @@ export const metadata: Metadata = {
 
 export default function EnTermsPage() {
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12">
-      <article className="prose prose-slate max-w-none">
-        <h1>Terms of Service</h1>
-        <p>
-          The English translation of our terms of service is in progress. In the meantime, please refer to the authoritative Serbian version:{' '}
-          <Link href="/sr/terms">/sr/terms</Link>.
-        </p>
-        <p>For privacy requests, contact <a href="mailto:kontakt@dodajuspomenu.com">kontakt@dodajuspomenu.com</a>.</p>
-      </article>
-    </main>
+    <>
+      <JsonLdBreadcrumb
+        id="breadcrumb-en-terms"
+        items={[
+          { name: 'Home', url: 'https://www.dodajuspomenu.com/en' },
+          { name: 'Terms of Service', url: 'https://www.dodajuspomenu.com/en/terms' },
+        ]}
+      />
+      <main className="max-w-3xl mx-auto px-4 py-12">
+        <article className="prose prose-slate max-w-none">
+          <h1>Terms of Service</h1>
+          <p>
+            The English translation of our terms of service is in progress. In the meantime, please refer to the authoritative Serbian version:{' '}
+            <Link href="/sr/terms">/sr/terms</Link>.
+          </p>
+          <p>For privacy requests, contact <a href="mailto:kontakt@dodajuspomenu.com">kontakt@dodajuspomenu.com</a>.</p>
+        </article>
+      </main>
+    </>
   );
 }

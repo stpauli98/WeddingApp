@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LegalLocaleNotice } from '@/components/LegalLocaleNotice';
+import { JsonLdBreadcrumb } from '@/components/seo/JsonLdBreadcrumb';
 
 export const metadata: Metadata = {
   title: 'Kontakt | DodajUspomenu',
@@ -17,7 +18,15 @@ export const metadata: Metadata = {
 
 export default function SrKontaktPage() {
   return (
-    <main className="max-w-2xl mx-auto px-4 py-12">
+    <>
+      <JsonLdBreadcrumb
+        id="breadcrumb-sr-kontakt"
+        items={[
+          { name: 'Početna', url: 'https://www.dodajuspomenu.com/sr' },
+          { name: 'Kontakt', url: 'https://www.dodajuspomenu.com/sr/kontakt' },
+        ]}
+      />
+      <main className="max-w-2xl mx-auto px-4 py-12">
       <article className="prose prose-slate max-w-none">
         <LegalLocaleNotice />
         <h1>Kontakt</h1>
@@ -37,5 +46,6 @@ export default function SrKontaktPage() {
         <p className="text-sm text-gray-500 mt-8"><Link href="/sr">← Povratak</Link></p>
       </article>
     </main>
+    </>
   );
 }

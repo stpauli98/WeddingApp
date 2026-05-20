@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LegalLocaleNotice } from '@/components/LegalLocaleNotice';
+import { JsonLdBreadcrumb } from '@/components/seo/JsonLdBreadcrumb';
 
 export const metadata: Metadata = {
   title: 'Uslovi korišćenja | DodajUspomenu',
@@ -17,7 +18,15 @@ export const metadata: Metadata = {
 
 export default function SrTermsPage() {
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12">
+    <>
+      <JsonLdBreadcrumb
+        id="breadcrumb-sr-terms"
+        items={[
+          { name: 'Početna', url: 'https://www.dodajuspomenu.com/sr' },
+          { name: 'Uslovi korišćenja', url: 'https://www.dodajuspomenu.com/sr/terms' },
+        ]}
+      />
+      <main className="max-w-3xl mx-auto px-4 py-12">
       <article className="prose prose-slate max-w-none">
         <LegalLocaleNotice />
         <h1>Uslovi korišćenja</h1>
@@ -59,5 +68,6 @@ export default function SrTermsPage() {
         <p className="text-sm text-gray-500 mt-8"><Link href="/sr">← Povratak</Link></p>
       </article>
     </main>
+    </>
   );
 }

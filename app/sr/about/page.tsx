@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getServerT } from '@/lib/i18n/server';
+import { JsonLdBreadcrumb } from '@/components/seo/JsonLdBreadcrumb';
 
 export const metadata: Metadata = {
   title: 'O aplikaciji – DodajUspomenu',
@@ -29,7 +30,15 @@ export const metadata: Metadata = {
 export default function SrAboutPage() {
   const t = getServerT('sr');
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-background px-4 py-12">
+    <>
+      <JsonLdBreadcrumb
+        id="breadcrumb-sr-about"
+        items={[
+          { name: 'Početna', url: 'https://www.dodajuspomenu.com/sr' },
+          { name: 'O aplikaciji', url: 'https://www.dodajuspomenu.com/sr/about' },
+        ]}
+      />
+      <main className="min-h-screen flex flex-col items-center justify-center bg-background px-4 py-12">
       <section className="max-w-xl w-full bg-white/80 rounded-xl shadow-lg p-8 border border-gray-200">
         <p className="mb-6 text-lg text-gray-700 text-center">{t('about.hookLine')}</p>
         <h1 className="text-3xl font-bold mb-6 text-center text-primary">{t('about.whatIs')}</h1>
@@ -50,5 +59,6 @@ export default function SrAboutPage() {
         </div>
       </section>
     </main>
+    </>
   );
 }

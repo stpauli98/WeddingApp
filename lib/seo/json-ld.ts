@@ -101,6 +101,19 @@ export function localBusinessSchema() {
   };
 }
 
+export function breadcrumbSchema(items: Array<{ name: string; url: string }>) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((it, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: it.name,
+      item: it.url,
+    })),
+  };
+}
+
 export function softwareApplicationSchema(
   locale: Locale,
   plans: { price: number; tier: string }[]

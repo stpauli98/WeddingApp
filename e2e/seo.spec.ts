@@ -102,4 +102,15 @@ test.describe('SEO routing', () => {
     expect(data.applicationCategory).toBe('MultimediaApplication');
     expect(data.offers.priceCurrency).toBe('EUR');
   });
+
+  for (const path of ['/sr/about', '/en/about', '/sr/privacy', '/en/privacy', '/sr/terms', '/en/terms', '/sr/cookies', '/en/cookies', '/sr/kontakt', '/en/kontakt'] as const) {
+    test(`${path} exposes BreadcrumbList JSON-LD`, async ({ page }) => {
+      await page.goto(path, { waitUntil: 'domcontentloaded' });
+      const ld = await page.locator('script[id^="breadcrumb-"]').textContent();
+      expect(ld).toBeTruthy();
+      const data = JSON.parse(ld!);
+      expect(data['@type']).toBe('BreadcrumbList');
+      expect(data.itemListElement.length).toBeGreaterThanOrEqual(2);
+    });
+  }
 });

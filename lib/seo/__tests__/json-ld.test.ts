@@ -6,6 +6,7 @@ import {
   productSchema,
   localBusinessSchema,
   softwareApplicationSchema,
+  breadcrumbSchema,
 } from '@/lib/seo/json-ld';
 
 // Lightweight TFunction stub — returns the key path so we can assert structure.
@@ -97,5 +98,18 @@ describe('softwareApplicationSchema', () => {
     ]);
     expect(s.offers.price).toBe('0.00');
     expect(s.applicationCategory).toBe('MultimediaApplication');
+  });
+});
+
+describe('breadcrumbSchema', () => {
+  it('positions items 1..N', () => {
+    const s = breadcrumbSchema([
+      { name: 'Home', url: 'https://example.com/' },
+      { name: 'About', url: 'https://example.com/about' },
+    ]);
+    expect(s.itemListElement[0].position).toBe(1);
+    expect(s.itemListElement[1].position).toBe(2);
+    expect(s.itemListElement[1].name).toBe('About');
+    expect(s.itemListElement[1].item).toBe('https://example.com/about');
   });
 });
