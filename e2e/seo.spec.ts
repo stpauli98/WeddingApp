@@ -152,4 +152,66 @@ test.describe('SEO routing', () => {
     expect(body).toContain('/sr/about');
     expect(body).toContain('/en/kontakt');
   });
+
+  // ----- No-JS raw-HTML regression suite -----
+  // These tests intentionally use request.get (no browser, no JS execution)
+  // so any schema that only materializes after client hydration WILL fail.
+  // Guards against the 2026-05-20 regression where next/Script-wrapped
+  // JSON-LD blocks were serialized into the RSC data stream instead of
+  // emitted as initial-HTML <script> elements.
+
+  function extractJsonLdTypes(html: string): string[] {
+    const types: string[] = [];
+    const re = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([^<]+)<\/script>/g;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(html)) !== null) {
+      try {
+        const data = JSON.parse(m[1].replace(/\\u003C/g, '<'));
+        if (data['@type']) types.push(data['@type']);
+      } catch {
+        // ignore malformed — they will surface as missing types in the assertion
+      }
+    }
+    return types;
+  }
+
+  test('initial HTML for /sr contains all 6 expected JSON-LD schemas', async ({ request }) => {
+    const res = await request.get('/sr');
+    expect(res.status()).toBe(200);
+    const html = await res.text();
+    const types = extractJsonLdTypes(html);
+    for (const expected of ['WebSite', 'Organization', 'FAQPage', 'LocalBusiness', 'Product', 'SoftwareApplication']) {
+      expect(types, `initial HTML missing ${expected} on /sr — got [${types.join(', ')}]`).toContain(expected);
+    }
+  });
+
+  test('initial HTML for /en contains all 6 expected JSON-LD schemas', async ({ request }) => {
+    const res = await request.get('/en');
+    expect(res.status()).toBe(200);
+    const html = await res.text();
+    const types = extractJsonLdTypes(html);
+    for (const expected of ['WebSite', 'Organization', 'FAQPage', 'LocalBusiness', 'Product', 'SoftwareApplication']) {
+      expect(types, `initial HTML missing ${expected} on /en — got [${types.join(', ')}]`).toContain(expected);
+    }
+  });
+
+  test('initial HTML for /sr/about contains BreadcrumbList + layout schemas', async ({ request }) => {
+    const res = await request.get('/sr/about');
+    expect(res.status()).toBe(200);
+    const html = await res.text();
+    const types = extractJsonLdTypes(html);
+    for (const expected of ['WebSite', 'Organization', 'FAQPage', 'LocalBusiness', 'BreadcrumbList']) {
+      expect(types, `initial HTML missing ${expected} on /sr/about — got [${types.join(', ')}]`).toContain(expected);
+    }
+  });
+
+  test('initial HTML for /en/about contains BreadcrumbList + layout schemas', async ({ request }) => {
+    const res = await request.get('/en/about');
+    expect(res.status()).toBe(200);
+    const html = await res.text();
+    const types = extractJsonLdTypes(html);
+    for (const expected of ['WebSite', 'Organization', 'FAQPage', 'LocalBusiness', 'BreadcrumbList']) {
+      expect(types, `initial HTML missing ${expected} on /en/about — got [${types.join(', ')}]`).toContain(expected);
+    }
+  });
 });
