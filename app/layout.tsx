@@ -12,6 +12,8 @@ import I18nProvider, { type SupportedLocale } from "@/components/I18nProvider"
 import { CookieConsent } from "@/components/CookieConsent"
 import { HtmlLangSync } from "@/components/HtmlLangSync"
 import { SkipLink } from "@/components/SkipLink"
+import { websiteSchema, organizationSchema, faqPageSchema, localBusinessSchema } from "@/lib/seo/json-ld"
+import { getServerT } from "@/lib/i18n/server"
 
 const inter = Inter({ subsets: ["latin"] })
 const playfair = Playfair_Display({
@@ -72,6 +74,11 @@ export default async function RootLayout({
   const hdrs = await headers();
   const pathname = hdrs.get('x-pathname') ?? '/';
   const locale = resolveLocale(pathname);
+  const t = getServerT(locale);
+  const ldWebsite = websiteSchema(locale);
+  const ldOrganization = organizationSchema();
+  const ldFaq = faqPageSchema(t);
+  const ldLocalBusiness = localBusinessSchema();
 
   return (
     <html lang={locale} dir="ltr" className="light" style={{ colorScheme: "light" }} suppressHydrationWarning>
@@ -99,83 +106,17 @@ export default async function RootLayout({
         {/* Inter font se učitava preko next/font/google, nije potreban preload */}
         {/* Favicon (dodaćeš public/favicon.ico po želji) */}
         <link rel="icon" href="/favicon.ico" />
-        {/* JSON-LD: WebSite schema */}
         <Script id="jsonld-website" type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": "DodajUspomenu",
-            "url": "https://www.dodajuspomenu.com/",
-            "description": "Digitalni svadbeni album – gosti mogu uploadovati slike i čestitke, mladenci preuzimaju uspomene. Brza i sigurna razmena fotografija sa venčanja."
-          })}
+          {JSON.stringify(ldWebsite)}
         </Script>
-        {/* Organization schema */}
         <Script id="jsonld-organization" type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "name": "DodajUspomenu",
-            "url": "https://www.dodajuspomenu.com/",
-            "logo": "https://www.dodajuspomenu.com/seo-cover.png",
-            "sameAs": [
-              "https://www.facebook.com/dodajuspomenu",
-              "https://www.instagram.com/dodajuspomenu"
-            ],
-            "contactPoint": [{
-              "@type": "ContactPoint",
-              "email": "kontakt@dodajuspomenu.com",
-              "contactType": "customer support",
-              "url": "https://www.dodajuspomenu.com/kontakt"
-            }]
-          })}
+          {JSON.stringify(ldOrganization)}
         </Script>
         <Script id="jsonld-faq" type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": [
-              {
-                "@type": "Question",
-                "name": "Zašto bih koristio ovu aplikaciju umesto društvenih mreža?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Za razliku od društvenih mreža, naša aplikacija omogućava privatno deljenje fotografija samo sa osobama kojima vi dozvolite pristup. Sve fotografije su organizovane na jednom mestu, u visokoj rezoluciji, i lako ih je preuzeti."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Koje su prednosti korišćenja ove aplikacije?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Jednostavnost korišćenja, privatnost, prikupljanje fotografija od svih gostiju na jednom mestu, bez instalacije aplikacije, i mogućnost preuzimanja svih slika odjednom."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Koliko košta korišćenje aplikacije?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Besplatan paket nudi do 3 slike po gostu za do 20 gostiju. Osnovni paket je €25 (7 slika po gostu, do 100 gostiju). Premium je €75 (25 slika po gostu, do 300 gostiju, originalni kvalitet)."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Da li gosti moraju da kreiraju naloge?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Ne. Gosti skeniraju QR kod i mogu odmah da otpremaju fotografije bez registracije i bez instalacije aplikacije."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Koliko dugo se čuvaju fotografije?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Slike se čuvaju 30 dana od datuma venčanja u svim paketima. Mladenci u tom roku preuzimaju ZIP sa svim fotografijama."
-                }
-              }
-            ]
-          })}
+          {JSON.stringify(ldFaq)}
+        </Script>
+        <Script id="jsonld-localbusiness" type="application/ld+json">
+          {JSON.stringify(ldLocalBusiness)}
         </Script>
       </head>
       <body className={`${inter.className} ${playfair.variable}`}>

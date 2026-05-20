@@ -9,7 +9,7 @@ export default function Head() {
       {/* Open Graph meta */}
       <meta property="og:title" content="Admin Prijava | DodajUspomenu" />
       <meta property="og:description" content="Prijava za administratore svadbenih događaja u aplikaciji DodajUspomenu." />
-      <meta property="og:url" content="https://www.mojasvadbaa.com/admin/login" />
+      <meta property="og:url" content="https://www.dodajuspomenu.com/admin/login" />
       <meta property="og:site_name" content="DodajUspomenu" />
       <meta property="og:locale" content="sr_RS" />
       <meta property="og:type" content="website" />

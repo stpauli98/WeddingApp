@@ -102,22 +102,6 @@ const nextConfig = {
         source: '/:locale(sr|en)/manifest.json',
         destination: '/manifest.json',
       },
-      {
-        source: '/:locale(sr|en)/privacy',
-        destination: '/privacy',
-      },
-      {
-        source: '/:locale(sr|en)/terms',
-        destination: '/terms',
-      },
-      {
-        source: '/:locale(sr|en)/cookies',
-        destination: '/cookies',
-      },
-      {
-        source: '/:locale(sr|en)/kontakt',
-        destination: '/kontakt',
-      },
     ]
   },
 }

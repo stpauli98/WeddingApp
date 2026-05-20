@@ -16,6 +16,8 @@ const exemptPaths = [
   '/robots.txt',      // Robots.txt
   '/sitemap.xml',     // Sitemap
   '/manifest.json',   // PWA manifest
+  '/llms.txt',        // GEO surface for AI crawlers
+  '/llms-full.txt',   // Full GEO surface
   '/slider_pictures', // Slike za slajder
   '/.well-known'      // Chrome DevTools konfiguracija
 ];
@@ -32,7 +34,9 @@ const isAdminRoute = (path: string): boolean => {
 
 // Funkcija za provjeru ima li ruta jezični prefiks
 const hasLanguagePrefix = (path: string): boolean => {
-  return supportedLanguages.some(lang => path.startsWith(`/${lang}/`));
+  return supportedLanguages.some(
+    lang => path === `/${lang}` || path.startsWith(`/${lang}/`)
+  );
 };
 
 // Funkcija za dobivanje jezika iz rute
@@ -196,6 +200,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Hvataj sve rute osim onih koje su izuzete
-    '/((?!api|_next|favicon.ico|robots.txt|sitemap.xml|manifest.json|slider_pictures|fonts|\\.well-known).*)',
+    '/((?!api|_next|favicon.ico|robots.txt|sitemap.xml|manifest.json|llms.txt|llms-full.txt|slider_pictures|fonts|\\.well-known).*)',
   ],
 };

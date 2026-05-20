@@ -1,15 +1,32 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LegalLocaleNotice } from '@/components/LegalLocaleNotice';
+import { JsonLdBreadcrumb } from '@/components/seo/JsonLdBreadcrumb';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Politika privatnosti | DodajUspomenu',
   description: 'Politika privatnosti platforme DodajUspomenu — kako obrađujemo lične podatke.',
-  alternates: { canonical: 'https://www.dodajuspomenu.com/privacy' },
+  alternates: {
+    canonical: 'https://www.dodajuspomenu.com/sr/privacy',
+    languages: {
+      'sr-RS': 'https://www.dodajuspomenu.com/sr/privacy',
+      'en-US': 'https://www.dodajuspomenu.com/en/privacy',
+      'x-default': 'https://www.dodajuspomenu.com/sr/privacy',
+    },
+  },
 };
 
-export default function PrivacyPage() {
+export default function SrPrivacyPage() {
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12">
+    <>
+      <JsonLdBreadcrumb
+        id="breadcrumb-sr-privacy"
+        items={[
+          { name: 'Početna', url: 'https://www.dodajuspomenu.com/sr' },
+          { name: 'Privatnost', url: 'https://www.dodajuspomenu.com/sr/privacy' },
+        ]}
+      />
+      <main className="max-w-3xl mx-auto px-4 py-12">
       <article className="prose prose-slate max-w-none">
         <LegalLocaleNotice />
         <h1>Politika privatnosti</h1>
@@ -23,7 +40,7 @@ export default function PrivacyPage() {
           Email: <a href="mailto:kontakt@dodajuspomenu.com">kontakt@dodajuspomenu.com</a>
         </p>
         <p className="text-sm text-gray-600">
-          Punu Impressum informaciju vidi na <Link href="/kontakt">/kontakt</Link>.
+          Punu Impressum informaciju vidi na <Link href="/sr/kontakt">/sr/kontakt</Link>.
         </p>
 
         <h2>2. Koje podatke prikupljamo</h2>
@@ -59,10 +76,11 @@ export default function PrivacyPage() {
         <p>CSRF, rate-limiting, httpOnly cookies, bcrypt, HTTPS.</p>
 
         <h2>8. Kolačići</h2>
-        <p>Vidi <Link href="/cookies">Cookie politiku</Link>.</p>
+        <p>Vidi <Link href="/sr/cookies">Cookie politiku</Link>.</p>
 
-        <p className="text-sm text-gray-500 mt-8"><Link href="/">← Povratak</Link></p>
+        <p className="text-sm text-gray-500 mt-8"><Link href="/sr">← Povratak</Link></p>
       </article>
     </main>
+    </>
   );
 }

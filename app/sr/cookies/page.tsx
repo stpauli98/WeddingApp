@@ -1,15 +1,32 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LegalLocaleNotice } from '@/components/LegalLocaleNotice';
+import { JsonLdBreadcrumb } from '@/components/seo/JsonLdBreadcrumb';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Politika kolačića | DodajUspomenu',
   description: 'Kako koristimo kolačiće.',
-  alternates: { canonical: 'https://www.dodajuspomenu.com/cookies' },
+  alternates: {
+    canonical: 'https://www.dodajuspomenu.com/sr/cookies',
+    languages: {
+      'sr-RS': 'https://www.dodajuspomenu.com/sr/cookies',
+      'en-US': 'https://www.dodajuspomenu.com/en/cookies',
+      'x-default': 'https://www.dodajuspomenu.com/sr/cookies',
+    },
+  },
 };
 
-export default function CookiesPage() {
+export default function SrCookiesPage() {
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12">
+    <>
+      <JsonLdBreadcrumb
+        id="breadcrumb-sr-cookies"
+        items={[
+          { name: 'Početna', url: 'https://www.dodajuspomenu.com/sr' },
+          { name: 'Kolačići', url: 'https://www.dodajuspomenu.com/sr/cookies' },
+        ]}
+      />
+      <main className="max-w-3xl mx-auto px-4 py-12">
       <article className="prose prose-slate max-w-none">
         <LegalLocaleNotice />
         <h1>Politika kolačića</h1>
@@ -39,8 +56,9 @@ export default function CookiesPage() {
         <h2>Kako upravljati</h2>
         <p>Brisanjem <code>cookie_consent_v1</code> iz browser storage-a banner se opet prikazuje.</p>
 
-        <p>Vidi: <Link href="/privacy">Privatnost</Link>, <Link href="/terms">Uslovi</Link>.</p>
+        <p>Vidi: <Link href="/sr/privacy">Privatnost</Link>, <Link href="/sr/terms">Uslovi</Link>.</p>
       </article>
     </main>
+    </>
   );
 }
