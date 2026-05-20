@@ -44,4 +44,23 @@ test.describe('SEO routing', () => {
     expect(res.status()).toBe(307);
     expect(res.headers()['location']).toBe('/sr');
   });
+
+  test('/sr exposes Serbian FAQ JSON-LD', async ({ page }) => {
+    await page.goto('/sr', { waitUntil: 'domcontentloaded' });
+    const ld = await page.locator('script#jsonld-faq').textContent();
+    expect(ld).toBeTruthy();
+    const data = JSON.parse(ld!);
+    expect(data['@type']).toBe('FAQPage');
+    expect(data.mainEntity[0].name).toMatch(/Kako funkcioniše DodajUspomenu/);
+  });
+
+  test('/en exposes English FAQ JSON-LD', async ({ page }) => {
+    await page.goto('/en', { waitUntil: 'domcontentloaded' });
+    const ld = await page.locator('script#jsonld-faq').textContent();
+    expect(ld).toBeTruthy();
+    const data = JSON.parse(ld!);
+    expect(data['@type']).toBe('FAQPage');
+    // EN faq.question1 in locales/en/translation.json is exactly: "How does AddMemories work?"
+    expect(data.mainEntity[0].name).toMatch(/How does AddMemories work/);
+  });
 });
