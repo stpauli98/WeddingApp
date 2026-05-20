@@ -103,6 +103,34 @@ test.describe('SEO routing', () => {
     expect(data.offers.priceCurrency).toBe('EUR');
   });
 
+  test('robots.txt lists all required AI crawler Allow rules', async ({ request }) => {
+    const res = await request.get('/robots.txt');
+    expect(res.status()).toBe(200);
+    const body = await res.text();
+    for (const agent of ['GPTBot', 'ChatGPT-User', 'ClaudeBot', 'anthropic-ai', 'PerplexityBot', 'Google-Extended', 'CCBot', 'OAI-SearchBot']) {
+      expect(body, `missing User-agent: ${agent}`).toContain(`User-agent: ${agent}`);
+    }
+    expect(body).toContain('Sitemap: https://www.dodajuspomenu.com/sitemap.xml');
+  });
+
+  test('llms.txt is served and lists the operator + pricing', async ({ request }) => {
+    const res = await request.get('/llms.txt');
+    expect(res.status()).toBe(200);
+    const body = await res.text();
+    expect(body).toContain('Next Pixel s.p.');
+    expect(body).toContain('Jovana Dučića 15');
+    expect(body).toContain('Free €0');
+    expect(body).toContain('Basic €25');
+    expect(body).toContain('Premium €75');
+  });
+
+  test('llms-full.txt is served and contains an FAQ appendix', async ({ request }) => {
+    const res = await request.get('/llms-full.txt');
+    expect(res.status()).toBe(200);
+    const body = await res.text();
+    expect(body).toContain('Appendix A: FAQ');
+  });
+
   for (const path of ['/sr/about', '/en/about', '/sr/privacy', '/en/privacy', '/sr/terms', '/en/terms', '/sr/cookies', '/en/cookies', '/sr/kontakt', '/en/kontakt'] as const) {
     test(`${path} exposes BreadcrumbList JSON-LD`, async ({ page }) => {
       await page.goto(path, { waitUntil: 'domcontentloaded' });
