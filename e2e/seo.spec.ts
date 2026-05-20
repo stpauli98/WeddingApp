@@ -63,4 +63,13 @@ test.describe('SEO routing', () => {
     // EN faq.question1 in locales/en/translation.json is exactly: "How does AddMemories work?"
     expect(data.mainEntity[0].name).toMatch(/How does AddMemories work/);
   });
+
+  for (const slug of ['privacy', 'terms', 'cookies', 'kontakt'] as const) {
+    for (const lang of ['sr', 'en'] as const) {
+      test(`/${lang}/${slug} returns 200`, async ({ request }) => {
+        const res = await request.get(`/${lang}/${slug}`);
+        expect(res.status()).toBe(200);
+      });
+    }
+  }
 });

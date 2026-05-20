@@ -1,13 +1,21 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LegalLocaleNotice } from '@/components/LegalLocaleNotice';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Uslovi korišćenja | DodajUspomenu',
   description: 'Uslovi korišćenja platforme DodajUspomenu.',
-  alternates: { canonical: 'https://www.dodajuspomenu.com/terms' },
+  alternates: {
+    canonical: 'https://www.dodajuspomenu.com/sr/terms',
+    languages: {
+      'sr-RS': 'https://www.dodajuspomenu.com/sr/terms',
+      'en-US': 'https://www.dodajuspomenu.com/en/terms',
+      'x-default': 'https://www.dodajuspomenu.com/sr/terms',
+    },
+  },
 };
 
-export default function TermsPage() {
+export default function SrTermsPage() {
   return (
     <main className="max-w-3xl mx-auto px-4 py-12">
       <article className="prose prose-slate max-w-none">
@@ -48,7 +56,7 @@ export default function TermsPage() {
         <h2>8. Nadležno pravo</h2>
         <p>Srpsko pravo i sudovi u Beogradu, osim potrošačkih izuzetaka.</p>
 
-        <p className="text-sm text-gray-500 mt-8"><Link href="/">← Povratak</Link></p>
+        <p className="text-sm text-gray-500 mt-8"><Link href="/sr">← Povratak</Link></p>
       </article>
     </main>
   );

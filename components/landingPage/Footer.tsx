@@ -11,7 +11,6 @@ interface FooterProps {
 }
 
 export default function Footer({ t, lang }: FooterProps) {
-  void lang
   return (
     <>
       <footer className="bg-lp-muted py-12 border-t border-lp-border" role="contentinfo">
@@ -24,9 +23,9 @@ export default function Footer({ t, lang }: FooterProps) {
 
             <div className="flex flex-col sm:flex-row gap-6 sm:gap-10">
               <div className="flex flex-col gap-2">
-                <Link href="/privacy" className="text-sm text-lp-muted-foreground hover:text-lp-primary transition-colors">{t("footer.privacyPolicy")}</Link>
-                <Link href="/terms" className="text-sm text-lp-muted-foreground hover:text-lp-primary transition-colors">{t("footer.termsOfService")}</Link>
-                <Link href="/kontakt" className="text-sm text-lp-muted-foreground hover:text-lp-primary transition-colors">{t("footer.contact")}</Link>
+                <Link href={`/${lang}/privacy`} className="text-sm text-lp-muted-foreground hover:text-lp-primary transition-colors">{t("footer.privacyPolicy")}</Link>
+                <Link href={`/${lang}/terms`} className="text-sm text-lp-muted-foreground hover:text-lp-primary transition-colors">{t("footer.termsOfService")}</Link>
+                <Link href={`/${lang}/kontakt`} className="text-sm text-lp-muted-foreground hover:text-lp-primary transition-colors">{t("footer.contact")}</Link>
               </div>
               <div className="flex gap-4 items-start">
                 <a href="https://www.instagram.com/nextpixel.dev/" target="_blank" rel="noopener noreferrer" className="text-lp-muted-foreground hover:text-lp-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-lp-primary rounded" aria-label="Instagram">
