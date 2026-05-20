@@ -1,6 +1,6 @@
 import { preload } from "react-dom";
-import Script from "next/script";
 import ClientPage from "@/components/ClientPage";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { getPricingPlansFromDb } from "@/lib/pricing-db";
 import { getServerT } from "@/lib/i18n/server";
 import { productSchema, softwareApplicationSchema } from "@/lib/seo/json-ld";
@@ -18,12 +18,8 @@ export default async function EnHomePage() {
   const t = getServerT('en');
   return (
     <>
-      <Script id="jsonld-product-en" type="application/ld+json">
-        {JSON.stringify(productSchema(tiers, 'en'))}
-      </Script>
-      <Script id="jsonld-software-en" type="application/ld+json">
-        {JSON.stringify(softwareApplicationSchema('en', tiers))}
-      </Script>
+      <JsonLd id="jsonld-product-en" data={productSchema(tiers, 'en')} />
+      <JsonLd id="jsonld-software-en" data={softwareApplicationSchema('en', tiers)} />
       <ClientPage t={t} lang="en" tiers={tiers} />
     </>
   );
