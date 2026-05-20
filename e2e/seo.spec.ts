@@ -72,4 +72,34 @@ test.describe('SEO routing', () => {
       });
     }
   }
+
+  test('/sr exposes Product JSON-LD with three EUR offers', async ({ page }) => {
+    await page.goto('/sr', { waitUntil: 'domcontentloaded' });
+    const ld = await page.locator('script#jsonld-product-sr').textContent();
+    expect(ld).toBeTruthy();
+    const data = JSON.parse(ld!);
+    expect(data['@type']).toBe('Product');
+    expect(data.offers).toHaveLength(3);
+    expect(data.offers.every((o: any) => o.priceCurrency === 'EUR')).toBe(true);
+  });
+
+  test('/sr exposes LocalBusiness JSON-LD with BiH address', async ({ page }) => {
+    await page.goto('/sr', { waitUntil: 'domcontentloaded' });
+    const ld = await page.locator('script#jsonld-localbusiness').textContent();
+    expect(ld).toBeTruthy();
+    const data = JSON.parse(ld!);
+    expect(data['@type']).toBe('LocalBusiness');
+    expect(data.address.addressCountry).toBe('BA');
+    expect(data.taxID).toBe('4513996760008');
+  });
+
+  test('/sr exposes SoftwareApplication JSON-LD with lowest tier price', async ({ page }) => {
+    await page.goto('/sr', { waitUntil: 'domcontentloaded' });
+    const ld = await page.locator('script#jsonld-software-sr').textContent();
+    expect(ld).toBeTruthy();
+    const data = JSON.parse(ld!);
+    expect(data['@type']).toBe('SoftwareApplication');
+    expect(data.applicationCategory).toBe('MultimediaApplication');
+    expect(data.offers.priceCurrency).toBe('EUR');
+  });
 });

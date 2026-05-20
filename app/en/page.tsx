@@ -1,7 +1,9 @@
 import { preload } from "react-dom";
+import Script from "next/script";
 import ClientPage from "@/components/ClientPage";
 import { getPricingPlansFromDb } from "@/lib/pricing-db";
 import { getServerT } from "@/lib/i18n/server";
+import { productSchema, softwareApplicationSchema } from "@/lib/seo/json-ld";
 
 export default async function EnHomePage() {
   // LCP candidate: hero video's poster image. The <video> uses preload="none"
@@ -14,5 +16,15 @@ export default async function EnHomePage() {
 
   const tiers = await getPricingPlansFromDb();
   const t = getServerT('en');
-  return <ClientPage t={t} lang="en" tiers={tiers} />;
+  return (
+    <>
+      <Script id="jsonld-product-en" type="application/ld+json">
+        {JSON.stringify(productSchema(tiers, 'en'))}
+      </Script>
+      <Script id="jsonld-software-en" type="application/ld+json">
+        {JSON.stringify(softwareApplicationSchema('en', tiers))}
+      </Script>
+      <ClientPage t={t} lang="en" tiers={tiers} />
+    </>
+  );
 }

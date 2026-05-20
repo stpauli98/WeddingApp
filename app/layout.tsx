@@ -12,7 +12,7 @@ import I18nProvider, { type SupportedLocale } from "@/components/I18nProvider"
 import { CookieConsent } from "@/components/CookieConsent"
 import { HtmlLangSync } from "@/components/HtmlLangSync"
 import { SkipLink } from "@/components/SkipLink"
-import { websiteSchema, organizationSchema, faqPageSchema } from "@/lib/seo/json-ld"
+import { websiteSchema, organizationSchema, faqPageSchema, localBusinessSchema } from "@/lib/seo/json-ld"
 import { getServerT } from "@/lib/i18n/server"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -78,6 +78,7 @@ export default async function RootLayout({
   const ldWebsite = websiteSchema(locale);
   const ldOrganization = organizationSchema();
   const ldFaq = faqPageSchema(t);
+  const ldLocalBusiness = localBusinessSchema();
 
   return (
     <html lang={locale} dir="ltr" className="light" style={{ colorScheme: "light" }} suppressHydrationWarning>
@@ -113,6 +114,9 @@ export default async function RootLayout({
         </Script>
         <Script id="jsonld-faq" type="application/ld+json">
           {JSON.stringify(ldFaq)}
+        </Script>
+        <Script id="jsonld-localbusiness" type="application/ld+json">
+          {JSON.stringify(ldLocalBusiness)}
         </Script>
       </head>
       <body className={`${inter.className} ${playfair.variable}`}>

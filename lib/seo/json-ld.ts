@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next';
+import type { PricingPlanRow } from '@/lib/pricing-db';
 
 export type Locale = 'sr' | 'en';
 
@@ -36,7 +37,7 @@ export function organizationSchema() {
         '@type': 'ContactPoint',
         email: 'kontakt@dodajuspomenu.com',
         contactType: 'customer support',
-        url: `${SITE}/kontakt`,
+        url: `${SITE}/sr/kontakt`,
         availableLanguage: ['sr', 'en'],
       },
     ],
@@ -53,5 +54,73 @@ export function faqPageSchema(t: TFunction) {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: items,
+  };
+}
+
+export function productSchema(plans: PricingPlanRow[], locale: Locale) {
+  const lang = locale === 'sr' ? 'sr' : 'en';
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: locale === 'sr' ? 'DodajUspomenu' : 'AddMemories',
+    description:
+      locale === 'sr'
+        ? 'Digitalni svadbeni album za prikupljanje fotografija gostiju putem QR koda.'
+        : 'Digital wedding album for collecting guest photos via QR code.',
+    image: `${SITE}/seo-cover.png`,
+    brand: { '@type': 'Brand', name: locale === 'sr' ? 'DodajUspomenu' : 'AddMemories' },
+    offers: plans.map(p => ({
+      '@type': 'Offer',
+      name: p.name[lang],
+      price: (p.price / 100).toFixed(2),
+      priceCurrency: 'EUR',
+      availability: 'https://schema.org/InStock',
+      url: `${SITE}/${locale}/admin/register?tier=${p.tier}`,
+    })),
+  };
+}
+
+export function localBusinessSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    '@id': `${SITE}/#localbusiness`,
+    name: 'Next Pixel s.p.',
+    alternateName: 'DodajUspomenu',
+    url: SITE,
+    email: 'kontakt@dodajuspomenu.com',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Jovana Dučića 15',
+      addressLocality: 'Gradiška',
+      postalCode: '78400',
+      addressCountry: 'BA',
+    },
+    taxID: '4513996760008',
+    sameAs: ['https://www.nextpixel.dev/'],
+  };
+}
+
+export function softwareApplicationSchema(
+  locale: Locale,
+  plans: { price: number; tier: string }[]
+) {
+  const lowestEur = (Math.min(...plans.map(p => p.price)) / 100).toFixed(2);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: locale === 'sr' ? 'DodajUspomenu' : 'AddMemories',
+    operatingSystem: 'Web',
+    applicationCategory: 'MultimediaApplication',
+    url: `${SITE}/${locale}`,
+    offers: {
+      '@type': 'Offer',
+      price: lowestEur,
+      priceCurrency: 'EUR',
+    },
+    description:
+      locale === 'sr'
+        ? 'Web aplikacija za prikupljanje fotografija sa vjenčanja preko QR koda.'
+        : 'Web app for collecting wedding photos from guests via a QR code.',
   };
 }
