@@ -141,4 +141,15 @@ test.describe('SEO routing', () => {
       expect(data.itemListElement.length).toBeGreaterThanOrEqual(2);
     });
   }
+
+  test('sitemap.xml lists 12 localized URLs and uses the image namespace', async ({ request }) => {
+    const res = await request.get('/sitemap.xml');
+    expect(res.status()).toBe(200);
+    const body = await res.text();
+    const locs = body.match(/<loc>/g) ?? [];
+    expect(locs.length).toBe(12);
+    expect(body).toContain('xmlns:image');
+    expect(body).toContain('/sr/about');
+    expect(body).toContain('/en/kontakt');
+  });
 });
