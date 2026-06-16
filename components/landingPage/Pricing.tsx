@@ -5,19 +5,13 @@ import { Check, ArrowRight, Crown, Camera, Users, Clock, Sparkles } from "lucide
 import type { PricingPlanRow } from "@/lib/pricing-db"
 import { buildDynamicFeatures } from "@/lib/pricing-features"
 import { getQualityLabel } from "@/lib/pricing-tiers"
+import { formatCurrency } from "@/lib/format-currency"
 import { FadeInOnScroll } from "@/components/motion/FadeInOnScroll"
 
 interface PricingProps {
   t: TFunction
   lang: "sr" | "en"
   tiers: PricingPlanRow[]
-}
-
-function formatCurrency(amountCents: number, lang: "sr" | "en"): string {
-  return new Intl.NumberFormat(lang === "sr" ? "sr-RS" : "en-US", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amountCents / 100)
 }
 
 export default function Pricing({ t, lang, tiers }: PricingProps) {

@@ -30,7 +30,7 @@ export default function ClientPage({ t, lang, tiers }: ClientPageProps) {
       <SocialProof t={t} />
       <Benefits t={t} lang={lang} />
       <Pricing t={t} lang={lang} tiers={tiers} />
-      <FAQ t={t} />
+      <FAQ t={t} lang={lang} tiers={tiers} />
       <Footer t={t} lang={lang} />
     </>
   );
