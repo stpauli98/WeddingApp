@@ -15,7 +15,7 @@ interface FAQProps {
 export default function FAQ({ t, lang, tiers }: FAQProps) {
   // Interpolation values sourced from the DB-driven pricing rows so FAQ copy
   // (limits + prices) tracks the real plans instead of hardcoded numbers.
-  const byTier = (tier: PricingTier) => tiers.find((p) => p.tier === tier);
+  const byTier = (tier: PricingTier) => tiers?.find((p) => p.tier === tier);
   const free = byTier('free');
   const basic = byTier('basic');
   const premium = byTier('premium');
