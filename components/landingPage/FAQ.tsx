@@ -1,16 +1,38 @@
 // components/landingPage/FAQ.tsx — NO 'use client' — RSC
 import type { TFunction } from 'i18next';
 import { ChevronDown } from 'lucide-react';
+import type { PricingPlanRow } from '@/lib/pricing-db';
+import type { PricingTier } from '@/lib/pricing-tiers';
+import { formatCurrency } from '@/lib/format-currency';
 import { FadeInOnScroll } from '@/components/motion/FadeInOnScroll';
 
 interface FAQProps {
   t: TFunction;
+  lang: 'sr' | 'en';
+  tiers: PricingPlanRow[];
 }
 
-export default function FAQ({ t }: FAQProps) {
+export default function FAQ({ t, lang, tiers }: FAQProps) {
+  // Interpolation values sourced from the DB-driven pricing rows so FAQ copy
+  // (limits + prices) tracks the real plans instead of hardcoded numbers.
+  const byTier = (tier: PricingTier) => tiers?.find((p) => p.tier === tier);
+  const free = byTier('free');
+  const basic = byTier('basic');
+  const premium = byTier('premium');
+  const answerVars = {
+    freeImages: free?.imageLimit ?? 3,
+    freeGuests: free?.guestLimit ?? 20,
+    freeDays: free?.storageDays ?? 30,
+    basicImages: basic?.imageLimit ?? 7,
+    premiumImages: premium?.imageLimit ?? 25,
+    storageDays: free?.storageDays ?? 30,
+    basicPrice: formatCurrency(basic?.price ?? 2500, lang),
+    premiumPrice: formatCurrency(premium?.price ?? 7500, lang),
+  };
+
   const faqItems = Array.from({ length: 8 }, (_, i) => ({
     question: t(`faq.question${i + 1}`),
-    answer: t(`faq.answer${i + 1}`),
+    answer: t(`faq.answer${i + 1}`, answerVars),
   }));
 
   return (
