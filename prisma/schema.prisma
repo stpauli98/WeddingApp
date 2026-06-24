@@ -166,7 +166,7 @@ model Video {
   guestId     String
   videoUrl    String
   posterUrl   String
-  storagePath String
+  storagePath String   @unique
   durationSec Int
   bytes       Int
   tier        PricingTier?

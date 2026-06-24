@@ -23,6 +23,7 @@ jest.mock('next/headers', () => ({
 import { getAuthenticatedGuest } from '@/lib/guest-auth';
 import cloudinary from '@/lib/cloudinary';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 function req(body: object, token = 'tok') {
   return new Request('http://x/api/guest/upload/video-confirm', {
@@ -201,4 +202,29 @@ it('destroys orphan and returns 400 when guest has reached the lifetime video ca
     { resource_type: 'video' },
     expect.any(Function)
   );
+});
+
+// --- Test 7: P2002 unique constraint on storagePath → 409, asset NOT destroyed ---
+it('returns 409 and does NOT destroy the asset on P2002 unique constraint violation', async () => {
+  (cloudinary.api.resource as jest.Mock).mockResolvedValue({
+    duration: 30,
+    bytes: 10_000_000,
+    secure_url:
+      'https://res.cloudinary.com/x/video/upload/v1/wedding-app/videos/f.mp4',
+  });
+
+  // Construct a P2002 error (storagePath already exists in DB)
+  const p2002 = new Prisma.PrismaClientKnownRequestError('Unique constraint', {
+    code: 'P2002',
+    clientVersion: 'x',
+  } as any);
+
+  jest.spyOn(prisma, '$transaction').mockRejectedValue(p2002);
+
+  const res = await POST(req({ publicId: 'wedding-app/videos/f' }));
+  expect(res.status).toBe(409);
+  const body = await res.json();
+  expect(body.error).toBe('Ovaj video je već zabilježen.');
+  // Asset must NOT be deleted — it belongs to an existing Video row
+  expect(cloudinary.uploader.destroy).not.toHaveBeenCalled();
 });

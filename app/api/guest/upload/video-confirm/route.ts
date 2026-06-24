@@ -129,7 +129,18 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (err) {
-    // Any failure means the Cloudinary asset has no matching DB row — destroy it
+    // P2002 = unique constraint violation: storagePath already registered.
+    // The asset belongs to an existing Video row — do NOT destroy it.
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === 'P2002'
+    ) {
+      return NextResponse.json(
+        { error: 'Ovaj video je već zabilježen.' },
+        { status: 409 }
+      );
+    }
+    // Any other failure means the Cloudinary asset has no matching DB row — destroy it
     await destroyVideo(publicId);
     const msg =
       err instanceof Error && err.message === 'LIFETIME'
