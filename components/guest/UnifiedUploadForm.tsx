@@ -123,34 +123,29 @@ export function UnifiedUploadForm({
     const s = statuses.find((x) => x.id === id);
     if (!s) return;
     setIsLoading(true);
-    await runItem(s);
-    setStatuses((prev) => {
-      if (prev.every((x) => x.status === "success")) {
-        setTimeout(() => {
-          window.location.href = language === "en" ? "/en/guest/success" : "/sr/guest/success";
-        }, 1200);
-      } else {
-        setIsLoading(false);
-      }
-      return prev;
-    });
+    const ok = await runItem(s);
+    const otherFailing = statuses.some((x) => x.id !== id && x.status === "error");
+    if (ok && !otherFailing) {
+      setTimeout(() => {
+        window.location.href = language === "en" ? "/en/guest/success" : "/sr/guest/success";
+      }, 1200);
+    } else {
+      setIsLoading(false);
+    }
   }
 
   async function retryAll() {
     const failed = statuses.filter((x) => x.status === "error" && x.retryable);
     if (failed.length === 0) return;
     setIsLoading(true);
-    await Promise.all(failed.map((s) => runItem(s)));
-    setStatuses((prev) => {
-      if (prev.every((x) => x.status === "success")) {
-        setTimeout(() => {
-          window.location.href = language === "en" ? "/en/guest/success" : "/sr/guest/success";
-        }, 1200);
-      } else {
-        setIsLoading(false);
-      }
-      return prev;
-    });
+    const results = await Promise.all(failed.map((s) => runItem(s)));
+    if (results.every(Boolean)) {
+      setTimeout(() => {
+        window.location.href = language === "en" ? "/en/guest/success" : "/sr/guest/success";
+      }, 1200);
+    } else {
+      setIsLoading(false);
+    }
   }
 
   return (
