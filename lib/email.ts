@@ -249,3 +249,24 @@ export async function sendGuestDeletionEmail(params: GuestDeletionParams): Promi
 export async function sendVerificationEmail(_email: string, _code: string): Promise<void> {
   return Promise.resolve();
 }
+
+interface CloudinaryUsageAlertParams {
+  usedPercent: number;
+  usage: number;
+  limit: number;
+  to: string;
+}
+
+/** Warn the owner that Cloudinary monthly credit usage is approaching the cap. */
+export async function sendCloudinaryUsageAlertEmail(params: CloudinaryUsageAlertParams): Promise<void> {
+  const { usedPercent, usage, limit, to } = params;
+  await getTransporter().sendMail({
+    from: process.env.ADMIN_EMAIL,
+    to,
+    subject: `⚠️ Cloudinary: ${usedPercent}% mjesečnih kredita iskorišteno`,
+    text:
+      `Cloudinary mjesečna potrošnja: ${usage} / ${limit} kredita (${usedPercent}%).\n` +
+      `Kad dosegne 100%, isporuka slika/videa se blokira do sljedećeg mjeseca.\n` +
+      `Razmotri smanjenje upotrebe ili nadogradnju plana.`,
+  });
+}
