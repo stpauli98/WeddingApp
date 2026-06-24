@@ -139,6 +139,18 @@
       "guestImage": "Slika gosta",
       "imageError": "Greška: Slika nije dostupna ili nije validan URL"
     },
+    "videoUpload": {
+      "title": "Dodaj video",
+      "hint": "Do {{limit}} videa, max {{sec}}s. Preostalo: {{remaining}}.",
+      "pick": "Izaberite video",
+      "uploading": "Slanje videa...",
+      "tooLong": "Video je predugačak — najviše {{sec}}s. Skratite ga i pošaljite ponovo.",
+      "maxReached": "Dostigli ste maksimalan broj videa."
+    },
+    "videoGallery": {
+      "empty": "Nema uploadovanih videa.",
+      "delete": "Obriši video"
+    },
     "uploadLimit": {
       "maxReached": "Dostigli ste maksimalan broj slika",
       "thankYou": "Hvala na vašem doprinosu!"
@@ -182,6 +194,24 @@
       "fillSurvey": "Popuni anketu",
       "openFormNow": "Otvori formular odmah"
     },
+    "mediaUpload": {
+      "title": "Dodaj uspomene",
+      "dragOrClick": "Prevucite slike i video ovdje ili kliknite za odabir",
+      "counterImages": "Slike {{count}}/{{limit}}",
+      "counterVideos": "Video {{count}}/{{limit}}",
+      "uploadingTitle": "Slanje uspomena",
+      "remove": "Ukloni",
+      "dismiss": "Zatvori",
+      "pickSomething": "Izaberite bar jednu sliku ili video.",
+      "imageLimit": "Dostigli ste maksimalan broj slika.",
+      "videoLimit": "Dostigli ste maksimalan broj videa.",
+      "videoUnreadable": "Video se ne može pročitati.",
+      "videoDurationNote": "Video može trajati najviše {{sec}}s."
+    },
+    "mediaGallery": {
+      "empty": "Nema uploadovanih uspomena",
+      "playVideo": "Pusti video"
+    },
     "login": {
       "title": "Dobrodošli na vjenčanje",
       "firstName": "Ime",
@@ -212,6 +242,10 @@
     }
   },
   "admin": {
+    "videoGallery": {
+      "empty": "Nema video snimaka.",
+      "downloadFor": "Preuzmi video od {{name}}"
+    },
     "imageGallery": {
       "loadingGuestData": "Učitavanje podataka o gostu...",
       "guestNotFound": "Gost nije pronađen",
@@ -354,7 +388,8 @@
         "gallery": "Galerija",
         "messages": "Poruke",
         "download": "Preuzimanje",
-        "help": "Pomoć"
+        "help": "Pomoć",
+        "videos": "Video"
       },
       "help": {
         "title": "Vaš vjenčani album",
@@ -629,7 +664,8 @@
       "imagesPerGuest": "Do {{count}} slika po gostu",
       "upToGuests": "Do {{count}} gostiju",
       "storageDays": "Slike se čuvaju {{count}} dana",
-      "storageYear": "Slike se čuvaju 1 godinu"
+      "storageYear": "Slike se čuvaju 1 godinu",
+      "videosPerGuest": "Video: do {{count}} po gostu (30s)"
     },
     "labels": {
       "guests": "gostiju",

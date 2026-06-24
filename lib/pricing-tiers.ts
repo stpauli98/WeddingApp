@@ -27,6 +27,8 @@ export interface TierConfig {
    * the stored asset is the compressed derivative.
    */
   storeOriginal: boolean;
+  /** Max number of active videos per guest. 0 = tier may not upload video. */
+  videoLimit: number;
   features: TierFeature[];
   limitations?: TierFeature[];
   recommended?: boolean;
@@ -43,6 +45,7 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     clientResizeMaxWidth: 1280,
     clientQuality: 0.85,
     storeOriginal: false,
+    videoLimit: 0,
     features: [
       { sr: 'Standardni QR kod', en: 'Standard QR code' },
       { sr: 'Galerija fotografija', en: 'Photo gallery' },
@@ -58,6 +61,7 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     clientResizeMaxWidth: 1600,
     clientQuality: 0.9,
     storeOriginal: false,
+    videoLimit: 0,
     features: [
       { sr: 'Prilagođen QR kod', en: 'Custom QR code' },
       { sr: 'Prioritetna podrška', en: 'Priority support' },
@@ -70,9 +74,10 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     guestLimit: 300,
     storageDays: 30,
     price: 7500, // €75
-    clientResizeMaxWidth: 2560,
+    clientResizeMaxWidth: 1920,
     clientQuality: 0.95,
     storeOriginal: true,
+    videoLimit: 3,
     features: [
       { sr: 'Napredni QR kod', en: 'Advanced QR code' },
       { sr: 'Prilagođen brending', en: 'Custom branding' },
@@ -92,9 +97,10 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     guestLimit: 300,
     storageDays: 30,
     price: 7500,
-    clientResizeMaxWidth: 2560,
+    clientResizeMaxWidth: 1920,
     clientQuality: 0.95,
     storeOriginal: true,
+    videoLimit: 3,
     features: [],
     recommended: false,
   },
@@ -177,8 +183,8 @@ export function getQualityLabel(tier: PricingTier, language: 'sr' | 'en' = 'sr')
       en: 'High quality (up to 1600px)',
     },
     premium: {
-      sr: 'Vrlo visok (do 2560px)',
-      en: 'Very high (up to 2560px)',
+      sr: 'Vrlo visok (do 1920px)',
+      en: 'Very high (up to 1920px)',
     },
     unlimited: {
       sr: 'Original (puna rezolucija)',

@@ -143,6 +143,18 @@
       "guestImage": "Guest image",
       "imageError": "Error: Image is not available or URL is invalid"
     },
+    "videoUpload": {
+      "title": "Add video",
+      "hint": "Up to {{limit}} videos, max {{sec}}s. Remaining: {{remaining}}.",
+      "pick": "Select a video",
+      "uploading": "Uploading video...",
+      "tooLong": "Video is too long — max {{sec}}s. Trim it and try again.",
+      "maxReached": "You have reached the maximum number of videos."
+    },
+    "videoGallery": {
+      "empty": "No uploaded videos.",
+      "delete": "Delete video"
+    },
     "uploadStatus": {
       "title": "Image Upload Status",
       "imagePreview": "Image preview",
@@ -182,6 +194,24 @@
       "canAddMore": "You can add {{count}} more {{imageText}}",
       "maxReached": "You have reached the maximum number of images"
     },
+    "mediaUpload": {
+      "title": "Add memories",
+      "dragOrClick": "Drag images and videos here or click to select",
+      "counterImages": "Photos {{count}}/{{limit}}",
+      "counterVideos": "Videos {{count}}/{{limit}}",
+      "uploadingTitle": "Uploading memories",
+      "remove": "Remove",
+      "dismiss": "Close",
+      "pickSomething": "Select at least one photo or video.",
+      "imageLimit": "You have reached the maximum number of photos.",
+      "videoLimit": "You have reached the maximum number of videos.",
+      "videoUnreadable": "The video could not be read.",
+      "videoDurationNote": "Video can be at most {{sec}}s long."
+    },
+    "mediaGallery": {
+      "empty": "No uploaded memories",
+      "playVideo": "Play video"
+    },
     "login": {
       "title": "Welcome to the wedding",
       "firstName": "First Name",
@@ -212,6 +242,10 @@
     }
   },
   "admin": {
+    "videoGallery": {
+      "empty": "No video recordings.",
+      "downloadFor": "Download video from {{name}}"
+    },
     "imageGallery": {
       "loadingGuestData": "Loading guest data...",
       "guestNotFound": "Guest not found",
@@ -354,7 +388,8 @@
         "gallery": "Gallery",
         "messages": "Messages",
         "download": "Download",
-        "help": "Help"
+        "help": "Help",
+        "videos": "Video"
       },
       "help": {
         "title": "Your Wedding Album",
@@ -629,7 +664,8 @@
       "imagesPerGuest": "Up to {{count}} images per guest",
       "upToGuests": "Up to {{count}} guests",
       "storageDays": "Photos stored for {{count}} days",
-      "storageYear": "Photos stored for 1 year"
+      "storageYear": "Photos stored for 1 year",
+      "videosPerGuest": "Video: up to {{count}} per guest (30s)"
     },
     "labels": {
       "guests": "guests",

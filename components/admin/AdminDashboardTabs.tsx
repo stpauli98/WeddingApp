@@ -9,6 +9,7 @@ import AdminGalleryAllImages from "@/components/admin/AdminGalleryAllImages";
 import AdminAllMessages from "@/components/admin/AdminAllMessages";
 import AdminHelpContact from "@/components/admin/AdminHelpContact";
 import { ExtendRetentionButton } from "@/components/admin/ExtendRetentionButton";
+import { AdminVideoGallery, AdminVideo } from "@/components/admin/AdminVideoGallery";
 import QrTemplateSelector from "@/components/admin/qr-template/QrTemplateSelector";
 import { FadeInUp } from "@/components/ui/fade-in-up";
 import { useTranslation } from "react-i18next";
@@ -17,12 +18,13 @@ import { getCurrentLanguageFromPath } from "@/lib/utils/language";
 interface AdminDashboardTabsProps {
   guests: any[];
   event: { coupleName: string; slug?: string; language?: string; retentionOverrideDays?: number; pricingTier?: string } | null;
+  adminVideos?: AdminVideo[];
 }
 
-const TAB_KEYS = ["guests", "gallery", "messages", "help"];
+const TAB_KEYS = ["guests", "gallery", "videos", "messages", "help"];
 const STORAGE_KEY = "adminDashboardActiveTab";
 
-const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }) => {
+const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event, adminVideos = [] }) => {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const qrRef = useRef<HTMLDivElement>(null);
@@ -165,6 +167,9 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
             <TabsTrigger value="gallery" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg text-[hsl(var(--lp-text))]/70 data-[state=active]:bg-[hsl(var(--lp-primary))] data-[state=active]:text-[hsl(var(--lp-primary-foreground))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
               {t('admin.dashboard.tabs.gallery')}
             </TabsTrigger>
+            <TabsTrigger value="videos" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg text-[hsl(var(--lp-text))]/70 data-[state=active]:bg-[hsl(var(--lp-primary))] data-[state=active]:text-[hsl(var(--lp-primary-foreground))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
+              {t('admin.dashboard.tabs.videos', 'Video')}
+            </TabsTrigger>
             <TabsTrigger value="messages" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg text-[hsl(var(--lp-text))]/70 data-[state=active]:bg-[hsl(var(--lp-primary))] data-[state=active]:text-[hsl(var(--lp-primary-foreground))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
               {t('admin.dashboard.tabs.messages')}
             </TabsTrigger>
@@ -250,6 +255,13 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event }
               guestName: `${g.firstName} ${g.lastName}`,
               createdAt: g.message!.createdAt
             }))} />
+          </div>
+        </FadeInUp>
+      </TabsContent>
+      <TabsContent value="videos">
+        <FadeInUp>
+          <div className="rounded-lg border border-[hsl(var(--lp-accent))]/20 p-6 bg-[hsl(var(--lp-card))]">
+            <AdminVideoGallery videos={adminVideos} />
           </div>
         </FadeInUp>
       </TabsContent>

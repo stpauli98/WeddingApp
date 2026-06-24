@@ -1,83 +1,64 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
-import { UploadForm } from '@/components/guest/Upload-Form'
+import React, { useEffect, useState } from 'react'
+import { UnifiedUploadForm } from '@/components/guest/UnifiedUploadForm'
+import { MediaGallery, type GalleryImage, type GalleryVideo } from '@/components/guest/MediaGallery'
 import { UploadLimitReachedCelebration } from '@/components/guest/UploadLimitReachedCelebration'
-import { ImageGallery } from '@/components/guest/ImageGallery'
+import AddToHomeScreenPrompt from "@/components/AddToHomeScreenPrompt";
 import { useTranslation } from 'react-i18next'
 import type { PricingTier } from '@/lib/pricing-tiers'
 
-interface Image {
-  id: string
-  imageUrl: string
-  storagePath?: string
-}
-
 interface DashboardClientProps {
-  initialImages: Image[]
+  initialImages: GalleryImage[]
   guestId: string
   message?: string
   language?: string
   imageLimit?: number
   tier?: PricingTier
+  initialVideos?: GalleryVideo[]
+  videoLimit?: number
 }
 
-import AddToHomeScreenPrompt from "@/components/AddToHomeScreenPrompt";
+export function DashboardClient({ initialImages, guestId, message, language = 'sr', imageLimit = 10, tier = 'free', initialVideos = [], videoLimit = 0 }: DashboardClientProps) {
+  const { i18n } = useTranslation();
+  useEffect(() => { if (language && i18n.language !== language) i18n.changeLanguage(language); }, [language, i18n]);
 
-export function DashboardClient({ initialImages, guestId, message, language = 'sr', imageLimit = 10, tier = 'free' }: DashboardClientProps) {
-  const { t, i18n } = useTranslation();
-  
-  // Postavi jezik ako je različit od trenutnog
-  useEffect(() => {
-    if (language && i18n.language !== language) {
-      i18n.changeLanguage(language);
-    }
-  }, [language, i18n]);
-  // Lokalno stanje za praćenje slika koje se može ažurirati nakon brisanja
-  const [images, setImages] = useState<Image[]>(initialImages)
+  const [images, setImages] = useState<GalleryImage[]>(initialImages)
+  const [videos, setVideos] = useState<GalleryVideo[]>(initialVideos)
 
-  // Snimi guestId u localStorage svaki put kad gost uđe na dashboard
-  useEffect(() => {
-    if (guestId) {
-      localStorage.setItem("guestId", guestId);
-    }
-  }, [guestId]);
+  useEffect(() => { if (guestId) localStorage.setItem("guestId", guestId); }, [guestId]);
 
-  // Funkcija koja se poziva kada se promijeni broj slika (npr. nakon brisanja)
-  const handleImagesChange = (updatedImages: Image[]) => {
-    setImages(updatedImages)
-  }
+  const imagesFull = images.length >= imageLimit;
+  const videosFull = videoLimit === 0 || videos.length >= videoLimit;
+  const everythingFull = imagesFull && videosFull;
 
   return (
     <>
       <AddToHomeScreenPrompt />
       <div className="mb-8">
-        {/* Uvijek prikazujemo sekciju za slike, ali sa različitim sadržajem ovisno o broju slika */}
-        {images.length >= imageLimit ? (
-          // Ako korisnik ima imageLimit ili više slika, prikazujemo UploadLimitReachedCelebration
-          <UploadLimitReachedCelebration
-            imagesCount={images.length}
-            language={language}
-            imageLimit={imageLimit}
-          />
+        {everythingFull ? (
+          <UploadLimitReachedCelebration imagesCount={images.length} language={language} imageLimit={imageLimit} />
         ) : (
-          // Inače prikazujemo UploadForm sa brojem postojećih slika
-          <UploadForm
+          <UnifiedUploadForm
             guestId={guestId}
             message={message}
-            existingImagesCount={images.length}
             language={language}
             imageLimit={imageLimit}
+            videoLimit={videoLimit}
             tier={tier}
+            existingImageCount={images.length}
+            existingVideoCount={videos.length}
           />
         )}
       </div>
-      
-      <ImageGallery 
-        images={images} 
+
+      <MediaGallery
+        images={images}
+        videos={videos}
         guestId={guestId}
-        onImagesChange={handleImagesChange}
         language={language}
+        onImagesChange={setImages}
+        onVideosChange={setVideos}
       />
     </>
   )

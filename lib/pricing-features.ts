@@ -58,7 +58,17 @@ export function buildDynamicFeatures(
   // 4. Image quality (already a combined label from helper).
   out.push(getQualityLabel(plan.tier, lang));
 
-  // 5. Tier-specific non-numeric features (e.g. "Priority support").
+  // 5. Video limit (only for tiers where videoLimit > 0).
+  if (plan.videoLimit > 0) {
+    out.push(
+      t('pricing.feature.videosPerGuest', {
+        count: plan.videoLimit,
+        defaultValue: `Video: do ${plan.videoLimit} po gostu (30s)`,
+      }) as string
+    );
+  }
+
+  // 6. Tier-specific non-numeric features (e.g. "Priority support").
   for (const f of plan.features) {
     out.push(f[lang]);
   }

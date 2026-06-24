@@ -16,12 +16,12 @@ describe('getClientResizeParams', () => {
     expect(getClientResizeParams('basic')).toEqual({ maxWidth: 1600, quality: 0.9 });
   });
 
-  it('returns 2560/0.95 for premium', () => {
-    expect(getClientResizeParams('premium')).toEqual({ maxWidth: 2560, quality: 0.95 });
+  it('returns 1920/0.95 for premium', () => {
+    expect(getClientResizeParams('premium')).toEqual({ maxWidth: 1920, quality: 0.95 });
   });
 
-  it('returns 2560/0.95 for unlimited (deprecated, mirrors premium)', () => {
-    expect(getClientResizeParams('unlimited')).toEqual({ maxWidth: 2560, quality: 0.95 });
+  it('returns 1920/0.95 for unlimited (deprecated, mirrors premium)', () => {
+    expect(getClientResizeParams('unlimited')).toEqual({ maxWidth: 1920, quality: 0.95 });
   });
 });
 
@@ -29,14 +29,14 @@ describe('getQualityLabel', () => {
   it('returns Serbian label for each tier', () => {
     expect(getQualityLabel('free', 'sr')).toBe('Standard (do 1280px)');
     expect(getQualityLabel('basic', 'sr')).toBe('Visok kvalitet (do 1600px)');
-    expect(getQualityLabel('premium', 'sr')).toBe('Vrlo visok (do 2560px)');
+    expect(getQualityLabel('premium', 'sr')).toBe('Vrlo visok (do 1920px)');
     expect(getQualityLabel('unlimited', 'sr')).toBe('Original (puna rezolucija)');
   });
 
   it('returns English label for each tier', () => {
     expect(getQualityLabel('free', 'en')).toBe('Standard (up to 1280px)');
     expect(getQualityLabel('basic', 'en')).toBe('High quality (up to 1600px)');
-    expect(getQualityLabel('premium', 'en')).toBe('Very high (up to 2560px)');
+    expect(getQualityLabel('premium', 'en')).toBe('Very high (up to 1920px)');
     expect(getQualityLabel('unlimited', 'en')).toBe('Original (full resolution)');
   });
 });

@@ -194,4 +194,4 @@ Razlog što RLS nije aktivan:
 
 ## Environment (keys only — see `.env.local`)
 
-`DATABASE_URL`, `DIRECT_DATABASE_URL`, `CSRF_SECRET`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `ADMIN_EMAIL`, `ADMIN_EMAIL_PASSWORD`, `OPTIMIZE_API_KEY`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (NextAuth/Google vars are present in env but no active code path uses them at the time of writing).
+`DATABASE_URL`, `DIRECT_DATABASE_URL`, `CSRF_SECRET`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `ADMIN_EMAIL`, `ADMIN_EMAIL_PASSWORD`, `OPTIMIZE_API_KEY`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (NextAuth/Google vars are present in env but no active code path uses them at the time of writing), `CLOUDINARY_ALERT_THRESHOLD` (optional; integer 0–100, default 80 — credit-usage % above which the owner is emailed), `ALERT_EMAIL` (optional; recipient for ops alerts; falls back to `ADMIN_EMAIL`).

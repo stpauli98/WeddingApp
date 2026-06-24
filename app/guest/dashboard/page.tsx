@@ -5,15 +5,10 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { DashboardClient } from "@/components/guest/DashboardClient"
 import { getAuthenticatedGuest } from "@/lib/guest-auth"
+import { getVideoLimit } from "@/lib/video-config"
 
 // Force dynamic rendering - prevent static generation
 export const dynamic = 'force-dynamic';
-
-interface DashboardImage {
-  id: string;
-  imageUrl: string;
-  storagePath?: string;
-}
 
 export default async function DashboardPage(props: any) {
   const searchParams = await props.searchParams;
@@ -78,7 +73,7 @@ export default async function DashboardPage(props: any) {
   // Dohvati slike i poruku za ovog gosta
   const guestWithData = await prisma.guest.findUnique({
     where: { id: guest.id },
-    include: { images: true, message: true }
+    include: { images: true, videos: true, message: true }
   });
 
   return (
@@ -86,16 +81,25 @@ export default async function DashboardPage(props: any) {
       <WeddingInfo eventId={event.id} language={urlLanguage || language || eventLanguage} />
       
       <DashboardClient
-        initialImages={(guestWithData?.images || []).map((img: { id: string; imageUrl: string; storagePath?: string | null }) => ({
-          id: img.id,
-          imageUrl: img.imageUrl,
-          storagePath: img.storagePath === null ? undefined : img.storagePath,
+        initialImages={(guestWithData?.images ?? []).map((i: { id: string; imageUrl: string; storagePath?: string | null; createdAt: Date }) => ({
+          id: i.id,
+          imageUrl: i.imageUrl,
+          storagePath: i.storagePath ?? undefined,
+          createdAt: i.createdAt.toISOString(),
         }))}
         guestId={guest.id}
         message={guestWithData?.message?.text ?? ""}
         language={urlLanguage || language || eventLanguage}
         imageLimit={event.imageLimit || 10}
         tier={event.pricingTier}
+        initialVideos={(guestWithData?.videos ?? []).map((v: { id: string; videoUrl: string; posterUrl: string; durationSec: number; createdAt: Date }) => ({
+          id: v.id,
+          videoUrl: v.videoUrl,
+          posterUrl: v.posterUrl,
+          durationSec: v.durationSec,
+          createdAt: v.createdAt.toISOString(),
+        }))}
+        videoLimit={getVideoLimit(event.pricingTier)}
       />
       <div className="mt-8">
         <LogoutButton 

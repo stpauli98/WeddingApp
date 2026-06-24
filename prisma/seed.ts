@@ -21,6 +21,7 @@ async function seedPricingPlans() {
       nameSr: config.name.sr,
       nameEn: config.name.en,
       imageLimit: config.imageLimit,
+      videoLimit: config.videoLimit,
       clientResizeMaxWidth: config.clientResizeMaxWidth,
       clientQuality: config.clientQuality,
       storeOriginal: config.storeOriginal,
@@ -55,7 +56,7 @@ async function seedPricingPlans() {
         },
       },
     });
-    console.log(`  ✓ ${tier}: imageLimit=${config.imageLimit}, price=${config.price}`);
+    console.log(`  ✓ ${tier}: imageLimit=${config.imageLimit}, videoLimit=${config.videoLimit}, price=${config.price}`);
   }
 }
 

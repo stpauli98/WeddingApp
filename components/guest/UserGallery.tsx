@@ -1,19 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ImageGallery } from "@/components/guest/ImageGallery"
+import { MediaGallery, GalleryImage, GalleryVideo } from "@/components/guest/MediaGallery"
 import { Button } from "@/components/ui/button"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
-interface Image {
-  id: string
-  imageUrl: string
-  storagePath?: string
-}
-
 interface UserGalleryProps {
-  initialImages: Image[]
+  initialImages: GalleryImage[]
+  initialVideos?: GalleryVideo[]
   guestId: string
   eventSlug?: string
   className?: string
@@ -21,25 +16,26 @@ interface UserGalleryProps {
   imageLimit?: number
 }
 
-export function UserGallery({ initialImages, guestId, eventSlug: propEventSlug, className, language = 'sr', imageLimit = 10 }: UserGalleryProps) {
+export function UserGallery({ initialImages, initialVideos, guestId, eventSlug: propEventSlug, className, language = 'sr', imageLimit = 10 }: UserGalleryProps) {
   const { t, i18n } = useTranslation();
-  const [images] = useState<Image[]>(initialImages)
+  const [images] = useState<GalleryImage[]>(initialImages)
+  const [videos] = useState<GalleryVideo[]>(initialVideos ?? [])
   const [eventSlug, setEventSlug] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
-  
+
   // Postavi jezik ako je različit od trenutnog
   useEffect(() => {
     if (language && i18n.language !== language) {
       i18n.changeLanguage(language);
     }
   }, [language, i18n]);
-  
+
   // Dohvati eventSlug iz URL-a, props-a ili iz localStorage
   useEffect(() => {
     // Prvo pokušaj dohvatiti iz URL-a
     const urlEventSlug = searchParams?.get('event')
-    
+
     if (urlEventSlug) {
       setEventSlug(urlEventSlug)
       // Spremi u localStorage za kasnije korištenje
@@ -60,9 +56,12 @@ export function UserGallery({ initialImages, guestId, eventSlug: propEventSlug, 
 
   return (
     <div className={className}>
-      <ImageGallery
+      <MediaGallery
         images={images}
-        readOnly={true}
+        videos={videos}
+        guestId={guestId}
+        language={language}
+        readOnly
       />
       {images.length < imageLimit && (
         <Button

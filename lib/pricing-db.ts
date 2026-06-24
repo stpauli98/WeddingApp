@@ -17,6 +17,7 @@ export type PricingPlanRow = {
   clientResizeMaxWidth: number;
   clientQuality: number;
   storeOriginal: boolean;
+  videoLimit: number;
   /** Tier-specific non-numeric features (e.g. "Priority support"). */
   features: Array<{ sr: string; en: string }>;
 };
@@ -47,6 +48,7 @@ const getPricingPlansCached = unstable_cache(
         clientResizeMaxWidth: plan.clientResizeMaxWidth,
         clientQuality: plan.clientQuality,
         storeOriginal: plan.storeOriginal,
+        videoLimit: PRICING_TIERS[plan.tier as PricingTier]?.videoLimit ?? 0,
         features: plan.features.map((f: any) => ({ sr: f.textSr, en: f.textEn })),
       }));
     } catch (err) {
@@ -76,6 +78,7 @@ function hardcodedFallback(): PricingPlanRow[] {
       clientResizeMaxWidth: config.clientResizeMaxWidth,
       clientQuality: config.clientQuality,
       storeOriginal: config.storeOriginal,
+      videoLimit: config.videoLimit,
       features: config.features,
     }));
 }
