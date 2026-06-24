@@ -8,7 +8,7 @@ jest.mock('@/lib/prisma', () => ({
       findMany: jest.fn().mockResolvedValue([
         {
           tier: 'premium', nameSr: 'Premium', nameEn: 'Premium',
-          imageLimit: 25, videoLimit: 3, clientResizeMaxWidth: 2560,
+          imageLimit: 25, videoLimit: 3, clientResizeMaxWidth: 1920,
           clientQuality: 0.95, storeOriginal: true, price: 7500,
           recommended: false, features: [],
         },
