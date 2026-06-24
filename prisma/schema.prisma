@@ -15,6 +15,8 @@ model PricingPlan {
   nameSr               String
   nameEn               String
   imageLimit           Int
+  /// Max active videos per guest for this tier (0 = no video).
+  videoLimit           Int              @default(0)
   price                Int              @default(0)
   recommended          Boolean          @default(false)
   sortOrder            Int              @default(0)
@@ -127,8 +129,12 @@ model Guest {
   /// lifetime <= event.imageLimit * 2 prevents unlimited upload/delete
   /// cycles from draining Cloudinary bandwidth.
   lifetimeUploadCount Int       @default(0)
+  /// Monotonic lifetime video upload count (never decremented on delete).
+  /// Anti-abuse: lifetimeVideoCount <= videoLimit * 2.
+  lifetimeVideoCount  Int       @default(0)
   event               Event     @relation(fields: [eventId], references: [id])
   images              Image[]
+  videos              Video[]
   message             Message?
 
   @@unique([email, eventId])
@@ -147,6 +153,24 @@ model Image {
   /// image was stored as a compressed derivative (free/basic) or original
   /// (premium/unlimited). Null for pre-migration legacy rows.
   tier        PricingTier?
+  guest       Guest        @relation(fields: [guestId], references: [id])
+
+  @@index([guestId, createdAt(sort: Desc)])
+  @@index([createdAt])
+}
+
+/// Video — guest-uploaded short clip on Cloudinary (premium tier only).
+/// storagePath = Cloudinary public_id; deletion MUST pass resource_type:'video'.
+model Video {
+  id          String       @id @default(uuid())
+  guestId     String
+  videoUrl    String
+  posterUrl   String
+  storagePath String
+  durationSec Int
+  bytes       Int
+  tier        PricingTier?
+  createdAt   DateTime     @default(now())
   guest       Guest        @relation(fields: [guestId], references: [id])
 
   @@index([guestId, createdAt(sort: Desc)])
