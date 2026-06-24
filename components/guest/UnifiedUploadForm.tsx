@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
@@ -45,6 +45,13 @@ export function UnifiedUploadForm({
   const [showStatus, setShowStatus] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [notice, setNotice] = useState("");
+
+  // Auto-dismiss the notice after 5s.
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(""), 5000);
+    return () => clearTimeout(timer);
+  }, [notice]);
 
   useLockBodyScroll(showStatus);
 
