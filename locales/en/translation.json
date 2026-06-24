@@ -143,6 +143,17 @@
       "guestImage": "Guest image",
       "imageError": "Error: Image is not available or URL is invalid"
     },
+    "videoUpload": {
+      "title": "Add video",
+      "hint": "Up to {{limit}} videos, max {{sec}}s. Remaining: {{remaining}}.",
+      "pick": "Select a video",
+      "uploading": "Uploading video...",
+      "tooLong": "Video can be at most {{sec}} seconds long."
+    },
+    "videoGallery": {
+      "empty": "No uploaded videos.",
+      "delete": "Delete video"
+    },
     "uploadStatus": {
       "title": "Image Upload Status",
       "imagePreview": "Image preview",
@@ -212,6 +223,10 @@
     }
   },
   "admin": {
+    "videoGallery": {
+      "empty": "No video recordings.",
+      "downloadFor": "Download video from {{name}}"
+    },
     "imageGallery": {
       "loadingGuestData": "Loading guest data...",
       "guestNotFound": "Guest not found",
@@ -354,7 +369,8 @@
         "gallery": "Gallery",
         "messages": "Messages",
         "download": "Download",
-        "help": "Help"
+        "help": "Help",
+        "videos": "Video"
       },
       "help": {
         "title": "Your Wedding Album",
@@ -629,7 +645,8 @@
       "imagesPerGuest": "Up to {{count}} images per guest",
       "upToGuests": "Up to {{count}} guests",
       "storageDays": "Photos stored for {{count}} days",
-      "storageYear": "Photos stored for 1 year"
+      "storageYear": "Photos stored for 1 year",
+      "videosPerGuest": "Video: up to {{count}} per guest (60s)"
     },
     "labels": {
       "guests": "guests",
