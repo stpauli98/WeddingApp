@@ -57,7 +57,7 @@ export function MediaUpload({
           }
           if (duration > MAX_VIDEO_DURATION_SEC) {
             onReject?.(
-              t("guest.videoUpload.tooLong", "Video može trajati najviše {{sec}} sekundi.", {
+              t("guest.videoUpload.tooLong", `Video može trajati najviše ${MAX_VIDEO_DURATION_SEC} sekundi.`, {
                 sec: MAX_VIDEO_DURATION_SEC,
               })
             );
