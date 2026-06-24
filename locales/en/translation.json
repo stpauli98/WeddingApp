@@ -194,6 +194,22 @@
       "canAddMore": "You can add {{count}} more {{imageText}}",
       "maxReached": "You have reached the maximum number of images"
     },
+    "mediaUpload": {
+      "title": "Add memories",
+      "dragOrClick": "Drag images and videos here or click to select",
+      "counterImages": "Photos {{count}}/{{limit}}",
+      "counterVideos": "Videos {{count}}/{{limit}}",
+      "uploadingTitle": "Uploading memories",
+      "remove": "Remove",
+      "dismiss": "Close",
+      "pickSomething": "Select at least one photo or video.",
+      "imageLimit": "You have reached the maximum number of photos.",
+      "videoLimit": "You have reached the maximum number of videos.",
+      "videoUnreadable": "The video could not be read."
+    },
+    "mediaGallery": {
+      "empty": "No uploaded memories"
+    },
     "login": {
       "title": "Welcome to the wedding",
       "firstName": "First Name",

@@ -194,6 +194,22 @@
       "fillSurvey": "Popuni anketu",
       "openFormNow": "Otvori formular odmah"
     },
+    "mediaUpload": {
+      "title": "Dodaj uspomene",
+      "dragOrClick": "Prevucite slike i video ovdje ili kliknite za odabir",
+      "counterImages": "Slike {{count}}/{{limit}}",
+      "counterVideos": "Video {{count}}/{{limit}}",
+      "uploadingTitle": "Slanje uspomena",
+      "remove": "Ukloni",
+      "dismiss": "Zatvori",
+      "pickSomething": "Izaberite bar jednu sliku ili video.",
+      "imageLimit": "Dostigli ste maksimalan broj slika.",
+      "videoLimit": "Dostigli ste maksimalan broj videa.",
+      "videoUnreadable": "Video se ne može pročitati."
+    },
+    "mediaGallery": {
+      "empty": "Nema uploadovanih uspomena"
+    },
     "login": {
       "title": "Dobrodošli na vjenčanje",
       "firstName": "Ime",
