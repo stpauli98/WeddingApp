@@ -208,7 +208,8 @@
       "videoUnreadable": "The video could not be read."
     },
     "mediaGallery": {
-      "empty": "No uploaded memories"
+      "empty": "No uploaded memories",
+      "playVideo": "Play video"
     },
     "login": {
       "title": "Welcome to the wedding",

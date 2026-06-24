@@ -208,7 +208,8 @@
       "videoUnreadable": "Video se ne može pročitati."
     },
     "mediaGallery": {
-      "empty": "Nema uploadovanih uspomena"
+      "empty": "Nema uploadovanih uspomena",
+      "playVideo": "Pusti video"
     },
     "login": {
       "title": "Dobrodošli na vjenčanje",

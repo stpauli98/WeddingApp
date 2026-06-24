@@ -10,9 +10,21 @@ import { fetchWithCsrfRetry } from '@/lib/csrf-client';
 const images = [{ id: 'i1', imageUrl: 'https://res.cloudinary.com/x/a.jpg', createdAt: '2026-06-01T00:00:00Z' }];
 const videos = [{ id: 'v1', videoUrl: 'https://res.cloudinary.com/x/v.mp4', posterUrl: 'https://res.cloudinary.com/x/v.jpg', durationSec: 20, createdAt: '2026-06-02T00:00:00Z' }];
 
-it('renders both an image and a video tile', () => {
+it('renders both an image and a video tile — video is static by default (no <video> element)', () => {
   render(<MediaGallery images={images} videos={videos} guestId="g" />);
-  expect(screen.getByRole('img')).toBeInTheDocument();
+  // The named image tile is present
+  expect(screen.getByRole('img', { name: /slika gosta/i })).toBeInTheDocument();
+  // Play button must be visible (confirms video tile is rendered as static)
+  expect(screen.getByLabelText(/pusti video|play video/i)).toBeInTheDocument();
+  // No <video> until the play button is clicked
+  expect(document.querySelector('video')).toBeNull();
+  // The video poster img is in the DOM (decorative, alt="")
+  expect(document.querySelector('img[src="https://res.cloudinary.com/x/v.jpg"]')).toBeInTheDocument();
+});
+
+it('renders a <video> element after clicking the play button', () => {
+  render(<MediaGallery images={images} videos={videos} guestId="g" />);
+  fireEvent.click(screen.getByLabelText(/pusti video|play video/i));
   expect(document.querySelector('video')).toBeInTheDocument();
 });
 

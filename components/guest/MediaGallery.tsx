@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Trash, Loader2 } from "lucide-react";
+import { Trash, Loader2, Play, Video } from "lucide-react";
 import ImageWithSpinner from "@/components/shared/ImageWithSpinner";
 import { fetchWithCsrfRetry } from "@/lib/csrf-client";
 import { useTranslation } from "react-i18next";
@@ -27,6 +27,7 @@ interface MediaGalleryProps {
 export function MediaGallery({ images, videos, guestId, language = "sr", readOnly = false, onImagesChange, onVideosChange }: MediaGalleryProps) {
   const { t } = useTranslation();
   const [deleting, setDeleting] = useState<Set<string>>(new Set());
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
 
   const items: MediaItem[] = [
     ...images.map((i) => ({ kind: "image" as const, ...i })),
@@ -72,7 +73,42 @@ export function MediaGallery({ images, videos, guestId, language = "sr", readOnl
             {item.kind === "image" ? (
               <ImageWithSpinner src={item.imageUrl} width={400} height={400} crop="fill" alt={t("guest.imageGallery.guestImage", "Slika gosta")} className="p-2" rounded={true} />
             ) : (
-              <video controls preload="metadata" poster={item.posterUrl || undefined} src={item.videoUrl} className="w-full h-full object-cover" />
+              <div className="relative w-full h-full">
+                {activeVideoId === item.id ? (
+                  <video
+                    src={item.videoUrl}
+                    poster={item.posterUrl || undefined}
+                    controls
+                    autoPlay
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <>
+                    {item.posterUrl ? (
+                      <img src={item.posterUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-[hsl(var(--lp-muted))]/40 flex items-center justify-center">
+                        <Video className="h-10 w-10 text-white/60" />
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      aria-label={t("guest.mediaGallery.playVideo", "Pusti video")}
+                      onClick={() => setActiveVideoId(item.id)}
+                      className="absolute inset-0 flex items-center justify-center"
+                    >
+                      <span className="bg-black/50 rounded-full p-3 flex items-center justify-center">
+                        <Play className="h-8 w-8 text-white fill-white" />
+                      </span>
+                    </button>
+                  </>
+                )}
+                {/* Video badge — always visible */}
+                <span className="absolute bottom-2 left-2 z-10 flex items-center gap-1 bg-black/50 text-white rounded px-1.5 py-0.5 text-xs">
+                  <Video className="h-3 w-3" />
+                </span>
+              </div>
             )}
           </Card>
         );
