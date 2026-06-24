@@ -6,16 +6,18 @@ import { UserGallery } from "@/components/guest/UserGallery"
 import { GuestMessage } from "@/components/guest/GuestMessage"
 import { UploadLimitReachedCelebration } from "@/components/guest/UploadLimitReachedCelebration"
 import { LogoutButton } from "@/components/shared/LogoutButton"
+import { GalleryImage, GalleryVideo } from "@/components/guest/MediaGallery"
 
-interface Image {
+interface GuestImage {
   id: string
   imageUrl: string
   storagePath?: string | null
+  createdAt: string | Date
 }
 
 interface Guest {
   id: string
-  images: Image[]
+  images: GuestImage[]
   eventId: string
 }
 
@@ -26,6 +28,7 @@ interface Props {
   eventSlug?: string
   language?: string
   imageLimit?: number
+  videos?: GalleryVideo[]
 }
 
 function getSlikaPadez(n: number) {
@@ -41,7 +44,7 @@ function getSlikaPadez(n: number) {
   }
 }
 
-export default function ClientSuccess({ guest, coupleName, message, eventSlug, language = 'sr', imageLimit = 10 }: Props) {
+export default function ClientSuccess({ guest, coupleName, message, eventSlug, language = 'sr', imageLimit = 10, videos }: Props) {
   const { t, i18n } = useTranslation();
 
   // Postavi jezik ako je različit od trenutnog
@@ -51,16 +54,21 @@ export default function ClientSuccess({ guest, coupleName, message, eventSlug, l
     }
   }, [language, i18n]);
 
+  const initialImages: GalleryImage[] = (guest?.images || []).map((img) => ({
+    id: img.id,
+    imageUrl: img.imageUrl,
+    storagePath: img.storagePath === null ? undefined : img.storagePath,
+    createdAt: new Date(img.createdAt).toISOString(),
+  }));
+
   return (
     <div className="container max-w-md mx-auto px-4 py-8 text-center">
       <SuccessThankYouCard coupleName={coupleName} language={language} />
       <div className="flex flex-col gap-4">
         <div className="bg-white border border-[hsl(var(--lp-accent))]/30 rounded-xl shadow-md px-4 py-6 mb-8">
           <UserGallery
-            initialImages={(guest?.images || []).map((img: Image) => ({
-              ...img,
-              storagePath: img.storagePath === null ? undefined : img.storagePath,
-            }))}
+            initialImages={initialImages}
+            initialVideos={videos ?? []}
             guestId={guest.id}
             eventSlug={eventSlug}
             language={language}

@@ -21,3 +21,8 @@ it('deletes a video via the video endpoint', async () => {
   fireEvent.click(screen.getByLabelText(/obriši video|delete video/i));
   await waitFor(() => expect(fetchWithCsrfRetry).toHaveBeenCalledWith(expect.stringContaining('/api/guest/videos/delete?id=v1'), expect.objectContaining({ method: 'DELETE' })));
 });
+
+it('hides delete controls when readOnly', () => {
+  render(<MediaGallery images={images} videos={videos} guestId="g" readOnly />);
+  expect(screen.queryByLabelText(/obriši|delete/i)).toBeNull();
+});

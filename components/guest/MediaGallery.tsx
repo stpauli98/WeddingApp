@@ -19,11 +19,12 @@ interface MediaGalleryProps {
   videos: GalleryVideo[];
   guestId: string;
   language?: string;
+  readOnly?: boolean;
   onImagesChange?: (i: GalleryImage[]) => void;
   onVideosChange?: (v: GalleryVideo[]) => void;
 }
 
-export function MediaGallery({ images, videos, guestId, language = "sr", onImagesChange, onVideosChange }: MediaGalleryProps) {
+export function MediaGallery({ images, videos, guestId, language = "sr", readOnly = false, onImagesChange, onVideosChange }: MediaGalleryProps) {
   const { t } = useTranslation();
   const [deleting, setDeleting] = useState<Set<string>>(new Set());
 
@@ -58,6 +59,7 @@ export function MediaGallery({ images, videos, guestId, language = "sr", onImage
         const isDeleting = deleting.has(item.id);
         return (
           <Card key={`${item.kind}-${item.id}`} className="relative aspect-square overflow-hidden group bg-white border border-[hsl(var(--lp-accent))] shadow-lg rounded-xl">
+            {!readOnly && (
             <button
               onClick={(e) => { e.stopPropagation(); remove(item); }}
               disabled={isDeleting}
@@ -66,6 +68,7 @@ export function MediaGallery({ images, videos, guestId, language = "sr", onImage
             >
               {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash className="h-4 w-4" />}
             </button>
+          )}
             {item.kind === "image" ? (
               <ImageWithSpinner src={item.imageUrl} width={400} height={400} crop="fill" alt={t("guest.imageGallery.guestImage", "Slika gosta")} className="p-2" rounded={true} />
             ) : (

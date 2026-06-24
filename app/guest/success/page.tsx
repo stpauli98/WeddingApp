@@ -75,6 +75,15 @@ export default async function SuccessPage(props: any) {
   // Dohvatanje gosta sa slikama
   const guest = await getGuestById(guestId);
 
+  // Dohvati videe za gosta
+  const guestVideos = guest
+    ? await prisma.video.findMany({
+        where: { guestId: guest.id },
+        select: { id: true, videoUrl: true, posterUrl: true, durationSec: true, createdAt: true },
+        orderBy: { createdAt: "desc" },
+      })
+    : [];
+
   if (!guest) {
     redirect(`/${language}/guest/login`);
   }
@@ -112,5 +121,12 @@ export default async function SuccessPage(props: any) {
     eventSlug={finalEventSlug}
     language={urlLanguage || language || eventLanguage}
     imageLimit={event?.imageLimit || 10}
+    videos={guestVideos.map((v: { id: string; videoUrl: string; posterUrl: string; durationSec: number; createdAt: Date }) => ({
+      id: v.id,
+      videoUrl: v.videoUrl,
+      posterUrl: v.posterUrl,
+      durationSec: v.durationSec,
+      createdAt: v.createdAt.toISOString(),
+    }))}
   />;
 }
