@@ -52,8 +52,8 @@ beforeEach(() => {
   );
 });
 
-// --- Test 1 (from brief): >60s video is destroyed and returns 400 ---
-it('destroys and rejects a video longer than 60s', async () => {
+// --- Test 1: a video over the duration limit (MAX_VIDEO_DURATION_SEC=30s) is destroyed and returns 400 ---
+it('destroys and rejects a video exceeding the duration limit', async () => {
   (cloudinary.api.resource as jest.Mock).mockResolvedValue({
     duration: 90,
     bytes: 5_000_000,
