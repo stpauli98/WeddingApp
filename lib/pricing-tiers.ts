@@ -27,6 +27,8 @@ export interface TierConfig {
    * the stored asset is the compressed derivative.
    */
   storeOriginal: boolean;
+  /** Max number of active videos per guest. 0 = tier may not upload video. */
+  videoLimit: number;
   features: TierFeature[];
   limitations?: TierFeature[];
   recommended?: boolean;
@@ -43,6 +45,7 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     clientResizeMaxWidth: 1280,
     clientQuality: 0.85,
     storeOriginal: false,
+    videoLimit: 0,
     features: [
       { sr: 'Standardni QR kod', en: 'Standard QR code' },
       { sr: 'Galerija fotografija', en: 'Photo gallery' },
@@ -58,6 +61,7 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     clientResizeMaxWidth: 1600,
     clientQuality: 0.9,
     storeOriginal: false,
+    videoLimit: 0,
     features: [
       { sr: 'Prilagođen QR kod', en: 'Custom QR code' },
       { sr: 'Prioritetna podrška', en: 'Priority support' },
@@ -73,6 +77,7 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     clientResizeMaxWidth: 2560,
     clientQuality: 0.95,
     storeOriginal: true,
+    videoLimit: 3,
     features: [
       { sr: 'Napredni QR kod', en: 'Advanced QR code' },
       { sr: 'Prilagođen brending', en: 'Custom branding' },
@@ -95,6 +100,7 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     clientResizeMaxWidth: 2560,
     clientQuality: 0.95,
     storeOriginal: true,
+    videoLimit: 3,
     features: [],
     recommended: false,
   },
