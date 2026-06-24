@@ -61,9 +61,8 @@ export function UnifiedUploadForm({
       );
     try {
       setProgress(0);
-      const item = staged.find((m) => m.id === s.id)!;
-      if (item.kind === "image") await uploadImageFile(item.file, tier, setProgress);
-      else await uploadVideoFlow(item.file, setProgress);
+      if (s.kind === "video") await uploadVideoFlow(s.file, setProgress);
+      else await uploadImageFile(s.file, tier, setProgress);
       setStatuses((prev) =>
         prev.map((x) => (x.id === s.id ? { ...x, status: "success", progress: 100 } : x))
       );
