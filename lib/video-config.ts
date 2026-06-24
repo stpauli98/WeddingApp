@@ -1,6 +1,6 @@
 import { PRICING_TIERS, type PricingTier } from '@/lib/pricing-tiers';
 
-export const MAX_VIDEO_DURATION_SEC = 60;
+export const MAX_VIDEO_DURATION_SEC = 30;
 export const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
 export const VIDEO_FOLDER = 'wedding-app/videos';
 

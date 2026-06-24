@@ -9,7 +9,7 @@ import {
 
 describe('video-config', () => {
   it('exposes the agreed caps', () => {
-    expect(MAX_VIDEO_DURATION_SEC).toBe(60);
+    expect(MAX_VIDEO_DURATION_SEC).toBe(30);
     expect(MAX_VIDEO_BYTES).toBe(100 * 1024 * 1024);
   });
 
@@ -26,6 +26,7 @@ describe('video-config', () => {
 
   it('rejects over-length and over-size video', () => {
     expect(validateVideoMeta({ durationSec: 61, bytes: 1000 })).toEqual({ ok: false, reason: 'duration' });
+    expect(validateVideoMeta({ durationSec: 31, bytes: 1000 })).toEqual({ ok: false, reason: 'duration' });
     expect(validateVideoMeta({ durationSec: 10, bytes: MAX_VIDEO_BYTES + 1 })).toEqual({ ok: false, reason: 'size' });
   });
 

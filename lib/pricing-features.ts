@@ -63,7 +63,7 @@ export function buildDynamicFeatures(
     out.push(
       t('pricing.feature.videosPerGuest', {
         count: plan.videoLimit,
-        defaultValue: `Video: do ${plan.videoLimit} po gostu (60s)`,
+        defaultValue: `Video: do ${plan.videoLimit} po gostu (30s)`,
       }) as string
     );
   }

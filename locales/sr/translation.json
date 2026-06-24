@@ -144,7 +144,7 @@
       "hint": "Do {{limit}} videa, max {{sec}}s. Preostalo: {{remaining}}.",
       "pick": "Izaberite video",
       "uploading": "Slanje videa...",
-      "tooLong": "Video može trajati najviše {{sec}} sekundi.",
+      "tooLong": "Video je predugačak — najviše {{sec}}s. Skratite ga i pošaljite ponovo.",
       "maxReached": "Dostigli ste maksimalan broj videa."
     },
     "videoGallery": {
@@ -205,7 +205,8 @@
       "pickSomething": "Izaberite bar jednu sliku ili video.",
       "imageLimit": "Dostigli ste maksimalan broj slika.",
       "videoLimit": "Dostigli ste maksimalan broj videa.",
-      "videoUnreadable": "Video se ne može pročitati."
+      "videoUnreadable": "Video se ne može pročitati.",
+      "videoDurationNote": "Video može trajati najviše {{sec}}s."
     },
     "mediaGallery": {
       "empty": "Nema uploadovanih uspomena",
@@ -664,7 +665,7 @@
       "upToGuests": "Do {{count}} gostiju",
       "storageDays": "Slike se čuvaju {{count}} dana",
       "storageYear": "Slike se čuvaju 1 godinu",
-      "videosPerGuest": "Video: do {{count}} po gostu (60s)"
+      "videosPerGuest": "Video: do {{count}} po gostu (30s)"
     },
     "labels": {
       "guests": "gostiju",

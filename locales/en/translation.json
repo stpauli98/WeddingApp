@@ -148,7 +148,7 @@
       "hint": "Up to {{limit}} videos, max {{sec}}s. Remaining: {{remaining}}.",
       "pick": "Select a video",
       "uploading": "Uploading video...",
-      "tooLong": "Video can be at most {{sec}} seconds long.",
+      "tooLong": "Video is too long — max {{sec}}s. Trim it and try again.",
       "maxReached": "You have reached the maximum number of videos."
     },
     "videoGallery": {
@@ -205,7 +205,8 @@
       "pickSomething": "Select at least one photo or video.",
       "imageLimit": "You have reached the maximum number of photos.",
       "videoLimit": "You have reached the maximum number of videos.",
-      "videoUnreadable": "The video could not be read."
+      "videoUnreadable": "The video could not be read.",
+      "videoDurationNote": "Video can be at most {{sec}}s long."
     },
     "mediaGallery": {
       "empty": "No uploaded memories",
@@ -664,7 +665,7 @@
       "upToGuests": "Up to {{count}} guests",
       "storageDays": "Photos stored for {{count}} days",
       "storageYear": "Photos stored for 1 year",
-      "videosPerGuest": "Video: up to {{count}} per guest (60s)"
+      "videosPerGuest": "Video: up to {{count}} per guest (30s)"
     },
     "labels": {
       "guests": "guests",

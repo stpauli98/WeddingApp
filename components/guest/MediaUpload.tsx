@@ -57,7 +57,7 @@ export function MediaUpload({
           }
           if (duration > MAX_VIDEO_DURATION_SEC) {
             onReject?.(
-              t("guest.videoUpload.tooLong", `Video može trajati najviše ${MAX_VIDEO_DURATION_SEC} sekundi.`, {
+              t("guest.videoUpload.tooLong", `Video je predugačak — najviše ${MAX_VIDEO_DURATION_SEC}s. Skratite ga i pošaljite ponovo.`, {
                 sec: MAX_VIDEO_DURATION_SEC,
               })
             );
@@ -109,6 +109,11 @@ export function MediaUpload({
             ? t("guest.mediaUpload.dragOrClick", "Prevucite slike i video ovdje ili kliknite za odabir")
             : t("guest.imageUpload.dragOrClick", "Prevucite slike ovdje ili kliknite za odabir")}
         </p>
+        {allowVideo && (
+          <p className="mt-1 text-xs text-[hsl(var(--lp-muted-foreground))]">
+            {t("guest.mediaUpload.videoDurationNote", `Video može trajati najviše ${MAX_VIDEO_DURATION_SEC}s.`, { sec: MAX_VIDEO_DURATION_SEC })}
+          </p>
+        )}
       </div>
 
       {value.length > 0 && (
