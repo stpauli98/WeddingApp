@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { DashboardClient } from "@/components/guest/DashboardClient"
 import { getAuthenticatedGuest } from "@/lib/guest-auth"
+import { getVideoLimit } from "@/lib/video-config"
 
 // Force dynamic rendering - prevent static generation
 export const dynamic = 'force-dynamic';
@@ -78,7 +79,7 @@ export default async function DashboardPage(props: any) {
   // Dohvati slike i poruku za ovog gosta
   const guestWithData = await prisma.guest.findUnique({
     where: { id: guest.id },
-    include: { images: true, message: true }
+    include: { images: true, videos: true, message: true }
   });
 
   return (
@@ -96,6 +97,13 @@ export default async function DashboardPage(props: any) {
         language={urlLanguage || language || eventLanguage}
         imageLimit={event.imageLimit || 10}
         tier={event.pricingTier}
+        initialVideos={(guestWithData?.videos ?? []).map((v: { id: string; videoUrl: string; posterUrl: string; durationSec: number }) => ({
+          id: v.id,
+          videoUrl: v.videoUrl,
+          posterUrl: v.posterUrl,
+          durationSec: v.durationSec,
+        }))}
+        videoLimit={getVideoLimit(event.pricingTier)}
       />
       <div className="mt-8">
         <LogoutButton 

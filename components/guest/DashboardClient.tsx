@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react'
 import { UploadForm } from '@/components/guest/Upload-Form'
 import { UploadLimitReachedCelebration } from '@/components/guest/UploadLimitReachedCelebration'
 import { ImageGallery } from '@/components/guest/ImageGallery'
+import { VideoUploadForm } from '@/components/guest/VideoUploadForm'
+import { VideoGallery, type GuestVideo } from '@/components/guest/VideoGallery'
 import { useTranslation } from 'react-i18next'
 import type { PricingTier } from '@/lib/pricing-tiers'
 
@@ -20,11 +22,13 @@ interface DashboardClientProps {
   language?: string
   imageLimit?: number
   tier?: PricingTier
+  initialVideos?: GuestVideo[]
+  videoLimit?: number
 }
 
 import AddToHomeScreenPrompt from "@/components/AddToHomeScreenPrompt";
 
-export function DashboardClient({ initialImages, guestId, message, language = 'sr', imageLimit = 10, tier = 'free' }: DashboardClientProps) {
+export function DashboardClient({ initialImages, guestId, message, language = 'sr', imageLimit = 10, tier = 'free', initialVideos = [], videoLimit = 0 }: DashboardClientProps) {
   const { t, i18n } = useTranslation();
   
   // Postavi jezik ako je različit od trenutnog
@@ -35,6 +39,7 @@ export function DashboardClient({ initialImages, guestId, message, language = 's
   }, [language, i18n]);
   // Lokalno stanje za praćenje slika koje se može ažurirati nakon brisanja
   const [images, setImages] = useState<Image[]>(initialImages)
+  const [videos, setVideos] = useState<GuestVideo[]>(initialVideos)
 
   // Snimi guestId u localStorage svaki put kad gost uđe na dashboard
   useEffect(() => {
@@ -73,12 +78,27 @@ export function DashboardClient({ initialImages, guestId, message, language = 's
         )}
       </div>
       
-      <ImageGallery 
-        images={images} 
+      <ImageGallery
+        images={images}
         guestId={guestId}
         onImagesChange={handleImagesChange}
         language={language}
       />
+
+      {videoLimit > 0 && (
+        <section className="mt-8 space-y-4">
+          <VideoUploadForm
+            videoLimit={videoLimit}
+            existingVideoCount={videos.length}
+            language={language}
+            onUploaded={() => window.location.reload()}
+          />
+          <VideoGallery
+            videos={videos}
+            onDeleted={(id) => setVideos((prev) => prev.filter((v) => v.id !== id))}
+          />
+        </section>
+      )}
     </>
   )
 }

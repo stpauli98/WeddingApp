@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -101,7 +100,6 @@ export function VideoUploadForm({ videoLimit, existingVideoCount, language = "sr
             <span>{t("guest.videoUpload.uploading", "Slanje videa...")} {progress}%</span>
           </div>
         )}
-        <Button type="button" disabled className="hidden" aria-hidden />
       </CardContent>
     </Card>
   );
