@@ -40,8 +40,16 @@ const nextConfig = {
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://vercel.live https://va.vercel-scripts.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https: blob: https://res.cloudinary.com https://api.producthunt.com https://*.google-analytics.com",
+      // media-src covers guest video: blob: for the local duration pre-check
+      // (offscreen <video> reads metadata from a blob: URL) and res.cloudinary.com
+      // for playback in the guest + admin galleries. Without it, default-src 'self'
+      // blocks both.
+      "media-src 'self' blob: https://res.cloudinary.com",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.google-analytics.com https://*.vercel-insights.com https://vitals.vercel-insights.com https://api.producthunt.com",
+      // api.cloudinary.com is the direct signed-upload endpoint the browser POSTs
+      // the video file to (bypassing our server). Without it the upload XHR is
+      // blocked by connect-src.
+      "connect-src 'self' https://api.cloudinary.com https://*.google-analytics.com https://*.vercel-insights.com https://vitals.vercel-insights.com https://api.producthunt.com",
       "frame-src 'self' https://www.producthunt.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
