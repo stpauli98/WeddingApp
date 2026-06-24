@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
+import { withCloudinaryTransform } from "@/lib/cloudinaryUrl";
 import {
   ChevronLeft,
   ChevronRight,
@@ -57,7 +58,7 @@ function LightboxImage({ src }: { src: string }) {
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={src}
+        src={withCloudinaryTransform(src, "c_limit,w_1600,q_auto,f_auto")}
         alt=""
         draggable={false}
         onLoad={() => setLoading(false)}

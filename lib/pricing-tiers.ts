@@ -74,7 +74,7 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     guestLimit: 300,
     storageDays: 30,
     price: 7500, // €75
-    clientResizeMaxWidth: 2560,
+    clientResizeMaxWidth: 1920,
     clientQuality: 0.95,
     storeOriginal: true,
     videoLimit: 3,
@@ -97,7 +97,7 @@ export const PRICING_TIERS: Record<PricingTier, TierConfig> = {
     guestLimit: 300,
     storageDays: 30,
     price: 7500,
-    clientResizeMaxWidth: 2560,
+    clientResizeMaxWidth: 1920,
     clientQuality: 0.95,
     storeOriginal: true,
     videoLimit: 3,
@@ -183,8 +183,8 @@ export function getQualityLabel(tier: PricingTier, language: 'sr' | 'en' = 'sr')
       en: 'High quality (up to 1600px)',
     },
     premium: {
-      sr: 'Vrlo visok (do 2560px)',
-      en: 'Very high (up to 2560px)',
+      sr: 'Vrlo visok (do 1920px)',
+      en: 'Very high (up to 1920px)',
     },
     unlimited: {
       sr: 'Original (puna rezolucija)',

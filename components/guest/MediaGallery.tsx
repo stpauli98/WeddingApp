@@ -6,6 +6,7 @@ import { Trash, Loader2, Play, Video } from "lucide-react";
 import ImageWithSpinner from "@/components/shared/ImageWithSpinner";
 import { fetchWithCsrfRetry } from "@/lib/csrf-client";
 import { useTranslation } from "react-i18next";
+import { withCloudinaryTransform } from "@/lib/cloudinaryUrl";
 
 export interface GalleryImage { id: string; imageUrl: string; storagePath?: string; createdAt: string }
 export interface GalleryVideo { id: string; videoUrl: string; posterUrl: string; durationSec: number; createdAt: string }
@@ -77,7 +78,7 @@ export function MediaGallery({ images, videos, guestId, language = "sr", readOnl
                 {activeVideoId === item.id ? (
                   <video
                     src={item.videoUrl}
-                    poster={item.posterUrl || undefined}
+                    poster={item.posterUrl ? withCloudinaryTransform(item.posterUrl, "c_fill,w_400,h_400,q_auto,f_auto") : undefined}
                     controls
                     autoPlay
                     playsInline
@@ -86,7 +87,7 @@ export function MediaGallery({ images, videos, guestId, language = "sr", readOnl
                 ) : (
                   <>
                     {item.posterUrl ? (
-                      <img src={item.posterUrl} alt="" className="w-full h-full object-cover" />
+                      <img src={withCloudinaryTransform(item.posterUrl, "c_fill,w_400,h_400,q_auto,f_auto")} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-[hsl(var(--lp-muted))]/40 flex items-center justify-center">
                         <Video className="h-10 w-10 text-white/60" />
