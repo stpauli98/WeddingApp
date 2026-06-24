@@ -151,3 +151,54 @@ it('destroys orphan and returns 400 when active video count is at limit', async 
     expect.any(Function)
   );
 });
+
+// --- Test 5: assertCloudinaryUrl rejection → destroy + 400 ---
+it('destroys orphan and returns 400 when secure_url is not a Cloudinary URL', async () => {
+  (cloudinary.api.resource as jest.Mock).mockResolvedValue({
+    duration: 20,
+    bytes: 5_000_000,
+    // valid duration/bytes but URL is not a legitimate Cloudinary URL
+    secure_url: 'http://evil.com/video.mp4',
+  });
+
+  const res = await POST(req({ publicId: 'wedding-app/videos/d' }));
+  expect(res.status).toBe(400);
+  expect(cloudinary.uploader.destroy).toHaveBeenCalledWith(
+    'wedding-app/videos/d',
+    { resource_type: 'video' },
+    expect.any(Function)
+  );
+});
+
+// --- Test 6: lifetime cap exceeded → destroy + 400 ---
+it('destroys orphan and returns 400 when guest has reached the lifetime video cap', async () => {
+  (cloudinary.api.resource as jest.Mock).mockResolvedValue({
+    duration: 20,
+    bytes: 5_000_000,
+    secure_url:
+      'https://res.cloudinary.com/x/video/upload/v1/wedding-app/videos/e.mp4',
+  });
+
+  jest.spyOn(prisma, '$transaction').mockImplementation(async (fn: any) => {
+    const tx = {
+      guest: {
+        // premium allows 3 active videos → lifetime cap = 3 * 2 = 6; already at cap
+        findUnique: jest.fn().mockResolvedValue({ lifetimeVideoCount: 6 }),
+        update: jest.fn().mockResolvedValue({}),
+      },
+      video: {
+        count: jest.fn().mockResolvedValue(0),
+        create: jest.fn(),
+      },
+    };
+    return fn(tx);
+  });
+
+  const res = await POST(req({ publicId: 'wedding-app/videos/e' }));
+  expect(res.status).toBe(400);
+  expect(cloudinary.uploader.destroy).toHaveBeenCalledWith(
+    'wedding-app/videos/e',
+    { resource_type: 'video' },
+    expect.any(Function)
+  );
+});
