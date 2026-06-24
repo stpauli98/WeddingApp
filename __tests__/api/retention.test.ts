@@ -15,6 +15,7 @@ jest.mock('@/lib/prisma', () => ({
     event: { findMany: jest.fn(), update: jest.fn() },
     marketingContact: { upsert: jest.fn() },
     image: { deleteMany: jest.fn() },
+    video: { findMany: jest.fn(), deleteMany: jest.fn() },
     message: { deleteMany: jest.fn() },
     $transaction: jest.fn(async (ops: Promise<unknown>[]) => Promise.all(ops)),
   },
@@ -39,6 +40,8 @@ const eventFindMany = prisma.event.findMany as jest.MockedFunction<any>;
 const eventUpdate = prisma.event.update as jest.MockedFunction<any>;
 const guestUpdateMany = prisma.guest.updateMany as jest.MockedFunction<any>;
 const adminSessionDeleteMany = prisma.adminSession.deleteMany as jest.MockedFunction<any>;
+const videoFindMany = (prisma as any).video.findMany as jest.MockedFunction<any>;
+const videoDeleteMany = (prisma as any).video.deleteMany as jest.MockedFunction<any>;
 const sendWarning = sendDeletionWarningEmail as jest.MockedFunction<any>;
 const sendGuestDelete = sendGuestDeletionEmail as jest.MockedFunction<any>;
 
@@ -62,6 +65,8 @@ beforeEach(() => {
   eventFindMany.mockResolvedValue([]);
   eventUpdate.mockResolvedValue({});
   marketingUpsert.mockResolvedValue({});
+  videoFindMany.mockResolvedValue([]);
+  videoDeleteMany.mockResolvedValue({ count: 0 });
 });
 
 describe('cron cleanup — retention invariants', () => {
@@ -280,6 +285,59 @@ describe('cron cleanup — retention invariants', () => {
     );
     expect(consentMap['g1@x.com']).toBe(true);
     expect(consentMap['g2@x.com']).toBe(false);
+  });
+
+  it('deletes Cloudinary videos with resource_type:video and purges Video DB rows on hard delete', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const cloudinary = require('@/lib/cloudinary').default;
+    const mockDelete = cloudinary.api.delete_resources as jest.Mock;
+    mockDelete.mockClear();
+
+    videoFindMany.mockResolvedValue([
+      { storagePath: 'videos/v1' },
+      { storagePath: 'videos/v2' },
+    ]);
+
+    eventFindMany.mockResolvedValue([
+      {
+        id: 'e1',
+        slug: 'video-event',
+        coupleName: 'A & B',
+        date: EXPIRED_FREE_EVENT_DATE,
+        pricingTier: 'free',
+        deletionWarningSentAt: null,
+        admin: {
+          email: 'a@x.com',
+          language: 'sr',
+          createdAt: new Date(),
+          marketingConsent: false,
+        },
+        guests: [
+          {
+            id: 'g1',
+            email: 'g@x.com',
+            marketingConsent: false,
+            createdAt: new Date(),
+            images: [],
+            message: null,
+          },
+        ],
+      },
+    ]);
+
+    await GET(buildReq());
+
+    // Cloudinary must be called with resource_type:'video' for the video public_ids
+    const videoCalls = mockDelete.mock.calls.filter(
+      (c: any[]) => c[1]?.resource_type === 'video'
+    );
+    expect(videoCalls.length).toBeGreaterThanOrEqual(1);
+    expect(videoCalls[0][0]).toEqual(expect.arrayContaining(['videos/v1', 'videos/v2']));
+
+    // DB video rows must be deleted for the purged guest ids
+    expect(videoDeleteMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { guestId: { in: ['g1'] } } })
+    );
   });
 
   it('chunks Cloudinary delete into batches of 100', async () => {

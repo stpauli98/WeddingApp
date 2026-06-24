@@ -229,6 +229,12 @@ async function executeHardDelete(event: {
     .flatMap((g) => g.images.map((i) => i.storagePath))
     .filter((p): p is string => !!p);
 
+  const videoRows = await prisma.video.findMany({
+    where: { guestId: { in: guestIds }, storagePath: { not: '' } },
+    select: { storagePath: true },
+  });
+  const videoPublicIds = videoRows.map((v: { storagePath: string }) => v.storagePath).filter(Boolean) as string[];
+
   const ops = [];
 
   // Per-guest unsub token — generated BEFORE upsert so we can include it in
@@ -277,6 +283,7 @@ async function executeHardDelete(event: {
 
   ops.push(
     prisma.image.deleteMany({ where: { guestId: { in: guestIds } } }),
+    prisma.video.deleteMany({ where: { guestId: { in: guestIds } } }),
     prisma.message.deleteMany({ where: { guestId: { in: guestIds } } }),
     prisma.guest.deleteMany({ where: { eventId: event.id } }),
     prisma.event.update({
@@ -301,6 +308,9 @@ async function executeHardDelete(event: {
   if (storagePaths.length) {
     await deleteCloudinaryInChunks(storagePaths, event.slug);
   }
+  if (videoPublicIds.length) {
+    await deleteCloudinaryInChunks(videoPublicIds, event.slug, 'video');
+  }
 
   // c) Fire-and-forget courtesy emails to each guest. GDPR transparency.
   const lang: 'sr' | 'en' = event.admin?.language === 'en' ? 'en' : 'sr';
@@ -321,15 +331,19 @@ async function executeHardDelete(event: {
 
 // Cloudinary caps delete_resources at 100 public_ids per call.
 // Chunk + catch-per-batch so one failed batch doesn't abort the rest.
-async function deleteCloudinaryInChunks(publicIds: string[], contextLabel: string): Promise<void> {
+async function deleteCloudinaryInChunks(
+  publicIds: string[],
+  contextLabel: string,
+  resourceType: 'image' | 'video' = 'image'
+): Promise<void> {
   const CHUNK = 100;
   for (let i = 0; i < publicIds.length; i += CHUNK) {
     const batch = publicIds.slice(i, i + CHUNK);
     try {
-      await cloudinary.api.delete_resources(batch);
+      await cloudinary.api.delete_resources(batch, { resource_type: resourceType });
     } catch (err) {
       console.error(
-        `Cloudinary batch ${i}..${i + batch.length} failed for ${contextLabel}:`,
+        `Cloudinary ${resourceType} batch ${i}..${i + batch.length} failed for ${contextLabel}:`,
         err
       );
     }
