@@ -167,11 +167,11 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ guests, event, 
             <TabsTrigger value="gallery" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg text-[hsl(var(--lp-text))]/70 data-[state=active]:bg-[hsl(var(--lp-primary))] data-[state=active]:text-[hsl(var(--lp-primary-foreground))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
               {t('admin.dashboard.tabs.gallery')}
             </TabsTrigger>
-            <TabsTrigger value="messages" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg text-[hsl(var(--lp-text))]/70 data-[state=active]:bg-[hsl(var(--lp-primary))] data-[state=active]:text-[hsl(var(--lp-primary-foreground))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
-              {t('admin.dashboard.tabs.messages')}
-            </TabsTrigger>
             <TabsTrigger value="videos" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg text-[hsl(var(--lp-text))]/70 data-[state=active]:bg-[hsl(var(--lp-primary))] data-[state=active]:text-[hsl(var(--lp-primary-foreground))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
               {t('admin.dashboard.tabs.videos', 'Video')}
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg text-[hsl(var(--lp-text))]/70 data-[state=active]:bg-[hsl(var(--lp-primary))] data-[state=active]:text-[hsl(var(--lp-primary-foreground))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
+              {t('admin.dashboard.tabs.messages')}
             </TabsTrigger>
             <TabsTrigger value="help" className="flex-shrink-0 min-w-[120px] py-3 rounded-lg text-[hsl(var(--lp-text))]/70 data-[state=active]:bg-[hsl(var(--lp-primary))] data-[state=active]:text-[hsl(var(--lp-primary-foreground))] data-[state=active]:shadow-sm data-[state=active]:border-b-0">
               {t('admin.dashboard.tabs.help')}

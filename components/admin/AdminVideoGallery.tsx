@@ -29,7 +29,7 @@ export function AdminVideoGallery({ videos }: { videos: AdminVideo[] }) {
           <video
             controls
             preload="metadata"
-            poster={v.posterUrl}
+            poster={v.posterUrl || undefined}
             src={v.videoUrl}
             className="w-full"
           />
@@ -39,7 +39,7 @@ export function AdminVideoGallery({ videos }: { videos: AdminVideo[] }) {
               href={v.videoUrl}
               download
               className="inline-flex items-center gap-1 text-[hsl(var(--lp-primary))]"
-              aria-label={t("admin.videoGallery.download", "Preuzmi video")}
+              aria-label={t("admin.videoGallery.downloadFor", "Preuzmi video od {{name}}", { name: v.guestName ?? "" })}
             >
               <Download className="h-4 w-4" />
             </a>
