@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { MediaUpload, type StagedMedia } from "@/components/guest/MediaUpload";
@@ -150,16 +149,24 @@ export function UnifiedUploadForm({
   return (
     <Card className="w-full max-w-xl mx-auto">
       {notice && (
-        <div className="p-4 border-b border-gray-200">
-          <Alert variant="destructive" className="flex items-center justify-between">
-            <div className="flex items-center">
-              <AlertCircle className="h-4 w-4 mr-2" />
-              <AlertDescription>{notice}</AlertDescription>
+        <div className="px-4 pt-4">
+          <div
+            role="alert"
+            className="flex items-start justify-between gap-3 rounded-xl border border-[hsl(var(--lp-destructive))]/20 bg-[hsl(var(--lp-destructive))]/10 px-4 py-3 text-sm text-[hsl(var(--lp-destructive))]"
+          >
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <span>{notice}</span>
             </div>
-            <button onClick={() => setNotice("")} aria-label={t("guest.mediaUpload.dismiss", "Zatvori")}>
+            <button
+              type="button"
+              onClick={() => setNotice("")}
+              aria-label={t("guest.mediaUpload.dismiss", "Zatvori")}
+              className="shrink-0 text-[hsl(var(--lp-destructive))]/70 hover:text-[hsl(var(--lp-destructive))] transition-colors"
+            >
               <X className="h-4 w-4" />
             </button>
-          </Alert>
+          </div>
         </div>
       )}
 
