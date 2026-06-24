@@ -13,6 +13,7 @@ export async function GET() {
       tier: plan.tier,
       name: { sr: plan.nameSr, en: plan.nameEn },
       imageLimit: plan.imageLimit,
+      videoLimit: plan.videoLimit,
       clientResizeMaxWidth: plan.clientResizeMaxWidth,
       clientQuality: plan.clientQuality,
       storeOriginal: plan.storeOriginal,
