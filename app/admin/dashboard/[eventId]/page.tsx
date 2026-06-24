@@ -49,6 +49,26 @@ export default async function AdminDashboardEventPage({ params }: {
     orderBy: { createdAt: 'desc' },
   });
 
+  // 5. Dohvati video snimke za ovaj event
+  const rawVideos = await prisma.video.findMany({
+    where: { guest: { eventId } },
+    select: {
+      id: true,
+      videoUrl: true,
+      posterUrl: true,
+      durationSec: true,
+      guest: { select: { firstName: true, lastName: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+  const adminVideos = rawVideos.map((v: typeof rawVideos[number]) => ({
+    id: v.id,
+    videoUrl: v.videoUrl,
+    posterUrl: v.posterUrl,
+    durationSec: v.durationSec,
+    guestName: `${v.guest.firstName} ${v.guest.lastName}`.trim(),
+  }));
+
   return (
     <div className="container mx-auto p-6 relative bg-[hsl(var(--lp-bg))]">
       <div className="sticky flex justify-end top-[46px] right-0 z-50 mb-4">
@@ -78,7 +98,7 @@ export default async function AdminDashboardEventPage({ params }: {
         </div>
       </FadeInUp>
       <FadeInUp delay={0.1}>
-        <AdminDashboardTabs guests={guests} event={event} />
+        <AdminDashboardTabs guests={guests} event={event} adminVideos={adminVideos} />
       </FadeInUp>
     </div>
   );
