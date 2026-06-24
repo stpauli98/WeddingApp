@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Video } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useTranslation } from "react-i18next";
 import { fetchWithCsrfRetry } from "@/lib/csrf-client";
@@ -87,13 +87,28 @@ export function VideoUploadForm({ videoLimit, existingVideoCount, language = "sr
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        <input
-          type="file"
-          accept="video/mp4,video/quicktime,video/webm"
-          onChange={onPick}
-          disabled={busy || remaining <= 0}
-          aria-label={t("guest.videoUpload.pick", "Izaberite video")}
-        />
+        <label
+          className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-md p-6 text-center transition-colors ${
+            busy || remaining <= 0
+              ? "opacity-50 cursor-not-allowed border-[hsl(var(--lp-muted-foreground))]/20"
+              : "cursor-pointer border-[hsl(var(--lp-muted-foreground))]/20 hover:border-[hsl(var(--lp-primary))]/50"
+          }`}
+        >
+          <Video className="h-10 w-10 text-[hsl(var(--lp-muted-foreground))]" />
+          <span className="text-sm text-[hsl(var(--lp-muted-foreground))]">
+            {remaining <= 0
+              ? t("guest.videoUpload.maxReached", "Dostigli ste maksimalan broj videa.")
+              : t("guest.videoUpload.pick", "Izaberite video")}
+          </span>
+          <input
+            type="file"
+            accept="video/*"
+            onChange={onPick}
+            disabled={busy || remaining <= 0}
+            className="hidden"
+            aria-label={t("guest.videoUpload.pick", "Izaberite video")}
+          />
+        </label>
         {busy && (
           <div className="flex items-center gap-2 text-sm">
             <Loader2 className="h-4 w-4 animate-spin" />

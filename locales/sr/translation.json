@@ -144,7 +144,8 @@
       "hint": "Do {{limit}} videa, max {{sec}}s. Preostalo: {{remaining}}.",
       "pick": "Izaberite video",
       "uploading": "Slanje videa...",
-      "tooLong": "Video može trajati najviše {{sec}} sekundi."
+      "tooLong": "Video može trajati najviše {{sec}} sekundi.",
+      "maxReached": "Dostigli ste maksimalan broj videa."
     },
     "videoGallery": {
       "empty": "Nema uploadovanih videa.",

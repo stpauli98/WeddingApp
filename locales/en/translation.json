@@ -148,7 +148,8 @@
       "hint": "Up to {{limit}} videos, max {{sec}}s. Remaining: {{remaining}}.",
       "pick": "Select a video",
       "uploading": "Uploading video...",
-      "tooLong": "Video can be at most {{sec}} seconds long."
+      "tooLong": "Video can be at most {{sec}} seconds long.",
+      "maxReached": "You have reached the maximum number of videos."
     },
     "videoGallery": {
       "empty": "No uploaded videos.",
