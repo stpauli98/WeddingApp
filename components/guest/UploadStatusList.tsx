@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { Loader2, CheckCircle, AlertCircle, Video as VideoIcon } from "lucide-react";
 
 // Tip za status uploada slike
 export type ImageUploadStatus = {
@@ -16,6 +16,7 @@ export type ImageUploadStatus = {
   error?: string;
   preview?: string;
   retryable?: boolean; // Označava da li se upload može ponovno pokušati
+  kind?: 'image' | 'video';
 };
 
 interface UploadStatusListProps {
@@ -98,18 +99,24 @@ export function UploadStatusList({
                 key={status.id}
                 className={`flex items-center gap-3 p-2.5 rounded-lg ${rowBg} transition-colors`}
               >
-                {/* Thumbnail — fiksna širina, zaobljen, suptilni border */}
-                {status.preview && (
-                  <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-[hsl(var(--lp-accent))]/20 bg-[hsl(var(--lp-muted))]/20">
-                    <Image
-                      src={status.preview}
-                      alt={t('guest.uploadStatus.imagePreview', 'Pregled slike')}
-                      className="w-full h-full object-cover"
-                      width={40}
-                      height={40}
-                      unoptimized={status.preview.startsWith('blob:') || status.preview.startsWith('data:')}
-                    />
+                {/* Thumbnail — image preview, or a video icon for video rows */}
+                {status.kind === 'video' ? (
+                  <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-[hsl(var(--lp-accent))]/20 bg-[hsl(var(--lp-muted))]/20 flex items-center justify-center text-[hsl(var(--lp-muted-foreground))]">
+                    <VideoIcon className="h-5 w-5" />
                   </div>
+                ) : (
+                  status.preview && (
+                    <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-[hsl(var(--lp-accent))]/20 bg-[hsl(var(--lp-muted))]/20">
+                      <Image
+                        src={status.preview}
+                        alt={t('guest.uploadStatus.imagePreview', 'Pregled slike')}
+                        className="w-full h-full object-cover"
+                        width={40}
+                        height={40}
+                        unoptimized={status.preview.startsWith('blob:') || status.preview.startsWith('data:')}
+                      />
+                    </div>
+                  )
                 )}
 
                 {/* Srednja kolona: filename + progress + status text.
