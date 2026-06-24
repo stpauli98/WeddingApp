@@ -2,8 +2,11 @@
 import { DELETE } from '@/app/api/guest/videos/delete/route';
 
 jest.mock('@/lib/guest-auth', () => ({ getAuthenticatedGuest: jest.fn() }));
-jest.mock('cloudinary', () => ({
-  v2: { config: jest.fn(), uploader: { destroy: jest.fn((_i: string, _o: object, cb: (err: null, res: object) => void) => cb(null, {})) } },
+jest.mock('@/lib/cloudinary', () => ({
+  __esModule: true,
+  default: {
+    uploader: { destroy: jest.fn((_i: string, _o: object, cb: (err: null, res: object) => void) => cb(null, {})) },
+  },
 }));
 
 // Mock next/headers cookies
@@ -17,7 +20,7 @@ jest.mock('next/headers', () => ({
 }));
 
 import { getAuthenticatedGuest } from '@/lib/guest-auth';
-import { v2 as cloudinary } from 'cloudinary';
+import cloudinary from '@/lib/cloudinary';
 import { prisma } from '@/lib/prisma';
 
 function req(id: string, token = 'tok') {

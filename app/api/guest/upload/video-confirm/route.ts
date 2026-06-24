@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { Prisma } from '@prisma/client';
-import { v2 as cloudinary } from 'cloudinary';
+import cloudinary from '@/lib/cloudinary';
 import { prisma } from '@/lib/prisma';
 import { getAuthenticatedGuest } from '@/lib/guest-auth';
 import {

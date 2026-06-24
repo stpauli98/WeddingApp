@@ -2,9 +2,9 @@
 import { POST } from '@/app/api/guest/upload/video-confirm/route';
 
 jest.mock('@/lib/guest-auth', () => ({ getAuthenticatedGuest: jest.fn() }));
-jest.mock('cloudinary', () => ({
-  v2: {
-    config: jest.fn(),
+jest.mock('@/lib/cloudinary', () => ({
+  __esModule: true,
+  default: {
     api: { resource: jest.fn() },
     uploader: { destroy: jest.fn((_id, _opts, cb) => cb(null, { result: 'ok' })) },
   },
@@ -21,7 +21,7 @@ jest.mock('next/headers', () => ({
 }));
 
 import { getAuthenticatedGuest } from '@/lib/guest-auth';
-import { v2 as cloudinary } from 'cloudinary';
+import cloudinary from '@/lib/cloudinary';
 import { prisma } from '@/lib/prisma';
 
 function req(body: object, token = 'tok') {
